@@ -21,7 +21,7 @@
 #ifndef __STATS_H__
 #define __STATS_H__
 
-struct Counters_ {
+struct logcounters {
     unsigned int drop;
     unsigned int accept;
     unsigned int reject;
@@ -41,7 +41,7 @@ struct Counters_ {
     unsigned int total;
 };
 
-void show_stats(struct Counters_ *);
-void upd_action_ctrs(char *action, struct Counters_ *c);
+void show_stats(struct logcounters *);
+void upd_action_ctrs(char *action, struct logcounters *c);
 
 #endif /* __STATS_H__ */

@@ -31,7 +31,7 @@
 */
 char *list_textdir(void *backend, char *name, int *zonetype, int type)
 {
-    struct TextdirBackend_ *tb = NULL;
+    struct textdir_backend *tb = NULL;
     char dir_location[PATH_MAX] = "", netdir_location[PATH_MAX] = "",
          hostdir_location[PATH_MAX] = "", groupdir_location[PATH_MAX] = "",
          *file_location = NULL;
@@ -47,7 +47,7 @@ char *list_textdir(void *backend, char *name, int *zonetype, int type)
     }
 
     /* check if the backend is opened */
-    tb = (struct TextdirBackend_ *)backend;
+    tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
         vrmr_error(-1, "Internal Error", "backend not opened yet (in: %s:%d).",
                 __FUNC__, __LINE__);

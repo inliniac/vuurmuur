@@ -20,11 +20,6 @@
 #ifndef __VUURMUUR_SCRIPT_H__
 #define __VUURMUUR_SCRIPT_H__
 
-/*****************************************************************************************************************\
- ********************************* INCLUDES
-**********************************************************************
-\*****************************************************************************************************************/
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -52,11 +47,6 @@
 /* our own vuurmuurlib */
 #include <vuurmuur.h>
 
-/*****************************************************************************************************************\
- ********************************* DEFINES
-***********************************************************************
-\*****************************************************************************************************************/
-
 #define YES 1
 #define NO 0
 
@@ -68,11 +58,6 @@
 
 #define EXIT_SUCCESS 0
 #define EXIT_COMMANDLINE_ERROR 1
-
-/*************************************************************************************************************************\
- ******************************************************* DATATYPES
-*******************************************************
-\*************************************************************************************************************************/
 
 /*@null@*/
 struct vrmr_shm_table *shm_table;
@@ -115,7 +100,7 @@ enum
 
 char version_string[128];
 
-typedef struct VuurmuurScript_ {
+struct vuurmuur_script {
     int cmd, type;
 
     char name[VRMR_VRMR_MAX_HOST_NET_ZONE],
@@ -140,23 +125,18 @@ typedef struct VuurmuurScript_ {
 
     /* library ctx */
     struct vrmr_ctx vctx;
-} VuurmuurScript;
+};
 
-/*************************************************************************************************************************\
- ******************************************************* FUNCTIONS
-*******************************************************
-\*************************************************************************************************************************/
+void logchange(struct vuurmuur_script *, char *fmt, ...);
 
-void logchange(VuurmuurScript *, char *fmt, ...);
-
-int script_print(VuurmuurScript *);
-int script_list(VuurmuurScript *);
-int script_add(VuurmuurScript *);
-int script_delete(VuurmuurScript *);
-int script_modify(VuurmuurScript *);
-int script_rename(VuurmuurScript *);
-int script_apply(VuurmuurScript *vr_script);
-int script_unblock(VuurmuurScript *vr_script);
+int script_print(struct vuurmuur_script *);
+int script_list(struct vuurmuur_script *);
+int script_add(struct vuurmuur_script *);
+int script_delete(struct vuurmuur_script *);
+int script_modify(struct vuurmuur_script *);
+int script_rename(struct vuurmuur_script *);
+int script_apply(struct vuurmuur_script *vr_script);
+int script_unblock(struct vuurmuur_script *vr_script);
 int script_list_devices(void);
 
 int backend_check(int, char *, char *, char, struct vrmr_regex *);

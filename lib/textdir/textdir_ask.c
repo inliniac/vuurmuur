@@ -35,7 +35,7 @@ int ask_textdir(void *backend, char *name, char *question, char *answer,
     size_t i = 0, line_pos = 0, val_pos = 0;
     char delt = 'a' - 'A';
     size_t line_length = 0;
-    struct TextdirBackend_ *tb = NULL;
+    struct textdir_backend *tb = NULL;
     size_t len = 0;
 
     /* better safe than sorry */
@@ -50,7 +50,7 @@ int ask_textdir(void *backend, char *name, char *question, char *answer,
     vrmr_debug(
             HIGH, "question: %s, name: %s, multi: %d", question, name, multi);
 
-    tb = (struct TextdirBackend_ *)backend;
+    tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
         vrmr_error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
         return (-1);

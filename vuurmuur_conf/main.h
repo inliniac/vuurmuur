@@ -126,7 +126,7 @@
 
 
 */
-typedef struct {
+struct vrmr_gui_conf {
     char configfile_location[PATH_MAX];
 
     char helpfile_location[PATH_MAX];
@@ -190,7 +190,7 @@ typedef struct {
     chtype color_rule_bar;
 } vc_cnf;
 
-vc_cnf vccnf;
+struct vrmr_gui_conf vccnf;
 
 /* setting defaults */
 #define VRMR_DEFAULT_NEWRULE_LOG 1
@@ -206,7 +206,7 @@ vc_cnf vccnf;
 
 #define VRMR_DEFAULT_IPTRAFVOL_LOCATION "/usr/bin/iptrafvol.pl"
 
-struct VuurmuurStatus_ {
+struct {
     struct vrmr_list StatusList;
 
     int vuurmuur;
@@ -233,7 +233,7 @@ struct VuurmuurStatus_ {
 
     char have_shape_rules;
     char have_shape_ifaces;
-} VuurmuurStatus;
+} vuurmuur_status;
 
 /* TODO remove this */
 WINDOW *status_frame_win, *status_win, *top_win, *main_win, *mainlog_win;
@@ -400,11 +400,11 @@ void setup_statuslist(void);
 /*
     config
 */
-int init_vcconfig(
-        struct vrmr_config *conf, char *configfile_location, vc_cnf *cnf);
-int write_vcconfigfile(char *file_location, vc_cnf *cnf);
+int init_vcconfig(struct vrmr_config *conf, char *configfile_location,
+        struct vrmr_gui_conf *cnf);
+int write_vcconfigfile(char *file_location, struct vrmr_gui_conf *cnf);
 int edit_vcconfig(void);
-void vcconfig_use_defaults(vc_cnf *cnf);
+void vcconfig_use_defaults(struct vrmr_gui_conf *cnf);
 
 /*
     main menu
@@ -431,7 +431,8 @@ void print_about(void);
 /* statevent */
 #define STATEVENTTYPE_LOG 1
 #define STATEVENTTYPE_CONN 2
-typedef struct LogRule_ {
+
+struct log_record {
     char filtered;
 
     char month[4];
@@ -448,9 +449,9 @@ typedef struct LogRule_ {
     char prefix[32];
 
     char details[256];
-} LogRule;
+};
 
-typedef struct ct_ {
+struct conntrack {
     /* hashes for the vuurmuur names */
     struct vrmr_hash_table zone_hash;
     struct vrmr_hash_table service_hash;
@@ -464,29 +465,29 @@ typedef struct ct_ {
     struct vrmr_conntrack_stats conn_stats;
 
     unsigned int prev_list_size;
-} Conntrack;
+} conntrack;
 
-int kill_connections_by_ip(struct vrmr_config *cnf, Conntrack *ct, char *srcip,
-        char *dstip, char *sername, char connect_status);
-int block_and_kill(struct vrmr_ctx *vctx, Conntrack *ct,
+int kill_connections_by_ip(struct vrmr_config *cnf, struct conntrack *ct,
+        char *srcip, char *dstip, char *sername, char connect_status);
+int block_and_kill(struct vrmr_ctx *vctx, struct conntrack *ct,
         struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
         struct vrmr_interfaces *interfaces, char *ip);
 int kill_connection(
         char *cmd, char *srcip, char *dstip, int proto, int sp, int dp);
-int kill_connections_by_name(struct vrmr_config *cnf, Conntrack *ct,
+int kill_connections_by_name(struct vrmr_config *cnf, struct conntrack *ct,
         char *srcname, char *dstname, char *sername, char connect_status);
 
-Conntrack *conn_init_ct(struct vrmr_zones *zones,
+struct conntrack *conn_init_ct(struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces, struct vrmr_services *services,
         struct vrmr_blocklist *blocklist);
-void conn_free_ct(Conntrack **ct, struct vrmr_zones *zones);
-int conn_ct_get_connections(
-        struct vrmr_config *, Conntrack *, struct vrmr_conntrack_request *);
-void conn_ct_clear_connections(Conntrack *ct);
+void conn_free_ct(struct conntrack **ct, struct vrmr_zones *zones);
+int conn_ct_get_connections(struct vrmr_config *, struct conntrack *,
+        struct vrmr_conntrack_request *);
+void conn_ct_clear_connections(struct conntrack *ct);
 
 void statevent(struct vrmr_ctx *, struct vrmr_config *, int, struct vrmr_list *,
-        Conntrack *, struct vrmr_conntrack_request *, struct vrmr_zones *,
-        struct vrmr_blocklist *, struct vrmr_interfaces *,
+        struct conntrack *, struct vrmr_conntrack_request *,
+        struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *,
         struct vrmr_services *);
 
 /* length in chars (be it wide chars or normal chars) */

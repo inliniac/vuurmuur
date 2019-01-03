@@ -136,9 +136,10 @@ int VrWinGetOffset(int yj, int xj, int h, int w, int yo, int xo, int *y, int *x)
     return 0;
 }
 
-VrWin *ATTR_RETURNS_NONNULL VrNewWin(int h, int w, int y, int x, chtype cp)
+struct vrmr_gui_win *ATTR_RETURNS_NONNULL VrNewWin(
+        int h, int w, int y, int x, chtype cp)
 {
-    VrWin *win;
+    struct vrmr_gui_win *win;
     int maxx = 0, maxy = 0;
 
     /* max screen sizes */
@@ -152,9 +153,9 @@ VrWin *ATTR_RETURNS_NONNULL VrNewWin(int h, int w, int y, int x, chtype cp)
         x = (maxx - w) / 2;
     }
 
-    win = malloc(sizeof(VrWin));
+    win = malloc(sizeof(struct vrmr_gui_win));
     vrmr_fatal_alloc("malloc", win);
-    memset(win, 0, sizeof(VrWin));
+    memset(win, 0, sizeof(*win));
 
     win->w = newwin(h, w, y, x);
     vrmr_fatal_if_null(win->w);
@@ -172,7 +173,7 @@ VrWin *ATTR_RETURNS_NONNULL VrNewWin(int h, int w, int y, int x, chtype cp)
     return (win);
 }
 
-void VrDelWin(VrWin *win)
+void VrDelWin(struct vrmr_gui_win *win)
 {
     /* cleanup window and panel */
     nodelay(win->w, FALSE);
@@ -182,7 +183,7 @@ void VrDelWin(VrWin *win)
     free(win);
 }
 
-int VrWinSetTitle(VrWin *win, char *title)
+int VrWinSetTitle(struct vrmr_gui_win *win, char *title)
 {
     size_t len = StrLen(title);
     size_t printstart = 0;
@@ -196,17 +197,17 @@ int VrWinSetTitle(VrWin *win, char *title)
     return (0);
 }
 
-int VrWinGetch(VrWin *win)
+int VrWinGetch(struct vrmr_gui_win *win)
 {
     return (wgetch(win->w));
 }
 
-VrMenu *ATTR_RETURNS_NONNULL VrNewMenu(
+struct vrmr_gui_menu *ATTR_RETURNS_NONNULL VrNewMenu(
         int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
 {
-    VrMenu *menu = malloc(sizeof(VrMenu));
+    struct vrmr_gui_menu *menu = malloc(sizeof(struct vrmr_gui_menu));
     vrmr_fatal_alloc("malloc", menu);
-    memset(menu, 0, sizeof(VrMenu));
+    memset(menu, 0, sizeof(struct vrmr_gui_menu));
 
     menu->h = h;
     menu->w = w;
@@ -227,29 +228,31 @@ VrMenu *ATTR_RETURNS_NONNULL VrNewMenu(
     return (menu);
 }
 
-void VrMenuSetupNameList(VrMenu *menu)
+void VrMenuSetupNameList(struct vrmr_gui_menu *menu)
 {
     vrmr_list_setup(&menu->name, menu->free_name);
     menu->use_namelist = TRUE;
 }
 
-void VrMenuSetupDescList(VrMenu *menu)
+void VrMenuSetupDescList(struct vrmr_gui_menu *menu)
 {
     vrmr_list_setup(&menu->desc, menu->free_desc);
     menu->use_desclist = TRUE;
 }
 
-void VrMenuSetNameFreeFunc(VrMenu *menu, void (*free_func)(void *ptr))
+void VrMenuSetNameFreeFunc(
+        struct vrmr_gui_menu *menu, void (*free_func)(void *ptr))
 {
     menu->free_name = free_func;
 }
 
-void VrMenuSetDescFreeFunc(VrMenu *menu, void (*free_func)(void *ptr))
+void VrMenuSetDescFreeFunc(
+        struct vrmr_gui_menu *menu, void (*free_func)(void *ptr))
 {
     menu->free_desc = free_func;
 }
 
-void VrDelMenu(VrMenu *menu)
+void VrDelMenu(struct vrmr_gui_menu *menu)
 {
     size_t i = 0;
 
@@ -278,7 +281,7 @@ void VrDelMenu(VrMenu *menu)
     free(menu);
 }
 
-int VrMenuAddItem(VrMenu *menu, char *name, char *desc)
+int VrMenuAddItem(struct vrmr_gui_menu *menu, char *name, char *desc)
 {
     if (menu->cur_item >= menu->nitems) {
         vrmr_error(-1, VR_ERR, "menu full: all %u items already added",
@@ -309,7 +312,7 @@ int VrMenuAddItem(VrMenu *menu, char *name, char *desc)
     return (0);
 }
 
-int VrMenuAddSepItem(VrMenu *menu, char *desc)
+int VrMenuAddSepItem(struct vrmr_gui_menu *menu, char *desc)
 {
     if (menu->cur_item >= menu->nitems) {
         vrmr_error(-1, VR_ERR, "menu full: all %u items already added",
@@ -335,7 +338,7 @@ int VrMenuAddSepItem(VrMenu *menu, char *desc)
     return (0);
 }
 
-void VrMenuConnectToWin(VrMenu *menu, VrWin *win)
+void VrMenuConnectToWin(struct vrmr_gui_menu *menu, struct vrmr_gui_win *win)
 {
     int result;
 
@@ -371,7 +374,7 @@ void VrMenuConnectToWin(VrMenu *menu, VrWin *win)
 
     returns TRUE if the key matched, false if not
 */
-char VrMenuDefaultNavigation(VrMenu *menu, int key)
+char VrMenuDefaultNavigation(struct vrmr_gui_menu *menu, int key)
 {
     char match = FALSE;
 
@@ -415,24 +418,24 @@ char VrMenuDefaultNavigation(VrMenu *menu, int key)
     return (match);
 }
 
-void VrMenuPost(VrMenu *menu)
+void VrMenuPost(struct vrmr_gui_menu *menu)
 {
     int result = post_menu(menu->m);
     vrmr_fatal_if(result != E_OK);
 }
 
-void VrMenuUnPost(VrMenu *menu)
+void VrMenuUnPost(struct vrmr_gui_menu *menu)
 {
     int result = unpost_menu(menu->m);
     vrmr_fatal_if(result != E_OK);
 }
 
-VrForm *ATTR_RETURNS_NONNULL VrNewForm(
+struct vrmr_gui_form *ATTR_RETURNS_NONNULL VrNewForm(
         int h, int w, int y, int x, chtype bg, chtype fg)
 {
-    VrForm *form = malloc(sizeof(VrForm));
+    struct vrmr_gui_form *form = malloc(sizeof(*form));
     vrmr_fatal_alloc("malloc", form);
-    memset(form, 0, sizeof(VrForm));
+    memset(form, 0, sizeof(*form));
 
     form->h = h;
     form->w = w;
@@ -447,7 +450,7 @@ VrForm *ATTR_RETURNS_NONNULL VrNewForm(
     return (form);
 }
 
-void VrDelForm(VrForm *form)
+void VrDelForm(struct vrmr_gui_form *form)
 {
     size_t i = 0;
 
@@ -472,21 +475,22 @@ void VrDelForm(VrForm *form)
     free(form);
 }
 
-void VrFormPost(VrForm *form)
+void VrFormPost(struct vrmr_gui_form *form)
 {
     int result = post_form(form->f);
     vrmr_fatal_if(result != E_OK);
 }
 
-void VrFormUnPost(VrForm *form)
+void VrFormUnPost(struct vrmr_gui_form *form)
 {
     int result = unpost_form(form->f);
     vrmr_fatal_if(result != E_OK);
 }
 
-static void VrFormStoreField(VrForm *form, enum vrmr_gui_form_field_types type,
-        chtype cp, int h, int w, int toprow, int leftcol, const char *name,
-        char *value_str, int value_bool)
+static void VrFormStoreField(struct vrmr_gui_form *form,
+        enum vrmr_gui_form_field_types type, chtype cp, int h, int w,
+        int toprow, int leftcol, const char *name, char *value_str,
+        int value_bool)
 {
     struct vrmr_gui_form_field *fld = malloc(sizeof(*fld));
     vrmr_fatal_alloc("malloc", fld);
@@ -512,23 +516,23 @@ static void VrFormStoreField(VrForm *form, enum vrmr_gui_form_field_types type,
     vrmr_fatal_if(vrmr_list_append(&form->list, fld) == NULL);
 }
 
-void VrFormAddTextField(VrForm *form, int height, int width, int toprow,
-        int leftcol, chtype cp, char *name, char *value)
+void VrFormAddTextField(struct vrmr_gui_form *form, int height, int width,
+        int toprow, int leftcol, chtype cp, char *name, char *value)
 {
     vrmr_fatal_if((int)StrLen(name) > width);
     VrFormStoreField(form, VRMR_GUI_FORM_FIELD_TYPE_TEXT, cp, height, width,
             toprow, leftcol, name, value, 0);
 }
 
-void VrFormAddLabelField(VrForm *form, int height, int width, int toprow,
-        int leftcol, chtype cp, char *value)
+void VrFormAddLabelField(struct vrmr_gui_form *form, int height, int width,
+        int toprow, int leftcol, chtype cp, char *value)
 {
     VrFormStoreField(form, VRMR_GUI_FORM_FIELD_TYPE_LABEL, cp, height, width,
             toprow, leftcol, NULL, value, 0);
 }
 
-void VrFormAddCheckboxField(VrForm *form, int toprow, int leftcol, chtype cp,
-        char *name, char enabled)
+void VrFormAddCheckboxField(struct vrmr_gui_form *form, int toprow, int leftcol,
+        chtype cp, char *name, char enabled)
 {
     int height = 1;
     int width = 1;
@@ -538,7 +542,8 @@ void VrFormAddCheckboxField(VrForm *form, int toprow, int leftcol, chtype cp,
             toprow, leftcol, name, NULL, (int)enabled);
 }
 
-static void VrFormCreateField(VrForm *form, struct vrmr_gui_form_field *fld)
+static void VrFormCreateField(
+        struct vrmr_gui_form *form, struct vrmr_gui_form_field *fld)
 {
     int result = 0;
 
@@ -598,7 +603,7 @@ static void VrFormCreateField(VrForm *form, struct vrmr_gui_form_field *fld)
     }
 }
 
-static void VrFormAddOKCancel(VrForm *form)
+static void VrFormAddOKCancel(struct vrmr_gui_form *form)
 {
     int result;
 
@@ -636,7 +641,7 @@ static void VrFormAddOKCancel(VrForm *form)
     form->cur_field++;
 }
 
-void VrFormConnectToWin(VrForm *form, VrWin *win)
+void VrFormConnectToWin(struct vrmr_gui_form *form, struct vrmr_gui_win *win)
 {
     int result;
     int rows, cols;
@@ -691,7 +696,8 @@ void VrFormConnectToWin(VrForm *form, VrWin *win)
     vrmr_fatal_if(result != E_OK);
 }
 
-static char VrFormTextNavigation(VrForm *form, FIELD *fld, int key)
+static char VrFormTextNavigation(
+        struct vrmr_gui_form *form, FIELD *fld, int key)
 {
     char match = FALSE;
 
@@ -763,7 +769,8 @@ static char VrFormTextNavigation(VrForm *form, FIELD *fld, int key)
     return (match);
 }
 
-static char VrFormCheckboxNavigation(VrForm *form, FIELD *fld, int key)
+static char VrFormCheckboxNavigation(
+        struct vrmr_gui_form *form, FIELD *fld, int key)
 {
     char match = FALSE;
 
@@ -821,7 +828,7 @@ static char VrFormCheckboxNavigation(VrForm *form, FIELD *fld, int key)
 
     returns TRUE if the key matched, false if not
 */
-char VrFormDefaultNavigation(VrForm *form, int key)
+char VrFormDefaultNavigation(struct vrmr_gui_form *form, int key)
 {
     char match = FALSE;
     FIELD *fld = NULL;
@@ -891,8 +898,8 @@ char VrFormDefaultNavigation(VrForm *form, int key)
     return (match);
 }
 
-static int VrFormGetFields(
-        VrForm *form, char *name, size_t nlen, char *value, size_t vlen)
+static int VrFormGetFields(struct vrmr_gui_form *form, char *name, size_t nlen,
+        char *value, size_t vlen)
 {
     FIELD *field = NULL;
     char *n = NULL, *v = NULL;
@@ -933,7 +940,7 @@ static int VrFormGetFields(
     return (1);
 }
 
-int VrFormCheckOKCancel(VrForm *form, int key)
+int VrFormCheckOKCancel(struct vrmr_gui_form *form, int key)
 {
     FIELD *fld = NULL;
     char *buf = NULL;
@@ -968,7 +975,7 @@ int VrFormCheckOKCancel(VrForm *form, int key)
     return (0);
 }
 
-void VrFormDrawMarker(VrWin *win, VrForm *form)
+void VrFormDrawMarker(struct vrmr_gui_win *win, struct vrmr_gui_form *form)
 {
     int pos_x, pos_y, x, y, off_row, wrk_buff;
     int ch = vccnf.color_win_mark | A_BOLD;
@@ -1001,7 +1008,7 @@ void VrFormDrawMarker(VrWin *win, VrForm *form)
     return;
 }
 
-int VrFormSetSaveFunc(VrForm *form,
+int VrFormSetSaveFunc(struct vrmr_gui_form *form,
         int (*save)(void *ctx, char *name, char *value), void *ctx)
 {
     form->save_ctx = ctx;

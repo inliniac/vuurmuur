@@ -20,7 +20,7 @@
 
 #include "vuurmuur_script.h"
 
-int script_rename(VuurmuurScript *vr_script)
+int script_rename(struct vuurmuur_script *vr_script)
 {
     char found = FALSE;
 

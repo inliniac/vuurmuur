@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 {
     int retval = 0, result = 0;
     int debug_level = NONE;
-    VuurmuurScript vr_script;
+    struct vuurmuur_script vr_script;
     struct vrmr_user user_data;
 
     static char optstring[] = "CRDMPLB:AOo:g:n:z:s:i:r:V:S:hc:d:v";
@@ -863,7 +863,7 @@ int main(int argc, char *argv[])
 /*  log a change to the audit log, and if we are in verbose mode, also to
     screen.
 */
-void logchange(VuurmuurScript *vr_script, char *fmt, ...)
+void logchange(struct vuurmuur_script *vr_script, char *fmt, ...)
 {
     va_list ap;
     char prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";

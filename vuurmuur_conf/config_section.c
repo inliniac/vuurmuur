@@ -36,13 +36,13 @@
 #define VROPT_IP6_CAPS gettext("IPv6 Capabilities")
 #endif
 
-struct ConfigSection_ {
+struct config_section {
     PANEL *panel[1];
     WINDOW *win;
     FIELD **fields;
     FORM *form;
     size_t n_fields;
-} ConfigSection;
+} config_section;
 
 /* clean up for all config windows */
 static void edit_config_destroy(void)
@@ -50,14 +50,14 @@ static void edit_config_destroy(void)
     size_t i = 0;
 
     /* Un post form and free the memory */
-    unpost_form(ConfigSection.form);
-    free_form(ConfigSection.form);
-    for (i = 0; i < ConfigSection.n_fields; i++) {
-        free_field(ConfigSection.fields[i]);
+    unpost_form(config_section.form);
+    free_form(config_section.form);
+    for (i = 0; i < config_section.n_fields; i++) {
+        free_field(config_section.fields[i]);
     }
-    free(ConfigSection.fields);
-    del_panel(ConfigSection.panel[0]);
-    destroy_win(ConfigSection.win);
+    free(config_section.fields);
+    del_panel(config_section.panel[0]);
+    destroy_win(config_section.win);
     update_panels();
     doupdate();
 }
@@ -75,36 +75,36 @@ static void edit_genconfig_init(
     size_t i = 0;
     char number[5];
 
-    ConfigSection.n_fields = 8;
-    ConfigSection.fields =
-            (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
-    vrmr_fatal_alloc("calloc", ConfigSection.fields);
+    config_section.n_fields = 8;
+    config_section.fields =
+            (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_alloc("calloc", config_section.fields);
 
     /* external programs */
-    GenConfig.iptableslocfld = (ConfigSection.fields[0] = new_field(
+    GenConfig.iptableslocfld = (config_section.fields[0] = new_field(
                                         1, 64, 1, 1, 0, 0)); /* iptables */
     GenConfig.iptablesrestorelocfld =
-            (ConfigSection.fields[1] = new_field(1, 64, 3, 1, 0, 0)); /*  */
-    GenConfig.ip6tableslocfld = (ConfigSection.fields[2] = new_field(
+            (config_section.fields[1] = new_field(1, 64, 3, 1, 0, 0)); /*  */
+    GenConfig.ip6tableslocfld = (config_section.fields[2] = new_field(
                                          1, 64, 5, 1, 0, 0)); /* ip6tables */
     GenConfig.ip6tablesrestorelocfld =
-            (ConfigSection.fields[3] = new_field(1, 64, 7, 1, 0, 0));
+            (config_section.fields[3] = new_field(1, 64, 7, 1, 0, 0));
     GenConfig.conntracklocfld =
-            (ConfigSection.fields[4] = new_field(1, 64, 9, 1, 0, 0)); /*  */
+            (config_section.fields[4] = new_field(1, 64, 9, 1, 0, 0)); /*  */
     GenConfig.tclocfld =
-            (ConfigSection.fields[5] = new_field(1, 64, 11, 1, 0, 0)); /*  */
+            (config_section.fields[5] = new_field(1, 64, 11, 1, 0, 0)); /*  */
     /* Config file permissions */
-    GenConfig.max_permission = (ConfigSection.fields[6] = new_field(1, 4, 13, 1,
-                                        0, 0)); /* max_permissions */
+    GenConfig.max_permission = (config_section.fields[6] = new_field(1, 4, 13,
+                                        1, 0, 0)); /* max_permissions */
     GenConfig.sysctllocfld =
-            (ConfigSection.fields[7] = new_field(1, 64, 15, 1, 0, 0)); /*  */
+            (config_section.fields[7] = new_field(1, 64, 15, 1, 0, 0)); /*  */
 
     /* terminate */
-    ConfigSection.fields[ConfigSection.n_fields] = NULL;
+    config_section.fields[config_section.n_fields] = NULL;
 
-    ConfigSection.win = create_newwin(height, width, starty, startx,
+    config_section.win = create_newwin(height, width, starty, startx,
             gettext("Edit Config: General"), vccnf.color_win);
-    ConfigSection.panel[0] = new_panel(ConfigSection.win);
+    config_section.panel[0] = new_panel(config_section.win);
 
     /* set buffers - first the visible, then the label */
     set_field_buffer_wrap(GenConfig.iptableslocfld, 0, conf->iptables_location);
@@ -123,10 +123,10 @@ static void edit_genconfig_init(
     set_field_buffer_wrap(GenConfig.max_permission, 0, number);
     set_field_buffer_wrap(GenConfig.sysctllocfld, 0, conf->sysctl_location);
 
-    for (i = 0; i < ConfigSection.n_fields; i++) {
-        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
-        field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
-        set_field_status(ConfigSection.fields[i], FALSE);
+    for (i = 0; i < config_section.n_fields; i++) {
+        set_field_back(config_section.fields[i], vccnf.color_win_rev | A_BOLD);
+        field_opts_off(config_section.fields[i], O_AUTOSKIP);
+        set_field_status(config_section.fields[i], FALSE);
     }
 
 #ifndef IPV6_ENABLED
@@ -139,35 +139,35 @@ static void edit_genconfig_init(
 #endif
 
     // Create the form and post it
-    ConfigSection.form = new_form(ConfigSection.fields);
+    config_section.form = new_form(config_section.fields);
     // Calculate the area required for the form
-    scale_form(ConfigSection.form, &rows, &cols);
-    keypad(ConfigSection.win, TRUE);
+    scale_form(config_section.form, &rows, &cols);
+    keypad(config_section.win, TRUE);
     // Set main window and sub window
-    set_form_win(ConfigSection.form, ConfigSection.win);
+    set_form_win(config_section.form, config_section.win);
     set_form_sub(
-            ConfigSection.form, derwin(ConfigSection.win, rows, cols, 1, 2));
-    post_form(ConfigSection.form);
+            config_section.form, derwin(config_section.win, rows, cols, 1, 2));
+    post_form(config_section.form);
 
     /* print labels */
-    mvwprintw(
-            ConfigSection.win, 1, 2, gettext("Iptables location (full path):"));
-    mvwprintw(ConfigSection.win, 3, 2,
+    mvwprintw(config_section.win, 1, 2,
+            gettext("Iptables location (full path):"));
+    mvwprintw(config_section.win, 3, 2,
             gettext("Iptables-restore location (full path):"));
 #ifdef IPV6_ENABLED
-    mvwprintw(ConfigSection.win, 5, 2,
+    mvwprintw(config_section.win, 5, 2,
             gettext("Ip6tables location (full path):"));
-    mvwprintw(ConfigSection.win, 7, 2,
+    mvwprintw(config_section.win, 7, 2,
             gettext("Ip6tables-restore location (full path):"));
 #endif
-    mvwprintw(ConfigSection.win, 9, 2,
+    mvwprintw(config_section.win, 9, 2,
             gettext("Conntrack location (full path):"));
-    mvwprintw(ConfigSection.win, 11, 2, gettext("Tc location (full path):"));
-    mvwprintw(ConfigSection.win, 13, 2,
+    mvwprintw(config_section.win, 11, 2, gettext("Tc location (full path):"));
+    mvwprintw(config_section.win, 13, 2,
             gettext("Maximum config and log file and dir permissions "
                     "(octal):"));
     mvwprintw(
-            ConfigSection.win, 15, 2, gettext("Sysctl location (full path):"));
+            config_section.win, 15, 2, gettext("Sysctl location (full path):"));
 }
 
 static void edit_genconfig_save(struct vrmr_config *conf)
@@ -175,15 +175,15 @@ static void edit_genconfig_save(struct vrmr_config *conf)
     size_t i = 0;
 
     /* check for changed fields */
-    for (i = 0; i < ConfigSection.n_fields; i++) {
+    for (i = 0; i < config_section.n_fields; i++) {
         /* we only act if a field is changed */
-        if (field_status(ConfigSection.fields[i]) == FALSE)
+        if (field_status(config_section.fields[i]) == FALSE)
             continue;
 
-        if (ConfigSection.fields[i] == GenConfig.iptableslocfld) {
+        if (config_section.fields[i] == GenConfig.iptableslocfld) {
             /* iptables location */
             copy_field2buf(conf->iptables_location,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->iptables_location));
 
             vrmr_sanitize_path(
@@ -191,10 +191,11 @@ static void edit_genconfig_save(struct vrmr_config *conf)
 
             vrmr_audit("'iptables location' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->iptables_location);
-        } else if (ConfigSection.fields[i] == GenConfig.iptablesrestorelocfld) {
+        } else if (config_section.fields[i] ==
+                   GenConfig.iptablesrestorelocfld) {
             /* iptables-restore location */
             copy_field2buf(conf->iptablesrestore_location,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->iptablesrestore_location));
 
             vrmr_sanitize_path(conf->iptablesrestore_location,
@@ -204,10 +205,10 @@ static void edit_genconfig_save(struct vrmr_config *conf)
                     STR_IS_NOW_SET_TO, conf->iptablesrestore_location);
         }
 #ifdef IPV6_ENABLED
-        else if (ConfigSection.fields[i] == GenConfig.ip6tableslocfld) {
+        else if (config_section.fields[i] == GenConfig.ip6tableslocfld) {
             /* ip6tables location */
             copy_field2buf(conf->ip6tables_location,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->ip6tables_location));
 
             vrmr_sanitize_path(
@@ -215,11 +216,11 @@ static void edit_genconfig_save(struct vrmr_config *conf)
 
             vrmr_audit("'ip6tables location' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->ip6tables_location);
-        } else if (ConfigSection.fields[i] ==
+        } else if (config_section.fields[i] ==
                    GenConfig.ip6tablesrestorelocfld) {
             /* ip6tables-restore location */
             copy_field2buf(conf->ip6tablesrestore_location,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->ip6tablesrestore_location));
 
             vrmr_sanitize_path(conf->ip6tablesrestore_location,
@@ -229,10 +230,10 @@ static void edit_genconfig_save(struct vrmr_config *conf)
                     STR_IS_NOW_SET_TO, conf->ip6tablesrestore_location);
         }
 #endif
-        else if (ConfigSection.fields[i] == GenConfig.conntracklocfld) {
+        else if (config_section.fields[i] == GenConfig.conntracklocfld) {
             /* conntrack location */
             copy_field2buf(conf->conntrack_location,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->conntrack_location));
 
             vrmr_sanitize_path(
@@ -240,24 +241,24 @@ static void edit_genconfig_save(struct vrmr_config *conf)
 
             vrmr_audit("'conntrack location' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->conntrack_location);
-        } else if (ConfigSection.fields[i] == GenConfig.tclocfld) {
+        } else if (config_section.fields[i] == GenConfig.tclocfld) {
             /* tc location */
             copy_field2buf(conf->tc_location,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->tc_location));
 
             vrmr_sanitize_path(conf->tc_location, StrLen(conf->tc_location));
 
             vrmr_audit("'tc location' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->tc_location);
-        } else if (ConfigSection.fields[i] == GenConfig.max_permission) {
+        } else if (config_section.fields[i] == GenConfig.max_permission) {
             char buf[5];
             char *endptr;
             long int newval;
 
             /* maximum file permissions */
-            copy_field2buf(
-                    buf, field_buffer(ConfigSection.fields[i], 0), sizeof(buf));
+            copy_field2buf(buf, field_buffer(config_section.fields[i], 0),
+                    sizeof(buf));
 
             /* Parse it as an octal mode */
             newval = strtol(buf, &endptr, 8);
@@ -270,10 +271,10 @@ static void edit_genconfig_save(struct vrmr_config *conf)
                 vrmr_audit("'maximum permissions' %s '%o'.", STR_IS_NOW_SET_TO,
                         conf->max_permission);
             }
-        } else if (ConfigSection.fields[i] == GenConfig.sysctllocfld) {
+        } else if (config_section.fields[i] == GenConfig.sysctllocfld) {
             /* tc location */
             copy_field2buf(conf->sysctl_location,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->sysctl_location));
 
             vrmr_sanitize_path(
@@ -304,14 +305,14 @@ int edit_genconfig(struct vrmr_config *conf)
     update_panels();
     doupdate();
 
-    cur = current_field(ConfigSection.form);
+    cur = current_field(config_section.form);
 
     /* Loop through to get user requests */
     while (quit == 0) {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form,
-                vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, config_section.win,
+                config_section.form, vccnf.color_win_mark | A_BOLD);
 
-        ch = wgetch(ConfigSection.win);
+        ch = wgetch(config_section.win);
 
         not_defined = 0;
 
@@ -324,7 +325,7 @@ int edit_genconfig(struct vrmr_config *conf)
 #endif
                 cur == GenConfig.tclocfld || cur == GenConfig.conntracklocfld ||
                 cur == GenConfig.max_permission) {
-            if (nav_field_simpletext(ConfigSection.form, ch) < 0)
+            if (nav_field_simpletext(config_section.form, ch) < 0)
                 not_defined = 1;
         } else {
             not_defined = 1;
@@ -345,27 +346,27 @@ int edit_genconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(ConfigSection.form, REQ_NEXT_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_NEXT_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(ConfigSection.form, REQ_PREV_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -378,13 +379,13 @@ int edit_genconfig(struct vrmr_config *conf)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(ConfigSection.form, ch);
+                    form_driver(config_section.form, ch);
                     break;
             }
         }
 
         prev = cur;
-        cur = current_field(ConfigSection.form);
+        cur = current_field(config_section.form);
     }
 
     /* write configfile */
@@ -409,21 +410,21 @@ static void edit_intconfig_init(
     int rows = 0, cols = 0;
     size_t i = 0;
 
-    ConfigSection.n_fields = 2;
-    ConfigSection.fields =
-            (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
-    vrmr_fatal_alloc("calloc", ConfigSection.fields);
+    config_section.n_fields = 2;
+    config_section.fields =
+            (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_alloc("calloc", config_section.fields);
 
     IntConfig.dynchkfld =
-            (ConfigSection.fields[0] = new_field(1, 1, 1, 1, 0, 0));
+            (config_section.fields[0] = new_field(1, 1, 1, 1, 0, 0));
     IntConfig.dynchkintfld =
-            (ConfigSection.fields[1] = new_field(1, 4, 3, 20, 0, 0));
+            (config_section.fields[1] = new_field(1, 4, 3, 20, 0, 0));
     /* terminate */
-    ConfigSection.fields[ConfigSection.n_fields] = NULL;
+    config_section.fields[config_section.n_fields] = NULL;
 
-    ConfigSection.win = create_newwin(height, width, starty, startx,
+    config_section.win = create_newwin(height, width, starty, startx,
             gettext("Edit Config: Interfaces"), vccnf.color_win);
-    ConfigSection.panel[0] = new_panel(ConfigSection.win);
+    config_section.panel[0] = new_panel(config_section.win);
 
     /* set buffers - first the visible, then the label */
     set_field_buffer_wrap(
@@ -432,33 +433,33 @@ static void edit_intconfig_init(
             conf->dynamic_changes_interval);
     set_field_buffer_wrap(IntConfig.dynchkintfld, 0, IntConfig.number);
 
-    for (i = 0; i < ConfigSection.n_fields; i++) {
-        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
-        field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
-        set_field_status(ConfigSection.fields[i], FALSE);
+    for (i = 0; i < config_section.n_fields; i++) {
+        set_field_back(config_section.fields[i], vccnf.color_win_rev | A_BOLD);
+        field_opts_off(config_section.fields[i], O_AUTOSKIP);
+        set_field_status(config_section.fields[i], FALSE);
     }
     /* toggle */
     set_field_back(IntConfig.dynchkfld, vccnf.color_win);
 
     // Create the form and post it
-    ConfigSection.form = new_form(ConfigSection.fields);
+    config_section.form = new_form(config_section.fields);
     // Calculate the area required for the form
-    scale_form(ConfigSection.form, &rows, &cols);
-    keypad(ConfigSection.win, TRUE);
+    scale_form(config_section.form, &rows, &cols);
+    keypad(config_section.win, TRUE);
     // Set main window and sub window
-    set_form_win(ConfigSection.form, ConfigSection.win);
+    set_form_win(config_section.form, config_section.win);
     set_form_sub(
-            ConfigSection.form, derwin(ConfigSection.win, rows, cols, 1, 2));
+            config_section.form, derwin(config_section.win, rows, cols, 1, 2));
 
-    post_form(ConfigSection.form);
+    post_form(config_section.form);
 
     /* print labels */
-    mvwprintw(ConfigSection.win, 2, 2, "[");
-    mvwprintw(ConfigSection.win, 2, 4, "]");
-    mvwprintw(ConfigSection.win, 2, 7,
+    mvwprintw(config_section.win, 2, 2, "[");
+    mvwprintw(config_section.win, 2, 4, "]");
+    mvwprintw(config_section.win, 2, 7,
             gettext("check dynamic interfaces for changes."));
-    mvwprintw(ConfigSection.win, 4, 2, gettext("Check interval:"));
-    mvwprintw(ConfigSection.win, 4, 28, gettext("sec."));
+    mvwprintw(config_section.win, 4, 2, gettext("Check interval:"));
+    mvwprintw(config_section.win, 4, 28, gettext("sec."));
 }
 
 static void edit_intconfig_save(struct vrmr_config *conf)
@@ -467,15 +468,15 @@ static void edit_intconfig_save(struct vrmr_config *conf)
     size_t i = 0;
 
     /* check for changed fields */
-    for (i = 0; i < ConfigSection.n_fields; i++) {
+    for (i = 0; i < config_section.n_fields; i++) {
         /* we only act if a field is changed */
-        if (field_status(ConfigSection.fields[i]) == FALSE)
+        if (field_status(config_section.fields[i]) == FALSE)
             continue;
 
-        if (ConfigSection.fields[i] == IntConfig.dynchkintfld) {
+        if (config_section.fields[i] == IntConfig.dynchkintfld) {
             /* synlimit */
             copy_field2buf(IntConfig.number,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(IntConfig.number));
 
             interval = atoi(IntConfig.number);
@@ -485,8 +486,8 @@ static void edit_intconfig_save(struct vrmr_config *conf)
                 vrmr_audit("'dynamic changes interval' %s '%u'.",
                         STR_IS_NOW_SET_TO, conf->dynamic_changes_interval);
             }
-        } else if (ConfigSection.fields[i] == IntConfig.dynchkfld) {
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+        } else if (config_section.fields[i] == IntConfig.dynchkfld) {
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->dynamic_changes_check = 1;
             else
                 conf->dynamic_changes_check = 0;
@@ -513,24 +514,24 @@ static int edit_intconfig(struct vrmr_config *conf)
     startx = (max_width - width) / 2;
     starty = (max_height - height) / 2;
     edit_intconfig_init(conf, height, width, starty, startx);
-    cur = current_field(ConfigSection.form);
+    cur = current_field(config_section.form);
     update_panels();
     doupdate();
 
     /* Loop through to get user requests */
     while (quit == 0) {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form,
-                vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, config_section.win,
+                config_section.form, vccnf.color_win_mark | A_BOLD);
 
-        ch = wgetch(ConfigSection.win);
+        ch = wgetch(config_section.win);
 
         not_defined = 0;
 
         if (cur == IntConfig.dynchkintfld) {
-            if (nav_field_simpletext(ConfigSection.form, ch) < 0)
+            if (nav_field_simpletext(config_section.form, ch) < 0)
                 not_defined = 1;
         } else if (cur == IntConfig.dynchkfld) {
-            if (nav_field_toggleX(ConfigSection.form, ch) < 0)
+            if (nav_field_toggleX(config_section.form, ch) < 0)
                 not_defined = 1;
         } else {
             not_defined = 1;
@@ -552,27 +553,27 @@ static int edit_intconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(ConfigSection.form, REQ_NEXT_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_NEXT_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(ConfigSection.form, REQ_PREV_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -585,13 +586,13 @@ static int edit_intconfig(struct vrmr_config *conf)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(ConfigSection.form, ch);
+                    form_driver(config_section.form, ch);
                     break;
             }
         }
 
         prev = cur;
-        cur = current_field(ConfigSection.form);
+        cur = current_field(config_section.form);
     }
 
     /* write configfile */
@@ -616,24 +617,24 @@ static void edit_modconfig_init(
     int rows = 0, cols = 0;
     size_t i = 0;
 
-    ConfigSection.n_fields = 3;
-    ConfigSection.fields =
-            (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
+    config_section.n_fields = 3;
+    config_section.fields =
+            (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
 
     /* */
     ModConfig.modprobefld =
-            (ConfigSection.fields[0] = new_field(1, 64, 2, 1, 0, 0));
+            (config_section.fields[0] = new_field(1, 64, 2, 1, 0, 0));
     ModConfig.loadmodulesfld =
-            (ConfigSection.fields[1] = new_field(1, 1, 4, 2, 0, 0));
+            (config_section.fields[1] = new_field(1, 1, 4, 2, 0, 0));
     ModConfig.waittimefld =
-            (ConfigSection.fields[2] = new_field(1, 5, 6, 1, 0, 0));
+            (config_section.fields[2] = new_field(1, 5, 6, 1, 0, 0));
 
     /* terminate */
-    ConfigSection.fields[ConfigSection.n_fields] = NULL;
+    config_section.fields[config_section.n_fields] = NULL;
 
-    ConfigSection.win = create_newwin(height, width, starty, startx,
+    config_section.win = create_newwin(height, width, starty, startx,
             gettext("Edit Config: Modules"), vccnf.color_win);
-    ConfigSection.panel[0] = new_panel(ConfigSection.win);
+    config_section.panel[0] = new_panel(config_section.win);
 
     /* set buffers - first the visible, then the label */
     set_field_buffer_wrap(ModConfig.modprobefld, 0, conf->modprobe_location);
@@ -644,32 +645,32 @@ static void edit_modconfig_init(
             conf->modules_wait_time);
     set_field_buffer_wrap(ModConfig.waittimefld, 0, ModConfig.number);
 
-    for (i = 0; i < ConfigSection.n_fields; i++) {
-        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
-        field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
-        set_field_status(ConfigSection.fields[i], FALSE);
+    for (i = 0; i < config_section.n_fields; i++) {
+        set_field_back(config_section.fields[i], vccnf.color_win_rev | A_BOLD);
+        field_opts_off(config_section.fields[i], O_AUTOSKIP);
+        set_field_status(config_section.fields[i], FALSE);
     }
     /* toggle */
     set_field_back(ModConfig.loadmodulesfld, vccnf.color_win);
 
     // Create the form and post it
-    ConfigSection.form = new_form(ConfigSection.fields);
+    config_section.form = new_form(config_section.fields);
     // Calculate the area required for the form
-    scale_form(ConfigSection.form, &rows, &cols);
-    keypad(ConfigSection.win, TRUE);
+    scale_form(config_section.form, &rows, &cols);
+    keypad(config_section.win, TRUE);
     // Set main window and sub window
-    set_form_win(ConfigSection.form, ConfigSection.win);
+    set_form_win(config_section.form, config_section.win);
     set_form_sub(
-            ConfigSection.form, derwin(ConfigSection.win, rows, cols, 1, 2));
-    post_form(ConfigSection.form);
+            config_section.form, derwin(config_section.win, rows, cols, 1, 2));
+    post_form(config_section.form);
 
     /* print labels */
     mvwprintw(
-            ConfigSection.win, 2, 2, gettext("Modprobe location (full path)"));
-    mvwprintw(ConfigSection.win, 5, 3, "[");
-    mvwprintw(ConfigSection.win, 5, 5, "]");
-    mvwprintw(ConfigSection.win, 5, 8, gettext("load modules"));
-    mvwprintw(ConfigSection.win, 7, 11,
+            config_section.win, 2, 2, gettext("Modprobe location (full path)"));
+    mvwprintw(config_section.win, 5, 3, "[");
+    mvwprintw(config_section.win, 5, 5, "]");
+    mvwprintw(config_section.win, 5, 8, gettext("load modules"));
+    mvwprintw(config_section.win, 7, 11,
             gettext("waittime after loading a module (in 1/10 th of a "
                     "second)"));
 }
@@ -680,14 +681,14 @@ static void edit_modconfig_save(struct vrmr_config *conf)
     size_t i = 0;
 
     /* check for changed fields */
-    for (i = 0; i < ConfigSection.n_fields; i++) {
+    for (i = 0; i < config_section.n_fields; i++) {
         /* we only act if a field is changed */
-        if (field_status(ConfigSection.fields[i]) == FALSE)
+        if (field_status(config_section.fields[i]) == FALSE)
             continue;
 
-        if (ConfigSection.fields[i] == ModConfig.modprobefld) {
+        if (config_section.fields[i] == ModConfig.modprobefld) {
             copy_field2buf(conf->modprobe_location,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->modprobe_location));
 
             vrmr_sanitize_path(
@@ -695,18 +696,18 @@ static void edit_modconfig_save(struct vrmr_config *conf)
 
             vrmr_audit("'modprobe location' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->modprobe_location);
-        } else if (ConfigSection.fields[i] == ModConfig.loadmodulesfld) {
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+        } else if (config_section.fields[i] == ModConfig.loadmodulesfld) {
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->load_modules = 1;
             else
                 conf->load_modules = 0;
 
             vrmr_audit("'load modules' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->load_modules ? STR_YES : STR_NO);
-        } else if (ConfigSection.fields[i] == ModConfig.waittimefld) {
+        } else if (config_section.fields[i] == ModConfig.waittimefld) {
             /* synlimit */
             copy_field2buf(ModConfig.number,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(ModConfig.number));
 
             interval = atoi(ModConfig.number);
@@ -735,24 +736,24 @@ static int edit_modconfig(struct vrmr_config *conf)
     startx = (max_width - width) / 2;
     starty = (max_height - height) / 2;
     edit_modconfig_init(conf, height, width, starty, startx);
-    cur = current_field(ConfigSection.form);
+    cur = current_field(config_section.form);
     update_panels();
     doupdate();
 
     /* Loop through to get user requests */
     while (quit == 0) {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form,
-                vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, config_section.win,
+                config_section.form, vccnf.color_win_mark | A_BOLD);
 
-        ch = wgetch(ConfigSection.win);
+        ch = wgetch(config_section.win);
 
         not_defined = 0;
 
         if (cur == ModConfig.modprobefld || cur == ModConfig.waittimefld) {
-            if (nav_field_simpletext(ConfigSection.form, ch) < 0)
+            if (nav_field_simpletext(config_section.form, ch) < 0)
                 not_defined = 1;
         } else if (cur == ModConfig.loadmodulesfld) {
-            if (nav_field_toggleX(ConfigSection.form, ch) < 0)
+            if (nav_field_toggleX(config_section.form, ch) < 0)
                 not_defined = 1;
         } else {
             not_defined = 1;
@@ -773,27 +774,27 @@ static int edit_modconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(ConfigSection.form, REQ_NEXT_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_NEXT_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(ConfigSection.form, REQ_PREV_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -806,13 +807,13 @@ static int edit_modconfig(struct vrmr_config *conf)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(ConfigSection.form, ch);
+                    form_driver(config_section.form, ch);
                     break;
             }
         }
 
         prev = cur;
-        cur = current_field(ConfigSection.form);
+        cur = current_field(config_section.form);
     }
 
     /* write configfile */
@@ -836,54 +837,54 @@ static void edit_plugconfig_init(
     int rows = 0, cols = 0;
     size_t i = 0;
 
-    ConfigSection.n_fields = 4;
-    ConfigSection.fields =
-            (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
+    config_section.n_fields = 4;
+    config_section.fields =
+            (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
 
     /* backends */
-    PlugConfig.servbackfld = (ConfigSection.fields[0] = new_field(
+    PlugConfig.servbackfld = (config_section.fields[0] = new_field(
                                       1, 16, 1, 1, 0, 0)); /* servbackend */
-    PlugConfig.zonebackfld = (ConfigSection.fields[1] = new_field(
+    PlugConfig.zonebackfld = (config_section.fields[1] = new_field(
                                       1, 16, 3, 1, 0, 0)); /* zonebackend */
-    PlugConfig.ifacbackfld = (ConfigSection.fields[2] = new_field(
+    PlugConfig.ifacbackfld = (config_section.fields[2] = new_field(
                                       1, 16, 5, 1, 0, 0)); /* ifacbackend */
-    PlugConfig.rulebackfld = (ConfigSection.fields[3] = new_field(
+    PlugConfig.rulebackfld = (config_section.fields[3] = new_field(
                                       1, 16, 7, 1, 0, 0)); /* rulebackend */
     /* terminate */
-    ConfigSection.fields[ConfigSection.n_fields] = NULL;
+    config_section.fields[config_section.n_fields] = NULL;
 
-    ConfigSection.win = create_newwin(height, width, starty, startx,
+    config_section.win = create_newwin(height, width, starty, startx,
             gettext("Edit Config: Plugins"), vccnf.color_win);
-    ConfigSection.panel[0] = new_panel(ConfigSection.win);
+    config_section.panel[0] = new_panel(config_section.win);
     /* set buffers - first the visible, then the label */
     set_field_buffer_wrap(PlugConfig.servbackfld, 0, conf->serv_backend_name);
     set_field_buffer_wrap(PlugConfig.zonebackfld, 0, conf->zone_backend_name);
     set_field_buffer_wrap(PlugConfig.ifacbackfld, 0, conf->ifac_backend_name);
     set_field_buffer_wrap(PlugConfig.rulebackfld, 0, conf->rule_backend_name);
 
-    for (i = 0; i < ConfigSection.n_fields; i++) {
-        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
-        field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
-        set_field_status(ConfigSection.fields[i], FALSE);
+    for (i = 0; i < config_section.n_fields; i++) {
+        set_field_back(config_section.fields[i], vccnf.color_win_rev | A_BOLD);
+        field_opts_off(config_section.fields[i], O_AUTOSKIP);
+        set_field_status(config_section.fields[i], FALSE);
     }
 
     // Create the form and post it
-    ConfigSection.form = new_form(ConfigSection.fields);
+    config_section.form = new_form(config_section.fields);
     // Calculate the area required for the form
-    scale_form(ConfigSection.form, &rows, &cols);
-    keypad(ConfigSection.win, TRUE);
+    scale_form(config_section.form, &rows, &cols);
+    keypad(config_section.win, TRUE);
     // Set main window and sub window
-    set_form_win(ConfigSection.form, ConfigSection.win);
+    set_form_win(config_section.form, config_section.win);
     set_form_sub(
-            ConfigSection.form, derwin(ConfigSection.win, rows, cols, 1, 2));
+            config_section.form, derwin(config_section.win, rows, cols, 1, 2));
 
-    post_form(ConfigSection.form);
+    post_form(config_section.form);
 
     /* print labels */
-    mvwprintw(ConfigSection.win, 1, 2, gettext("Services Backend:"));
-    mvwprintw(ConfigSection.win, 3, 2, gettext("Zones Backend:"));
-    mvwprintw(ConfigSection.win, 5, 2, gettext("Interfaces Backend:"));
-    mvwprintw(ConfigSection.win, 7, 2, gettext("Rules Backend:"));
+    mvwprintw(config_section.win, 1, 2, gettext("Services Backend:"));
+    mvwprintw(config_section.win, 3, 2, gettext("Zones Backend:"));
+    mvwprintw(config_section.win, 5, 2, gettext("Interfaces Backend:"));
+    mvwprintw(config_section.win, 7, 2, gettext("Rules Backend:"));
 }
 
 static void edit_plugconfig_save(struct vrmr_config *conf)
@@ -891,39 +892,39 @@ static void edit_plugconfig_save(struct vrmr_config *conf)
     size_t i = 0;
 
     /* check for changed fields */
-    for (i = 0; i < ConfigSection.n_fields; i++) {
+    for (i = 0; i < config_section.n_fields; i++) {
         /* we only act if a field is changed */
-        if (field_status(ConfigSection.fields[i]) == FALSE)
+        if (field_status(config_section.fields[i]) == FALSE)
             continue;
 
-        if (ConfigSection.fields[i] == PlugConfig.servbackfld) {
+        if (config_section.fields[i] == PlugConfig.servbackfld) {
             /* services backend */
             copy_field2buf(conf->serv_backend_name,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->serv_backend_name));
 
             vrmr_audit("'service backend name' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->serv_backend_name);
-        } else if (ConfigSection.fields[i] == PlugConfig.zonebackfld) {
+        } else if (config_section.fields[i] == PlugConfig.zonebackfld) {
             /* zones backend */
             copy_field2buf(conf->zone_backend_name,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->zone_backend_name));
 
             vrmr_audit("'zone backend name' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->zone_backend_name);
-        } else if (ConfigSection.fields[i] == PlugConfig.ifacbackfld) {
+        } else if (config_section.fields[i] == PlugConfig.ifacbackfld) {
             /* interfaces backend */
             copy_field2buf(conf->ifac_backend_name,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->ifac_backend_name));
 
             vrmr_audit("'interface backend name' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->ifac_backend_name);
-        } else if (ConfigSection.fields[i] == PlugConfig.rulebackfld) {
+        } else if (config_section.fields[i] == PlugConfig.rulebackfld) {
             /* interfaces backend */
             copy_field2buf(conf->rule_backend_name,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->rule_backend_name));
 
             vrmr_audit("'rule backend name' %s '%s'.", STR_IS_NOW_SET_TO,
@@ -947,23 +948,23 @@ static int edit_plugconfig(struct vrmr_config *conf)
     startx = (max_width - width) / 2;
     starty = (max_height - height) / 2;
     edit_plugconfig_init(conf, height, width, starty, startx);
-    cur = current_field(ConfigSection.form);
+    cur = current_field(config_section.form);
     update_panels();
     doupdate();
 
     /* Loop through to get user requests */
     while (quit == 0) {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form,
-                vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, config_section.win,
+                config_section.form, vccnf.color_win_mark | A_BOLD);
 
-        ch = wgetch(ConfigSection.win);
+        ch = wgetch(config_section.win);
 
         not_defined = 0;
 
         if (cur == PlugConfig.servbackfld || cur == PlugConfig.zonebackfld ||
                 cur == PlugConfig.ifacbackfld ||
                 cur == PlugConfig.rulebackfld) {
-            if (nav_field_simpletext(ConfigSection.form, ch) < 0)
+            if (nav_field_simpletext(config_section.form, ch) < 0)
                 not_defined = 1;
         } else {
             not_defined = 1;
@@ -984,27 +985,27 @@ static int edit_plugconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(ConfigSection.form, REQ_NEXT_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_NEXT_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(ConfigSection.form, REQ_PREV_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -1017,13 +1018,13 @@ static int edit_plugconfig(struct vrmr_config *conf)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(ConfigSection.form, ch);
+                    form_driver(config_section.form, ch);
                     break;
             }
         }
 
         prev = cur;
-        cur = current_field(ConfigSection.form);
+        cur = current_field(config_section.form);
     }
 
     /* write configfile */
@@ -1049,33 +1050,33 @@ static void edit_conconfig_init(
     int rows = 0, cols = 0;
     size_t i = 0;
 
-    ConfigSection.n_fields = 6;
-    ConfigSection.fields =
-            (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
+    config_section.n_fields = 6;
+    config_section.fields =
+            (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
 
     /* fields */
-    ConConfig.usesynlimitfld = (ConfigSection.fields[0] = new_field(1, 1, 3, 2,
+    ConConfig.usesynlimitfld = (config_section.fields[0] = new_field(1, 1, 3, 2,
                                         0, 0)); /* log logblocklist */
-    ConConfig.synlimitfld = (ConfigSection.fields[1] = new_field(
+    ConConfig.synlimitfld = (config_section.fields[1] = new_field(
                                      1, 8, 5, 1, 0, 0)); /* SYN-limit */
-    ConConfig.synburstfld = (ConfigSection.fields[2] = new_field(
+    ConConfig.synburstfld = (config_section.fields[2] = new_field(
                                      1, 8, 7, 1, 0, 0)); /* SYN-limit-burst */
 
-    ConConfig.useudplimitfld = (ConfigSection.fields[3] = new_field(1, 1, 10, 2,
-                                        0, 0)); /* log logblocklist */
-    ConConfig.udplimitfld = (ConfigSection.fields[4] = new_field(
+    ConConfig.useudplimitfld = (config_section.fields[3] = new_field(1, 1, 10,
+                                        2, 0, 0)); /* log logblocklist */
+    ConConfig.udplimitfld = (config_section.fields[4] = new_field(
                                      1, 8, 12, 1, 0, 0)); /* UDP-limit */
-    ConConfig.udpburstfld = (ConfigSection.fields[5] = new_field(
+    ConConfig.udpburstfld = (config_section.fields[5] = new_field(
                                      1, 8, 14, 1, 0, 0)); /* UDP-limit-burst */
 
-    ConfigSection.fields[ConfigSection.n_fields] = NULL;
+    config_section.fields[config_section.n_fields] = NULL;
 
     /* create win & pan */
-    ConfigSection.win = create_newwin(height, width, starty, startx,
+    config_section.win = create_newwin(height, width, starty, startx,
             gettext("Edit Config: Connections"), vccnf.color_win);
-    vrmr_fatal_if_null(ConfigSection.win);
-    ConfigSection.panel[0] = new_panel(ConfigSection.win);
-    vrmr_fatal_if_null(ConfigSection.panel[0]);
+    vrmr_fatal_if_null(config_section.win);
+    config_section.panel[0] = new_panel(config_section.win);
+    vrmr_fatal_if_null(config_section.panel[0]);
 
     /* set fields */
     (void)snprintf(
@@ -1099,44 +1100,44 @@ static void edit_conconfig_init(
     set_field_buffer_wrap(
             ConConfig.useudplimitfld, 0, conf->use_udp_limit ? "X" : " ");
 
-    for (i = 0; i < ConfigSection.n_fields; i++) {
-        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
-        field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
-        set_field_status(ConfigSection.fields[i], FALSE);
+    for (i = 0; i < config_section.n_fields; i++) {
+        set_field_back(config_section.fields[i], vccnf.color_win_rev | A_BOLD);
+        field_opts_off(config_section.fields[i], O_AUTOSKIP);
+        set_field_status(config_section.fields[i], FALSE);
     }
     set_field_back(ConConfig.usesynlimitfld, vccnf.color_win);
     set_field_back(ConConfig.useudplimitfld, vccnf.color_win);
 
-    ConfigSection.form = new_form(ConfigSection.fields);
-    vrmr_fatal_if_null(ConfigSection.form);
+    config_section.form = new_form(config_section.fields);
+    vrmr_fatal_if_null(config_section.form);
     /* Calculate the area required for the form */
-    scale_form(ConfigSection.form, &rows, &cols);
-    keypad(ConfigSection.win, TRUE);
+    scale_form(config_section.form, &rows, &cols);
+    keypad(config_section.win, TRUE);
     /* Set main window and sub window */
-    set_form_win(ConfigSection.form, ConfigSection.win);
+    set_form_win(config_section.form, config_section.win);
     set_form_sub(
-            ConfigSection.form, derwin(ConfigSection.win, rows, cols, 1, 2));
-    post_form(ConfigSection.form);
+            config_section.form, derwin(config_section.win, rows, cols, 1, 2));
+    post_form(config_section.form);
 
     /* print labels */
-    mvwprintw(ConfigSection.win, 2, 2,
+    mvwprintw(config_section.win, 2, 2,
             gettext("You can limit the number of new connections per second:"));
 
-    mvwprintw(ConfigSection.win, 4, 3, "[");
-    mvwprintw(ConfigSection.win, 4, 5, "]");
-    mvwprintw(ConfigSection.win, 4, 8, gettext("Limit new TCP connections."));
-    mvwprintw(ConfigSection.win, 6, 13,
+    mvwprintw(config_section.win, 4, 3, "[");
+    mvwprintw(config_section.win, 4, 5, "]");
+    mvwprintw(config_section.win, 4, 8, gettext("Limit new TCP connections."));
+    mvwprintw(config_section.win, 6, 13,
             gettext("Number of SYN-packets per second"));
-    mvwprintw(ConfigSection.win, 8, 13, gettext("Burst-rate"));
+    mvwprintw(config_section.win, 8, 13, gettext("Burst-rate"));
 
-    mvwprintw(ConfigSection.win, 11, 3, "[");
-    mvwprintw(ConfigSection.win, 11, 5, "]");
+    mvwprintw(config_section.win, 11, 3, "[");
+    mvwprintw(config_section.win, 11, 5, "]");
     mvwprintw(
-            ConfigSection.win, 11, 8, gettext("Limit new udp 'connections'."));
+            config_section.win, 11, 8, gettext("Limit new udp 'connections'."));
 
-    mvwprintw(ConfigSection.win, 13, 13,
+    mvwprintw(config_section.win, 13, 13,
             gettext("Number of new UDP 'connections' per second"));
-    mvwprintw(ConfigSection.win, 15, 13, gettext("Burst-rate"));
+    mvwprintw(config_section.win, 15, 13, gettext("Burst-rate"));
 }
 
 static void edit_conconfig_save(struct vrmr_config *conf)
@@ -1145,24 +1146,24 @@ static void edit_conconfig_save(struct vrmr_config *conf)
     int syn = 0, udplimit = 0;
 
     /* check for changed fields */
-    for (i = 0; i < ConfigSection.n_fields; i++) {
+    for (i = 0; i < config_section.n_fields; i++) {
         /* we only act if a field is changed */
-        if (field_status(ConfigSection.fields[i]) == FALSE)
+        if (field_status(config_section.fields[i]) == FALSE)
             continue;
 
-        if (ConfigSection.fields[i] == ConConfig.usesynlimitfld) {
+        if (config_section.fields[i] == ConConfig.usesynlimitfld) {
             /* log policy */
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->use_syn_limit = 1;
             else
                 conf->use_syn_limit = 0;
 
             vrmr_audit("'use syn limit' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->use_syn_limit ? STR_YES : STR_NO);
-        } else if (ConfigSection.fields[i] == ConConfig.synlimitfld) {
+        } else if (config_section.fields[i] == ConConfig.synlimitfld) {
             /* synlimit */
             copy_field2buf(ConConfig.number,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(ConConfig.number));
 
             syn = atoi(ConConfig.number);
@@ -1172,10 +1173,10 @@ static void edit_conconfig_save(struct vrmr_config *conf)
                 vrmr_audit("'syn limit' %s '%u'.", STR_IS_NOW_SET_TO,
                         conf->syn_limit);
             }
-        } else if (ConfigSection.fields[i] == ConConfig.synburstfld) {
+        } else if (config_section.fields[i] == ConConfig.synburstfld) {
             /* synlimit */
             copy_field2buf(ConConfig.number,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(ConConfig.number));
 
             syn = atoi(ConConfig.number);
@@ -1185,19 +1186,19 @@ static void edit_conconfig_save(struct vrmr_config *conf)
                 vrmr_audit("'syn limit burst' %s '%u'.", STR_IS_NOW_SET_TO,
                         conf->syn_limit_burst);
             }
-        } else if (ConfigSection.fields[i] == ConConfig.useudplimitfld) {
+        } else if (config_section.fields[i] == ConConfig.useudplimitfld) {
             /* log policy */
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->use_udp_limit = 1;
             else
                 conf->use_udp_limit = 0;
 
             vrmr_audit("'use udp limit' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->use_udp_limit ? STR_YES : STR_NO);
-        } else if (ConfigSection.fields[i] == ConConfig.udplimitfld) {
+        } else if (config_section.fields[i] == ConConfig.udplimitfld) {
             /* udplimit */
             copy_field2buf(ConConfig.number,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(ConConfig.number));
 
             udplimit = atoi(ConConfig.number);
@@ -1207,10 +1208,10 @@ static void edit_conconfig_save(struct vrmr_config *conf)
                 vrmr_audit("'udp limit' %s '%u'.", STR_IS_NOW_SET_TO,
                         conf->udp_limit);
             }
-        } else if (ConfigSection.fields[i] == ConConfig.udpburstfld) {
+        } else if (config_section.fields[i] == ConConfig.udpburstfld) {
             /* udpburst */
             copy_field2buf(ConConfig.number,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(ConConfig.number));
 
             udplimit = atoi(ConConfig.number);
@@ -1241,15 +1242,15 @@ static int edit_conconfig(struct vrmr_config *conf)
 
     /* setup */
     edit_conconfig_init(conf, height, width, starty, startx);
-    cur = current_field(ConfigSection.form);
+    cur = current_field(config_section.form);
     update_panels();
     doupdate();
 
     /* Loop through to get user requests */
     while (quit == 0) {
         /* visual support */
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form,
-                vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, config_section.win,
+                config_section.form, vccnf.color_win_mark | A_BOLD);
 
         /* when not using synlimit, deactivated the fields */
         if (field_buffer(ConConfig.usesynlimitfld, 0)[0] == 'X') {
@@ -1270,17 +1271,17 @@ static int edit_conconfig(struct vrmr_config *conf)
         }
 
         /* keyboard input */
-        ch = wgetch(ConfigSection.win);
+        ch = wgetch(config_section.win);
 
         not_defined = 0;
 
         if (cur == ConConfig.synlimitfld || cur == ConConfig.synburstfld ||
                 cur == ConConfig.udplimitfld || cur == ConConfig.udpburstfld) {
-            if (nav_field_simpletext(ConfigSection.form, ch) < 0)
+            if (nav_field_simpletext(config_section.form, ch) < 0)
                 not_defined = 1;
         } else if (cur == ConConfig.usesynlimitfld ||
                    cur == ConConfig.useudplimitfld) {
-            if (nav_field_toggleX(ConfigSection.form, ch) < 0)
+            if (nav_field_toggleX(config_section.form, ch) < 0)
                 not_defined = 1;
         } else {
             not_defined = 1;
@@ -1299,27 +1300,27 @@ static int edit_conconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(ConfigSection.form, REQ_NEXT_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_NEXT_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(ConfigSection.form, REQ_PREV_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -1332,13 +1333,13 @@ static int edit_conconfig(struct vrmr_config *conf)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(ConfigSection.form, ch);
+                    form_driver(config_section.form, ch);
                     break;
             }
         }
 
         prev = cur;
-        cur = current_field(ConfigSection.form);
+        cur = current_field(config_section.form);
     }
 
     edit_conconfig_save(conf);
@@ -1364,33 +1365,33 @@ static void edit_vcconfig_init(int height, int width, int starty, int startx)
     size_t i = 0;
     int rows = 0, cols = 0;
 
-    ConfigSection.n_fields = 7;
-    ConfigSection.fields =
-            (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
+    config_section.n_fields = 7;
+    config_section.fields =
+            (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
 
     /* fields */
     VcConfig.newrule_logfld =
-            (ConfigSection.fields[0] = new_field(1, 1, 2, 23, 0, 0));
+            (config_section.fields[0] = new_field(1, 1, 2, 23, 0, 0));
     VcConfig.newrule_loglimitfld =
-            (ConfigSection.fields[1] = new_field(1, 3, 2, 66, 0, 0));
+            (config_section.fields[1] = new_field(1, 3, 2, 66, 0, 0));
     VcConfig.logview_bufsizefld =
-            (ConfigSection.fields[2] = new_field(1, 6, 5, 52, 0, 0));
+            (config_section.fields[2] = new_field(1, 6, 5, 52, 0, 0));
     VcConfig.advancedmodefld =
-            (ConfigSection.fields[3] = new_field(1, 1, 6, 53, 0, 0));
+            (config_section.fields[3] = new_field(1, 1, 6, 53, 0, 0));
     VcConfig.mainmenu_statusfld =
-            (ConfigSection.fields[4] = new_field(1, 1, 7, 53, 0, 0));
+            (config_section.fields[4] = new_field(1, 1, 7, 53, 0, 0));
     VcConfig.backgroundfld =
-            (ConfigSection.fields[5] = new_field(1, 1, 8, 53, 0, 0));
+            (config_section.fields[5] = new_field(1, 1, 8, 53, 0, 0));
     VcConfig.iptrafvollocfld =
-            (ConfigSection.fields[6] = new_field(1, 64, 11, 1, 0, 0));
-    ConfigSection.fields[ConfigSection.n_fields] = NULL;
+            (config_section.fields[6] = new_field(1, 64, 11, 1, 0, 0));
+    config_section.fields[config_section.n_fields] = NULL;
 
     /* create win & pan */
-    ConfigSection.win = create_newwin(height, width, starty, startx,
+    config_section.win = create_newwin(height, width, starty, startx,
             gettext("Vuurmuur_conf Settings"), vccnf.color_win);
-    vrmr_fatal_if_null(ConfigSection.win);
-    ConfigSection.panel[0] = new_panel(ConfigSection.win);
-    vrmr_fatal_if_null(ConfigSection.panel[0]);
+    vrmr_fatal_if_null(config_section.win);
+    config_section.panel[0] = new_panel(config_section.win);
+    vrmr_fatal_if_null(config_section.panel[0]);
 
     /* set fields */
     set_field_buffer_wrap(
@@ -1413,10 +1414,10 @@ static void edit_vcconfig_init(int height, int width, int starty, int startx)
     set_field_buffer_wrap(
             VcConfig.iptrafvollocfld, 0, vccnf.iptrafvol_location);
 
-    for (i = 0; i < ConfigSection.n_fields; i++) {
-        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
-        field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
-        set_field_status(ConfigSection.fields[i], FALSE);
+    for (i = 0; i < config_section.n_fields; i++) {
+        set_field_back(config_section.fields[i], vccnf.color_win_rev | A_BOLD);
+        field_opts_off(config_section.fields[i], O_AUTOSKIP);
+        set_field_status(config_section.fields[i], FALSE);
     }
     set_field_back(VcConfig.newrule_logfld, vccnf.color_win);
     set_field_back(VcConfig.advancedmodefld, vccnf.color_win);
@@ -1424,42 +1425,42 @@ static void edit_vcconfig_init(int height, int width, int starty, int startx)
     set_field_back(VcConfig.backgroundfld, vccnf.color_win);
 
     /* Create the form and post it */
-    ConfigSection.form = new_form(ConfigSection.fields);
-    vrmr_fatal_if_null(ConfigSection.form);
+    config_section.form = new_form(config_section.fields);
+    vrmr_fatal_if_null(config_section.form);
     /* Calculate the area required for the form */
-    scale_form(ConfigSection.form, &rows, &cols);
-    keypad(ConfigSection.win, TRUE);
+    scale_form(config_section.form, &rows, &cols);
+    keypad(config_section.win, TRUE);
     /* Set main window and sub window */
-    set_form_win(ConfigSection.form, ConfigSection.win);
+    set_form_win(config_section.form, config_section.win);
     set_form_sub(
-            ConfigSection.form, derwin(ConfigSection.win, rows, cols, 1, 2));
-    post_form(ConfigSection.form);
+            config_section.form, derwin(config_section.win, rows, cols, 1, 2));
+    post_form(config_section.form);
 
     /* print labels */
-    mvwprintw(ConfigSection.win, 2, 2,
+    mvwprintw(config_section.win, 2, 2,
             gettext("Defaults for creating new rules:"));
 
-    mvwprintw(ConfigSection.win, 3, 2, gettext("Log the rule"));
-    mvwprintw(ConfigSection.win, 3, 24, "[");
-    mvwprintw(ConfigSection.win, 3, 26, "]");
+    mvwprintw(config_section.win, 3, 2, gettext("Log the rule"));
+    mvwprintw(config_section.win, 3, 24, "[");
+    mvwprintw(config_section.win, 3, 26, "]");
 
-    mvwprintw(ConfigSection.win, 3, 35, gettext("Loglimit per second"));
+    mvwprintw(config_section.win, 3, 35, gettext("Loglimit per second"));
 
-    mvwprintw(ConfigSection.win, 6, 2,
+    mvwprintw(config_section.win, 6, 2,
             gettext("Buffersize logviewer (number of lines):"));
-    mvwprintw(ConfigSection.win, 7, 2, gettext("Advanced mode by default:"));
-    mvwprintw(ConfigSection.win, 7, 54, "[");
-    mvwprintw(ConfigSection.win, 7, 56, "]");
+    mvwprintw(config_section.win, 7, 2, gettext("Advanced mode by default:"));
+    mvwprintw(config_section.win, 7, 54, "[");
+    mvwprintw(config_section.win, 7, 56, "]");
 
-    mvwprintw(ConfigSection.win, 8, 2, gettext("Draw status in Main Menu:"));
-    mvwprintw(ConfigSection.win, 8, 54, "[");
-    mvwprintw(ConfigSection.win, 8, 56, "]");
+    mvwprintw(config_section.win, 8, 2, gettext("Draw status in Main Menu:"));
+    mvwprintw(config_section.win, 8, 54, "[");
+    mvwprintw(config_section.win, 8, 56, "]");
 
-    mvwprintw(ConfigSection.win, 9, 2, gettext("Use black background?:"));
-    mvwprintw(ConfigSection.win, 9, 54, "[");
-    mvwprintw(ConfigSection.win, 9, 56, "]");
+    mvwprintw(config_section.win, 9, 2, gettext("Use black background?:"));
+    mvwprintw(config_section.win, 9, 54, "[");
+    mvwprintw(config_section.win, 9, 56, "]");
 
-    mvwprintw(ConfigSection.win, 11, 2,
+    mvwprintw(config_section.win, 11, 2,
             gettext("iptrafvol.pl location (full path)"));
 }
 
@@ -1470,55 +1471,55 @@ static void edit_vcconfig_save(void)
     int bufsize = 0;
 
     /* check for changed fields */
-    for (i = 0; i < ConfigSection.n_fields; i++) {
+    for (i = 0; i < config_section.n_fields; i++) {
         /* we only act if a field is changed */
-        if (field_status(ConfigSection.fields[i]) == FALSE)
+        if (field_status(config_section.fields[i]) == FALSE)
             continue;
 
-        if (ConfigSection.fields[i] == VcConfig.newrule_loglimitfld) {
+        if (config_section.fields[i] == VcConfig.newrule_loglimitfld) {
             /* synlimit */
             copy_field2buf(VcConfig.number,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(VcConfig.number));
 
             syn = atoi(VcConfig.number);
             if (syn > 0) {
                 vccnf.newrule_loglimit = (unsigned int)syn;
             }
-        } else if (ConfigSection.fields[i] == VcConfig.newrule_logfld) {
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+        } else if (config_section.fields[i] == VcConfig.newrule_logfld) {
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 vccnf.newrule_log = 1;
             else
                 vccnf.newrule_log = 0;
-        } else if (ConfigSection.fields[i] == VcConfig.advancedmodefld) {
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+        } else if (config_section.fields[i] == VcConfig.advancedmodefld) {
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 vccnf.advanced_mode = 1;
             else
                 vccnf.advanced_mode = 0;
-        } else if (ConfigSection.fields[i] == VcConfig.mainmenu_statusfld) {
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+        } else if (config_section.fields[i] == VcConfig.mainmenu_statusfld) {
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 vccnf.draw_status = 1;
             else
                 vccnf.draw_status = 0;
-        } else if (ConfigSection.fields[i] == VcConfig.backgroundfld) {
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+        } else if (config_section.fields[i] == VcConfig.backgroundfld) {
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 vccnf.background = 1;
             else
                 vccnf.background = 0;
-        } else if (ConfigSection.fields[i] == VcConfig.logview_bufsizefld) {
+        } else if (config_section.fields[i] == VcConfig.logview_bufsizefld) {
             /* bufsize */
             copy_field2buf(VcConfig.number,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(VcConfig.number));
 
             bufsize = atoi(VcConfig.number);
             if (bufsize > 0) {
                 vccnf.logview_bufsize = (unsigned int)bufsize;
             }
-        } else if (ConfigSection.fields[i] == VcConfig.iptrafvollocfld) {
+        } else if (config_section.fields[i] == VcConfig.iptrafvollocfld) {
             /* synlimit */
             copy_field2buf(vccnf.iptrafvol_location,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(vccnf.iptrafvol_location));
 
             vrmr_sanitize_path(
@@ -1549,7 +1550,7 @@ int edit_vcconfig(void)
     starty = (max_height - height) / 2;
     /* setup */
     edit_vcconfig_init(height, width, starty, startx);
-    cur = current_field(ConfigSection.form);
+    cur = current_field(config_section.form);
     draw_top_menu(top_win, gettext("Vuurmuur_conf Settings"), key_choices_n,
             key_choices, cmd_choices_n, cmd_choices);
     update_panels();
@@ -1558,24 +1559,24 @@ int edit_vcconfig(void)
     /* Loop through to get user requests */
     while (quit == 0) {
         /* visual support */
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form,
-                vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, config_section.win,
+                config_section.form, vccnf.color_win_mark | A_BOLD);
 
         /* keyboard input */
-        ch = wgetch(ConfigSection.win);
+        ch = wgetch(config_section.win);
 
         not_defined = 0;
 
         if (cur == VcConfig.newrule_loglimitfld ||
                 cur == VcConfig.logview_bufsizefld ||
                 cur == VcConfig.iptrafvollocfld) {
-            if (nav_field_simpletext(ConfigSection.form, ch) < 0)
+            if (nav_field_simpletext(config_section.form, ch) < 0)
                 not_defined = 1;
         } else if (cur == VcConfig.newrule_logfld ||
                    cur == VcConfig.advancedmodefld ||
                    cur == VcConfig.mainmenu_statusfld ||
                    cur == VcConfig.backgroundfld) {
-            if (nav_field_toggleX(ConfigSection.form, ch) < 0) {
+            if (nav_field_toggleX(config_section.form, ch) < 0) {
                 not_defined = 1;
             } else {
                 /* hack to make color setting available instantly */
@@ -1604,27 +1605,27 @@ int edit_vcconfig(void)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(ConfigSection.form, REQ_NEXT_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_NEXT_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(ConfigSection.form, REQ_PREV_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -1637,13 +1638,13 @@ int edit_vcconfig(void)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(ConfigSection.form, ch);
+                    form_driver(config_section.form, ch);
                     break;
             }
         }
 
         prev = cur;
-        cur = current_field(ConfigSection.form);
+        cur = current_field(config_section.form);
     }
 
     edit_vcconfig_save();
@@ -1674,48 +1675,49 @@ static void edit_logconfig_init(
     int rows = 0, cols = 0;
     char limit_string[4] = "";
 
-    ConfigSection.n_fields = 13;
-    ConfigSection.fields =
-            (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
+    config_section.n_fields = 13;
+    config_section.fields =
+            (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
 
     /* fields */
-    LogConfig.rule_nflogfld = (ConfigSection.fields[0] = new_field(
+    LogConfig.rule_nflogfld = (config_section.fields[0] = new_field(
                                        1, 1, 1, 26, 0, 0)); /* rule_nflog */
-    LogConfig.nfgrpfld = (ConfigSection.fields[1] =
+    LogConfig.nfgrpfld = (config_section.fields[1] =
                                   new_field(1, 3, 1, 60, 0, 0)); /* nfgrp */
 
-    LogConfig.logdirfld = (ConfigSection.fields[2] = new_field(
+    LogConfig.logdirfld = (config_section.fields[2] = new_field(
                                    1, 64, 4, 1, 0, 0)); /* vuurmuur_logdir */
-    LogConfig.loglevelfld = (ConfigSection.fields[3] = new_field(
+    LogConfig.loglevelfld = (config_section.fields[3] = new_field(
                                      1, 8, 6, 1, 0, 0)); /* loglevel */
-    LogConfig.systemlogfld = (ConfigSection.fields[4] = new_field(
+    LogConfig.systemlogfld = (config_section.fields[4] = new_field(
                                       1, 64, 8, 1, 0, 0)); /* systemlog */
 
-    LogConfig.logpolicyfld = (ConfigSection.fields[5] = new_field(
+    LogConfig.logpolicyfld = (config_section.fields[5] = new_field(
                                       1, 1, 10, 61, 0, 0)); /* log policy */
-    LogConfig.logpolicylimitfld = (ConfigSection.fields[6] = new_field(1, 3, 11,
-                                           60, 0, 0)); /* log policy limit */
-    LogConfig.logtcpoptionsfld = (ConfigSection.fields[7] = new_field(1, 1, 12,
+    LogConfig.logpolicylimitfld =
+            (config_section.fields[6] = new_field(
+                     1, 3, 11, 60, 0, 0)); /* log policy limit */
+    LogConfig.logtcpoptionsfld = (config_section.fields[7] = new_field(1, 1, 12,
                                           61, 0, 0)); /* log tcp options */
-    LogConfig.logblocklistfld = (ConfigSection.fields[8] = new_field(1, 1, 13,
+    LogConfig.logblocklistfld = (config_section.fields[8] = new_field(1, 1, 13,
                                          61, 0, 0)); /* log logblocklist */
 
-    LogConfig.loginvalidfld = (ConfigSection.fields[9] = new_field(1, 1, 14, 61,
-                                       0, 0)); /* log logblocklist */
-    LogConfig.lognosynfld = (ConfigSection.fields[10] = new_field(1, 1, 15, 61,
+    LogConfig.loginvalidfld = (config_section.fields[9] = new_field(1, 1, 14,
+                                       61, 0, 0)); /* log logblocklist */
+    LogConfig.lognosynfld = (config_section.fields[10] = new_field(1, 1, 15, 61,
                                      0, 0)); /* log logblocklist */
-    LogConfig.logprobesfld = (ConfigSection.fields[11] = new_field(
+    LogConfig.logprobesfld = (config_section.fields[11] = new_field(
                                       1, 1, 16, 61, 0, 0)); /* log logprobes */
-    LogConfig.logfragfld = (ConfigSection.fields[12] = new_field(
+    LogConfig.logfragfld = (config_section.fields[12] = new_field(
                                     1, 1, 17, 61, 0, 0)); /* log logblocklist */
 
-    ConfigSection.fields[ConfigSection.n_fields] = NULL;
+    config_section.fields[config_section.n_fields] = NULL;
 
-    ConfigSection.win = create_newwin(height, width, starty, startx,
+    config_section.win = create_newwin(height, width, starty, startx,
             gettext("Edit Config: Logging"), vccnf.color_win);
-    vrmr_fatal_if_null(ConfigSection.win);
-    ConfigSection.panel[0] = new_panel(ConfigSection.win);
-    vrmr_fatal_if_null(ConfigSection.panel[0]);
+    vrmr_fatal_if_null(config_section.win);
+    config_section.panel[0] = new_panel(config_section.win);
+    vrmr_fatal_if_null(config_section.panel[0]);
 
     /* fill the fields */
     set_field_buffer_wrap(
@@ -1747,10 +1749,10 @@ static void edit_logconfig_init(
             LogConfig.logprobesfld, 0, conf->log_probes ? "X" : " ");
     set_field_buffer_wrap(LogConfig.logfragfld, 0, conf->log_frag ? "X" : " ");
 
-    for (i = 0; i < ConfigSection.n_fields; i++) {
-        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
-        field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
-        set_field_status(ConfigSection.fields[i], FALSE);
+    for (i = 0; i < config_section.n_fields; i++) {
+        set_field_back(config_section.fields[i], vccnf.color_win_rev | A_BOLD);
+        field_opts_off(config_section.fields[i], O_AUTOSKIP);
+        set_field_status(config_section.fields[i], FALSE);
     }
     set_field_back(LogConfig.rule_nflogfld, vccnf.color_win);
     set_field_back(LogConfig.logpolicyfld, vccnf.color_win);
@@ -1762,71 +1764,71 @@ static void edit_logconfig_init(
     set_field_back(LogConfig.logfragfld, vccnf.color_win);
 
     /* Create the form and post it */
-    ConfigSection.form = new_form(ConfigSection.fields);
+    config_section.form = new_form(config_section.fields);
     /* Calculate the area required for the form */
-    scale_form(ConfigSection.form, &rows, &cols);
-    keypad(ConfigSection.win, TRUE);
+    scale_form(config_section.form, &rows, &cols);
+    keypad(config_section.win, TRUE);
     /* Set main window and sub window */
-    set_form_win(ConfigSection.form, ConfigSection.win);
+    set_form_win(config_section.form, config_section.win);
     set_form_sub(
-            ConfigSection.form, derwin(ConfigSection.win, rows, cols, 1, 2));
-    post_form(ConfigSection.form);
+            config_section.form, derwin(config_section.win, rows, cols, 1, 2));
+    post_form(config_section.form);
 
     /* print labels */
-    mvwprintw(ConfigSection.win, 2, 2, gettext("Use NFLOG"));
-    mvwprintw(ConfigSection.win, 2, 27, "[");
-    mvwprintw(ConfigSection.win, 2, 29, "]");
+    mvwprintw(config_section.win, 2, 2, gettext("Use NFLOG"));
+    mvwprintw(config_section.win, 2, 27, "[");
+    mvwprintw(config_section.win, 2, 29, "]");
 
-    mvwprintw(ConfigSection.win, 2, 32, gettext("Netfilter Group"));
+    mvwprintw(config_section.win, 2, 32, gettext("Netfilter Group"));
 
-    mvwprintw(ConfigSection.win, 4, 2,
+    mvwprintw(config_section.win, 4, 2,
             gettext("Vuurmuur logfiles location (full path):"));
-    mvwprintw(ConfigSection.win, 6, 2,
+    mvwprintw(config_section.win, 6, 2,
             gettext("Loglevel (for use with syslog, requires vuurmuur "
                     "restart):"));
-    mvwprintw(ConfigSection.win, 8, 2,
+    mvwprintw(config_section.win, 8, 2,
             gettext("Logfile containing IPtables/Netfilter logs:"));
 
-    mvwprintw(ConfigSection.win, 11, 2,
+    mvwprintw(config_section.win, 11, 2,
             gettext("Log the default policy? (DROP):"));
-    mvwprintw(ConfigSection.win, 11, 62, "[");
-    mvwprintw(ConfigSection.win, 11, 64, "]");
+    mvwprintw(config_section.win, 11, 62, "[");
+    mvwprintw(config_section.win, 11, 64, "]");
 
-    mvwprintw(ConfigSection.win, 12, 2,
+    mvwprintw(config_section.win, 12, 2,
             gettext("Limit of the number of logs per second (0 for no "
                     "limit):"));
 
-    mvwprintw(ConfigSection.win, 13, 2,
+    mvwprintw(config_section.win, 13, 2,
             gettext("Log TCP options (for use with PSAD):"));
-    mvwprintw(ConfigSection.win, 13, 62, "[");
-    mvwprintw(ConfigSection.win, 13, 64, "]");
+    mvwprintw(config_section.win, 13, 62, "[");
+    mvwprintw(config_section.win, 13, 64, "]");
 
     /* TRANSLATORS: max 55 chars */
-    mvwprintw(ConfigSection.win, 14, 2, gettext("Log blocklist violations:"));
-    mvwprintw(ConfigSection.win, 14, 62, "[");
-    mvwprintw(ConfigSection.win, 14, 64, "]");
+    mvwprintw(config_section.win, 14, 2, gettext("Log blocklist violations:"));
+    mvwprintw(config_section.win, 14, 62, "[");
+    mvwprintw(config_section.win, 14, 64, "]");
 
     /* TRANSLATORS: max 55 chars, don't translate 'INVALID' */
-    mvwprintw(ConfigSection.win, 15, 2,
+    mvwprintw(config_section.win, 15, 2,
             gettext("Log packets with state INVALID:"));
-    mvwprintw(ConfigSection.win, 15, 62, "[");
-    mvwprintw(ConfigSection.win, 15, 64, "]");
+    mvwprintw(config_section.win, 15, 62, "[");
+    mvwprintw(config_section.win, 15, 64, "]");
 
     /* TRANSLATORS: max 55 chars */
-    mvwprintw(ConfigSection.win, 16, 2,
+    mvwprintw(config_section.win, 16, 2,
             gettext("Log new TCP packets with no SYN flag set:"));
-    mvwprintw(ConfigSection.win, 16, 62, "[");
-    mvwprintw(ConfigSection.win, 16, 64, "]");
+    mvwprintw(config_section.win, 16, 62, "[");
+    mvwprintw(config_section.win, 16, 64, "]");
 
     /* TRANSLATORS: max 55 chars */
-    mvwprintw(ConfigSection.win, 17, 2, gettext("Log scan probe packets:"));
-    mvwprintw(ConfigSection.win, 17, 62, "[");
-    mvwprintw(ConfigSection.win, 17, 64, "]");
+    mvwprintw(config_section.win, 17, 2, gettext("Log scan probe packets:"));
+    mvwprintw(config_section.win, 17, 62, "[");
+    mvwprintw(config_section.win, 17, 64, "]");
 
     /* TRANSLATORS: max 55 chars */
-    mvwprintw(ConfigSection.win, 18, 2, gettext("Log Fragments:"));
-    mvwprintw(ConfigSection.win, 18, 62, "[");
-    mvwprintw(ConfigSection.win, 18, 64, "]");
+    mvwprintw(config_section.win, 18, 2, gettext("Log Fragments:"));
+    mvwprintw(config_section.win, 18, 62, "[");
+    mvwprintw(config_section.win, 18, 64, "]");
 }
 
 static int edit_logconfig_save(struct vrmr_config *conf)
@@ -1837,15 +1839,15 @@ static int edit_logconfig_save(struct vrmr_config *conf)
     int result = 0;
 
     /* check for changed fields */
-    for (i = 0; i < ConfigSection.n_fields; i++) {
+    for (i = 0; i < config_section.n_fields; i++) {
         /* we only act if a field is changed */
-        if (field_status(ConfigSection.fields[i]) == FALSE)
+        if (field_status(config_section.fields[i]) == FALSE)
             continue;
 
-        if (ConfigSection.fields[i] == LogConfig.logdirfld) {
+        if (config_section.fields[i] == LogConfig.logdirfld) {
             /* vuurmuurlog location */
             copy_field2buf(conf->vuurmuur_logdir_location,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->vuurmuur_logdir_location));
 
             if (StrLen(conf->vuurmuur_logdir_location) > 0) {
@@ -1873,18 +1875,18 @@ static int edit_logconfig_save(struct vrmr_config *conf)
                 vrmr_audit("'logdir location' %s '%s'.", STR_IS_NOW_SET_TO,
                         conf->vuurmuur_logdir_location);
             }
-        } else if (ConfigSection.fields[i] == LogConfig.loglevelfld) {
+        } else if (config_section.fields[i] == LogConfig.loglevelfld) {
             /* loglevel */
             copy_field2buf(conf->loglevel,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->loglevel));
 
             vrmr_audit("'log level' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->systemlog_location);
-        } else if (ConfigSection.fields[i] == LogConfig.systemlogfld) {
+        } else if (config_section.fields[i] == LogConfig.systemlogfld) {
             /* systemlog */
             copy_field2buf(conf->systemlog_location,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(conf->systemlog_location));
 
             vrmr_sanitize_path(
@@ -1892,19 +1894,19 @@ static int edit_logconfig_save(struct vrmr_config *conf)
 
             vrmr_audit("'systemlog location' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->systemlog_location);
-        } else if (ConfigSection.fields[i] == LogConfig.rule_nflogfld) {
+        } else if (config_section.fields[i] == LogConfig.rule_nflogfld) {
             /* nflog */
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->rule_nflog = 1;
             else
                 conf->rule_nflog = 0;
 
             vrmr_audit("'rule_nflog' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->rule_nflog ? STR_YES : STR_NO);
-        } else if (ConfigSection.fields[i] == LogConfig.nfgrpfld) {
+        } else if (config_section.fields[i] == LogConfig.nfgrpfld) {
             /* NF group*/
             copy_field2buf(limit_string,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(limit_string));
 
             result = atoi(limit_string);
@@ -1923,19 +1925,19 @@ static int edit_logconfig_save(struct vrmr_config *conf)
 
                 vrmr_audit("'nfgrp' %s '%u'.", STR_IS_NOW_SET_TO, conf->nfgrp);
             }
-        } else if (ConfigSection.fields[i] == LogConfig.logpolicyfld) {
+        } else if (config_section.fields[i] == LogConfig.logpolicyfld) {
             /* log policy */
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->log_policy = 1;
             else
                 conf->log_policy = 0;
 
             vrmr_audit("'log policy' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->log_policy ? STR_YES : STR_NO);
-        } else if (ConfigSection.fields[i] == LogConfig.logpolicylimitfld) {
+        } else if (config_section.fields[i] == LogConfig.logpolicylimitfld) {
             /* log policy limit */
             copy_field2buf(limit_string,
-                    field_buffer(ConfigSection.fields[i], 0),
+                    field_buffer(config_section.fields[i], 0),
                     sizeof(limit_string));
 
             result = atoi(limit_string);
@@ -1955,54 +1957,54 @@ static int edit_logconfig_save(struct vrmr_config *conf)
                 vrmr_audit("'log policy limit' %s '%u'.", STR_IS_NOW_SET_TO,
                         conf->log_policy_limit);
             }
-        } else if (ConfigSection.fields[i] == LogConfig.logtcpoptionsfld) {
+        } else if (config_section.fields[i] == LogConfig.logtcpoptionsfld) {
             /* log policy */
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->log_tcp_options = 1;
             else
                 conf->log_tcp_options = 0;
 
             vrmr_audit("'log TCP options' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->log_tcp_options ? STR_YES : STR_NO);
-        } else if (ConfigSection.fields[i] == LogConfig.logblocklistfld) {
+        } else if (config_section.fields[i] == LogConfig.logblocklistfld) {
             /* log policy */
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->log_blocklist = 1;
             else
                 conf->log_blocklist = 0;
 
             vrmr_audit("'log blocklist' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->log_blocklist ? STR_YES : STR_NO);
-        } else if (ConfigSection.fields[i] == LogConfig.loginvalidfld) {
+        } else if (config_section.fields[i] == LogConfig.loginvalidfld) {
             /* log policy */
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->log_invalid = 1;
             else
                 conf->log_invalid = 0;
 
             vrmr_audit("'log invalid' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->log_invalid ? STR_YES : STR_NO);
-        } else if (ConfigSection.fields[i] == LogConfig.lognosynfld) {
+        } else if (config_section.fields[i] == LogConfig.lognosynfld) {
             /* log policy */
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->log_no_syn = 1;
             else
                 conf->log_no_syn = 0;
 
             vrmr_audit("'log New TCP no SYN flag' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->log_no_syn ? STR_YES : STR_NO);
-        } else if (ConfigSection.fields[i] == LogConfig.logprobesfld) {
+        } else if (config_section.fields[i] == LogConfig.logprobesfld) {
             /* log policy */
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->log_probes = 1;
             else
                 conf->log_probes = 0;
 
             vrmr_audit("'log SCAN Probes' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->log_probes ? STR_YES : STR_NO);
-        } else if (ConfigSection.fields[i] == LogConfig.logfragfld) {
+        } else if (config_section.fields[i] == LogConfig.logfragfld) {
             /* log policy */
-            if (field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
                 conf->log_frag = 1;
             else
                 conf->log_frag = 0;
@@ -2031,18 +2033,18 @@ int edit_logconfig(struct vrmr_config *conf)
     starty = (max_height - height) / 2;
     // setup
     edit_logconfig_init(conf, height, width, starty, startx);
-    cur = current_field(ConfigSection.form);
+    cur = current_field(config_section.form);
     update_panels();
     doupdate();
 
     /* Loop through to get user requests */
     while (quit == 0) {
         /* visual support */
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form,
-                vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, config_section.win,
+                config_section.form, vccnf.color_win_mark | A_BOLD);
 
         /* keyboard input */
-        ch = wgetch(ConfigSection.win);
+        ch = wgetch(config_section.win);
 
         not_defined = 0;
 
@@ -2050,7 +2052,7 @@ int edit_logconfig(struct vrmr_config *conf)
                 cur == LogConfig.systemlogfld ||
                 cur == LogConfig.logpolicylimitfld ||
                 cur == LogConfig.nfgrpfld) {
-            if (nav_field_simpletext(ConfigSection.form, ch) < 0)
+            if (nav_field_simpletext(config_section.form, ch) < 0)
                 not_defined = 1;
         } else if (cur == LogConfig.logpolicyfld ||
                    cur == LogConfig.logtcpoptionsfld ||
@@ -2060,7 +2062,7 @@ int edit_logconfig(struct vrmr_config *conf)
                    cur == LogConfig.logprobesfld ||
                    cur == LogConfig.logfragfld ||
                    cur == LogConfig.rule_nflogfld) {
-            if (nav_field_toggleX(ConfigSection.form, ch) < 0)
+            if (nav_field_toggleX(config_section.form, ch) < 0)
                 not_defined = 1;
         } else {
             not_defined = 1;
@@ -2080,27 +2082,27 @@ int edit_logconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(ConfigSection.form, REQ_NEXT_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_NEXT_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(ConfigSection.form, REQ_PREV_FIELD);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_FIELD);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(ConfigSection.form, REQ_PREV_CHAR);
-                    form_driver(ConfigSection.form, REQ_DEL_CHAR);
-                    form_driver(ConfigSection.form, REQ_END_LINE);
+                    form_driver(config_section.form, REQ_PREV_CHAR);
+                    form_driver(config_section.form, REQ_DEL_CHAR);
+                    form_driver(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -2114,13 +2116,13 @@ int edit_logconfig(struct vrmr_config *conf)
                 default:
                     // If this is a normal character, it gets printed into the
                     // field
-                    form_driver(ConfigSection.form, ch);
+                    form_driver(config_section.form, ch);
                     break;
             }
         }
 
         prev = cur;
-        cur = current_field(ConfigSection.form);
+        cur = current_field(config_section.form);
     }
 
     /* write configfile */
@@ -2139,13 +2141,13 @@ int edit_logconfig(struct vrmr_config *conf)
 
 /* conntrack settings */
 
-struct VrEditConntrackCnf_ {
+struct edit_conntrack_cnf {
     char invalid_drop_enabled;
     struct vrmr_config *conf;
 };
 
 static int VrEditConntrackSetup(
-        struct VrEditConntrackCnf_ *c, struct vrmr_config *conf)
+        struct edit_conntrack_cnf *c, struct vrmr_config *conf)
 {
     vrmr_fatal_if_null(c);
 
@@ -2156,7 +2158,7 @@ static int VrEditConntrackSetup(
 
 static int VrEditConntrackSave(void *ctx, char *name, char *value)
 {
-    struct VrEditConntrackCnf_ *c = (struct VrEditConntrackCnf_ *)ctx;
+    struct edit_conntrack_cnf *c = (struct edit_conntrack_cnf *)ctx;
     int retval = 0;
 
     // vrmr_debug(__FUNC__, "%s:%s", name, value);
@@ -2186,10 +2188,10 @@ static int VrEditConntrackSave(void *ctx, char *name, char *value)
 
 static void VrEditConntrack(struct vrmr_config *conf)
 {
-    VrWin *win = NULL;
-    VrForm *form = NULL;
+    struct vrmr_gui_win *win = NULL;
+    struct vrmr_gui_form *form = NULL;
     int ch = 0, result = 0;
-    struct VrEditConntrackCnf_ config;
+    struct edit_conntrack_cnf config;
 
     vrmr_fatal_if(VrEditConntrackSetup(&config, conf) < 0);
 
@@ -2260,88 +2262,88 @@ static void view_caps_init(int height, int width, int starty, int startx,
     /* safety */
     vrmr_fatal_if_null(iptcap);
 
-    ConfigSection.win = create_newwin(height, width, starty, startx,
+    config_section.win = create_newwin(height, width, starty, startx,
             gettext("View Capabilities"), vccnf.color_win);
-    vrmr_fatal_if_null(ConfigSection.win);
-    ConfigSection.panel[0] = new_panel(ConfigSection.win);
-    vrmr_fatal_if_null(ConfigSection.panel[0]);
-    keypad(ConfigSection.win, TRUE);
+    vrmr_fatal_if_null(config_section.win);
+    config_section.panel[0] = new_panel(config_section.win);
+    vrmr_fatal_if_null(config_section.panel[0]);
+    keypad(config_section.win, TRUE);
 
     /* print labels */
-    mvwprintw(ConfigSection.win, 2, 4, "Tables");
+    mvwprintw(config_section.win, 2, 4, "Tables");
     if (iptcap->proc_net_names) {
-        mvwprintw(ConfigSection.win, 4, 4, "filter\t%s",
+        mvwprintw(config_section.win, 4, 4, "filter\t%s",
                 iptcap->table_filter ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 5, 4, "mangle\t%s",
+        mvwprintw(config_section.win, 5, 4, "mangle\t%s",
                 iptcap->table_mangle ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 6, 4, "nat\t\t%s",
+        mvwprintw(config_section.win, 6, 4, "nat\t\t%s",
                 iptcap->table_nat ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 7, 4, "raw\t\t%s",
+        mvwprintw(config_section.win, 7, 4, "raw\t\t%s",
                 iptcap->table_raw ? STR_YES : STR_NO);
     } else {
-        mvwprintw(ConfigSection.win, 4, 4, gettext("Could not check."));
+        mvwprintw(config_section.win, 4, 4, gettext("Could not check."));
     }
 
-    mvwprintw(ConfigSection.win, 9, 4, "Connection-");
-    mvwprintw(ConfigSection.win, 10, 4, " tracking");
-    mvwprintw(ConfigSection.win, 12, 4, "conntrack\t%s",
+    mvwprintw(config_section.win, 9, 4, "Connection-");
+    mvwprintw(config_section.win, 10, 4, " tracking");
+    mvwprintw(config_section.win, 12, 4, "conntrack\t%s",
             iptcap->conntrack ? STR_YES : STR_NO);
 
-    mvwprintw(ConfigSection.win, 14, 4, "NAT random\t%s",
+    mvwprintw(config_section.win, 14, 4, "NAT random\t%s",
             iptcap->target_nat_random ? STR_YES : STR_NO);
 
-    mvwprintw(ConfigSection.win, 2, 27, "Targets");
+    mvwprintw(config_section.win, 2, 27, "Targets");
     if (iptcap->proc_net_targets) {
-        mvwprintw(ConfigSection.win, 4, 27, "LOG\t\t%s",
+        mvwprintw(config_section.win, 4, 27, "LOG\t\t%s",
                 iptcap->target_log ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 5, 27, "REJECT\t%s",
+        mvwprintw(config_section.win, 5, 27, "REJECT\t%s",
                 iptcap->target_reject ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 8, 27, "SNAT\t\t%s",
+        mvwprintw(config_section.win, 8, 27, "SNAT\t\t%s",
                 iptcap->target_snat ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 9, 27, "MASQUERADE\t%s",
+        mvwprintw(config_section.win, 9, 27, "MASQUERADE\t%s",
                 iptcap->target_masquerade ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 10, 27, "DNAT\t\t%s",
+        mvwprintw(config_section.win, 10, 27, "DNAT\t\t%s",
                 iptcap->target_dnat ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 11, 27, "REDIRECT\t%s",
+        mvwprintw(config_section.win, 11, 27, "REDIRECT\t%s",
                 iptcap->target_redirect ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 12, 27, "MARK\t\t%s",
+        mvwprintw(config_section.win, 12, 27, "MARK\t\t%s",
                 iptcap->target_mark ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 13, 27, "CONNMARK\t%s",
+        mvwprintw(config_section.win, 13, 27, "CONNMARK\t%s",
                 iptcap->target_connmark ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 14, 27, "NFQUEUE\t%s",
+        mvwprintw(config_section.win, 14, 27, "NFQUEUE\t%s",
                 iptcap->target_nfqueue ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 15, 27, "CLASSIFY\t%s",
+        mvwprintw(config_section.win, 15, 27, "CLASSIFY\t%s",
                 iptcap->target_classify ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 16, 27, "TCPMSS\t%s",
+        mvwprintw(config_section.win, 16, 27, "TCPMSS\t%s",
                 iptcap->target_tcpmss ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 17, 27, "NFLOG\t%s",
+        mvwprintw(config_section.win, 17, 27, "NFLOG\t%s",
                 iptcap->target_nflog ? STR_YES : STR_NO);
     } else {
-        mvwprintw(ConfigSection.win, 4, 27, gettext("Could not check."));
+        mvwprintw(config_section.win, 4, 27, gettext("Could not check."));
     }
 
-    mvwprintw(ConfigSection.win, 2, 52, "Matches");
+    mvwprintw(config_section.win, 2, 52, "Matches");
     if (iptcap->proc_net_matches) {
-        mvwprintw(ConfigSection.win, 4, 52, "state\t%s",
+        mvwprintw(config_section.win, 4, 52, "state\t%s",
                 iptcap->match_state ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 5, 52, "mac\t\t%s",
+        mvwprintw(config_section.win, 5, 52, "mac\t\t%s",
                 iptcap->match_mac ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 6, 52, "mark\t%s",
+        mvwprintw(config_section.win, 6, 52, "mark\t%s",
                 iptcap->match_mark ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 7, 52, "limit\t%s",
+        mvwprintw(config_section.win, 7, 52, "limit\t%s",
                 iptcap->match_limit ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 8, 52, "helper\t%s",
+        mvwprintw(config_section.win, 8, 52, "helper\t%s",
                 iptcap->match_helper ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 9, 52, "length\t%s",
+        mvwprintw(config_section.win, 9, 52, "length\t%s",
                 iptcap->match_length ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 10, 52, "connmark\t%s",
+        mvwprintw(config_section.win, 10, 52, "connmark\t%s",
                 iptcap->match_connmark ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 11, 52, "rpfilter\t%s",
+        mvwprintw(config_section.win, 11, 52, "rpfilter\t%s",
                 iptcap->match_rpfilter ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 12, 52, "conntrack\t%s",
+        mvwprintw(config_section.win, 12, 52, "conntrack\t%s",
                 iptcap->match_conntrack ? STR_YES : STR_NO);
     } else {
-        mvwprintw(ConfigSection.win, 4, 52, gettext("Could not check."));
+        mvwprintw(config_section.win, 4, 52, gettext("Could not check."));
     }
 }
 
@@ -2395,7 +2397,7 @@ static int view_caps(struct vrmr_config *conf)
     /* Loop through to get user requests */
     while (quit == 0) {
         /* keyboard input */
-        ch = wgetch(ConfigSection.win);
+        ch = wgetch(config_section.win);
         switch (ch) {
             case 27:
             case KEY_F(10):
@@ -2434,8 +2436,8 @@ static int view_caps(struct vrmr_config *conf)
     }
 
     /* cleanup */
-    del_panel(ConfigSection.panel[0]);
-    destroy_win(ConfigSection.win);
+    del_panel(config_section.panel[0]);
+    destroy_win(config_section.win);
     update_panels();
     doupdate();
 
@@ -2452,87 +2454,89 @@ static void view_ip6_caps_init(int height, int width, int starty, int startx,
     /* safety */
     vrmr_fatal_if_null(iptcap);
 
-    ConfigSection.win = create_newwin(height, width, starty, startx,
+    config_section.win = create_newwin(height, width, starty, startx,
             gettext("View IPv6 Capabilities"), vccnf.color_win);
-    vrmr_fatal_if_null(ConfigSection.win);
-    ConfigSection.panel[0] = new_panel(ConfigSection.win);
-    vrmr_fatal_if_null(ConfigSection.panel[0]);
-    keypad(ConfigSection.win, TRUE);
+    vrmr_fatal_if_null(config_section.win);
+    config_section.panel[0] = new_panel(config_section.win);
+    vrmr_fatal_if_null(config_section.panel[0]);
+    keypad(config_section.win, TRUE);
 
     /* print labels */
-    mvwprintw(ConfigSection.win, 2, 4, "Tables");
+    mvwprintw(config_section.win, 2, 4, "Tables");
     if (iptcap->proc_net_ip6_names) {
-        mvwprintw(ConfigSection.win, 4, 4, "filter\t%s",
+        mvwprintw(config_section.win, 4, 4, "filter\t%s",
                 iptcap->table_ip6_filter ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 5, 4, "mangle\t%s",
+        mvwprintw(config_section.win, 5, 4, "mangle\t%s",
                 iptcap->table_ip6_mangle ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 6, 4, "raw\t\t%s",
+        mvwprintw(config_section.win, 6, 4, "raw\t\t%s",
                 iptcap->table_ip6_raw ? STR_YES : STR_NO);
     } else {
-        mvwprintw(ConfigSection.win, 4, 4, gettext("Could not check."));
+        mvwprintw(config_section.win, 4, 4, gettext("Could not check."));
     }
 
-    mvwprintw(ConfigSection.win, 8, 4, "Connection-");
-    mvwprintw(ConfigSection.win, 9, 4, " tracking");
+    mvwprintw(config_section.win, 8, 4, "Connection-");
+    mvwprintw(config_section.win, 9, 4, " tracking");
     /* TODO Need to check if this has a ipv6 version */
-    mvwprintw(ConfigSection.win, 11, 4, "conntrack\t%s",
+    mvwprintw(config_section.win, 11, 4, "conntrack\t%s",
             iptcap->conntrack ? STR_YES : STR_NO);
 
     /*
-        mvwprintw(ConfigSection.win, 14, 4, "NAT random\t%s",
+        mvwprintw(config_section.win, 14, 4, "NAT random\t%s",
        iptcap->target_nat_random ? STR_YES : STR_NO);
     */
 
-    mvwprintw(ConfigSection.win, 2, 27, "Targets");
+    mvwprintw(config_section.win, 2, 27, "Targets");
     if (iptcap->proc_net_ip6_targets) {
-        mvwprintw(ConfigSection.win, 4, 27, "LOG\t\t%s",
+        mvwprintw(config_section.win, 4, 27, "LOG\t\t%s",
                 iptcap->target_ip6_log ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 5, 27, "REJECT\t%s",
+        mvwprintw(config_section.win, 5, 27, "REJECT\t%s",
                 iptcap->target_ip6_reject ? STR_YES : STR_NO);
         /*
-                mvwprintw(ConfigSection.win, 8,  27, "SNAT\t\t%s",
-           iptcap->target_snat ? STR_YES : STR_NO); mvwprintw(ConfigSection.win,
-           9,  27, "MASQUERADE\t%s", iptcap->target_masquerade ? STR_YES :
-           STR_NO); mvwprintw(ConfigSection.win, 10, 27, "DNAT\t\t%s",
-           iptcap->target_dnat ? STR_YES : STR_NO); mvwprintw(ConfigSection.win,
-           11, 27, "REDIRECT\t%s", iptcap->target_redirect ? STR_YES : STR_NO);
+                mvwprintw(config_section.win, 8,  27, "SNAT\t\t%s",
+           iptcap->target_snat ? STR_YES : STR_NO);
+           mvwprintw(config_section.win, 9,  27, "MASQUERADE\t%s",
+           iptcap->target_masquerade ? STR_YES : STR_NO);
+           mvwprintw(config_section.win, 10, 27, "DNAT\t\t%s",
+           iptcap->target_dnat ? STR_YES : STR_NO);
+           mvwprintw(config_section.win, 11, 27, "REDIRECT\t%s",
+           iptcap->target_redirect ? STR_YES : STR_NO);
         */
-        mvwprintw(ConfigSection.win, 12, 27, "MARK\t\t%s",
+        mvwprintw(config_section.win, 12, 27, "MARK\t\t%s",
                 iptcap->target_ip6_mark ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 13, 27, "CONNMARK\t%s",
+        mvwprintw(config_section.win, 13, 27, "CONNMARK\t%s",
                 iptcap->target_ip6_connmark ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 14, 27, "NFQUEUE\t%s",
+        mvwprintw(config_section.win, 14, 27, "NFQUEUE\t%s",
                 iptcap->target_ip6_nfqueue ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 15, 27, "CLASSIFY\t%s",
+        mvwprintw(config_section.win, 15, 27, "CLASSIFY\t%s",
                 iptcap->target_ip6_classify ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 16, 27, "TCPMSS\t%s",
+        mvwprintw(config_section.win, 16, 27, "TCPMSS\t%s",
                 iptcap->target_ip6_tcpmss ? STR_YES : STR_NO);
     } else {
-        mvwprintw(ConfigSection.win, 4, 27, gettext("Could not check."));
+        mvwprintw(config_section.win, 4, 27, gettext("Could not check."));
     }
 
-    mvwprintw(ConfigSection.win, 2, 52, "Matches");
+    mvwprintw(config_section.win, 2, 52, "Matches");
     if (iptcap->proc_net_ip6_matches) {
-        mvwprintw(ConfigSection.win, 4, 52, "state\t%s",
+        mvwprintw(config_section.win, 4, 52, "state\t%s",
                 iptcap->match_ip6_state ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 5, 52, "mac\t\t%s",
+        mvwprintw(config_section.win, 5, 52, "mac\t\t%s",
                 iptcap->match_ip6_mac ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 6, 52, "mark\t%s",
+        mvwprintw(config_section.win, 6, 52, "mark\t%s",
                 iptcap->match_ip6_mark ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 7, 52, "limit\t%s",
+        mvwprintw(config_section.win, 7, 52, "limit\t%s",
                 iptcap->match_ip6_limit ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 8, 52, "helper\t%s",
+        mvwprintw(config_section.win, 8, 52, "helper\t%s",
                 iptcap->match_ip6_helper ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 9, 52, "length\t%s",
+        mvwprintw(config_section.win, 9, 52, "length\t%s",
                 iptcap->match_ip6_length ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 10, 52, "connmark\t%s",
+        mvwprintw(config_section.win, 10, 52, "connmark\t%s",
                 iptcap->match_ip6_connmark ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 11, 52, "rpfilter\t%s",
+        mvwprintw(config_section.win, 11, 52, "rpfilter\t%s",
                 iptcap->match_ip6_rpfilter ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 12, 52, "conntrack\t%s",
+        mvwprintw(config_section.win, 12, 52, "conntrack\t%s",
                 iptcap->match_ip6_conntrack ? STR_YES : STR_NO);
     } else {
-        mvwprintw(ConfigSection.win, 4, 52, gettext("Could not check."));
+        mvwprintw(config_section.win, 4, 52, gettext("Could not check."));
     }
 }
 
@@ -2586,7 +2590,7 @@ static int view_ip6_caps(struct vrmr_config *conf)
     /* Loop through to get user requests */
     while (quit == 0) {
         /* keyboard input */
-        ch = wgetch(ConfigSection.win);
+        ch = wgetch(config_section.win);
         switch (ch) {
             case 27:
             case KEY_F(10):
@@ -2625,8 +2629,8 @@ static int view_ip6_caps(struct vrmr_config *conf)
     }
 
     /* cleanup */
-    del_panel(ConfigSection.panel[0]);
-    destroy_win(ConfigSection.win);
+    del_panel(config_section.panel[0]);
+    destroy_win(config_section.win);
     update_panels();
     doupdate();
 

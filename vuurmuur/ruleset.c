@@ -27,20 +27,20 @@
 /* hack: in 0.8 we have to do this right! */
 struct vrmr_list accounting_chain_names; /* list with the chainnames */
 
-struct ChainRef {
+struct chain_ref {
     char chain[32];
     char refcnt;
 };
 
 /*  ruleset_init
 
-    Initializes the RuleSet datastructure.
+    Initializes the struct rule_set datastructure.
 
     Returncodes:
          0: ok
         -1: error
 */
-static int ruleset_setup(RuleSet *ruleset)
+static int ruleset_setup(struct rule_set *ruleset)
 {
     /* safety */
     if (ruleset == NULL) {
@@ -50,7 +50,7 @@ static int ruleset_setup(RuleSet *ruleset)
     }
 
     /* init */
-    memset(ruleset, 0, sizeof(RuleSet));
+    memset(ruleset, 0, sizeof(struct rule_set));
 
     /* init the lists */
 
@@ -109,7 +109,7 @@ static int ruleset_setup(RuleSet *ruleset)
     Returns:
         nothing, void function
 */
-static void ruleset_cleanup(RuleSet *ruleset)
+static void ruleset_cleanup(struct rule_set *ruleset)
 {
     /* safety */
     if (ruleset == NULL) {
@@ -163,7 +163,7 @@ static void ruleset_cleanup(RuleSet *ruleset)
     vrmr_list_cleanup(&ruleset->tc_rules);
 
     /* clear all memory */
-    memset(ruleset, 0, sizeof(RuleSet));
+    memset(ruleset, 0, sizeof(struct rule_set));
 }
 
 /*
@@ -179,7 +179,7 @@ static int ruleset_check_accounting(char *chain)
     char chain_found = 0;
     char stripped_chain[33] = "",
          commandline_switch[3] = ""; /* '-A' =2 + '\0' = 1 == 3 */
-    struct ChainRef *chainref_ptr = NULL;
+    struct chain_ref *chainref_ptr = NULL;
 
     /* safety */
     if (!chain) {
@@ -225,7 +225,7 @@ static int ruleset_check_accounting(char *chain)
 
             /* alloc since the chain name will not be a pointer to a static
              * buffer */
-            if (!(chainref_ptr = malloc(sizeof(struct ChainRef)))) {
+            if (!(chainref_ptr = malloc(sizeof(struct chain_ref)))) {
                 vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
                         strerror(errno), __FUNC__, __LINE__);
                 return (-1);
@@ -347,7 +347,7 @@ static int ruleset_writeprint(const int fd, const char *line)
 }
 
 /* Create the shaping script file */
-static int ruleset_fill_shaping_file(RuleSet *ruleset, int fd)
+static int ruleset_fill_shaping_file(struct rule_set *ruleset, int fd)
 {
     struct vrmr_list_node *d_node = NULL;
     char *ptr = NULL;
@@ -374,8 +374,8 @@ static int ruleset_fill_shaping_file(RuleSet *ruleset, int fd)
  *  \retval 0 ok
  *  \retval -1 error
  */
-static int ruleset_fill_file(
-        struct vrmr_ctx *vctx, RuleSet *ruleset, int ruleset_fd, int ipver)
+static int ruleset_fill_file(struct vrmr_ctx *vctx, struct rule_set *ruleset,
+        int ruleset_fd, int ipver)
 {
     struct vrmr_list_node *d_node = NULL;
     char *rule = NULL, *cname = NULL;
@@ -1297,7 +1297,8 @@ static int ruleset_load_shape_ruleset(char *path_to_ruleset,
          0: ok
         -1: error
 */
-static int ruleset_create_ruleset(struct vrmr_ctx *vctx, RuleSet *ruleset)
+static int ruleset_create_ruleset(
+        struct vrmr_ctx *vctx, struct rule_set *ruleset)
 {
     int result = 0;
     char forward_rules = 0;
@@ -1604,7 +1605,7 @@ static void load_ruleset_free_fds(int ruleset_fd, int result_fd, int shape_fd)
  */
 static int load_ruleset_ipv4(struct vrmr_ctx *vctx)
 {
-    RuleSet ruleset;
+    struct rule_set ruleset;
     char cur_ruleset_path[] = "/tmp/vuurmuur-XXXXXX";
     char cur_result_path[] = "/tmp/vuurmuur-load-result-XXXXXX";
     char cur_shape_path[] = "/tmp/vuurmuur-shape-XXXXXX";
@@ -1794,7 +1795,7 @@ static int load_ruleset_ipv4(struct vrmr_ctx *vctx)
  */
 static int load_ruleset_ipv6(struct vrmr_ctx *vctx)
 {
-    RuleSet ruleset;
+    struct rule_set ruleset;
     char cur_ruleset_path[] = "/tmp/vuurmuur-XXXXXX";
     char cur_result_path[] = "/tmp/vuurmuur-load-result-XXXXXX";
     int ruleset_fd = 0, result_fd = 0;

@@ -20,7 +20,7 @@
 
 #include "vuurmuur_script.h"
 
-int script_modify(VuurmuurScript *vr_script)
+int script_modify(struct vuurmuur_script *vr_script)
 {
     char found = FALSE;
     int result = 0;

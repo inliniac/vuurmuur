@@ -113,7 +113,7 @@ int search_in_ipt_line(char *line, size_t search_start, char *keyword,
         -1: error
 */
 int parse_ipt_logline(char *logline, size_t logline_len, char *sscanf_str,
-        struct vrmr_log_record *log_record, struct Counters_ *counter_ptr)
+        struct vrmr_log_record *log_record, struct logcounters *counter_ptr)
 {
     int result = 0;
     size_t hostname_len = 0, pre_prefix_len = 0, str_begin = 0, str_end = 0,

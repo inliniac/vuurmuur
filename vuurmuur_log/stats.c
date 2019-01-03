@@ -24,7 +24,7 @@
 #include "vuurmuur_log.h"
 #include "stats.h"
 
-void show_stats(struct Counters_ *c)
+void show_stats(struct logcounters *c)
 {
     fprintf(stdout, "\nStatistics:\n");
 
@@ -47,7 +47,7 @@ void show_stats(struct Counters_ *c)
     return;
 }
 
-void upd_action_ctrs(char *action, struct Counters_ *c)
+void upd_action_ctrs(char *action, struct logcounters *c)
 {
     /* ACTION counters */
     if (strcmp(action, "DROP") == 0)

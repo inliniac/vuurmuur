@@ -34,14 +34,14 @@ char *get_filelocation(void *backend, char *name, const int type)
     char hostname[VRMR_MAX_HOST] = "", networkname[VRMR_MAX_NETWORK] = "",
          zonename[VRMR_MAX_ZONE] = "";
     char file_location[512] = "", *fileloc_ptr = NULL;
-    struct TextdirBackend_ *tb = NULL;
+    struct textdir_backend *tb = NULL;
 
     /* better safe than sorry */
     if (!backend || !name) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", HIGH);
         return (NULL);
     }
-    tb = (struct TextdirBackend_ *)backend;
+    tb = (struct textdir_backend *)backend;
 
     /* check if backend is open */
     if (!tb->backend_open) {
@@ -233,7 +233,7 @@ char *get_filelocation(void *backend, char *name, const int type)
 */
 int open_textdir(void *backend, int mode, int type)
 {
-    struct TextdirBackend_ *tb = NULL;
+    struct textdir_backend *tb = NULL;
     char dir_location[PATH_MAX] = "";
     DIR *dir_p = NULL;
 
@@ -244,7 +244,7 @@ int open_textdir(void *backend, int mode, int type)
     }
 
     /* check if the backend is opened */
-    tb = (struct TextdirBackend_ *)backend;
+    tb = (struct textdir_backend *)backend;
 
     /* see if we like the permissions of the textdirroot */
     if (!(vrmr_stat_ok(tb->cfg, tb->textdirlocation, VRMR_STATOK_WANT_DIR,
@@ -396,14 +396,14 @@ int open_textdir(void *backend, int mode, int type)
 
 int close_textdir(void *backend, int type)
 {
-    struct TextdirBackend_ *tb = NULL;
+    struct textdir_backend *tb = NULL;
 
     if (backend == NULL) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", HIGH,
                 __LINE__);
         return (-1);
     }
-    tb = (struct TextdirBackend_ *)backend;
+    tb = (struct textdir_backend *)backend;
 
     if (tb->backend_open == 1) {
         vrmr_debug(HIGH, "closing: setting backend_open to 0");
@@ -468,7 +468,7 @@ static int create_dir_if_missing(const char *dir_location)
 int add_textdir(void *backend, char *name, int type)
 {
     FILE *fp = NULL;
-    struct TextdirBackend_ *tb = NULL;
+    struct textdir_backend *tb = NULL;
     char *file_location = NULL, dir_location[PATH_MAX] = "",
          hostname[VRMR_MAX_HOST] = "", networkname[VRMR_MAX_NETWORK] = "",
          zonename[VRMR_MAX_ZONE] = "";
@@ -481,7 +481,7 @@ int add_textdir(void *backend, char *name, int type)
     }
 
     /* check if the backend is open */
-    tb = (struct TextdirBackend_ *)backend;
+    tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
         vrmr_error(-1, "Error", "Backend not opened yet (in: %s:%d).", HIGH,
                 __LINE__);
@@ -752,7 +752,7 @@ int del_textdir(void *backend, char *name, int type, int recurs)
     char *file_location = NULL, dir_location[512] = "",
          hostname[VRMR_MAX_HOST] = "", networkname[VRMR_MAX_NETWORK] = "",
          zonename[VRMR_MAX_ZONE] = "";
-    struct TextdirBackend_ *tb = NULL;
+    struct textdir_backend *tb = NULL;
 
     /* safety */
     if (!backend || !name) {
@@ -761,7 +761,7 @@ int del_textdir(void *backend, char *name, int type, int recurs)
     }
 
     /* check if the backend was properly openend */
-    tb = (struct TextdirBackend_ *)backend;
+    tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
         vrmr_error(-1, "Error", "backend not opened yet (in: %s).", HIGH);
         return (-1);
@@ -1008,7 +1008,7 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
          new_net_name[VRMR_MAX_NETWORK] = "", new_host_name[VRMR_MAX_HOST] = "";
     char old_zone_name[VRMR_MAX_ZONE] = "", old_net_name[VRMR_MAX_NETWORK] = "",
          old_host_name[VRMR_MAX_HOST] = "";
-    struct TextdirBackend_ *tb = NULL;
+    struct textdir_backend *tb = NULL;
     char new_file_location[256] = "", old_file_location[256] = "";
 
     /* safety */
@@ -1018,7 +1018,7 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
     }
 
     /* check if the backend was properly openend */
-    tb = (struct TextdirBackend_ *)backend;
+    tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
         vrmr_error(-1, "Error", "backend not opened yet (in: %s).", HIGH);
         return (-1);
@@ -1184,14 +1184,14 @@ int conf_textdir(void *backend)
 {
     int retval = 0, result = 0;
     char configfile_location[512] = "";
-    struct TextdirBackend_ *tb = NULL;
+    struct textdir_backend *tb = NULL;
 
     /* safety first */
     if (!backend) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", HIGH);
         return (-1);
     }
-    tb = (struct TextdirBackend_ *)backend;
+    tb = (struct textdir_backend *)backend;
 
     /* assemble config location */
     if (snprintf(configfile_location, sizeof(configfile_location),
@@ -1229,9 +1229,9 @@ int conf_textdir(void *backend)
 
 int setup_textdir(const struct vrmr_config *cfg, void **backend)
 {
-    struct TextdirBackend_ *tb = NULL;
+    struct textdir_backend *tb = NULL;
 
-    if (!(tb = malloc(sizeof(struct TextdirBackend_)))) {
+    if (!(tb = malloc(sizeof(struct textdir_backend)))) {
         vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
                 strerror(errno), HIGH, __LINE__);
         return (-1);

@@ -20,7 +20,7 @@
 
 #include "main.h"
 
-void vcconfig_use_defaults(vc_cnf *cnf)
+void vcconfig_use_defaults(struct vrmr_gui_conf *cnf)
 {
     vrmr_fatal_if_null(cnf);
 
@@ -36,8 +36,8 @@ void vcconfig_use_defaults(vc_cnf *cnf)
             sizeof(cnf->iptrafvol_location));
 }
 
-int init_vcconfig(
-        struct vrmr_config *conf, char *configfile_location, vc_cnf *cnf)
+int init_vcconfig(struct vrmr_config *conf, char *configfile_location,
+        struct vrmr_gui_conf *cnf)
 {
     int retval = VRMR_CNF_OK, result = 0;
     char answer[32] = "";
@@ -251,7 +251,7 @@ int init_vcconfig(
 
     Writes the config to disk.
 */
-int write_vcconfigfile(char *file_location, vc_cnf *cnf)
+int write_vcconfigfile(char *file_location, struct vrmr_gui_conf *cnf)
 {
     FILE *fp = NULL;
 

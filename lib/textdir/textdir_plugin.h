@@ -31,7 +31,7 @@
 
 #define MAX_RULE_NAME 32
 
-struct TextdirBackend_ {
+struct textdir_backend {
     /* 0: if backend is closed, 1: open */
     int backend_open;
 

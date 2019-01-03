@@ -56,15 +56,14 @@
 #define SRCDST_DESTINATION (char)1
 
 /*  structure for storing an iptables rule in the queue. */
-typedef struct {
+struct iptables_rule {
     int ipv; /**< VRMR_IPV4 or VRMR_IPV6 */
     char *table;
     char *chain;
     char cmd[VRMR_MAX_PIPE_COMMAND];
     unsigned long long packets;
     unsigned long long bytes;
-
-} IptRule;
+};
 
 static char *create_state_string(
         struct vrmr_config *conf, int ipv, struct vrmr_iptcaps *iptcap)
@@ -193,8 +192,9 @@ static int pipe_ip6tables_command(
 }
 #endif /* IPV6_ENABLED */
 
-/*  compare two IptRule structs and return 1 if they match, 0 otherwise */
-static int iptrulecmp(IptRule *r1, IptRule *r2)
+/*  compare two struct iptables_rule structs and return 1 if they match, 0
+ * otherwise */
+static int iptrulecmp(struct iptables_rule *r1, struct iptables_rule *r2)
 {
     if (r1 == NULL || r2 == NULL) {
         vrmr_error(-1, "Internal Error",
@@ -213,12 +213,13 @@ static int iptrulecmp(IptRule *r1, IptRule *r2)
     return (0);
 }
 
-/*  insert a new IptRule struct into the list, but first check if it is not
-    a duplicate. If it is a dup, just drop it. */
-static int iptrule_insert(struct RuleCreateData_ *rule, IptRule *iptrule)
+/*  insert a new struct iptables_rule struct into the list, but first check if
+   it is not a duplicate. If it is a dup, just drop it. */
+static int iptrule_insert(
+        struct rule_scratch *rule, struct iptables_rule *iptrule)
 {
     struct vrmr_list_node *d_node = NULL;
-    IptRule *listrule = NULL;
+    struct iptables_rule *listrule = NULL;
 
     if (iptrule == NULL || rule == NULL) {
         vrmr_error(-1, "Internal Error",
@@ -255,11 +256,11 @@ static int iptrule_insert(struct RuleCreateData_ *rule, IptRule *iptrule)
     This function must _only_ be called from the normal rule creation
     functions, not from pre-rules, post-rules, etc.
     */
-static int queue_rule(struct RuleCreateData_ *rule,
-        /*@null@*/ RuleSet *ruleset, char *table, char *chain, char *cmd,
-        unsigned long long packets, unsigned long long bytes)
+static int queue_rule(struct rule_scratch *rule,
+        /*@null@*/ struct rule_set *ruleset, char *table, char *chain,
+        char *cmd, unsigned long long packets, unsigned long long bytes)
 {
-    IptRule *iptrule = NULL;
+    struct iptables_rule *iptrule = NULL;
 
     /* safety */
     if (cmd == NULL || table == NULL || chain == NULL || rule == NULL) {
@@ -278,7 +279,7 @@ static int queue_rule(struct RuleCreateData_ *rule,
         return (-1);
     }
 
-    iptrule = malloc(sizeof(IptRule));
+    iptrule = malloc(sizeof(struct iptables_rule));
     if (iptrule == NULL) {
         vrmr_error(-1, "Error",
                 "malloc failed: %s "
@@ -305,9 +306,9 @@ static int queue_rule(struct RuleCreateData_ *rule,
  *
  *  \param ipv VRMR_IPV4 or VRMR_IPV6
  */
-static int process_rule(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        int ipv, char *table, char *chain, char *cmd,
-        unsigned long long packets, unsigned long long bytes)
+static int process_rule(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, int ipv, char *table, char *chain,
+        char *cmd, unsigned long long packets, unsigned long long bytes)
 {
     /* safety */
     if (cmd == NULL || table == NULL || chain == NULL) {
@@ -442,11 +443,11 @@ static int process_rule(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
 /*  at the end of processing one vuurmuur rule, we should have a queue
     filled with iptables rules, none of which are duplicate. This function
     passes them to process_rule */
-int process_queued_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct RuleCreateData_ *rule)
+int process_queued_rules(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule)
 {
     struct vrmr_list_node *d_node = NULL;
-    IptRule *r = NULL;
+    struct iptables_rule *r = NULL;
 
     if (rule == NULL) {
         vrmr_error(-1, "Internal Error",
@@ -476,9 +477,9 @@ int process_queued_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
         -1: error
          0: ok
 */
-int create_rule_input(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create,
-        struct vrmr_iptcaps *iptcap)
+int create_rule_input(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+        struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "",
@@ -623,9 +624,9 @@ int create_rule_input(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (iptcap->match_helper == FALSE) {
-                    vrmr_warning(
-                            "Warning", "mark rules not created: helper-match "
-                                       "not supported by this system.");
+                    vrmr_warning("Warning",
+                            "mark rules not created: helper-match "
+                            "not supported by this system.");
                     return (0); /* this is not an error */
                 }
             }
@@ -757,9 +758,9 @@ int create_rule_input(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (iptcap->match_helper == FALSE) {
-                    vrmr_warning(
-                            "Warning", "mark rules not created: helper-match "
-                                       "not supported by this system.");
+                    vrmr_warning("Warning",
+                            "mark rules not created: helper-match "
+                            "not supported by this system.");
                     return (0); /* this is not an error */
                 }
             }
@@ -944,9 +945,9 @@ int create_rule_input(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
         -1: error
          0: ok
 */
-int create_rule_output(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create,
-        struct vrmr_iptcaps *iptcap)
+int create_rule_output(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+        struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "",
@@ -1088,9 +1089,9 @@ int create_rule_output(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (iptcap->match_helper == FALSE) {
-                    vrmr_warning(
-                            "Warning", "mark rules not created: helper-match "
-                                       "not supported by this system.");
+                    vrmr_warning("Warning",
+                            "mark rules not created: helper-match "
+                            "not supported by this system.");
                     return (0); /* this is not an error */
                 }
             }
@@ -1222,9 +1223,9 @@ int create_rule_output(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (iptcap->match_helper == FALSE) {
-                    vrmr_warning(
-                            "Warning", "mark rules not created: helper-match "
-                                       "not supported by this system.");
+                    vrmr_warning("Warning",
+                            "mark rules not created: helper-match "
+                            "not supported by this system.");
                     return (0); /* this is not an error */
                 }
             }
@@ -1408,9 +1409,9 @@ int create_rule_output(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
     return (retval);
 }
 
-int create_rule_forward(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create,
-        struct vrmr_iptcaps *iptcap)
+int create_rule_forward(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+        struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "",
@@ -1594,9 +1595,9 @@ int create_rule_forward(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (iptcap->match_helper == FALSE) {
-                    vrmr_warning(
-                            "Warning", "mark rules not created: helper-match "
-                                       "not supported by this system.");
+                    vrmr_warning("Warning",
+                            "mark rules not created: helper-match "
+                            "not supported by this system.");
                     return (0); /* this is not an error */
                 }
             }
@@ -1734,9 +1735,9 @@ int create_rule_forward(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (iptcap->match_helper == FALSE) {
-                    vrmr_warning(
-                            "Warning", "mark rules not created: helper-match "
-                                       "not supported by this system.");
+                    vrmr_warning("Warning",
+                            "mark rules not created: helper-match "
+                            "not supported by this system.");
                     return (0); /* this is not an error */
                 }
             }
@@ -1934,9 +1935,9 @@ int create_rule_forward(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
     return (retval);
 }
 
-int create_rule_masq(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create,
-        struct vrmr_iptcaps *iptcap)
+int create_rule_masq(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+        struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
     char output_device[sizeof(rule->to_int) + 3] = "";
@@ -1991,9 +1992,9 @@ int create_rule_masq(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
 /*
     TODO: maybe we want an option to use only one interface.
 */
-int create_rule_snat(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create,
-        struct vrmr_iptcaps *iptcap)
+int create_rule_snat(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+        struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND];
     char output_device[sizeof(rule->to_int) + 3] = "";
@@ -2059,9 +2060,9 @@ int create_rule_snat(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
 
     For PORTFW we handle both listenport and remoteport options.
 */
-int create_rule_portfw(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create,
-        struct vrmr_iptcaps *iptcap)
+int create_rule_portfw(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+        struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -2220,9 +2221,9 @@ int create_rule_portfw(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
 
     see pp 278 linux firewall 2nd edition 274-275 for redirect
 */
-int create_rule_redirect(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create,
-        struct vrmr_iptcaps *iptcap)
+int create_rule_redirect(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+        struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
     char tmp_port[sizeof(rule->temp_dst_port)] = "",
@@ -2341,9 +2342,9 @@ int create_rule_redirect(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
 
 
 */
-int create_rule_dnat(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create,
-        struct vrmr_iptcaps *iptcap)
+int create_rule_dnat(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+        struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -2452,9 +2453,9 @@ int create_rule_dnat(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
 /*  create_rule_bounce
 
 */
-int create_rule_bounce(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create,
-        struct vrmr_iptcaps *iptcap)
+int create_rule_bounce(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+        struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -2630,7 +2631,7 @@ int create_rule_bounce(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
          0: ok
 */
 int create_rule_input_broadcast(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct RuleCreateData_ *rule,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
@@ -2750,7 +2751,7 @@ int create_rule_input_broadcast(struct vrmr_config *conf,
          0: ok
 */
 int create_rule_output_broadcast(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct RuleCreateData_ *rule,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
@@ -2860,7 +2861,7 @@ int create_rule_output_broadcast(struct vrmr_config *conf,
 }
 
 static int create_interface_tcpmss_rules(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_interfaces *interfaces,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_interfaces *interfaces,
         struct vrmr_iptcaps *iptcap, int ipv)
 {
     struct vrmr_list_node *d_node = NULL;
@@ -2943,7 +2944,7 @@ static char limit[] = "-m limit --limit 1/s --limit-burst 2";
  *  \brief Flush chains (bash output mode)
  */
 static int pre_rules_flush_chains(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_interfaces *interfaces,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_interfaces *interfaces,
         struct vrmr_iptcaps *iptcap)
 {
     if (ruleset == NULL) {
@@ -3007,7 +3008,8 @@ static int pre_rules_flush_chains(struct vrmr_config *conf,
 }
 
 static int pre_rules_conntrack(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -3090,7 +3092,8 @@ static int pre_rules_conntrack(struct vrmr_config *conf,
 }
 
 static int pre_rules_pre_vrmr(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -3331,7 +3334,8 @@ static int pre_rules_pre_vrmr(struct vrmr_config *conf,
 }
 
 static int pre_rules_shape(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -3383,7 +3387,8 @@ static int pre_rules_shape(struct vrmr_config *conf,
 }
 
 static int pre_rules_loopback(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -3407,7 +3412,7 @@ static int pre_rules_loopback(struct vrmr_config *conf,
 }
 
 static int pre_rules_interface_counters_ipv4(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_interfaces *interfaces,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_interfaces *interfaces,
         struct vrmr_iptcaps *iptcap, int ipv)
 {
     int retval = 0;
@@ -3531,7 +3536,8 @@ static int pre_rules_interface_counters_ipv4(struct vrmr_config *conf,
 }
 
 static int pre_rules_set_policy(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0, result = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -3595,7 +3601,8 @@ static int pre_rules_set_policy(struct vrmr_config *conf,
 }
 
 static int pre_rules_bad_packets(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -3950,7 +3957,8 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
 }
 
 static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4062,7 +4070,7 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
 }
 
 static int pre_rules_blocklist_ipv4(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4141,7 +4149,8 @@ static int pre_rules_blocklist_ipv4(struct vrmr_config *conf,
 }
 
 static int pre_rules_synlimit(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4175,7 +4184,8 @@ static int pre_rules_synlimit(struct vrmr_config *conf,
 }
 
 static int pre_rules_udplimit(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4209,7 +4219,8 @@ static int pre_rules_udplimit(struct vrmr_config *conf,
 }
 
 static int pre_rules_newaccept(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4265,7 +4276,8 @@ static int pre_rules_newaccept(struct vrmr_config *conf,
 }
 
 static int pre_rules_nfqueue(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4353,7 +4365,8 @@ static int pre_rules_nfqueue(struct vrmr_config *conf,
 }
 
 static int pre_rules_nflog(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4440,7 +4453,8 @@ static int pre_rules_nflog(struct vrmr_config *conf,
 }
 
 static int pre_rules_tcpreset(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4483,7 +4497,7 @@ static int pre_rules_tcpreset(struct vrmr_config *conf,
 }
 
 static int pre_rules_antispoof_ipv4(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4524,7 +4538,7 @@ static int pre_rules_antispoof_ipv4(struct vrmr_config *conf,
 
 #ifdef IPV6_ENABLED
 static int pre_rules_icmp_ipv6(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4561,7 +4575,7 @@ static int pre_rules_icmp_ipv6(struct vrmr_config *conf,
         connection tracking
         portscan detection
 */
-int pre_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
+int pre_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
         struct vrmr_interfaces *interfaces, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
@@ -4721,8 +4735,9 @@ int pre_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
  *
  *  \note if the limit-match is not supported, bail out of here.
  */
-int update_synlimit_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct vrmr_iptcaps *iptcap, int ipv)
+int update_synlimit_rules(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0, result = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4811,8 +4826,9 @@ int update_synlimit_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
  *
  *  \note if the limit-match is not supported, bail out of here.
  */
-int update_udplimit_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct vrmr_iptcaps *iptcap, int ipv)
+int update_udplimit_rules(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
+        int ipv)
 {
     int retval = 0, result = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4907,7 +4923,7 @@ int update_udplimit_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
  *
  *  \todo IP forwarding for IPv6
  */
-int post_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
+int post_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
         struct vrmr_iptcaps *iptcap, int forward_rules, int ipv)
 {
     int retval = 0, result = 0;
@@ -5062,7 +5078,7 @@ int post_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
 }
 
 static int create_interface_rpfilter_rules(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
         struct vrmr_rule_cache *create, struct vrmr_interface *if_ptr)
 {
     char input_device[16 + 3] = ""; /* 16 + '-i ' */
@@ -5165,7 +5181,7 @@ static int create_interface_rpfilter_rules(struct vrmr_config *conf,
 }
 
 int create_interface_rules(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
         struct vrmr_interfaces *interfaces)
 {
     struct vrmr_rule_cache *create = NULL;
@@ -5291,7 +5307,7 @@ int create_interface_rules(struct vrmr_config *conf,
 */
 
 static int create_network_antispoof_rule(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_iptcaps *iptcap,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
         struct vrmr_rule_cache *create, struct vrmr_interface *from_if_ptr)
 {
     char input_device[16 + 3] = "";  /* 16 + '-i ' */
@@ -5488,7 +5504,7 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
     TODO: add some descriptions to each rule. What they do, etc.
 */
 static int create_network_protect_rules_dhcp_server(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_zones *zones,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_zones *zones,
         struct vrmr_iptcaps *iptcap, struct vrmr_rule_cache *create,
         struct vrmr_interface *if_ptr)
 {
@@ -5597,7 +5613,7 @@ static int create_network_protect_rules_dhcp_server(struct vrmr_config *conf,
     TODO: add some descriptions to each rule. What they do, etc.
 */
 static int create_network_protect_rules_dhcp_client(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_zones *zones,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_zones *zones,
         struct vrmr_iptcaps *iptcap, struct vrmr_rule_cache *create,
         struct vrmr_interface *if_ptr)
 {
@@ -5691,7 +5707,7 @@ static int create_network_protect_rules_dhcp_client(struct vrmr_config *conf,
     we don't care if the network is active or not
 */
 int create_network_protect_rules(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_zones *zones,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_zones *zones,
         struct vrmr_iptcaps *iptcap)
 {
     struct vrmr_rule_cache *create = NULL;
@@ -5835,8 +5851,8 @@ int create_network_protect_rules(struct vrmr_config *conf,
     return (0);
 }
 
-int create_block_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct vrmr_blocklist *blocklist)
+int create_block_rules(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_blocklist *blocklist)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND] = "", *ipaddress = NULL;
     struct vrmr_list_node *d_node = NULL;
@@ -5890,7 +5906,7 @@ int create_block_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
  *          -1: error
  */
 int create_estrelnfqueue_rules(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_rules *rules,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_rules *rules,
         struct vrmr_iptcaps *iptcap, int ipv)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -5974,7 +5990,7 @@ int create_estrelnfqueue_rules(struct vrmr_config *conf,
  *          -1: error
  */
 int create_newnfqueue_rules(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_rules *rules,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_rules *rules,
         struct vrmr_iptcaps *iptcap, int ipv)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -6061,7 +6077,7 @@ int create_newnfqueue_rules(struct vrmr_config *conf,
  *          -1: error
  */
 int create_estrelnflog_rules(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_rules *rules,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_rules *rules,
         struct vrmr_iptcaps *iptcap, int ipv)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -6166,8 +6182,9 @@ int create_estrelnflog_rules(struct vrmr_config *conf,
  * Return:  0: ok
  *          -1: error
  */
-int create_newnflog_rules(struct vrmr_config *conf, /*@null@*/ RuleSet *ruleset,
-        struct vrmr_rules *rules, struct vrmr_iptcaps *iptcap, int ipv)
+int create_newnflog_rules(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_rules *rules,
+        struct vrmr_iptcaps *iptcap, int ipv)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
     struct vrmr_list_node *d_node = NULL;

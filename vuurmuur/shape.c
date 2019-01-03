@@ -48,16 +48,15 @@ static u_int32_t shaping_convert_rate(u_int32_t rate, char *unit)
  * 9216kbit prio 1 /sbin/tc class add dev eth2 parent 4:3 classid 4:12 htb rate
  * 8192kbit ceil 9216kbit prio 1
  */
-typedef struct {
+struct shape_rule {
     u_int16_t handle;
     u_int16_t class;
     char cmd[VRMR_MAX_PIPE_COMMAND];
     char device[16];
-
-} ShapeRule;
+};
 
 /*  compare two shaping rules and return 1 if they match, 0 otherwise */
-static int shaping_rulecmp(ShapeRule *r1, ShapeRule *r2)
+static int shaping_rulecmp(struct shape_rule *r1, struct shape_rule *r2)
 {
     if (r1 == NULL || r2 == NULL) {
         vrmr_error(-1, "Internal Error",
@@ -78,10 +77,10 @@ static int shaping_rulecmp(ShapeRule *r1, ShapeRule *r2)
 /*  insert a new shape rule into the list, but first check if it is not
     a duplicate. If it is a dup, just drop it. */
 static int shaping_ruleinsert(
-        struct RuleCreateData_ *rule, ShapeRule *shape_rule)
+        struct rule_scratch *rule, struct shape_rule *shape_rule)
 {
     struct vrmr_list_node *d_node = NULL;
-    ShapeRule *listrule = NULL;
+    struct shape_rule *listrule = NULL;
 
     if (shape_rule == NULL || rule == NULL) {
         vrmr_error(-1, "Internal Error",
@@ -118,11 +117,11 @@ static int shaping_ruleinsert(
     This function must _only_ be called from the normal rule creation
     function: shaping_shape_create_rule
     */
-static int shaping_queue_rule(struct RuleCreateData_ *rule,
-        /*@null@*/ RuleSet *ruleset, u_int16_t handle, u_int16_t class,
+static int shaping_queue_rule(struct rule_scratch *rule,
+        /*@null@*/ struct rule_set *ruleset, u_int16_t handle, u_int16_t class,
         char *device, char *cmd)
 {
-    ShapeRule *shape_rule = NULL;
+    struct shape_rule *shape_rule = NULL;
 
     /* safety */
     if (cmd == NULL || rule == NULL) {
@@ -133,7 +132,7 @@ static int shaping_queue_rule(struct RuleCreateData_ *rule,
         return (-1);
     }
 
-    shape_rule = malloc(sizeof(ShapeRule));
+    shape_rule = malloc(sizeof(struct shape_rule));
     if (shape_rule == NULL) {
         vrmr_error(-1, "Error",
                 "malloc failed: %s "
@@ -153,7 +152,7 @@ static int shaping_queue_rule(struct RuleCreateData_ *rule,
     return (0);
 }
 static int shaping_process_rule(
-        struct vrmr_config *cnf, /*@null@*/ RuleSet *ruleset, char *cmd)
+        struct vrmr_config *cnf, /*@null@*/ struct rule_set *ruleset, char *cmd)
 {
     char *buf = NULL;
 
@@ -184,10 +183,10 @@ static int shaping_process_rule(
     filled with tc rules, none of which are duplicate. This function
     passes them to process_rule */
 int shaping_process_queued_rules(struct vrmr_config *cnf,
-        /*@null@*/ RuleSet *ruleset, struct RuleCreateData_ *rule)
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule)
 {
     struct vrmr_list_node *d_node = NULL;
-    ShapeRule *r = NULL;
+    struct shape_rule *r = NULL;
 
     if (rule == NULL) {
         vrmr_error(-1, "Internal Error",
@@ -214,7 +213,7 @@ int shaping_process_queued_rules(struct vrmr_config *cnf,
  * Returns 0: ok -1: error
  */
 int shaping_clear_interfaces(struct vrmr_config *cnf,
-        struct vrmr_interfaces *interfaces, /*@null@*/ RuleSet *ruleset)
+        struct vrmr_interfaces *interfaces, /*@null@*/ struct rule_set *ruleset)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
@@ -256,7 +255,7 @@ int shaping_clear_interfaces(struct vrmr_config *cnf,
 
 static int shaping_setup_interface_classes(struct vrmr_config *cnf,
         struct vrmr_interfaces *interfaces, struct vrmr_interface *iface_ptr,
-        /*@null@*/ RuleSet *ruleset)
+        /*@null@*/ struct rule_set *ruleset)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *inner_iface_ptr = NULL;
@@ -310,7 +309,7 @@ static int shaping_setup_interface_classes(struct vrmr_config *cnf,
 }
 
 int shaping_setup_roots(struct vrmr_config *cnf,
-        struct vrmr_interfaces *interfaces, /*@null@*/ RuleSet *ruleset)
+        struct vrmr_interfaces *interfaces, /*@null@*/ struct rule_set *ruleset)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
@@ -520,7 +519,7 @@ int shaping_determine_minimal_default_rates(
 /* create the default rule per interface. This rule will be used when
  * no class is picked. */
 int shaping_create_default_rules(struct vrmr_config *cnf,
-        struct vrmr_interfaces *interfaces, /*@null@*/ RuleSet *ruleset)
+        struct vrmr_interfaces *interfaces, /*@null@*/ struct rule_set *ruleset)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
@@ -574,8 +573,9 @@ int shaping_create_default_rules(struct vrmr_config *cnf,
 }
 
 int shaping_shape_create_rule(struct vrmr_config *cnf,
-        struct vrmr_interfaces *interfaces, struct RuleCreateData_ *rule,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_interface *shape_iface_ptr,
+        struct vrmr_interfaces *interfaces, struct rule_scratch *rule,
+        /*@null@*/ struct rule_set *ruleset,
+        struct vrmr_interface *shape_iface_ptr,
         struct vrmr_interface *class_iface_ptr, u_int16_t class, u_int32_t rate,
         char *rate_unit, u_int32_t ceil, char *ceil_unit, u_int8_t prio)
 {

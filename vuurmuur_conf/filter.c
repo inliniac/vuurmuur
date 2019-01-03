@@ -20,11 +20,11 @@
 
 #include "main.h"
 
-struct FilterFields_ {
+struct {
     FIELD **fields;
     FIELD *string_fld, *check_fld;
     size_t n_fields;
-} FiFi;
+} filter_fields;
 
 static int filter_save(struct vrmr_filter *filter)
 {
@@ -35,9 +35,9 @@ static int filter_save(struct vrmr_filter *filter)
     vrmr_fatal_if_null(filter);
 
     /* check for changed fields */
-    for (i = 0; i < FiFi.n_fields; i++) {
-        if (FiFi.fields[i] == FiFi.check_fld) {
-            if (strncmp(field_buffer(FiFi.fields[i], 0), "X", 1) == 0)
+    for (i = 0; i < filter_fields.n_fields; i++) {
+        if (filter_fields.fields[i] == filter_fields.check_fld) {
+            if (strncmp(field_buffer(filter_fields.fields[i], 0), "X", 1) == 0)
                 filter->neg = TRUE;
             else
                 filter->neg = FALSE;
@@ -46,8 +46,9 @@ static int filter_save(struct vrmr_filter *filter)
                     filter->neg ? "TRUE" : "FALSE");
         }
         /* ipaddress field */
-        else if (FiFi.fields[i] == FiFi.string_fld) {
-            copy_field2buf(filter->str, field_buffer(FiFi.fields[i], 0),
+        else if (filter_fields.fields[i] == filter_fields.string_fld) {
+            copy_field2buf(filter->str,
+                    field_buffer(filter_fields.fields[i], 0),
                     sizeof(filter->str));
 
             vrmr_debug(MEDIUM, "filter field changed: %s.", filter->str);
@@ -102,7 +103,7 @@ int filter_input_box(struct vrmr_filter *filter)
     char not_defined = FALSE;
 
     /* init fields */
-    memset(&FiFi, 0, sizeof(struct FilterFields_));
+    memset(&filter_fields, 0, sizeof(filter_fields));
 
     /* set the window size */
     getmaxyx(stdscr, max_height, max_width);
@@ -118,25 +119,28 @@ int filter_input_box(struct vrmr_filter *filter)
     vrmr_fatal_if_null(ib_win);
     my_panels[0] = new_panel(ib_win);
     vrmr_fatal_if_null(my_panels[0]);
-    FiFi.n_fields = 2;
+    filter_fields.n_fields = 2;
 
-    FiFi.fields = (FIELD **)calloc(FiFi.n_fields + 1, sizeof(FIELD *));
-    vrmr_fatal_alloc("calloc", FiFi.fields);
+    filter_fields.fields =
+            (FIELD **)calloc(filter_fields.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_alloc("calloc", filter_fields.fields);
 
-    FiFi.string_fld = (FiFi.fields[0] = new_field(1, 31, 3, 4, 0, 0));
-    FiFi.check_fld = (FiFi.fields[1] = new_field(1, 1, 5, 5, 0, 0));
+    filter_fields.string_fld =
+            (filter_fields.fields[0] = new_field(1, 31, 3, 4, 0, 0));
+    filter_fields.check_fld =
+            (filter_fields.fields[1] = new_field(1, 1, 5, 5, 0, 0));
 
-    set_field_back(FiFi.string_fld, vccnf.color_win_rev);
-    field_opts_off(FiFi.string_fld, O_AUTOSKIP);
-    set_field_status(FiFi.string_fld, FALSE);
-    set_field_buffer_wrap(FiFi.string_fld, 0, filter->str);
+    set_field_back(filter_fields.string_fld, vccnf.color_win_rev);
+    field_opts_off(filter_fields.string_fld, O_AUTOSKIP);
+    set_field_status(filter_fields.string_fld, FALSE);
+    set_field_buffer_wrap(filter_fields.string_fld, 0, filter->str);
 
-    set_field_back(FiFi.check_fld, vccnf.color_win);
-    field_opts_off(FiFi.check_fld, O_AUTOSKIP);
-    set_field_status(FiFi.check_fld, FALSE);
-    set_field_buffer_wrap(FiFi.check_fld, 0, filter->neg ? "X" : " ");
+    set_field_back(filter_fields.check_fld, vccnf.color_win);
+    field_opts_off(filter_fields.check_fld, O_AUTOSKIP);
+    set_field_status(filter_fields.check_fld, FALSE);
+    set_field_buffer_wrap(filter_fields.check_fld, 0, filter->neg ? "X" : " ");
 
-    my_form = new_form(FiFi.fields);
+    my_form = new_form(filter_fields.fields);
     scale_form(my_form, &rows, &cols);
     keypad(ib_win, TRUE);
     set_form_win(my_form, ib_win);
@@ -167,10 +171,10 @@ int filter_input_box(struct vrmr_filter *filter)
         /* get user input */
         ch = wgetch(ib_win);
 
-        if (cur == FiFi.check_fld) {
+        if (cur == filter_fields.check_fld) {
             if (nav_field_toggleX(my_form, ch) < 0)
                 not_defined = 1;
-        } else if (cur == FiFi.string_fld) {
+        } else if (cur == filter_fields.string_fld) {
             if (nav_field_simpletext(my_form, ch) < 0)
                 not_defined = 1;
         } else {
@@ -195,7 +199,7 @@ int filter_input_box(struct vrmr_filter *filter)
 
                 case 10: // enter
 
-                    if (cur == FiFi.check_fld) {
+                    if (cur == filter_fields.check_fld) {
                         quit = 1;
                     } else {
                         form_driver(my_form, REQ_NEXT_FIELD);
@@ -228,10 +232,10 @@ int filter_input_box(struct vrmr_filter *filter)
 
     unpost_form(my_form);
     free_form(my_form);
-    for (i = 0; i < FiFi.n_fields; i++) {
-        free_field(FiFi.fields[i]);
+    for (i = 0; i < filter_fields.n_fields; i++) {
+        free_field(filter_fields.fields[i]);
     }
-    free(FiFi.fields);
+    free(filter_fields.fields);
     del_panel(my_panels[0]);
     destroy_win(ib_win);
     update_panels();

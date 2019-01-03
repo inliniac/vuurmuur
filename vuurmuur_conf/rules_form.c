@@ -22,8 +22,8 @@
 
 char *VrShapeUnitMenu(char *unit, int y, int x, char bps)
 {
-    VrWin *win = NULL;
-    VrMenu *menu = NULL;
+    struct vrmr_gui_win *win = NULL;
+    struct vrmr_gui_menu *menu = NULL;
     int ch = 0;
     int menu_items = bps ? 4 : 2;
     const int width = 8;
@@ -108,7 +108,7 @@ char *VrShapeUnitMenu(char *unit, int y, int x, char bps)
     return r;
 }
 
-struct ShapeRuleCnf_ {
+struct shape_rule_cnf {
     struct vrmr_rule_options *opt;
 
     char in_min[10], out_min[10], in_max[10], out_max[10], prio[4];
@@ -116,7 +116,7 @@ struct ShapeRuleCnf_ {
 };
 
 static void VrShapeRuleSetup(
-        struct ShapeRuleCnf_ *c, struct vrmr_rule_options *opt)
+        struct shape_rule_cnf *c, struct vrmr_rule_options *opt)
 {
     vrmr_fatal_if_null(c);
     vrmr_fatal_if_null(opt);
@@ -158,7 +158,7 @@ static void VrShapeRuleSetup(
 
 static int VrShapeRuleSave(void *ctx, char *name, char *value)
 {
-    struct ShapeRuleCnf_ *c = (struct ShapeRuleCnf_ *)ctx;
+    struct shape_rule_cnf *c = (struct shape_rule_cnf *)ctx;
 
     vrmr_debug(NONE, "%s:%s", name, value);
 
@@ -189,10 +189,10 @@ static int VrShapeRuleSave(void *ctx, char *name, char *value)
 
 void VrShapeRule(struct vrmr_rule_options *opt)
 {
-    VrWin *win = NULL;
-    VrForm *form = NULL;
+    struct vrmr_gui_win *win = NULL;
+    struct vrmr_gui_form *form = NULL;
     int ch = 0, result = 0;
-    struct ShapeRuleCnf_ config;
+    struct shape_rule_cnf config;
 
     VrShapeRuleSetup(&config, opt);
 
@@ -337,7 +337,7 @@ struct rulebar {
     FIELD *separator;
 };
 
-struct RuleBarForm_ {
+struct rulebar_form {
     struct vrmr_list RuleBar_list;
 
     unsigned int bars;
@@ -371,14 +371,14 @@ struct RuleBarForm_ {
 };
 
 static void SetupRuleBarForm(
-        struct RuleBarForm_ *, unsigned int, struct vrmr_rules *, int);
+        struct rulebar_form *, unsigned int, struct vrmr_rules *, int);
 static void move_rule(struct vrmr_rules *, unsigned int, unsigned int);
 static int delete_rule(struct vrmr_rules *, unsigned int, int);
 static bool rules_match_filter(const struct vrmr_rule *rule_ptr,
         /*@null@*/ regex_t *reg, bool only_ingress, bool only_egress,
         bool only_forward);
 static void Toggle_RuleBar(struct rulebar *bar, struct vrmr_rules *rules);
-static void draw_rules(struct vrmr_rules *, struct RuleBarForm_ *);
+static void draw_rules(struct vrmr_rules *, struct rulebar_form *);
 static int Enter_RuleBar(struct rulebar *, struct vrmr_config *,
         struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *,
         struct vrmr_services *, struct vrmr_regex *);
@@ -388,7 +388,7 @@ static int edit_rule_separator(struct vrmr_zones *, struct vrmr_interfaces *,
 static void insert_new_rule(
         struct vrmr_rules *rules, unsigned int rule_num, const char *action);
 
-static void SetupRuleBarForm(struct RuleBarForm_ *rbform,
+static void SetupRuleBarForm(struct rulebar_form *rbform,
         unsigned int max_bars_on_screen, struct vrmr_rules *rules,
         int screen_width)
 {
@@ -495,7 +495,7 @@ static void move_rule(
 
     display a screen TODO
 */
-static void MoveRuleBarForm(struct RuleBarForm_ *rbform,
+static void MoveRuleBarForm(struct rulebar_form *rbform,
         struct vrmr_rules *rules, unsigned int cur_rule)
 {
     int ch, quit = 0;
@@ -593,7 +593,7 @@ static void MoveRuleBarForm(struct RuleBarForm_ *rbform,
     doupdate();
 }
 
-static struct rulebar *CurrentBar(struct RuleBarForm_ *rbform, FORM *form)
+static struct rulebar *CurrentBar(struct rulebar_form *rbform, FORM *form)
 {
     FIELD *cur_field = NULL;
     struct rulebar *cur_bar = NULL;
@@ -859,7 +859,7 @@ static void Toggle_RuleBar(struct rulebar *bar, struct vrmr_rules *rules)
     Sets the rulebar to the position 'pos'.
 */
 static void Set_RuleBar(
-        struct RuleBarForm_ *rbform, FORM *form, unsigned int pos)
+        struct rulebar_form *rbform, FORM *form, unsigned int pos)
 {
     struct vrmr_list_node *d_node = NULL;
     struct rulebar *cur_bar = NULL;
@@ -891,7 +891,7 @@ static void Set_RuleBar(
     }
 }
 
-static void Insert_RuleBar(struct RuleBarForm_ *rbform, FIELD *active,
+static void Insert_RuleBar(struct rulebar_form *rbform, FIELD *active,
         FIELD *num_field, FIELD *action, FIELD *service, FIELD *from, FIELD *to,
         FIELD *options, FIELD *separator)
 {
@@ -970,7 +970,7 @@ static bool rules_match_filter(const struct vrmr_rule *rule_ptr,
         return false;
 }
 
-static void draw_rules(struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
+static void draw_rules(struct vrmr_rules *rules, struct rulebar_form *rbform)
 {
     struct vrmr_rule *rule_ptr = NULL;
     struct rulebar *cur_bar = NULL;
@@ -1197,7 +1197,7 @@ static void draw_rules(struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
 }
 
 static void rules_update_filter(
-        struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
+        struct vrmr_rules *rules, struct rulebar_form *rbform)
 {
     struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
@@ -1269,7 +1269,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                  pgdn_offset = 0, insert_rule_num = 0, cur_rule_num = 0;
     size_t i = 0;
 
-    struct RuleBarForm_ *rbform;
+    struct rulebar_form *rbform;
     struct rulebar *cur_bar = NULL;
 
     int max_height = 0, max_width = 0, height = 0, width = 0, startx = 0,
@@ -1316,7 +1316,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     keypad(rules_win, TRUE);
 
     /* malloc the rbform struct */
-    rbform = malloc(sizeof(struct RuleBarForm_));
+    rbform = malloc(sizeof(struct rulebar_form));
     vrmr_fatal_alloc("malloc", rbform);
 
     /* now set it up */
@@ -2262,7 +2262,7 @@ int edit_rule(struct vrmr_config *conf, struct vrmr_rules *rules,
     return (retval);
 }
 
-struct RuleFlds_ {
+struct {
     FIELD *action_label_fld_ptr, *action_fld_ptr,
 
             *random_label_fld_ptr, *random_brackets_fld_ptr, *random_fld_ptr,
@@ -2302,7 +2302,7 @@ struct RuleFlds_ {
             *chain_label_fld_ptr, *chain_fld_ptr,
 
             *comment_label_fld_ptr, *comment_fld_ptr;
-} RuleFlds;
+} rule_fields;
 
 /*  edit_rule_fields_to_rule
 
@@ -2332,29 +2332,29 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
     /* check for changed fields */
     for (i = 0; i < n_fields; i++) {
         if (field_status(fields[i]) == TRUE) {
-            if (fields[i] == RuleFlds.action_fld_ptr) {
+            if (fields[i] == rule_fields.action_fld_ptr) {
                 /* action */
                 copy_field2buf(action_str, field_buffer(fields[i], 0),
                         sizeof(action_str));
 
                 rule_ptr->action = vrmr_rules_actiontoi(action_str);
                 retval = 1;
-            } else if (fields[i] == RuleFlds.service_fld_ptr) {
+            } else if (fields[i] == rule_fields.service_fld_ptr) {
                 /* service */
                 copy_field2buf(rule_ptr->service, field_buffer(fields[i], 0),
                         sizeof(rule_ptr->service));
                 retval = 1;
-            } else if (fields[i] == RuleFlds.fromzone_fld_ptr) {
+            } else if (fields[i] == rule_fields.fromzone_fld_ptr) {
                 /* from */
                 copy_field2buf(rule_ptr->from, field_buffer(fields[i], 0),
                         sizeof(rule_ptr->from));
                 retval = 1;
-            } else if (fields[i] == RuleFlds.tozone_fld_ptr) {
+            } else if (fields[i] == rule_fields.tozone_fld_ptr) {
                 /* to */
                 copy_field2buf(rule_ptr->to, field_buffer(fields[i], 0),
                         sizeof(rule_ptr->to));
                 retval = 1;
-            } else if (fields[i] == RuleFlds.reject_fld_ptr) {
+            } else if (fields[i] == rule_fields.reject_fld_ptr) {
                 /* option rejecttype */
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
@@ -2371,7 +2371,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                     rule_ptr->opt->reject_option = 1;
 
                 retval = 1;
-            } else if (fields[i] == RuleFlds.redirect_fld_ptr) {
+            } else if (fields[i] == rule_fields.redirect_fld_ptr) {
                 /* option redirect port */
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
@@ -2391,7 +2391,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                 }
 
                 retval = 1;
-            } else if (fields[i] == RuleFlds.nfmark_fld_ptr) {
+            } else if (fields[i] == rule_fields.nfmark_fld_ptr) {
                 /* option redirect port */
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
@@ -2403,7 +2403,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
 
                 rule_ptr->opt->nfmark = strtoul(nfmarkstr, (char **)NULL, 10);
                 retval = 1;
-            } else if (fields[i] == RuleFlds.listen_fld_ptr) {
+            } else if (fields[i] == rule_fields.listen_fld_ptr) {
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
@@ -2432,7 +2432,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                 }
 
                 retval = 1;
-            } else if (fields[i] == RuleFlds.remote_fld_ptr) {
+            } else if (fields[i] == rule_fields.remote_fld_ptr) {
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
@@ -2461,7 +2461,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                 }
 
                 retval = 1;
-            } else if (fields[i] == RuleFlds.logprefix_fld_ptr) {
+            } else if (fields[i] == rule_fields.logprefix_fld_ptr) {
                 if (StrLen(field_buffer(fields[i], 0)) !=
                         StrMemLen(field_buffer(fields[i], 0))) {
                     vrmr_warning(
@@ -2494,7 +2494,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
 
                     retval = 1;
                 }
-            } else if (fields[i] == RuleFlds.comment_fld_ptr) {
+            } else if (fields[i] == rule_fields.comment_fld_ptr) {
                 /* first check if the commentfield is valid */
                 if (validate_commentfield(
                             field_buffer(fields[i], 0), reg->comment) == 0) {
@@ -2529,7 +2529,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
 
                     retval = 1;
                 }
-            } else if (fields[i] == RuleFlds.loglimit_fld_ptr) {
+            } else if (fields[i] == rule_fields.loglimit_fld_ptr) {
                 /* option redirect port */
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
@@ -2547,7 +2547,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                 }
 
                 retval = 1;
-            } else if (fields[i] == RuleFlds.log_fld_ptr) {
+            } else if (fields[i] == rule_fields.log_fld_ptr) {
                 /* log */
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
@@ -2560,7 +2560,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                     rule_ptr->opt->rule_log = 0;
 
                 retval = 1;
-            } else if (fields[i] == RuleFlds.nfqueuenum_fld_ptr) {
+            } else if (fields[i] == rule_fields.nfqueuenum_fld_ptr) {
                 /* nfqueuenum */
 
                 /* if needed alloc the opt struct */
@@ -2575,7 +2575,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                 rule_ptr->opt->nfqueue_num = atoi(nfqueuenum_str);
 
                 retval = 1;
-            } else if (fields[i] == RuleFlds.nflognum_fld_ptr) {
+            } else if (fields[i] == rule_fields.nflognum_fld_ptr) {
                 /* nflognum */
 
                 /* if needed alloc the opt struct */
@@ -2590,7 +2590,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                 rule_ptr->opt->nflog_num = atoi(nflognum_str);
 
                 retval = 1;
-            } else if (fields[i] == RuleFlds.random_fld_ptr) {
+            } else if (fields[i] == rule_fields.random_fld_ptr) {
                 /* random */
 
                 /* if needed alloc the opt struct */
@@ -2605,7 +2605,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                     rule_ptr->opt->random = 0;
 
                 retval = 1;
-            } else if (fields[i] == RuleFlds.in_int_fld_ptr) {
+            } else if (fields[i] == rule_fields.in_int_fld_ptr) {
                 /* option interface */
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
@@ -2616,7 +2616,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                         field_buffer(fields[i], 0),
                         sizeof(rule_ptr->opt->in_int));
                 retval = 1;
-            } else if (fields[i] == RuleFlds.out_int_fld_ptr) {
+            } else if (fields[i] == rule_fields.out_int_fld_ptr) {
                 /* option interface */
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
@@ -2627,7 +2627,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                         field_buffer(fields[i], 0),
                         sizeof(rule_ptr->opt->out_int));
                 retval = 1;
-            } else if (fields[i] == RuleFlds.via_int_fld_ptr) {
+            } else if (fields[i] == rule_fields.via_int_fld_ptr) {
                 /* option interface */
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
@@ -2638,7 +2638,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                         field_buffer(fields[i], 0),
                         sizeof(rule_ptr->opt->via_int));
                 retval = 1;
-            } else if (fields[i] == RuleFlds.chain_fld_ptr) {
+            } else if (fields[i] == rule_fields.chain_fld_ptr) {
                 /* option interface */
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
@@ -2648,7 +2648,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                 copy_field2buf(rule_ptr->opt->chain, field_buffer(fields[i], 0),
                         sizeof(rule_ptr->opt->chain));
                 retval = 1;
-            } else if (fields[i] == RuleFlds.limit_fld_ptr) {
+            } else if (fields[i] == rule_fields.limit_fld_ptr) {
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
@@ -2665,7 +2665,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                 }
 
                 retval = 1;
-            } else if (fields[i] == RuleFlds.limit_unit_fld_ptr) {
+            } else if (fields[i] == rule_fields.limit_unit_fld_ptr) {
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
@@ -2675,7 +2675,7 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
                         field_buffer(fields[i], 0),
                         sizeof(rule_ptr->opt->limit_unit));
                 retval = 1;
-            } else if (fields[i] == RuleFlds.burst_fld_ptr) {
+            } else if (fields[i] == rule_fields.burst_fld_ptr) {
                 if (rule_ptr->opt == NULL) {
                     rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
@@ -2803,7 +2803,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
 
     /* clear tmp_ruledata for the initial */
     memset(&tmp_ruledata, 0, sizeof(tmp_ruledata));
-    memset(&RuleFlds, 0, sizeof(struct RuleFlds_));
+    memset(&rule_fields, 0, sizeof(rule_fields));
 
     /* set to keep first */
     rule_ptr->status = VRMR_ST_CHANGED;
@@ -2830,72 +2830,75 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
     */
 
     /* action label */
-    RuleFlds.action_label_fld_ptr =
+    rule_fields.action_label_fld_ptr =
             (fields[field_num] = new_field(1, 8, 1, 1, 0, 0));
-    set_field_buffer_wrap(RuleFlds.action_label_fld_ptr, 0, gettext("Action"));
-    field_opts_off(RuleFlds.action_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.action_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.action_label_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(
+            rule_fields.action_label_fld_ptr, 0, gettext("Action"));
+    field_opts_off(rule_fields.action_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.action_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.action_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* action */
-    RuleFlds.action_fld_ptr =
+    rule_fields.action_fld_ptr =
             (fields[field_num] = new_field(1, 16, 1, 10, 0, 0));
-    set_field_buffer_wrap(
-            RuleFlds.action_fld_ptr, 0, vrmr_rules_itoaction(rule_ptr->action));
-    set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.action_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_buffer_wrap(rule_fields.action_fld_ptr, 0,
+            vrmr_rules_itoaction(rule_ptr->action));
+    set_field_back(rule_fields.action_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.action_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* random */
-    RuleFlds.random_label_fld_ptr =
+    rule_fields.random_label_fld_ptr =
             (fields[field_num] = new_field(1, 7, 3, 10, 0, 0));
     /* TRANSLATORS: max 7 chars */
-    set_field_buffer_wrap(RuleFlds.random_label_fld_ptr, 0, gettext("Random"));
-    field_opts_off(RuleFlds.random_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.random_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.random_label_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(
+            rule_fields.random_label_fld_ptr, 0, gettext("Random"));
+    field_opts_off(rule_fields.random_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.random_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.random_label_fld_ptr, vccnf.color_win);
     field_num++;
 
-    RuleFlds.random_brackets_fld_ptr =
+    rule_fields.random_brackets_fld_ptr =
             (fields[field_num] = new_field(1, 3, 3, 17, 0, 0));
-    set_field_buffer_wrap(RuleFlds.random_brackets_fld_ptr, 0, "[ ]");
-    field_opts_off(RuleFlds.random_brackets_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.random_brackets_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.random_brackets_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(rule_fields.random_brackets_fld_ptr, 0, "[ ]");
+    field_opts_off(rule_fields.random_brackets_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.random_brackets_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.random_brackets_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* random toggle */
-    RuleFlds.random_fld_ptr =
+    rule_fields.random_fld_ptr =
             (fields[field_num] = new_field(1, 1, 3, 18, 0, 0));
-    set_field_back(RuleFlds.random_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.random_fld_ptr, vccnf.color_win);
+    set_field_back(rule_fields.random_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.random_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* enable */
     if (rule_ptr->opt != NULL && rule_ptr->opt->random == 1)
-        set_field_buffer_wrap(RuleFlds.random_fld_ptr, 0, "X");
+        set_field_buffer_wrap(rule_fields.random_fld_ptr, 0, "X");
 
     /* queue starts disabled */
-    field_opts_off(RuleFlds.random_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.random_label_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.random_brackets_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.random_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.random_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.random_brackets_fld_ptr, O_VISIBLE);
 
     /* nfqueuenum label */
-    RuleFlds.nfqueuenum_label_fld_ptr =
+    rule_fields.nfqueuenum_label_fld_ptr =
             (fields[field_num] = new_field(1, 18, 5, 10, 0, 0));
     set_field_buffer_wrap(
-            RuleFlds.nfqueuenum_label_fld_ptr, 0, gettext("Queue number"));
-    field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.nfqueuenum_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.nfqueuenum_label_fld_ptr, vccnf.color_win);
+            rule_fields.nfqueuenum_label_fld_ptr, 0, gettext("Queue number"));
+    field_opts_off(rule_fields.nfqueuenum_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.nfqueuenum_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.nfqueuenum_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* nfqueuenum */
-    RuleFlds.nfqueuenum_fld_ptr =
+    rule_fields.nfqueuenum_fld_ptr =
             (fields[field_num] = new_field(1, 6, 5, 30, 0, 0));
-    set_field_back(RuleFlds.nfqueuenum_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.nfqueuenum_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.nfqueuenum_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(
+            rule_fields.nfqueuenum_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* enable nfqueuenum option */
@@ -2903,27 +2906,27 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
         snprintf(nfqueuenum_string, sizeof(nfqueuenum_string), "%u",
                 rule_ptr->opt->nfqueue_num);
 
-    set_field_buffer_wrap(RuleFlds.nfqueuenum_fld_ptr, 0, nfqueuenum_string);
+    set_field_buffer_wrap(rule_fields.nfqueuenum_fld_ptr, 0, nfqueuenum_string);
 
     /* start disabled  */
-    field_opts_off(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.nfqueuenum_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.nfqueuenum_label_fld_ptr, O_VISIBLE);
 
     /* nflognum label */
-    RuleFlds.nflognum_label_fld_ptr =
+    rule_fields.nflognum_label_fld_ptr =
             (fields[field_num] = new_field(1, 18, 5, 10, 0, 0));
     set_field_buffer_wrap(
-            RuleFlds.nflognum_label_fld_ptr, 0, gettext("NFLog number"));
-    field_opts_off(RuleFlds.nflognum_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.nflognum_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.nflognum_label_fld_ptr, vccnf.color_win);
+            rule_fields.nflognum_label_fld_ptr, 0, gettext("NFLog number"));
+    field_opts_off(rule_fields.nflognum_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.nflognum_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.nflognum_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* nflognum */
-    RuleFlds.nflognum_fld_ptr =
+    rule_fields.nflognum_fld_ptr =
             (fields[field_num] = new_field(1, 6, 5, 30, 0, 0));
-    set_field_back(RuleFlds.nflognum_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.nflognum_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.nflognum_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.nflognum_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* enable nflognum option */
@@ -2931,469 +2934,478 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
         snprintf(nflognum_string, sizeof(nflognum_string), "%u",
                 rule_ptr->opt->nflog_num);
 
-    set_field_buffer_wrap(RuleFlds.nflognum_fld_ptr, 0, nflognum_string);
+    set_field_buffer_wrap(rule_fields.nflognum_fld_ptr, 0, nflognum_string);
 
     /* start disabled  */
-    field_opts_off(RuleFlds.nflognum_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.nflognum_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.nflognum_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.nflognum_label_fld_ptr, O_VISIBLE);
 
     /* service label */
-    RuleFlds.service_label_fld_ptr =
+    rule_fields.service_label_fld_ptr =
             (fields[field_num] = new_field(1, 8, 7, 1, 0, 0));
     set_field_buffer_wrap(
-            RuleFlds.service_label_fld_ptr, 0, gettext("Service"));
-    field_opts_off(RuleFlds.service_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.service_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.service_label_fld_ptr, vccnf.color_win);
+            rule_fields.service_label_fld_ptr, 0, gettext("Service"));
+    field_opts_off(rule_fields.service_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.service_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.service_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* service */
-    RuleFlds.service_fld_ptr =
+    rule_fields.service_fld_ptr =
             (fields[field_num] = new_field(1, 32, 7, 10, 0, 0));
-    set_field_buffer_wrap(RuleFlds.service_fld_ptr, 0, rule_ptr->service);
-    set_field_back(RuleFlds.service_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.service_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_buffer_wrap(rule_fields.service_fld_ptr, 0, rule_ptr->service);
+    set_field_back(rule_fields.service_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.service_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* nfmark label */
-    RuleFlds.nfmark_label_fld_ptr =
+    rule_fields.nfmark_label_fld_ptr =
             (fields[field_num] = new_field(1, 7, 9, 10, 0, 0));
     /* TRANSLATORS: max 7 chars */
-    set_field_buffer_wrap(RuleFlds.nfmark_label_fld_ptr, 0, gettext("Mark"));
-    field_opts_off(RuleFlds.nfmark_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.nfmark_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.nfmark_label_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(rule_fields.nfmark_label_fld_ptr, 0, gettext("Mark"));
+    field_opts_off(rule_fields.nfmark_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.nfmark_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.nfmark_label_fld_ptr, vccnf.color_win);
     field_num++;
 
-    RuleFlds.nfmark_fld_ptr =
+    rule_fields.nfmark_fld_ptr =
             (fields[field_num] = new_field(1, 8, 9, 19, 0, 0));
-    set_field_back(RuleFlds.nfmark_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.nfmark_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.nfmark_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.nfmark_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* enable nfmark option */
     if (rule_ptr->opt != NULL && rule_ptr->opt->nfmark > 0) {
         snprintf(nfmark_string, sizeof(nfmark_string), "%lu",
                 rule_ptr->opt->nfmark);
-        set_field_buffer_wrap(RuleFlds.nfmark_fld_ptr, 0, nfmark_string);
+        set_field_buffer_wrap(rule_fields.nfmark_fld_ptr, 0, nfmark_string);
     }
 
     /* start disabled  */
-    field_opts_off(RuleFlds.nfmark_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.nfmark_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.nfmark_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.nfmark_label_fld_ptr, O_VISIBLE);
 
     /* from zone label */
-    RuleFlds.fromzone_label_fld_ptr =
+    rule_fields.fromzone_label_fld_ptr =
             (fields[field_num] = new_field(1, 8, 11, 1, 0, 0));
-    set_field_buffer_wrap(RuleFlds.fromzone_label_fld_ptr, 0, gettext("From"));
-    field_opts_off(RuleFlds.fromzone_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.fromzone_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.fromzone_label_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(
+            rule_fields.fromzone_label_fld_ptr, 0, gettext("From"));
+    field_opts_off(rule_fields.fromzone_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.fromzone_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.fromzone_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* from zone */
-    RuleFlds.fromzone_fld_ptr =
+    rule_fields.fromzone_fld_ptr =
             (fields[field_num] = new_field(1, 48, 11, 10, 0, 0));
-    set_field_buffer_wrap(RuleFlds.fromzone_fld_ptr, 0, rule_ptr->from);
-    set_field_back(RuleFlds.fromzone_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.fromzone_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_buffer_wrap(rule_fields.fromzone_fld_ptr, 0, rule_ptr->from);
+    set_field_back(rule_fields.fromzone_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.fromzone_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* in_int interface label */
-    RuleFlds.in_int_label_fld_ptr =
+    rule_fields.in_int_label_fld_ptr =
             (fields[field_num] = new_field(1, 24, 12, 10, 0, 0));
     set_field_buffer_wrap(
-            RuleFlds.in_int_label_fld_ptr, 0, gettext("Listen Interface"));
-    field_opts_off(RuleFlds.in_int_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.in_int_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.in_int_label_fld_ptr, vccnf.color_win);
+            rule_fields.in_int_label_fld_ptr, 0, gettext("Listen Interface"));
+    field_opts_off(rule_fields.in_int_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.in_int_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.in_int_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* in_int interface */
-    RuleFlds.in_int_fld_ptr = (fields[field_num] = new_field(
-                                       1, VRMR_MAX_INTERFACE, 12, 36, 0, 0));
+    rule_fields.in_int_fld_ptr = (fields[field_num] = new_field(
+                                          1, VRMR_MAX_INTERFACE, 12, 36, 0, 0));
     if (rule_ptr->opt != NULL)
         set_field_buffer_wrap(
-                RuleFlds.in_int_fld_ptr, 0, rule_ptr->opt->in_int);
+                rule_fields.in_int_fld_ptr, 0, rule_ptr->opt->in_int);
 
-    set_field_back(RuleFlds.in_int_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.in_int_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.in_int_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.in_int_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* in_int interface starts disabled */
-    field_opts_off(RuleFlds.in_int_label_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.in_int_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.in_int_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.in_int_fld_ptr, O_VISIBLE);
 
     /* to zone label */
-    RuleFlds.tozone_label_fld_ptr =
+    rule_fields.tozone_label_fld_ptr =
             (fields[field_num] = new_field(1, 8, 14, 1, 0, 0));
-    set_field_buffer_wrap(RuleFlds.tozone_label_fld_ptr, 0, gettext("To"));
-    field_opts_off(RuleFlds.tozone_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.tozone_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.tozone_label_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(rule_fields.tozone_label_fld_ptr, 0, gettext("To"));
+    field_opts_off(rule_fields.tozone_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.tozone_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.tozone_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* to zone */
-    RuleFlds.tozone_fld_ptr =
+    rule_fields.tozone_fld_ptr =
             (fields[field_num] = new_field(1, 48, 14, 10, 0, 0));
-    set_field_buffer_wrap(RuleFlds.tozone_fld_ptr, 0, rule_ptr->to);
-    set_field_back(RuleFlds.tozone_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.tozone_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_buffer_wrap(rule_fields.tozone_fld_ptr, 0, rule_ptr->to);
+    set_field_back(rule_fields.tozone_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.tozone_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* out_int interface label */
-    RuleFlds.out_int_label_fld_ptr =
+    rule_fields.out_int_label_fld_ptr =
             (fields[field_num] = new_field(1, 24, 15, 10, 0, 0));
-    set_field_buffer_wrap(
-            RuleFlds.out_int_label_fld_ptr, 0, gettext("Outgoing Interface"));
-    field_opts_off(RuleFlds.out_int_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.out_int_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.out_int_label_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(rule_fields.out_int_label_fld_ptr, 0,
+            gettext("Outgoing Interface"));
+    field_opts_off(rule_fields.out_int_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.out_int_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.out_int_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* out_int interface */
-    RuleFlds.out_int_fld_ptr = (fields[field_num] = new_field(
-                                        1, VRMR_MAX_INTERFACE, 15, 36, 0, 0));
+    rule_fields.out_int_fld_ptr = (fields[field_num] = new_field(1,
+                                           VRMR_MAX_INTERFACE, 15, 36, 0, 0));
     if (rule_ptr->opt != NULL)
         set_field_buffer_wrap(
-                RuleFlds.out_int_fld_ptr, 0, rule_ptr->opt->out_int);
+                rule_fields.out_int_fld_ptr, 0, rule_ptr->opt->out_int);
 
-    set_field_back(RuleFlds.out_int_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.out_int_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.out_int_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.out_int_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* out_int interface starts disabled */
-    field_opts_off(RuleFlds.out_int_label_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.out_int_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.out_int_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.out_int_fld_ptr, O_VISIBLE);
 
     /* comment label */
     /* TRANSLATORS: max 7 chars */
-    RuleFlds.comment_label_fld_ptr =
+    rule_fields.comment_label_fld_ptr =
             (fields[field_num] = new_field(1, 8, 17, 1, 0, 0));
     set_field_buffer_wrap(
-            RuleFlds.comment_label_fld_ptr, 0, gettext("Comment"));
-    field_opts_off(RuleFlds.comment_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.comment_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.comment_label_fld_ptr, vccnf.color_win);
+            rule_fields.comment_label_fld_ptr, 0, gettext("Comment"));
+    field_opts_off(rule_fields.comment_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.comment_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.comment_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* comment */
-    RuleFlds.comment_fld_ptr =
+    rule_fields.comment_fld_ptr =
             (fields[field_num] = new_field(1, 63, 17, 10, 0, 0));
     if (rule_ptr->opt != NULL && rule_ptr->opt->rule_comment == 1)
         set_field_buffer_wrap(
-                RuleFlds.comment_fld_ptr, 0, rule_ptr->opt->comment);
-    set_field_back(RuleFlds.comment_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.comment_fld_ptr, vccnf.color_win_rev | A_BOLD);
+                rule_fields.comment_fld_ptr, 0, rule_ptr->opt->comment);
+    set_field_back(rule_fields.comment_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.comment_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* log label */
     /* TRANSLATORS: max 4 chars */
-    RuleFlds.log_label_fld_ptr =
+    rule_fields.log_label_fld_ptr =
             (fields[field_num] = new_field(1, 4, 1, 29, 0, 0));
-    set_field_buffer_wrap(RuleFlds.log_label_fld_ptr, 0, gettext("Log"));
-    field_opts_off(RuleFlds.log_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.log_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.log_label_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(rule_fields.log_label_fld_ptr, 0, gettext("Log"));
+    field_opts_off(rule_fields.log_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.log_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.log_label_fld_ptr, vccnf.color_win);
     field_num++;
 
-    RuleFlds.log_brackets_fld_ptr =
+    rule_fields.log_brackets_fld_ptr =
             (fields[field_num] = new_field(1, 3, 1, 34, 0, 0));
-    set_field_buffer_wrap(RuleFlds.log_brackets_fld_ptr, 0, "[ ]");
-    field_opts_off(RuleFlds.log_brackets_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.log_brackets_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.log_brackets_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(rule_fields.log_brackets_fld_ptr, 0, "[ ]");
+    field_opts_off(rule_fields.log_brackets_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.log_brackets_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.log_brackets_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* log */
-    RuleFlds.log_fld_ptr = (fields[field_num] = new_field(1, 1, 1, 35, 0, 0));
+    rule_fields.log_fld_ptr =
+            (fields[field_num] = new_field(1, 1, 1, 35, 0, 0));
 
     /* enable */
     if (rule_ptr->opt != NULL && rule_ptr->opt->rule_log == 1)
-        set_field_buffer_wrap(RuleFlds.log_fld_ptr, 0, "X");
+        set_field_buffer_wrap(rule_fields.log_fld_ptr, 0, "X");
 
-    set_field_back(RuleFlds.log_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.log_fld_ptr, vccnf.color_win);
+    set_field_back(rule_fields.log_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.log_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* log prefix label */
     /* TRANSLATORS: max 7 chars */
-    RuleFlds.logprefix_label_fld_ptr =
+    rule_fields.logprefix_label_fld_ptr =
             (fields[field_num] = new_field(1, 8, 1, 39, 0, 0));
     set_field_buffer_wrap(
-            RuleFlds.logprefix_label_fld_ptr, 0, gettext("Prefix"));
-    field_opts_off(RuleFlds.logprefix_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.logprefix_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.logprefix_label_fld_ptr, vccnf.color_win);
+            rule_fields.logprefix_label_fld_ptr, 0, gettext("Prefix"));
+    field_opts_off(rule_fields.logprefix_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.logprefix_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.logprefix_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* log prefix */
-    RuleFlds.logprefix_fld_ptr =
+    rule_fields.logprefix_fld_ptr =
             (fields[field_num] = new_field(1, 12, 1, 48, 0, 0));
     if (rule_ptr->opt != NULL)
         set_field_buffer_wrap(
-                RuleFlds.logprefix_fld_ptr, 0, rule_ptr->opt->logprefix);
-    set_field_back(RuleFlds.logprefix_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.logprefix_fld_ptr, vccnf.color_win_rev | A_BOLD);
+                rule_fields.logprefix_fld_ptr, 0, rule_ptr->opt->logprefix);
+    set_field_back(rule_fields.logprefix_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.logprefix_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* limit label */
     /* TRANSLATORS: max 6 chars */
-    RuleFlds.loglimit_label_fld_ptr =
+    rule_fields.loglimit_label_fld_ptr =
             (fields[field_num] = new_field(1, 8, 1, 62, 0, 0));
-    set_field_buffer_wrap(RuleFlds.loglimit_label_fld_ptr, 0, gettext("Limit"));
-    field_opts_off(RuleFlds.loglimit_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.loglimit_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.loglimit_label_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(
+            rule_fields.loglimit_label_fld_ptr, 0, gettext("Limit"));
+    field_opts_off(rule_fields.loglimit_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.loglimit_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.loglimit_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* limit */
-    RuleFlds.loglimit_fld_ptr =
+    rule_fields.loglimit_fld_ptr =
             (fields[field_num] = new_field(1, 3, 1, 70, 0, 0));
     if (rule_ptr->opt != NULL) {
         if (rule_ptr->opt->loglimit > 0) {
             snprintf(loglimit_string, sizeof(loglimit_string), "%u",
                     rule_ptr->opt->loglimit);
             set_field_buffer_wrap(
-                    RuleFlds.loglimit_fld_ptr, 0, loglimit_string);
+                    rule_fields.loglimit_fld_ptr, 0, loglimit_string);
         }
     }
-    set_field_back(RuleFlds.loglimit_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.loglimit_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.loglimit_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.loglimit_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* log prefix label */
     /* TRANSLATORS: max 7 chars */
-    RuleFlds.limit_label_fld_ptr =
+    rule_fields.limit_label_fld_ptr =
             (fields[field_num] = new_field(1, 12, 3, 29, 0, 0));
     set_field_buffer_wrap(
-            RuleFlds.limit_label_fld_ptr, 0, gettext("Rule Limit"));
-    field_opts_off(RuleFlds.limit_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.limit_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.limit_label_fld_ptr, vccnf.color_win);
+            rule_fields.limit_label_fld_ptr, 0, gettext("Rule Limit"));
+    field_opts_off(rule_fields.limit_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.limit_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.limit_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* log prefix */
-    RuleFlds.limit_fld_ptr = (fields[field_num] = new_field(1, 4, 3, 42, 0, 0));
+    rule_fields.limit_fld_ptr =
+            (fields[field_num] = new_field(1, 4, 3, 42, 0, 0));
     if (rule_ptr->opt != NULL) {
         if (rule_ptr->opt->limit > 0) {
             snprintf(loglimit_string, sizeof(loglimit_string), "%u",
                     rule_ptr->opt->limit);
-            set_field_buffer_wrap(RuleFlds.limit_fld_ptr, 0, loglimit_string);
+            set_field_buffer_wrap(
+                    rule_fields.limit_fld_ptr, 0, loglimit_string);
         }
     }
-    set_field_back(RuleFlds.limit_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.limit_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.limit_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.limit_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* start disabled and set the field to dynamic */
-    field_opts_off(RuleFlds.limit_fld_ptr, O_VISIBLE | O_STATIC);
-    field_opts_off(RuleFlds.limit_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.limit_fld_ptr, O_VISIBLE | O_STATIC);
+    field_opts_off(rule_fields.limit_label_fld_ptr, O_VISIBLE);
 
     /* Limit Unit Label */
-    RuleFlds.limit_unit_label_fld_ptr =
+    rule_fields.limit_unit_label_fld_ptr =
             (fields[field_num] = new_field(1, 1, 3, 48, 0, 0));
-    set_field_buffer_wrap(RuleFlds.limit_unit_label_fld_ptr, 0, "/");
-    field_opts_off(RuleFlds.limit_unit_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.limit_unit_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.limit_unit_label_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(rule_fields.limit_unit_label_fld_ptr, 0, "/");
+    field_opts_off(rule_fields.limit_unit_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.limit_unit_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.limit_unit_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* Limit Unit  */
-    RuleFlds.limit_unit_fld_ptr =
+    rule_fields.limit_unit_fld_ptr =
             (fields[field_num] = new_field(1, 4, 3, 51, 0, 0));
     if (rule_ptr->opt != NULL) {
         set_field_buffer_wrap(
-                RuleFlds.limit_unit_fld_ptr, 0, rule_ptr->opt->limit_unit);
+                rule_fields.limit_unit_fld_ptr, 0, rule_ptr->opt->limit_unit);
     }
-    set_field_back(RuleFlds.limit_unit_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.limit_unit_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.limit_unit_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(
+            rule_fields.limit_unit_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* start disabled and set the field to dynamic */
-    field_opts_off(RuleFlds.limit_fld_ptr, O_VISIBLE | O_STATIC);
-    field_opts_off(RuleFlds.limit_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.limit_fld_ptr, O_VISIBLE | O_STATIC);
+    field_opts_off(rule_fields.limit_label_fld_ptr, O_VISIBLE);
 
     /* burst label */
     /* TRANSLATORS: max 6 chars */
-    RuleFlds.burst_label_fld_ptr =
+    rule_fields.burst_label_fld_ptr =
             (fields[field_num] = new_field(1, 8, 3, 60, 0, 0));
-    set_field_buffer_wrap(RuleFlds.burst_label_fld_ptr, 0, gettext("Burst"));
-    field_opts_off(RuleFlds.burst_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.burst_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.burst_label_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(rule_fields.burst_label_fld_ptr, 0, gettext("Burst"));
+    field_opts_off(rule_fields.burst_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.burst_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.burst_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* limit */
-    RuleFlds.burst_fld_ptr = (fields[field_num] = new_field(1, 4, 3, 69, 0, 0));
+    rule_fields.burst_fld_ptr =
+            (fields[field_num] = new_field(1, 4, 3, 69, 0, 0));
     if (rule_ptr->opt != NULL) {
         if (rule_ptr->opt->burst > 0) {
             snprintf(loglimit_string, sizeof(loglimit_string), "%u",
                     rule_ptr->opt->burst);
-            set_field_buffer_wrap(RuleFlds.burst_fld_ptr, 0, loglimit_string);
+            set_field_buffer_wrap(
+                    rule_fields.burst_fld_ptr, 0, loglimit_string);
         }
     }
-    set_field_back(RuleFlds.burst_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.burst_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.burst_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.burst_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* start disabled and set the field to dynamic */
-    field_opts_off(RuleFlds.burst_fld_ptr, O_VISIBLE | O_STATIC);
-    field_opts_off(RuleFlds.burst_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.burst_fld_ptr, O_VISIBLE | O_STATIC);
+    field_opts_off(rule_fields.burst_label_fld_ptr, O_VISIBLE);
 
     /* chain label */
-    RuleFlds.chain_label_fld_ptr =
+    rule_fields.chain_label_fld_ptr =
             (fields[field_num] = new_field(1, 9, 5, 29, 0, 0));
-    set_field_buffer_wrap(RuleFlds.chain_label_fld_ptr, 0, gettext("Chain"));
-    field_opts_off(RuleFlds.chain_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.chain_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.chain_label_fld_ptr, vccnf.color_win);
+    set_field_buffer_wrap(rule_fields.chain_label_fld_ptr, 0, gettext("Chain"));
+    field_opts_off(rule_fields.chain_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.chain_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.chain_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* chain */
-    RuleFlds.chain_fld_ptr =
-            (fields[field_num] = new_field(1, 32, 5, 40, 0, 0));
-    if (rule_ptr->opt != NULL)
-        set_field_buffer_wrap(RuleFlds.chain_fld_ptr, 0, rule_ptr->opt->chain);
-
-    set_field_back(RuleFlds.chain_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.chain_fld_ptr, vccnf.color_win_rev | A_BOLD);
-    field_num++;
-
-    /* interface starts disabled */
-    field_opts_off(RuleFlds.chain_label_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.chain_fld_ptr, O_VISIBLE);
-
-    /* via label */
-    RuleFlds.via_int_label_fld_ptr =
-            (fields[field_num] = new_field(1, 9, 5, 29, 0, 0));
-    set_field_buffer_wrap(RuleFlds.via_int_label_fld_ptr, 0, gettext("Via"));
-    field_opts_off(RuleFlds.via_int_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.via_int_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.via_int_label_fld_ptr, vccnf.color_win);
-    field_num++;
-
-    /* chain */
-    RuleFlds.via_int_fld_ptr =
+    rule_fields.chain_fld_ptr =
             (fields[field_num] = new_field(1, 32, 5, 40, 0, 0));
     if (rule_ptr->opt != NULL)
         set_field_buffer_wrap(
-                RuleFlds.via_int_fld_ptr, 0, rule_ptr->opt->via_int);
+                rule_fields.chain_fld_ptr, 0, rule_ptr->opt->chain);
 
-    set_field_back(RuleFlds.via_int_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.via_int_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.chain_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.chain_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* interface starts disabled */
-    field_opts_off(RuleFlds.via_int_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.via_int_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.chain_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.chain_fld_ptr, O_VISIBLE);
+
+    /* via label */
+    rule_fields.via_int_label_fld_ptr =
+            (fields[field_num] = new_field(1, 9, 5, 29, 0, 0));
+    set_field_buffer_wrap(rule_fields.via_int_label_fld_ptr, 0, gettext("Via"));
+    field_opts_off(rule_fields.via_int_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.via_int_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.via_int_label_fld_ptr, vccnf.color_win);
+    field_num++;
+
+    /* chain */
+    rule_fields.via_int_fld_ptr =
+            (fields[field_num] = new_field(1, 32, 5, 40, 0, 0));
+    if (rule_ptr->opt != NULL)
+        set_field_buffer_wrap(
+                rule_fields.via_int_fld_ptr, 0, rule_ptr->opt->via_int);
+
+    set_field_back(rule_fields.via_int_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.via_int_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    field_num++;
+
+    /* interface starts disabled */
+    field_opts_off(rule_fields.via_int_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.via_int_fld_ptr, O_VISIBLE);
 
     /* Reject type label */
-    RuleFlds.reject_label_fld_ptr =
+    rule_fields.reject_label_fld_ptr =
             (fields[field_num] = new_field(1, 12, 5, 29, 0, 0));
     set_field_buffer_wrap(
-            RuleFlds.reject_label_fld_ptr, 0, gettext("Reject type"));
-    field_opts_off(RuleFlds.reject_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.reject_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.reject_label_fld_ptr, vccnf.color_win);
+            rule_fields.reject_label_fld_ptr, 0, gettext("Reject type"));
+    field_opts_off(rule_fields.reject_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.reject_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.reject_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* Reject type */
-    RuleFlds.reject_fld_ptr =
+    rule_fields.reject_fld_ptr =
             (fields[field_num] = new_field(1, 23, 5, 48, 0, 0));
 
     if (rule_ptr->opt != NULL && rule_ptr->opt->reject_option == 1)
         set_field_buffer_wrap(
-                RuleFlds.reject_fld_ptr, 0, rule_ptr->opt->reject_type);
+                rule_fields.reject_fld_ptr, 0, rule_ptr->opt->reject_type);
 
-    set_field_back(RuleFlds.reject_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.reject_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.reject_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.reject_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* reject starts disabled */
-    field_opts_off(RuleFlds.reject_label_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.reject_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.reject_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.reject_fld_ptr, O_VISIBLE);
 
     /* Redirectport label */
-    RuleFlds.redirect_label_fld_ptr =
+    rule_fields.redirect_label_fld_ptr =
             (fields[field_num] = new_field(1, 14, 7, 45, 0, 0));
     set_field_buffer_wrap(
-            RuleFlds.redirect_label_fld_ptr, 0, gettext("Redirect port"));
-    field_opts_off(RuleFlds.redirect_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.redirect_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.redirect_label_fld_ptr, vccnf.color_win);
+            rule_fields.redirect_label_fld_ptr, 0, gettext("Redirect port"));
+    field_opts_off(rule_fields.redirect_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.redirect_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.redirect_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* Redirectport */
-    RuleFlds.redirect_fld_ptr =
+    rule_fields.redirect_fld_ptr =
             (fields[field_num] = new_field(1, 11, 7, 61, 0, 0));
     if (rule_ptr->opt != NULL &&
             (rule_ptr->opt->redirectport > 0 &&
                     rule_ptr->opt->redirectport <= 65535)) {
         snprintf(redirect_port, sizeof(redirect_port), "%d",
                 rule_ptr->opt->redirectport);
-        set_field_buffer_wrap(RuleFlds.redirect_fld_ptr, 0, redirect_port);
+        set_field_buffer_wrap(rule_fields.redirect_fld_ptr, 0, redirect_port);
     }
-    set_field_back(RuleFlds.redirect_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.redirect_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.redirect_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.redirect_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* start disabled */
-    field_opts_off(RuleFlds.redirect_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.redirect_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.redirect_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.redirect_label_fld_ptr, O_VISIBLE);
 
     /* listenport (portfw) label */
     /* TRANSLATORS: max 11 chars */
-    RuleFlds.listen_label_fld_ptr =
+    rule_fields.listen_label_fld_ptr =
             (fields[field_num] = new_field(1, 12, 7, 45, 0, 0));
     set_field_buffer_wrap(
-            RuleFlds.listen_label_fld_ptr, 0, gettext("Listen port"));
-    field_opts_off(RuleFlds.listen_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.listen_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.listen_label_fld_ptr, vccnf.color_win);
+            rule_fields.listen_label_fld_ptr, 0, gettext("Listen port"));
+    field_opts_off(rule_fields.listen_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.listen_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.listen_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* listenport */
-    RuleFlds.listen_fld_ptr =
+    rule_fields.listen_fld_ptr =
             (fields[field_num] = new_field(1, 14, 7, 58, 0, 0));
-    set_field_back(RuleFlds.listen_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.listen_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.listen_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.listen_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* start disabled and set the field to dynamic */
-    field_opts_off(RuleFlds.listen_fld_ptr, O_VISIBLE | O_STATIC);
-    field_opts_off(RuleFlds.listen_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.listen_fld_ptr, O_VISIBLE | O_STATIC);
+    field_opts_off(rule_fields.listen_label_fld_ptr, O_VISIBLE);
 
     /* this is needed after declaring the field dynamic */
     if (rule_ptr->opt != NULL && rule_ptr->opt->listenport == 1)
-        set_field_buffer_wrap(RuleFlds.listen_fld_ptr, 0,
+        set_field_buffer_wrap(rule_fields.listen_fld_ptr, 0,
                 vrmr_list_to_portopts(&rule_ptr->opt->ListenportList, NULL));
 
     /* remoteport (portfw) label */
     /* TRANSLATORS: max 11 chars */
-    RuleFlds.remote_label_fld_ptr =
+    rule_fields.remote_label_fld_ptr =
             (fields[field_num] = new_field(1, 12, 9, 45, 0, 0));
     set_field_buffer_wrap(
-            RuleFlds.remote_label_fld_ptr, 0, gettext("Remote port"));
-    field_opts_off(RuleFlds.remote_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.remote_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.remote_label_fld_ptr, vccnf.color_win);
+            rule_fields.remote_label_fld_ptr, 0, gettext("Remote port"));
+    field_opts_off(rule_fields.remote_label_fld_ptr, O_ACTIVE);
+    set_field_back(rule_fields.remote_label_fld_ptr, vccnf.color_win);
+    set_field_fore(rule_fields.remote_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* remoteport - total field size: 64 -> 50 offscreen */
-    RuleFlds.remote_fld_ptr =
+    rule_fields.remote_fld_ptr =
             (fields[field_num] = new_field(1, 14, 9, 58, 0, 0));
-    set_field_back(RuleFlds.remote_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(RuleFlds.remote_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    set_field_back(rule_fields.remote_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(rule_fields.remote_fld_ptr, vccnf.color_win_rev | A_BOLD);
     field_num++;
 
     /* start disabled and set the field to dynamic */
-    field_opts_off(RuleFlds.remote_fld_ptr, O_VISIBLE | O_STATIC);
-    field_opts_off(RuleFlds.remote_label_fld_ptr, O_VISIBLE);
+    field_opts_off(rule_fields.remote_fld_ptr, O_VISIBLE | O_STATIC);
+    field_opts_off(rule_fields.remote_label_fld_ptr, O_VISIBLE);
 
     /* this is needed after declaring the field dynamic */
     if (rule_ptr->opt != NULL && rule_ptr->opt->remoteport == 1)
-        set_field_buffer_wrap(RuleFlds.remote_fld_ptr, 0,
+        set_field_buffer_wrap(rule_fields.remote_fld_ptr, 0,
                 vrmr_list_to_portopts(&rule_ptr->opt->RemoteportList, NULL));
 
     /* terminate the fields-array */
@@ -3432,20 +3444,20 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
     while (quit == 0) {
         /* hide/disable fields we don't need */
         if (rule_ptr->action != VRMR_AT_REJECT) {
-            field_opts_off(RuleFlds.reject_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.reject_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.reject_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.reject_label_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action != VRMR_AT_CHAIN) {
-            field_opts_off(RuleFlds.chain_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.chain_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.chain_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.chain_label_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action != VRMR_AT_REDIRECT) {
-            field_opts_off(RuleFlds.redirect_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.redirect_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.redirect_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.redirect_label_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action != VRMR_AT_BOUNCE) {
-            field_opts_off(RuleFlds.via_int_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.via_int_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.via_int_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.via_int_label_fld_ptr, O_VISIBLE);
         }
         if ((rule_ptr->action != VRMR_AT_SNAT &&
                     rule_ptr->action != VRMR_AT_MASQ &&
@@ -3453,78 +3465,80 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                     rule_ptr->action != VRMR_AT_BOUNCE &&
                     rule_ptr->action != VRMR_AT_DNAT) ||
                 !advanced_mode) {
-            field_opts_off(RuleFlds.random_brackets_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.random_label_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.random_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.random_brackets_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.random_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.random_fld_ptr, O_VISIBLE);
         }
         if (!advanced_mode) {
-            field_opts_off(RuleFlds.burst_fld_ptr, O_VISIBLE | O_STATIC);
-            field_opts_off(RuleFlds.burst_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.burst_fld_ptr, O_VISIBLE | O_STATIC);
+            field_opts_off(rule_fields.burst_label_fld_ptr, O_VISIBLE);
 
-            field_opts_off(RuleFlds.limit_unit_fld_ptr, O_VISIBLE | O_STATIC);
-            field_opts_off(RuleFlds.limit_unit_label_fld_ptr, O_VISIBLE);
+            field_opts_off(
+                    rule_fields.limit_unit_fld_ptr, O_VISIBLE | O_STATIC);
+            field_opts_off(rule_fields.limit_unit_label_fld_ptr, O_VISIBLE);
 
-            field_opts_off(RuleFlds.limit_fld_ptr, O_VISIBLE | O_STATIC);
-            field_opts_off(RuleFlds.limit_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.limit_fld_ptr, O_VISIBLE | O_STATIC);
+            field_opts_off(rule_fields.limit_label_fld_ptr, O_VISIBLE);
         }
         if ((rule_ptr->action != VRMR_AT_PORTFW &&
                     rule_ptr->action != VRMR_AT_DNAT) ||
                 !advanced_mode) {
-            field_opts_off(RuleFlds.listen_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.listen_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.listen_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.listen_label_fld_ptr, O_VISIBLE);
 
-            field_opts_off(RuleFlds.remote_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.remote_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.remote_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.remote_label_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action == VRMR_AT_LOG) {
-            field_opts_off(RuleFlds.log_fld_ptr, O_ACTIVE);
+            field_opts_off(rule_fields.log_fld_ptr, O_ACTIVE);
         }
         if (((rule_ptr->action != VRMR_AT_NFQUEUE)) || !advanced_mode) {
-            field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.nfqueuenum_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.nfqueuenum_fld_ptr, O_VISIBLE);
         }
         if (((rule_ptr->action != VRMR_AT_NFLOG)) || !advanced_mode) {
-            field_opts_off(RuleFlds.nflognum_label_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.nflognum_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.nflognum_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.nflognum_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action != VRMR_AT_LOG || !advanced_mode) {
-            field_opts_off(RuleFlds.loglimit_label_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.loglimit_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.loglimit_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.loglimit_fld_ptr, O_VISIBLE);
         }
         if (!advanced_mode || rule_ptr->action == VRMR_AT_SNAT ||
                 rule_ptr->action == VRMR_AT_DNAT ||
                 rule_ptr->action == VRMR_AT_MASQ) {
-            field_opts_off(RuleFlds.nfmark_label_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.nfmark_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.nfmark_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.nfmark_fld_ptr, O_VISIBLE);
         }
         if (!advanced_mode ||
-                strncmp(field_buffer(RuleFlds.fromzone_fld_ptr, 0), "firewall",
-                        8) == 0) {
-            field_opts_off(RuleFlds.in_int_label_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.in_int_fld_ptr, O_VISIBLE);
+                strncmp(field_buffer(rule_fields.fromzone_fld_ptr, 0),
+                        "firewall", 8) == 0) {
+            field_opts_off(rule_fields.in_int_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.in_int_fld_ptr, O_VISIBLE);
         }
-        if (!advanced_mode || strncmp(field_buffer(RuleFlds.tozone_fld_ptr, 0),
-                                      "firewall", 8) == 0) {
-            field_opts_off(RuleFlds.out_int_label_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.out_int_fld_ptr, O_VISIBLE);
+        if (!advanced_mode ||
+                strncmp(field_buffer(rule_fields.tozone_fld_ptr, 0), "firewall",
+                        8) == 0) {
+            field_opts_off(rule_fields.out_int_label_fld_ptr, O_VISIBLE);
+            field_opts_off(rule_fields.out_int_fld_ptr, O_VISIBLE);
         }
 
         /* show/enable fields we need */
         if (rule_ptr->action == VRMR_AT_REJECT) {
-            field_opts_on(RuleFlds.reject_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.reject_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.reject_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.reject_label_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action == VRMR_AT_CHAIN) {
-            field_opts_on(RuleFlds.chain_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.chain_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.chain_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.chain_label_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action == VRMR_AT_BOUNCE) {
-            field_opts_on(RuleFlds.via_int_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.via_int_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.via_int_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.via_int_label_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action == VRMR_AT_REDIRECT) {
-            field_opts_on(RuleFlds.redirect_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.redirect_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.redirect_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.redirect_label_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action == VRMR_AT_SNAT ||
                 rule_ptr->action == VRMR_AT_MASQ ||
@@ -3532,104 +3546,105 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                 rule_ptr->action == VRMR_AT_PORTFW ||
                 rule_ptr->action == VRMR_AT_BOUNCE) {
             if (advanced_mode) {
-                field_opts_on(RuleFlds.random_brackets_fld_ptr, O_VISIBLE);
-                field_opts_on(RuleFlds.random_label_fld_ptr, O_VISIBLE);
-                field_opts_on(RuleFlds.random_fld_ptr, O_VISIBLE);
+                field_opts_on(rule_fields.random_brackets_fld_ptr, O_VISIBLE);
+                field_opts_on(rule_fields.random_label_fld_ptr, O_VISIBLE);
+                field_opts_on(rule_fields.random_fld_ptr, O_VISIBLE);
             }
         }
         if ((rule_ptr->action == VRMR_AT_PORTFW ||
                     rule_ptr->action == VRMR_AT_DNAT) &&
                 advanced_mode) {
-            field_opts_on(RuleFlds.listen_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.listen_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.listen_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.listen_label_fld_ptr, O_VISIBLE);
 
-            field_opts_on(RuleFlds.remote_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.remote_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.remote_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.remote_label_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action == VRMR_AT_NFQUEUE && advanced_mode) {
-            field_opts_on(RuleFlds.nfqueuenum_label_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.nfqueuenum_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.nfqueuenum_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action == VRMR_AT_NFLOG && advanced_mode) {
-            field_opts_on(RuleFlds.nflognum_label_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.nflognum_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.nflognum_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.nflognum_fld_ptr, O_VISIBLE);
         }
 
         if (advanced_mode) {
-            field_opts_on(RuleFlds.burst_fld_ptr, O_VISIBLE | O_STATIC);
-            field_opts_on(RuleFlds.burst_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.burst_fld_ptr, O_VISIBLE | O_STATIC);
+            field_opts_on(rule_fields.burst_label_fld_ptr, O_VISIBLE);
 
-            field_opts_on(RuleFlds.limit_unit_fld_ptr, O_VISIBLE | O_STATIC);
-            field_opts_on(RuleFlds.limit_unit_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.limit_unit_fld_ptr, O_VISIBLE | O_STATIC);
+            field_opts_on(rule_fields.limit_unit_label_fld_ptr, O_VISIBLE);
 
-            field_opts_on(RuleFlds.limit_fld_ptr, O_VISIBLE | O_STATIC);
-            field_opts_on(RuleFlds.limit_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.limit_fld_ptr, O_VISIBLE | O_STATIC);
+            field_opts_on(rule_fields.limit_label_fld_ptr, O_VISIBLE);
         }
 
         if (rule_ptr->action != VRMR_AT_LOG) {
-            field_opts_on(RuleFlds.log_fld_ptr, O_ACTIVE);
+            field_opts_on(rule_fields.log_fld_ptr, O_ACTIVE);
         }
         if (rule_ptr->action != VRMR_AT_LOG && advanced_mode) {
-            field_opts_on(RuleFlds.loglimit_label_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.loglimit_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.loglimit_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.loglimit_fld_ptr, O_VISIBLE);
         }
         if (rule_ptr->action != VRMR_AT_SNAT &&
                 rule_ptr->action != VRMR_AT_DNAT &&
                 rule_ptr->action != VRMR_AT_MASQ && advanced_mode) {
-            field_opts_on(RuleFlds.nfmark_label_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.nfmark_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.nfmark_label_fld_ptr, O_VISIBLE);
+            field_opts_on(rule_fields.nfmark_fld_ptr, O_VISIBLE);
         }
         if (advanced_mode) {
-            if (strncmp(field_buffer(RuleFlds.fromzone_fld_ptr, 0), "firewall",
-                        8) != 0) {
-                field_opts_on(RuleFlds.in_int_label_fld_ptr, O_VISIBLE);
-                field_opts_on(RuleFlds.in_int_fld_ptr, O_VISIBLE);
+            if (strncmp(field_buffer(rule_fields.fromzone_fld_ptr, 0),
+                        "firewall", 8) != 0) {
+                field_opts_on(rule_fields.in_int_label_fld_ptr, O_VISIBLE);
+                field_opts_on(rule_fields.in_int_fld_ptr, O_VISIBLE);
             }
 
-            if (strncmp(field_buffer(RuleFlds.tozone_fld_ptr, 0), "firewall",
+            if (strncmp(field_buffer(rule_fields.tozone_fld_ptr, 0), "firewall",
                         8) != 0) {
-                field_opts_on(RuleFlds.out_int_label_fld_ptr, O_VISIBLE);
-                field_opts_on(RuleFlds.out_int_fld_ptr, O_VISIBLE);
+                field_opts_on(rule_fields.out_int_label_fld_ptr, O_VISIBLE);
+                field_opts_on(rule_fields.out_int_fld_ptr, O_VISIBLE);
             }
         }
 
         /* do some nice coloring of the action field */
         if (rule_ptr->action == VRMR_AT_ACCEPT) {
-            set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_green_rev);
-            set_field_fore(RuleFlds.action_fld_ptr,
+            set_field_back(
+                    rule_fields.action_fld_ptr, vccnf.color_win_green_rev);
+            set_field_fore(rule_fields.action_fld_ptr,
                     vccnf.color_win_green_rev | A_BOLD);
         } else if (rule_ptr->action == VRMR_AT_DROP ||
                    rule_ptr->action == VRMR_AT_REJECT) {
-            set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_red_rev);
-            set_field_fore(
-                    RuleFlds.action_fld_ptr, vccnf.color_win_red_rev | A_BOLD);
+            set_field_back(rule_fields.action_fld_ptr, vccnf.color_win_red_rev);
+            set_field_fore(rule_fields.action_fld_ptr,
+                    vccnf.color_win_red_rev | A_BOLD);
         } else if (rule_ptr->action == VRMR_AT_LOG) {
             set_field_back(
-                    RuleFlds.action_fld_ptr, vccnf.color_win_rev | A_BOLD);
+                    rule_fields.action_fld_ptr, vccnf.color_win_rev | A_BOLD);
             set_field_fore(
-                    RuleFlds.action_fld_ptr, vccnf.color_win_rev | A_BOLD);
+                    rule_fields.action_fld_ptr, vccnf.color_win_rev | A_BOLD);
         } else {
-            set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_rev);
+            set_field_back(rule_fields.action_fld_ptr, vccnf.color_win_rev);
             set_field_fore(
-                    RuleFlds.action_fld_ptr, vccnf.color_win_rev | A_BOLD);
+                    rule_fields.action_fld_ptr, vccnf.color_win_rev | A_BOLD);
         }
 
         /* color firewall zones */
-        if (strncasecmp(field_buffer(RuleFlds.fromzone_fld_ptr, 0), "firewall",
-                    8) == 0)
-            set_field_fore(RuleFlds.fromzone_fld_ptr,
+        if (strncasecmp(field_buffer(rule_fields.fromzone_fld_ptr, 0),
+                    "firewall", 8) == 0)
+            set_field_fore(rule_fields.fromzone_fld_ptr,
                     vccnf.color_win_rev_yellow | A_BOLD);
         else
             set_field_fore(
-                    RuleFlds.fromzone_fld_ptr, vccnf.color_win_rev | A_BOLD);
+                    rule_fields.fromzone_fld_ptr, vccnf.color_win_rev | A_BOLD);
 
-        if (strncasecmp(field_buffer(RuleFlds.tozone_fld_ptr, 0), "firewall",
+        if (strncasecmp(field_buffer(rule_fields.tozone_fld_ptr, 0), "firewall",
                     8) == 0)
-            set_field_fore(RuleFlds.tozone_fld_ptr,
+            set_field_fore(rule_fields.tozone_fld_ptr,
                     vccnf.color_win_rev_yellow | A_BOLD);
         else
             set_field_fore(
-                    RuleFlds.tozone_fld_ptr, vccnf.color_win_rev | A_BOLD);
+                    rule_fields.tozone_fld_ptr, vccnf.color_win_rev | A_BOLD);
 
         prev = cur;
         cur = current_field(form);
@@ -3640,98 +3655,98 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
         /*
             now give some help message in the status win
         */
-        if (cur == RuleFlds.action_fld_ptr)
+        if (cur == rule_fields.action_fld_ptr)
             status_print(
                     status_win, gettext("Press SPACE to select an action."));
-        else if (cur == RuleFlds.service_fld_ptr)
+        else if (cur == rule_fields.service_fld_ptr)
             status_print(
                     status_win, gettext("Press SPACE to select a service."));
-        else if (cur == RuleFlds.fromzone_fld_ptr ||
-                 cur == RuleFlds.tozone_fld_ptr)
+        else if (cur == rule_fields.fromzone_fld_ptr ||
+                 cur == rule_fields.tozone_fld_ptr)
             status_print(
                     status_win, gettext("Press SPACE to select a host, group "
                                         "or network, or the firewall."));
-        else if (cur == RuleFlds.logprefix_fld_ptr)
+        else if (cur == rule_fields.logprefix_fld_ptr)
             status_print(status_win,
                     gettext("Enter a text to be included in the log message."));
-        else if (cur == RuleFlds.reject_fld_ptr)
+        else if (cur == rule_fields.reject_fld_ptr)
             status_print(status_win,
                     gettext("Press SPACE to select a reject type."));
-        else if (cur == RuleFlds.redirect_fld_ptr)
+        else if (cur == rule_fields.redirect_fld_ptr)
             status_print(
                     status_win, gettext("Enter a portnumber to redirect to."));
-        else if (cur == RuleFlds.listen_fld_ptr)
+        else if (cur == rule_fields.listen_fld_ptr)
             status_print(status_win,
                     gettext("Enter a comma-sepparated list of ports for the "
                             "firewall to listen on."));
-        else if (cur == RuleFlds.remote_fld_ptr)
+        else if (cur == rule_fields.remote_fld_ptr)
             status_print(status_win,
                     gettext("Enter a comma-sepparated list of ports for the "
                             "firewall to forward to."));
-        else if (cur == RuleFlds.comment_fld_ptr)
+        else if (cur == rule_fields.comment_fld_ptr)
             status_print(status_win, gettext("Enter a optional comment."));
-        else if (cur == RuleFlds.loglimit_fld_ptr)
+        else if (cur == rule_fields.loglimit_fld_ptr)
             status_print(
                     status_win, gettext("Maximum number of loglines per second "
                                         "(to prevent DoS), 0 for no limit."));
-        else if (cur == RuleFlds.log_fld_ptr)
+        else if (cur == rule_fields.log_fld_ptr)
             status_print(status_win,
                     gettext("Press SPACE to toggle logging of this rule."));
-        else if (cur == RuleFlds.nfqueuenum_fld_ptr)
+        else if (cur == rule_fields.nfqueuenum_fld_ptr)
             status_print(status_win,
                     gettext("Queue number to use. Possible values: 0-65535."));
-        else if (cur == RuleFlds.nflognum_fld_ptr)
+        else if (cur == rule_fields.nflognum_fld_ptr)
             status_print(status_win,
                     gettext("NFLog number to use. Possible values: 0-65535."));
-        else if (cur == RuleFlds.in_int_fld_ptr)
+        else if (cur == rule_fields.in_int_fld_ptr)
             status_print(
                     status_win, gettext("Press SPACE to select an interface to "
                                         "limit this rule to."));
-        else if (cur == RuleFlds.out_int_fld_ptr)
+        else if (cur == rule_fields.out_int_fld_ptr)
             status_print(
                     status_win, gettext("Press SPACE to select an interface to "
                                         "limit this rule to."));
-        else if (cur == RuleFlds.via_int_fld_ptr)
+        else if (cur == rule_fields.via_int_fld_ptr)
             status_print(
                     status_win, gettext("Press SPACE to select an interface. "
                                         "Read help for more info."));
-        else if (cur == RuleFlds.nfmark_fld_ptr)
+        else if (cur == rule_fields.nfmark_fld_ptr)
             status_print(status_win, gettext("Enter a nfmark. Use > 20.000.000 "
                                              "when using the QUEUE action."));
-        else if (cur == RuleFlds.limit_fld_ptr)
+        else if (cur == rule_fields.limit_fld_ptr)
             status_print(status_win,
                     gettext("Average new connections per amount of time (to "
                             "prevent DoS), 0 for no limit."));
-        else if (cur == RuleFlds.limit_unit_fld_ptr)
+        else if (cur == rule_fields.limit_unit_fld_ptr)
             status_print(status_win,
                     gettext("Unit for the limit: sec, min, hour, day."));
-        else if (cur == RuleFlds.burst_fld_ptr)
+        else if (cur == rule_fields.burst_fld_ptr)
             status_print(
                     status_win, gettext("Maximum new connections per second "
                                         "(to prevent DoS), 0 for no limit."));
-        else if (cur == RuleFlds.random_fld_ptr)
+        else if (cur == rule_fields.random_fld_ptr)
             status_print(status_win, gettext("Randomize the source ports of "
                                              "NAT'd connections."));
 
         ch = wgetch(edit_win);
         not_defined = 0;
 
-        if (cur == RuleFlds.logprefix_fld_ptr ||
-                cur == RuleFlds.redirect_fld_ptr ||
-                cur == RuleFlds.listen_fld_ptr ||
-                cur == RuleFlds.loglimit_fld_ptr ||
-                cur == RuleFlds.remote_fld_ptr ||
-                cur == RuleFlds.comment_fld_ptr ||
-                cur == RuleFlds.nfmark_fld_ptr ||
-                cur == RuleFlds.chain_fld_ptr ||
-                cur == RuleFlds.limit_fld_ptr ||
-                cur == RuleFlds.nfqueuenum_fld_ptr ||
-                cur == RuleFlds.nflognum_fld_ptr ||
-                cur == RuleFlds.burst_fld_ptr) {
+        if (cur == rule_fields.logprefix_fld_ptr ||
+                cur == rule_fields.redirect_fld_ptr ||
+                cur == rule_fields.listen_fld_ptr ||
+                cur == rule_fields.loglimit_fld_ptr ||
+                cur == rule_fields.remote_fld_ptr ||
+                cur == rule_fields.comment_fld_ptr ||
+                cur == rule_fields.nfmark_fld_ptr ||
+                cur == rule_fields.chain_fld_ptr ||
+                cur == rule_fields.limit_fld_ptr ||
+                cur == rule_fields.nfqueuenum_fld_ptr ||
+                cur == rule_fields.nflognum_fld_ptr ||
+                cur == rule_fields.burst_fld_ptr) {
             if (nav_field_simpletext(form, ch) < 0)
                 not_defined = 1;
-        } else if (cur == RuleFlds.random_fld_ptr ||
-                   cur == RuleFlds.log_fld_ptr) {
+        } else if (cur == rule_fields.random_fld_ptr ||
+                   cur == rule_fields.log_fld_ptr) {
             if (nav_field_toggleX(form, ch) < 0)
                 not_defined = 1;
         } else {
@@ -3766,7 +3781,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
 
                 case 32: /* space */
 
-                    if (cur == RuleFlds.action_fld_ptr) {
+                    if (cur == rule_fields.action_fld_ptr) {
                         copy_field2buf(select_choice, field_buffer(cur, 0),
                                 sizeof(select_choice));
 
@@ -3781,11 +3796,11 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                             /* if action is LOG, disable the log option. */
                             if (rule_ptr->action == VRMR_AT_LOG) {
                                 set_field_buffer_wrap(
-                                        RuleFlds.log_fld_ptr, 0, " ");
+                                        rule_fields.log_fld_ptr, 0, " ");
                             }
                         }
-                    } else if (cur == RuleFlds.fromzone_fld_ptr ||
-                               cur == RuleFlds.tozone_fld_ptr) {
+                    } else if (cur == rule_fields.fromzone_fld_ptr ||
+                               cur == rule_fields.tozone_fld_ptr) {
                         for (zone_choices_n = 0, d_node = zones->list.top;
                                 d_node; d_node = d_node->next) {
                             vrmr_fatal_if_null(d_node->data);
@@ -3847,7 +3862,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
 
                         free(zone_choices);
                         zone_choices = NULL;
-                    } else if (cur == RuleFlds.service_fld_ptr) {
+                    } else if (cur == rule_fields.service_fld_ptr) {
                         service_choices_n = services->list.len + 1;
 
                         service_choices =
@@ -3879,7 +3894,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
 
                         free(service_choices);
                         service_choices = NULL;
-                    } else if (cur == RuleFlds.reject_fld_ptr) {
+                    } else if (cur == rule_fields.reject_fld_ptr) {
                         copy_field2buf(select_choice, field_buffer(cur, 0),
                                 sizeof(select_choice));
 
@@ -3890,11 +3905,11 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                             set_field_buffer_wrap(cur, 0, reject_ptr);
                             free(reject_ptr);
                         }
-                    } else if (cur == RuleFlds.in_int_fld_ptr) {
-                        if (field_buffer(RuleFlds.fromzone_fld_ptr, 0)[0] ==
+                    } else if (cur == rule_fields.in_int_fld_ptr) {
+                        if (field_buffer(rule_fields.fromzone_fld_ptr, 0)[0] ==
                                         '\0' ||
-                                field_buffer(RuleFlds.fromzone_fld_ptr, 0)[0] ==
-                                        ' ') {
+                                field_buffer(rule_fields.fromzone_fld_ptr,
+                                        0)[0] == ' ') {
                             vrmr_warning(
                                     VR_WARN, gettext("no from zone, please "
                                                      "select one first."));
@@ -3906,14 +3921,16 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                             /* any just use all interfaces */
                             if (strncasecmp(
                                         field_buffer(
-                                                RuleFlds.fromzone_fld_ptr, 0),
+                                                rule_fields.fromzone_fld_ptr,
+                                                0),
                                         "any", 3) == 0) {
                                 interfaces_list = &interfaces->list;
                             } else {
                                 /* copy the from field to the zonename buffer */
                                 copy_field2buf(zonename,
                                         field_buffer(
-                                                RuleFlds.fromzone_fld_ptr, 0),
+                                                rule_fields.fromzone_fld_ptr,
+                                                0),
                                         sizeof(zonename));
 
                                 /* get the zone */
@@ -3988,10 +4005,11 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                                     /* any means empty the field */
                                     if (strcmp(choice_ptr, gettext("Any")) == 0)
                                         set_field_buffer_wrap(
-                                                RuleFlds.in_int_fld_ptr, 0, "");
+                                                rule_fields.in_int_fld_ptr, 0,
+                                                "");
                                     else
                                         set_field_buffer_wrap(
-                                                RuleFlds.in_int_fld_ptr, 0,
+                                                rule_fields.in_int_fld_ptr, 0,
                                                 choice_ptr);
 
                                     free(choice_ptr);
@@ -4001,11 +4019,11 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                                 free(choices);
                             }
                         }
-                    } else if (cur == RuleFlds.out_int_fld_ptr) {
-                        if (field_buffer(RuleFlds.tozone_fld_ptr, 0)[0] ==
+                    } else if (cur == rule_fields.out_int_fld_ptr) {
+                        if (field_buffer(rule_fields.tozone_fld_ptr, 0)[0] ==
                                         '\0' ||
-                                field_buffer(RuleFlds.tozone_fld_ptr, 0)[0] ==
-                                        ' ') {
+                                field_buffer(rule_fields.tozone_fld_ptr,
+                                        0)[0] == ' ') {
                             vrmr_warning(
                                     VR_WARN, gettext("no 'to' zone, please "
                                                      "select one first."));
@@ -4015,15 +4033,16 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                             interfaces_list = NULL;
 
                             /* any just use all interfaces */
-                            if (strncasecmp(field_buffer(
-                                                    RuleFlds.tozone_fld_ptr, 0),
+                            if (strncasecmp(
+                                        field_buffer(
+                                                rule_fields.tozone_fld_ptr, 0),
                                         "any", 3) == 0) {
                                 interfaces_list = &interfaces->list;
                             } else {
                                 /* copy the from field to the zonename buffer */
                                 copy_field2buf(zonename,
                                         field_buffer(
-                                                RuleFlds.tozone_fld_ptr, 0),
+                                                rule_fields.tozone_fld_ptr, 0),
                                         sizeof(zonename));
                                 /* get the zone */
                                 if (!(zone_ptr = vrmr_search_zonedata(
@@ -4097,11 +4116,11 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                                     /* any means empty the field */
                                     if (strcmp(choice_ptr, gettext("Any")) == 0)
                                         set_field_buffer_wrap(
-                                                RuleFlds.out_int_fld_ptr, 0,
+                                                rule_fields.out_int_fld_ptr, 0,
                                                 "");
                                     else
                                         set_field_buffer_wrap(
-                                                RuleFlds.out_int_fld_ptr, 0,
+                                                rule_fields.out_int_fld_ptr, 0,
                                                 choice_ptr);
 
                                     free(choice_ptr);
@@ -4111,7 +4130,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                                 free(choices);
                             }
                         }
-                    } else if (cur == RuleFlds.via_int_fld_ptr) {
+                    } else if (cur == rule_fields.via_int_fld_ptr) {
                         interfaces_list = &interfaces->list;
 
                         if (interfaces_list != NULL) {
@@ -4143,15 +4162,16 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                                           select_choice))) {
                                 /* no choice */
                             } else {
-                                set_field_buffer_wrap(RuleFlds.via_int_fld_ptr,
-                                        0, choice_ptr);
+                                set_field_buffer_wrap(
+                                        rule_fields.via_int_fld_ptr, 0,
+                                        choice_ptr);
                                 free(choice_ptr);
                             }
 
                             /* cleanup */
                             free(choices);
                         }
-                    } else if (cur == RuleFlds.limit_unit_fld_ptr) {
+                    } else if (cur == rule_fields.limit_unit_fld_ptr) {
                         char *limit_unit_choices[] =
                                 {
                                         "Sec",
@@ -4280,9 +4300,9 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
     return (retval);
 }
 
-struct SepRuleFlds_ {
+struct {
     FIELD *comment_label_fld_ptr, *comment_fld_ptr;
-} SepRuleFlds;
+} sep_rule_fields;
 
 /*  edit_rule_fields_to_rule
 
@@ -4305,7 +4325,7 @@ static int edit_seprule_fields_to_rule(FIELD **fields, size_t n_fields,
         if (field_status(fields[i]) == FALSE)
             continue;
 
-        if (fields[i] != SepRuleFlds.comment_fld_ptr)
+        if (fields[i] != sep_rule_fields.comment_fld_ptr)
             continue;
 
         int last_char = 0;
@@ -4377,7 +4397,7 @@ int edit_rule_separator(struct vrmr_zones *zones,
 
     /* clear tmp_ruledata for the initial */
     memset(&tmp_ruledata, 0, sizeof(tmp_ruledata));
-    memset(&SepRuleFlds, 0, sizeof(struct SepRuleFlds_));
+    memset(&sep_rule_fields, 0, sizeof(sep_rule_fields));
 
     /* set to keep first */
     rule_ptr->status = VRMR_ST_CHANGED;
@@ -4404,15 +4424,16 @@ int edit_rule_separator(struct vrmr_zones *zones,
     */
 
     /* comment */
-    SepRuleFlds.comment_fld_ptr =
+    sep_rule_fields.comment_fld_ptr =
             (fields[field_num] = new_field(1, 63, 1, 2, 0, 0));
     if (rule_ptr->opt != NULL && rule_ptr->opt->rule_comment == 1)
         set_field_buffer_wrap(
-                SepRuleFlds.comment_fld_ptr, 0, rule_ptr->opt->comment);
-    set_field_back(SepRuleFlds.comment_fld_ptr, vccnf.color_win_rev);
-    set_field_fore(SepRuleFlds.comment_fld_ptr, vccnf.color_win_rev | A_BOLD);
-    field_opts_off(SepRuleFlds.comment_fld_ptr, O_AUTOSKIP);
-    set_field_status(SepRuleFlds.comment_fld_ptr, FALSE);
+                sep_rule_fields.comment_fld_ptr, 0, rule_ptr->opt->comment);
+    set_field_back(sep_rule_fields.comment_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(
+            sep_rule_fields.comment_fld_ptr, vccnf.color_win_rev | A_BOLD);
+    field_opts_off(sep_rule_fields.comment_fld_ptr, O_AUTOSKIP);
+    set_field_status(sep_rule_fields.comment_fld_ptr, FALSE);
     field_num++;
 
     /* terminate the fields-array */
@@ -4447,7 +4468,7 @@ int edit_rule_separator(struct vrmr_zones *zones,
         /*
             now give some help message in the status win
         */
-        if (cur == SepRuleFlds.comment_fld_ptr)
+        if (cur == sep_rule_fields.comment_fld_ptr)
             status_print(status_win, gettext("Enter an optional comment."));
 
         ch = wgetch(edit_win);

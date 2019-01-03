@@ -22,7 +22,7 @@
 #include "conntrack.h"
 #include "vuurmuur.h"
 
-struct ConntrackLine {
+struct vrmr_conntrack_line {
     int protocol;
     int ipv6;
     int ttl;
@@ -137,7 +137,7 @@ void vrmr_conn_print_dlist(const struct vrmr_list *dlist)
          0: ok
         -1: (serious) error
 */
-static int conn_line_to_data(struct ConntrackLine *connline_ptr,
+static int conn_line_to_data(struct vrmr_conntrack_line *connline_ptr,
         struct vrmr_conntrack_entry *conndata_ptr,
         struct vrmr_hash_table *serhash, struct vrmr_hash_table *zonehash,
         struct vrmr_list *zonelist, struct vrmr_conntrack_request *req)
@@ -351,7 +351,8 @@ static int conn_line_to_data(struct ConntrackLine *connline_ptr,
 /* tcp      6 118 SYN_SENT src=192.168.1.4 dst=92.122.217.72 sport=36549
  * dport=80 packets=1 bytes=60 [UNREPLIED] src=92.122.217.72 dst=192.168.1.4
  * sport=80 dport=36549 packets=0 bytes=0 mark=0 secmark=0 */
-static int parse_tcp_line(const char *line, struct ConntrackLine *connline_ptr)
+static int parse_tcp_line(
+        const char *line, struct vrmr_conntrack_line *connline_ptr)
 {
     int result = 0;
     char source_port[16] = "", dest_port[16] = "", alt_source_port[16] = "",
@@ -451,7 +452,7 @@ static int parse_tcp_line(const char *line, struct ConntrackLine *connline_ptr)
  * dst=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx sport=443 dport=37424 [ASSURED]
  * mark=0 zone=0 use=2 */
 static int parse_tcp_line_ipv6(
-        const char *line, struct ConntrackLine *connline_ptr)
+        const char *line, struct vrmr_conntrack_line *connline_ptr)
 {
     int result = 0;
     char source_port[16] = "", dest_port[16] = "", alt_source_port[16] = "",
@@ -553,7 +554,8 @@ static int parse_tcp_line_ipv6(
 /* udp      17 29 src=192.168.1.4 dst=192.168.1.1 sport=57902 dport=53 packets=1
  * bytes=69 [UNREPLIED] src=192.168.1.1 dst=192.168.1.4 sport=53 dport=57902
  * packets=0 bytes=0 mark=0 secmark=0 use=2 */
-static int parse_udp_line(const char *line, struct ConntrackLine *connline_ptr)
+static int parse_udp_line(
+        const char *line, struct vrmr_conntrack_line *connline_ptr)
 {
     int result = 0;
     char source_port[16] = "", dest_port[16] = "", alt_source_port[16] = "",
@@ -652,7 +654,7 @@ static int parse_udp_line(const char *line, struct ConntrackLine *connline_ptr)
 }
 
 static int parse_udp_line_ipv6(
-        const char *line, struct ConntrackLine *connline_ptr)
+        const char *line, struct vrmr_conntrack_line *connline_ptr)
 {
     int result = 0;
     char source_port[16] = "", dest_port[16] = "", alt_source_port[16] = "",
@@ -757,7 +759,8 @@ static int parse_udp_line_ipv6(
 // packets=0 bytes=0 mark=0 use=1 icmp     1 4 src=xx.xx.xx.xx dst=194.109.21.51
 // type=8 code=0 id=28193 packets=1 bytes=84 src=194.109.21.51 dst=xx.xx.xx.xx
 // type=0 code=0 id=28193 packets=1 bytes=84 mark=0 secmark=0 use=2
-static int parse_icmp_line(const char *line, struct ConntrackLine *connline_ptr)
+static int parse_icmp_line(
+        const char *line, struct vrmr_conntrack_line *connline_ptr)
 {
     int result = 0;
     char source_port[16] = "", dest_port[16] = "", tmp[16] = "";
@@ -828,7 +831,7 @@ static int parse_icmp_line(const char *line, struct ConntrackLine *connline_ptr)
 }
 
 static int parse_icmp_line_ipv6(
-        const char *line, struct ConntrackLine *connline_ptr)
+        const char *line, struct vrmr_conntrack_line *connline_ptr)
 {
     int result = 0;
     char source_port[16] = "", dest_port[16] = "", tmp[16] = "";
@@ -914,7 +917,7 @@ static int parse_icmp_line_ipv6(
    src=<ip> dst=<ip> packets=0 bytes=0 mark=0 use=1
 */
 static int parse_unknown_line(
-        const char *line, struct ConntrackLine *connline_ptr)
+        const char *line, struct vrmr_conntrack_line *connline_ptr)
 {
     int result = 0;
     char tmp[16] = "";
@@ -983,7 +986,7 @@ static int parse_unknown_line(
 }
 
 static int parse_unknown_line_ipv6(
-        const char *line, struct ConntrackLine *connline_ptr)
+        const char *line, struct vrmr_conntrack_line *connline_ptr)
 {
     int result = 0;
     char tmp[16] = "";
@@ -1053,7 +1056,7 @@ static int parse_unknown_line_ipv6(
 
 /*  process one line from the conntrack file */
 static int conn_process_one_conntrack_line_ipv6(
-        const char *line, struct ConntrackLine *connline_ptr)
+        const char *line, struct vrmr_conntrack_line *connline_ptr)
 {
     char protocol[16] = "";
 
@@ -1208,7 +1211,7 @@ static int conn_process_one_conntrack_line_ipv6(
 
 /*  process one line from the conntrack file */
 static int conn_process_one_conntrack_line(
-        const char *line, struct ConntrackLine *connline_ptr)
+        const char *line, struct vrmr_conntrack_line *connline_ptr)
 {
     char protocol[16] = "";
 
@@ -1565,7 +1568,7 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
 
     char line[1024] = "";
     FILE *fp = NULL;
-    struct ConntrackLine cl;
+    struct vrmr_conntrack_line cl;
     struct vrmr_conntrack_entry *cd_ptr = NULL;
     struct vrmr_conntrack_entry *old_cd_ptr = NULL;
 

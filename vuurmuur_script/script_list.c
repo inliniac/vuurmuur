@@ -20,7 +20,7 @@
 
 #include "vuurmuur_script.h"
 
-int script_list(VuurmuurScript *vr_script)
+int script_list(struct vuurmuur_script *vr_script)
 {
     char back_zone[VRMR_MAX_ZONE] = "", back_net[VRMR_MAX_NETWORK] = "",
          back_host[VRMR_MAX_HOST] = "";

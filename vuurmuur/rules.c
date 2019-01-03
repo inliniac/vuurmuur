@@ -523,7 +523,7 @@ int create_all_rules(struct vrmr_ctx *vctx, int create_prerules)
 }
 
 static int create_rule_set_ports(
-        struct RuleCreateData_ *rule, struct vrmr_portdata *portrange_ptr)
+        struct rule_scratch *rule, struct vrmr_portdata *portrange_ptr)
 {
     /* from */
     if (portrange_ptr->protocol == 6 || portrange_ptr->protocol == 17) {
@@ -563,7 +563,7 @@ static int create_rule_set_ports(
 }
 
 static int create_rule_set_proto(
-        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create)
+        struct rule_scratch *rule, struct vrmr_rule_cache *create)
 {
     /* safety */
     if (rule == NULL || create == NULL) {
@@ -607,7 +607,7 @@ static int create_rule_set_proto(
 }
 
 static int rulecreate_call_create_funcs(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct RuleCreateData_ *rule,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
@@ -849,7 +849,7 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
 }
 
 static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct RuleCreateData_ *rule,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char action[64] = ""; /* if changes to size: see sscanf below as well */
@@ -1134,7 +1134,7 @@ static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
 }
 
 static int rulecreate_dst_loop(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct RuleCreateData_ *rule,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     struct vrmr_list_node *d_node = NULL;
@@ -1333,7 +1333,7 @@ static int rulecreate_dst_loop(struct vrmr_config *conf,
 }
 
 static int rulecreate_src_loop(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct RuleCreateData_ *rule,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char from_has_mac = FALSE;
@@ -1564,7 +1564,7 @@ static int rulecreate_src_loop(struct vrmr_config *conf,
 }
 
 static int rulecreate_service_loop(struct vrmr_config *conf,
-        /*@null@*/ RuleSet *ruleset, struct RuleCreateData_ *rule,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
@@ -1684,7 +1684,7 @@ static int rulecreate_service_loop(struct vrmr_config *conf,
 }
 
 static int rulecreate_dst_iface_loop(struct vrmr_ctx *vctx,
-        /*@null@*/ RuleSet *ruleset, struct RuleCreateData_ *rule,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
         struct vrmr_rule_cache *create)
 {
     int retval = 0;
@@ -1994,7 +1994,7 @@ static int rulecreate_dst_iface_loop(struct vrmr_ctx *vctx,
  *  \brief create rules for each src interface
  */
 static int rulecreate_src_iface_loop(struct vrmr_ctx *vctx,
-        /*@null@*/ RuleSet *ruleset, struct RuleCreateData_ *rule,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
         struct vrmr_rule_cache *create)
 {
     int retval = 0;
@@ -2241,7 +2241,7 @@ static int rulecreate_src_iface_loop(struct vrmr_ctx *vctx,
  *  \brief create IPv4 and IPv6 rules
  *  \retval 0 ok */
 static int rulecreate_ipv4ipv6_loop(struct vrmr_ctx *vctx,
-        /*@null@*/ RuleSet *ruleset, struct RuleCreateData_ *rule,
+        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
         struct vrmr_rule_cache *create)
 {
     if (ruleset == NULL || ruleset->ipv == VRMR_IPV4) {
@@ -2281,10 +2281,10 @@ static int rulecreate_ipv4ipv6_loop(struct vrmr_ctx *vctx,
         -1: error
 */
 int create_rule(struct vrmr_ctx *vctx,
-        /*@null@*/ RuleSet *ruleset, struct vrmr_rule_cache *create)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_rule_cache *create)
 {
     int retval = 0;
-    struct RuleCreateData_ *rule = NULL;
+    struct rule_scratch *rule = NULL;
 
     vrmr_debug(HIGH, "** start ** (create->action: %s).", create->action);
 
@@ -2308,7 +2308,7 @@ int create_rule(struct vrmr_ctx *vctx,
         return (0);
 
     /* alloc the temp rule data */
-    if (!(rule = malloc(sizeof(struct RuleCreateData_)))) {
+    if (!(rule = malloc(sizeof(struct rule_scratch)))) {
         vrmr_error(-1, "Error",
                 "malloc failed: %s "
                 "(in: %s:%d).",
@@ -2316,7 +2316,7 @@ int create_rule(struct vrmr_ctx *vctx,
         return (-1);
     }
     /* init */
-    memset(rule, 0, sizeof(struct RuleCreateData_));
+    memset(rule, 0, sizeof(struct rule_scratch));
     vrmr_list_setup(&rule->iptrulelist, free);
     vrmr_list_setup(&rule->shaperulelist, free);
     vrmr_list_setup(&rule->from_network_list, NULL);
@@ -2451,7 +2451,7 @@ int create_system_protectrules(struct vrmr_config *conf)
 }
 
 int create_normal_rules(struct vrmr_ctx *vctx,
-        /*@null@*/ RuleSet *ruleset, char *forward_rules)
+        /*@null@*/ struct rule_set *ruleset, char *forward_rules)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_rule *rule_ptr = NULL;

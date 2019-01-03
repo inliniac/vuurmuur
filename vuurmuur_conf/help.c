@@ -23,27 +23,27 @@
 #define UTF8_TRUE TRUE
 #define UTF8_FALSE FALSE
 
-typedef struct {
+struct helpword {
     char newline;
     char *word;
     size_t line_num;
-} helpword;
+};
 
 /* wide variant */
-typedef struct {
+struct whelpword {
     char newline;
     wchar_t *word;
     size_t line_num;
-} whelpword;
+};
 
 static void free_helpword(void *ptr)
 {
-    helpword *hw = NULL;
+    struct helpword *hw = NULL;
 
     if (!ptr)
         return;
 
-    hw = (helpword *)ptr;
+    hw = (struct helpword *)ptr;
     if (hw->word != NULL)
         free(hw->word);
     free(hw);
@@ -55,7 +55,7 @@ int read_helpline(struct vrmr_list *help_list, char *line)
     char oneword[512] = "";
     size_t i = 0;
     size_t k = 0;
-    helpword *hw = NULL;
+    struct helpword *hw = NULL;
 
     for (i = 0, k = 0; i < StrMemLen(line); i++) {
         if (line[i] == ' ' || line[i] == '\n') {
@@ -65,7 +65,7 @@ int read_helpline(struct vrmr_list *help_list, char *line)
             /* only add a word to the list if it really contains characters */
             if (StrLen(oneword) > 0) {
                 /* get some mem for the word struct */
-                hw = malloc(sizeof(helpword));
+                hw = malloc(sizeof(struct helpword));
                 vrmr_fatal_alloc("malloc", hw);
                 hw->word = NULL;
                 hw->newline = 0;
@@ -86,7 +86,7 @@ int read_helpline(struct vrmr_list *help_list, char *line)
                                     (line[i - 1] == ',' &&
                                             i == (StrMemLen(line) - 1))))) {
                 /* get some mem for the word struct */
-                hw = malloc(sizeof(helpword));
+                hw = malloc(sizeof(struct helpword));
                 vrmr_fatal_alloc("malloc", hw);
                 hw->word = NULL;
                 hw->newline = 1;
@@ -110,7 +110,7 @@ int read_wide_helpline(struct vrmr_list *help_list, wchar_t *line)
     wchar_t oneword[512] = L"";
     size_t i = 0;
     int k = 0;
-    whelpword *hw = NULL;
+    struct whelpword *hw = NULL;
 
     for (i = 0, k = 0; i < wcslen(line); i++) {
         if (line[i] == L' ' || line[i] == L'\n') {
@@ -119,7 +119,7 @@ int read_wide_helpline(struct vrmr_list *help_list, wchar_t *line)
 
             /* only add a word to the list if it really contains characters */
             if (wcslen(oneword) > 0) {
-                hw = malloc(sizeof(whelpword));
+                hw = malloc(sizeof(*hw));
                 vrmr_fatal_alloc("malloc", hw);
                 hw->word = NULL;
                 hw->newline = 0;
@@ -142,7 +142,7 @@ int read_wide_helpline(struct vrmr_list *help_list, wchar_t *line)
                                     (line[i - 1] == L',' &&
                                             i == (wcslen(line) - 1))))) {
                 /* get some mem for the word struct */
-                hw = malloc(sizeof(whelpword));
+                hw = malloc(sizeof(*hw));
                 vrmr_fatal_alloc("malloc", hw);
                 hw->word = NULL;
                 hw->newline = 1;
@@ -320,7 +320,7 @@ int read_wide_helpfile(struct vrmr_list *help_list, wchar_t *part)
 static void set_lines(struct vrmr_list *help_list, size_t width)
 {
     size_t line_width = 0, line_num = 1, words = 0;
-    helpword *hw = NULL, *next_hw = NULL;
+    struct helpword *hw = NULL, *next_hw = NULL;
     struct vrmr_list_node *d_node = NULL, *next_d_node = NULL;
 
     /* safety */
@@ -401,7 +401,7 @@ static void set_lines(struct vrmr_list *help_list, size_t width)
 static void set_wide_lines(struct vrmr_list *help_list, int width)
 {
     int line_width = 0, line_num = 1, words = 0;
-    whelpword *hw = NULL, *next_hw = NULL;
+    struct helpword *hw = NULL, *next_hw = NULL;
     struct vrmr_list_node *d_node = NULL, *next_d_node = NULL;
 
     /* safety */
@@ -482,7 +482,7 @@ static void set_wide_lines(struct vrmr_list *help_list, int width)
 static void do_print(WINDOW *printwin, struct vrmr_list *list,
         size_t start_print, size_t end_print)
 {
-    helpword *hw = NULL, *next_hw = NULL;
+    struct helpword *hw = NULL, *next_hw = NULL;
     struct vrmr_list_node *d_node = NULL, *next_d_node = NULL;
 
     /* print the text */
@@ -529,7 +529,7 @@ static void do_print(WINDOW *printwin, struct vrmr_list *list,
 static void do_wide_print(WINDOW *printwin, struct vrmr_list *list,
         int start_print, int end_print)
 {
-    whelpword *hw = NULL, *next_hw = NULL;
+    struct whelpword *hw = NULL, *next_hw = NULL;
     struct vrmr_list_node *d_node = NULL, *next_d_node = NULL;
 
     /* print the text */
@@ -581,7 +581,7 @@ static void print_list(struct vrmr_list *list, char *title, int height,
     PANEL *panel[2];
     int ch;
 
-    helpword *hw = NULL;
+    struct helpword *hw = NULL;
     size_t start_print = 1, end_print = 1;
     char done = 0;
     int i = 0;
@@ -752,39 +752,39 @@ void print_status(void)
     starty = 3;
 
     /* should not happen */
-    if (VuurmuurStatus.StatusList.len == 0) {
-        (void)read_helpline(&VuurmuurStatus.StatusList,
+    if (vuurmuur_status.StatusList.len == 0) {
+        (void)read_helpline(&vuurmuur_status.StatusList,
                 gettext("No problems were detected in the current setup.\n"));
     }
 
-    set_lines(&VuurmuurStatus.StatusList, (size_t)(width - 4));
+    set_lines(&vuurmuur_status.StatusList, (size_t)(width - 4));
     /* print the status list */
-    print_list(&VuurmuurStatus.StatusList, gettext("Status"), height, width,
+    print_list(&vuurmuur_status.StatusList, gettext("Status"), height, width,
             starty, startx, UTF8_FALSE);
 }
 
 void setup_statuslist(void)
 {
     /* initialize */
-    memset(&VuurmuurStatus, 0, sizeof(VuurmuurStatus));
-    memset(&VuurmuurStatus.StatusList, 0, sizeof(VuurmuurStatus.StatusList));
+    memset(&vuurmuur_status, 0, sizeof(vuurmuur_status));
+    memset(&vuurmuur_status.StatusList, 0, sizeof(vuurmuur_status.StatusList));
 
-    VuurmuurStatus.vuurmuur = 1;
-    VuurmuurStatus.vuurmuur_log = 1;
+    vuurmuur_status.vuurmuur = 1;
+    vuurmuur_status.vuurmuur_log = 1;
 
-    VuurmuurStatus.zones = 1;
-    VuurmuurStatus.interfaces = 1;
-    VuurmuurStatus.services = 1;
-    VuurmuurStatus.rules = 1;
+    vuurmuur_status.zones = 1;
+    vuurmuur_status.interfaces = 1;
+    vuurmuur_status.services = 1;
+    vuurmuur_status.rules = 1;
 
-    VuurmuurStatus.shm = 1;
-    VuurmuurStatus.backend = 1;
-    VuurmuurStatus.config = 1;
-    VuurmuurStatus.settings = 1;
-    VuurmuurStatus.system = 1;
+    vuurmuur_status.shm = 1;
+    vuurmuur_status.backend = 1;
+    vuurmuur_status.config = 1;
+    vuurmuur_status.settings = 1;
+    vuurmuur_status.system = 1;
 
     /* setup the status list */
-    vrmr_list_setup(&VuurmuurStatus.StatusList, free_helpword);
+    vrmr_list_setup(&vuurmuur_status.StatusList, free_helpword);
 }
 
 void print_about(void)
@@ -853,18 +853,18 @@ void print_about(void)
     (void)read_helpline(&about_list, "Philippe Baumgart (documentation).\n");
     (void)read_helpline(
             &about_list, "Michiel Bodewes (website development).\n");
-    (void)read_helpline(
-            &about_list, "Nicolas Dejardin <zephura(at)free(dot)fr> (French "
-                         "translation).\n");
+    (void)read_helpline(&about_list,
+            "Nicolas Dejardin <zephura(at)free(dot)fr> (French "
+            "translation).\n");
     (void)read_helpline(&about_list,
             "Adi Kriegisch (coding, documentation, Debian packages).\n");
     (void)read_helpline(&about_list, "Sebastian Marten (documentation).\n");
     (void)read_helpline(&about_list, "Holger Ohmacht (German translation).\n");
     (void)read_helpline(
             &about_list, "Hugo Ribeiro (Brazilian Portuguese translation).\n");
-    (void)read_helpline(
-            &about_list, "Aleksandr Shubnik <alshu(at)tut(dot)by> (rpm "
-                         "development, Russian translation).\n");
+    (void)read_helpline(&about_list,
+            "Aleksandr Shubnik <alshu(at)tut(dot)by> (rpm "
+            "development, Russian translation).\n");
     (void)read_helpline(
             &about_list, "Per Olav Siggerud (Norwegian translation).\n");
     (void)read_helpline(&about_list, "Alexandre Simon (coding).\n");
@@ -872,9 +872,9 @@ void print_about(void)
             &about_list, "Stefan Ubbink (Gentoo ebuilds, coding).\n");
     (void)read_helpline(&about_list, "Rob de Wit (wiki hosting).\n");
     (void)read_helpline(&about_list, "\n");
-    (void)read_helpline(
-            &about_list, "See: http://www.vuurmuur.org/trac/wiki/Credits for "
-                         "the latest information.\n");
+    (void)read_helpline(&about_list,
+            "See: http://www.vuurmuur.org/trac/wiki/Credits for "
+            "the latest information.\n");
     (void)read_helpline(&about_list, "\n");
 
     set_lines(&about_list, (size_t)(width - 4));

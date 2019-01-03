@@ -20,7 +20,7 @@
 
 #include "main.h"
 
-struct ZonesSection_ {
+struct {
     /*  first the menus
 
         they each have their own data struct because they can
@@ -79,16 +79,16 @@ struct ZonesSection_ {
     int h_xre; /**< window x right edge */
 
     /* edit a zone/network/host/group */
-    struct EditZone_ {
+    struct {
         PANEL *panel[1];
         WINDOW *win;
         FIELD **fields;
         FORM *form;
         size_t n_fields;
-    } EditZone;
+    } edit_zone;
 
     /* edit zone interfaces */
-    struct EditZoneInt_ {
+    struct {
         PANEL *panel[1];
         WINDOW *win;
         MENU *menu;
@@ -101,10 +101,10 @@ struct ZonesSection_ {
         WINDOW *win_top;
         WINDOW *win_bot;
 
-    } EditZoneInt;
+    } edit_iface;
 
     /* edit zone groups */
-    struct EditZoneGrp_ {
+    struct {
         PANEL *panel[1];
         WINDOW *win;
         MENU *menu;
@@ -117,11 +117,11 @@ struct ZonesSection_ {
         WINDOW *win_top;
         WINDOW *win_bot;
 
-    } EditZoneGrp;
+    } edit_group;
 
     char comment[512];
 
-} ZonesSection;
+} zonessec_ctx;
 
 struct {
     FIELD *activefld, *activelabelfld, *ipaddressfld, *ipaddresslabelfld,
@@ -142,34 +142,34 @@ static void edit_zone_host_init(struct vrmr_ctx *vctx, char *name, int height,
     vrmr_fatal_if_null(zone_ptr);
 
     /* alloc fields */
-    ZonesSection.EditZone.n_fields = 11;
-    ZonesSection.EditZone.fields = (FIELD **)calloc(
-            ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *));
-    vrmr_fatal_if_null(ZonesSection.EditZone.fields);
+    zonessec_ctx.edit_zone.n_fields = 11;
+    zonessec_ctx.edit_zone.fields = (FIELD **)calloc(
+            zonessec_ctx.edit_zone.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.fields);
 
     /* preload the active field */
-    HostSec.activelabelfld = (ZonesSection.EditZone.fields[field_num++] =
+    HostSec.activelabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                       new_field(1, 16, 2, 0, 0, 0));
     set_field_buffer_wrap(HostSec.activelabelfld, 0, STR_CACTIVE);
     field_opts_off(HostSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    HostSec.activefld = (ZonesSection.EditZone.fields[field_num++] =
+    HostSec.activefld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                  new_field(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(
             HostSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
-    HostSec.ipaddresslabelfld = (ZonesSection.EditZone.fields[field_num++] =
+    HostSec.ipaddresslabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                          new_field(1, 16, 2, 8, 0, 0));
     set_field_buffer_wrap(HostSec.ipaddresslabelfld, 0, STR_IPADDRESS);
     field_opts_off(HostSec.ipaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    HostSec.ipaddressfld = (ZonesSection.EditZone.fields[field_num++] =
+    HostSec.ipaddressfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                     new_field(1, 16, 3, 9, 0, 0));
     set_field_type(HostSec.ipaddressfld, TYPE_IPV4);
     set_field_buffer_wrap(HostSec.ipaddressfld, 0, zone_ptr->ipv4.ipaddress);
     field_opts_on(HostSec.ipaddressfld, O_BLANK);
 
-    HostSec.ip6addresslabelfld = (ZonesSection.EditZone.fields[field_num++] =
+    HostSec.ip6addresslabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                           new_field(1, 16, 4, 8, 0, 0));
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(HostSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
@@ -177,7 +177,7 @@ static void edit_zone_host_init(struct vrmr_ctx *vctx, char *name, int height,
     field_opts_off(HostSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     HostSec.ip6addressfld =
-            (ZonesSection.EditZone.fields[field_num++] =
+            (zonessec_ctx.edit_zone.fields[field_num++] =
                             new_field(1, VRMR_MAX_IPV6_ADDR_LEN, 5, 9, 0, 0));
     // set_field_type(HostSec.ipaddressfld, TYPE_IPV4);
 #ifdef IPV6_ENABLED
@@ -185,18 +185,18 @@ static void edit_zone_host_init(struct vrmr_ctx *vctx, char *name, int height,
 #endif
     field_opts_on(HostSec.ip6addressfld, O_BLANK);
 
-    HostSec.macaddresslabelfld = (ZonesSection.EditZone.fields[field_num++] =
+    HostSec.macaddresslabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                           new_field(1, 16, 6, 8, 0, 0));
     set_field_buffer_wrap(HostSec.macaddresslabelfld, 0, STR_MACADDRESS);
     field_opts_off(HostSec.macaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    HostSec.macaddressfld = (ZonesSection.EditZone.fields[field_num++] =
+    HostSec.macaddressfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                      new_field(1, 19, 7, 9, 0, 0));
     set_field_buffer_wrap(HostSec.macaddressfld, 0, zone_ptr->mac);
     field_opts_on(HostSec.macaddressfld, O_BLANK);
 
     /* comment label */
-    HostSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num++] =
+    HostSec.commentlabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                        new_field(1, 16, 10, 0, 0, 0));
     set_field_buffer_wrap(HostSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(HostSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
@@ -205,39 +205,39 @@ static void edit_zone_host_init(struct vrmr_ctx *vctx, char *name, int height,
     comment_y = 5;
     comment_x = 48;
     /* create the comment field */
-    HostSec.commentfld = (ZonesSection.EditZone.fields[field_num++] =
+    HostSec.commentfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                   new_field(comment_y, comment_x, 11, 1, 0, 0));
 
     /* load the comment from the backend */
     if (vctx->zf->ask(vctx->zone_backend, zone_ptr->name, "COMMENT",
-                ZonesSection.comment, sizeof(ZonesSection.comment),
+                zonessec_ctx.comment, sizeof(zonessec_ctx.comment),
                 VRMR_TYPE_HOST, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
-    set_field_buffer_wrap(HostSec.commentfld, 0, ZonesSection.comment);
+    set_field_buffer_wrap(HostSec.commentfld, 0, zonessec_ctx.comment);
 
-    HostSec.warningfld = (ZonesSection.EditZone.fields[field_num++] =
+    HostSec.warningfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                   new_field(1, 48, 15, 1, 0, 0));
     field_opts_off(HostSec.warningfld, O_AUTOSKIP | O_ACTIVE | O_VISIBLE);
     set_field_just(HostSec.warningfld, JUSTIFY_CENTER);
 
-    vrmr_fatal_if(field_num != ZonesSection.EditZone.n_fields);
+    vrmr_fatal_if(field_num != zonessec_ctx.edit_zone.n_fields);
 
-    ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
+    zonessec_ctx.edit_zone.fields[zonessec_ctx.edit_zone.n_fields] = NULL;
 
     /* create the window & panel */
-    ZonesSection.EditZone.win = create_newwin(height, width, starty, startx,
+    zonessec_ctx.edit_zone.win = create_newwin(height, width, starty, startx,
             gettext("Edit Zone: Host"), vccnf.color_win);
-    vrmr_fatal_if_null(ZonesSection.EditZone.win);
-    ZonesSection.EditZone.panel[0] = new_panel(ZonesSection.EditZone.win);
-    vrmr_fatal_if_null(ZonesSection.EditZone.panel[0]);
-    keypad(ZonesSection.EditZone.win, TRUE);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.win);
+    zonessec_ctx.edit_zone.panel[0] = new_panel(zonessec_ctx.edit_zone.win);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.panel[0]);
+    keypad(zonessec_ctx.edit_zone.win, TRUE);
 
     /* set field options */
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
-        set_field_back(ZonesSection.EditZone.fields[i], vccnf.color_win_rev);
-        field_opts_off(ZonesSection.EditZone.fields[i], O_AUTOSKIP);
-        set_field_status(ZonesSection.EditZone.fields[i], FALSE);
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
+        set_field_back(zonessec_ctx.edit_zone.fields[i], vccnf.color_win_rev);
+        field_opts_off(zonessec_ctx.edit_zone.fields[i], O_AUTOSKIP);
+        set_field_status(zonessec_ctx.edit_zone.fields[i], FALSE);
     }
 
     set_field_back(HostSec.activelabelfld, vccnf.color_win);
@@ -259,20 +259,20 @@ static void edit_zone_host_init(struct vrmr_ctx *vctx, char *name, int height,
     set_field_fore(HostSec.warningfld, vccnf.color_win_warn | A_BOLD);
 
     /* Create the form and post it */
-    ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields);
-    vrmr_fatal_if_null(ZonesSection.EditZone.form);
-    scale_form(ZonesSection.EditZone.form, &rows, &cols);
-    set_form_win(ZonesSection.EditZone.form, ZonesSection.EditZone.win);
-    set_form_sub(ZonesSection.EditZone.form,
-            derwin(ZonesSection.EditZone.win, rows, cols, 1, 2));
-    post_form(ZonesSection.EditZone.form);
+    zonessec_ctx.edit_zone.form = new_form(zonessec_ctx.edit_zone.fields);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.form);
+    scale_form(zonessec_ctx.edit_zone.form, &rows, &cols);
+    set_form_win(zonessec_ctx.edit_zone.form, zonessec_ctx.edit_zone.win);
+    set_form_sub(zonessec_ctx.edit_zone.form,
+            derwin(zonessec_ctx.edit_zone.win, rows, cols, 1, 2));
+    post_form(zonessec_ctx.edit_zone.form);
 
     /* print labels */
-    mvwprintw(ZonesSection.EditZone.win, 1, 2, "%s: %s", gettext("Name"),
+    mvwprintw(zonessec_ctx.edit_zone.win, 1, 2, "%s: %s", gettext("Name"),
             zone_ptr->name);
 
     /* draw */
-    wrefresh(ZonesSection.EditZone.win);
+    wrefresh(zonessec_ctx.edit_zone.win);
     update_panels();
     doupdate();
 }
@@ -282,19 +282,19 @@ static void edit_zone_host_destroy(void)
     size_t i = 0;
 
     /* unpost form and free the memory */
-    unpost_form(ZonesSection.EditZone.form);
-    free_form(ZonesSection.EditZone.form);
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
-        free_field(ZonesSection.EditZone.fields[i]);
+    unpost_form(zonessec_ctx.edit_zone.form);
+    free_form(zonessec_ctx.edit_zone.form);
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
+        free_field(zonessec_ctx.edit_zone.fields[i]);
     }
-    free(ZonesSection.EditZone.fields);
-    del_panel(ZonesSection.EditZone.panel[0]);
-    destroy_win(ZonesSection.EditZone.win);
+    free(zonessec_ctx.edit_zone.fields);
+    del_panel(zonessec_ctx.edit_zone.panel[0]);
+    destroy_win(zonessec_ctx.edit_zone.win);
     update_panels();
     doupdate();
 
     /* clear comment */
-    strcpy(ZonesSection.comment, "");
+    strcpy(zonessec_ctx.comment, "");
 }
 
 static int edit_zone_host_save(struct vrmr_ctx *vctx,
@@ -312,17 +312,17 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(reg);
 
     /* check for changed fields */
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
         /* field changed! */
-        if (field_status(ZonesSection.EditZone.fields[i]) == FALSE)
+        if (field_status(zonessec_ctx.edit_zone.fields[i]) == FALSE)
             continue;
 
         /* active field */
-        if (ZonesSection.EditZone.fields[i] == HostSec.activefld) {
+        if (zonessec_ctx.edit_zone.fields[i] == HostSec.activefld) {
             /* for the log and incase something goes wrong */
             active = zone_ptr->active;
 
-            if (strncasecmp(field_buffer(ZonesSection.EditZone.fields[i], 0),
+            if (strncasecmp(field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                         STR_YES, StrLen(STR_YES)) == 0)
                 zone_ptr->active = 1;
             else
@@ -348,13 +348,13 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
         }
 
         /* ipaddress field */
-        else if (ZonesSection.EditZone.fields[i] == HostSec.ipaddressfld) {
+        else if (zonessec_ctx.edit_zone.fields[i] == HostSec.ipaddressfld) {
             /* for the log and incase something goes wrong */
             (void)strlcpy(
                     ipaddress, zone_ptr->ipv4.ipaddress, sizeof(ipaddress));
 
             copy_field2buf(zone_ptr->ipv4.ipaddress,
-                    field_buffer(ZonesSection.EditZone.fields[i], 0),
+                    field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                     sizeof(zone_ptr->ipv4.ipaddress));
 
             /*  we dont check for invalid ip
@@ -406,12 +406,12 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
 
 #ifdef IPV6_ENABLED
         /* ip6address field */
-        else if (ZonesSection.EditZone.fields[i] == HostSec.ip6addressfld) {
+        else if (zonessec_ctx.edit_zone.fields[i] == HostSec.ip6addressfld) {
             /* for the log and incase something goes wrong */
             (void)strlcpy(ip6address, zone_ptr->ipv6.ip6, sizeof(ip6address));
 
             copy_field2buf(zone_ptr->ipv6.ip6,
-                    field_buffer(ZonesSection.EditZone.fields[i], 0),
+                    field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                     sizeof(zone_ptr->ipv6.ip6));
 
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name,
@@ -432,12 +432,12 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
         }
 #endif
         /* MAC field */
-        else if (ZonesSection.EditZone.fields[i] == HostSec.macaddressfld) {
+        else if (zonessec_ctx.edit_zone.fields[i] == HostSec.macaddressfld) {
             /* for the log and incase something goes wrong */
             (void)strlcpy(mac, zone_ptr->mac, sizeof(mac));
 
             copy_field2buf(zone_ptr->mac,
-                    field_buffer(ZonesSection.EditZone.fields[i], 0),
+                    field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                     sizeof(zone_ptr->mac));
 
             if (zone_ptr->mac[0] != '\0') {
@@ -472,9 +472,9 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
         }
 
         /* comment field */
-        else if (ZonesSection.EditZone.fields[i] == HostSec.commentfld) {
+        else if (zonessec_ctx.edit_zone.fields[i] == HostSec.commentfld) {
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "COMMENT",
-                        field_buffer(ZonesSection.EditZone.fields[i], 0), 1,
+                        field_buffer(zonessec_ctx.edit_zone.fields[i], 0), 1,
                         VRMR_TYPE_HOST) < 0) {
                 vrmr_error(-1, VR_ERR,
                         gettext("saving to backend failed (in: %s:%d)."),
@@ -527,8 +527,8 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     height = 18;
     width = 54;
     /* place on the same y as zones list */
-    VrWinGetOffset(-1, -1, height, width, ZonesSection.h_yle + 1,
-            ZonesSection.n_xre + 1, &starty, &startx);
+    VrWinGetOffset(-1, -1, height, width, zonessec_ctx.h_yle + 1,
+            zonessec_ctx.n_xre + 1, &starty, &startx);
 
     /* search the host in memory */
     zone_ptr = vrmr_search_zonedata(zones, name);
@@ -537,7 +537,7 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     /* init */
     edit_zone_host_init(vctx, name, height, width, starty, startx, zone_ptr);
 
-    cur = current_field(ZonesSection.EditZone.form);
+    cur = current_field(zonessec_ctx.edit_zone.form);
     vrmr_fatal_if_null(cur);
 
     if (zone_ptr->active == TRUE && vrmr_zones_active(zone_ptr) == 0) {
@@ -557,24 +557,24 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     /* loop through to get user requests */
     while (quit == 0) {
         /* draw nice markers */
-        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win,
-                ZonesSection.EditZone.form, vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, zonessec_ctx.edit_zone.win,
+                zonessec_ctx.edit_zone.form, vccnf.color_win_mark | A_BOLD);
 
         not_defined = 0;
 
         /* get user input */
-        ch = wgetch(ZonesSection.EditZone.win);
+        ch = wgetch(zonessec_ctx.edit_zone.win);
 
         if (cur == HostSec.commentfld) {
-            if (nav_field_comment(ZonesSection.EditZone.form, ch) < 0)
+            if (nav_field_comment(zonessec_ctx.edit_zone.form, ch) < 0)
                 not_defined = 1;
         } else if (cur == HostSec.activefld) {
-            if (nav_field_yesno(ZonesSection.EditZone.form, ch) < 0)
+            if (nav_field_yesno(zonessec_ctx.edit_zone.form, ch) < 0)
                 not_defined = 1;
         } else if (cur == HostSec.ipaddressfld ||
                    cur == HostSec.ip6addressfld ||
                    cur == HostSec.macaddressfld) {
-            if (nav_field_simpletext(ZonesSection.EditZone.form, ch) < 0)
+            if (nav_field_simpletext(zonessec_ctx.edit_zone.form, ch) < 0)
                 not_defined = 1;
         } else {
             not_defined = 1;
@@ -586,13 +586,13 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                 case KEY_DOWN:
                 case 10: // enter
                 case 9:  // tab
-                    form_driver(ZonesSection.EditZone.form, REQ_NEXT_FIELD);
-                    form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_NEXT_FIELD);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case KEY_UP:
-                    form_driver(ZonesSection.EditZone.form, REQ_PREV_FIELD);
-                    form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_PREV_FIELD);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case 27:
@@ -624,7 +624,7 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
 
         /* before we get the new 'cur', store cur in prev */
         prev = cur;
-        cur = current_field(ZonesSection.EditZone.form);
+        cur = current_field(zonessec_ctx.edit_zone.form);
         vrmr_fatal_if_null(cur);
 
         /* now give some help message in the status win */
@@ -656,8 +656,8 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         }
 
         /* draw and set cursor */
-        wrefresh(ZonesSection.EditZone.win);
-        pos_form_cursor(ZonesSection.EditZone.form);
+        wrefresh(zonessec_ctx.edit_zone.win);
+        pos_form_cursor(zonessec_ctx.edit_zone.form);
     }
 
     /* cleanup */
@@ -683,7 +683,7 @@ static void zones_section_menu_hosts_init(struct vrmr_ctx *vctx,
     maxy = getmaxy(stdscr);
 
     /* count how many hosts there are */
-    for (ZonesSection.host_n = 0, d_node = zones->list.top; d_node;
+    for (zonessec_ctx.host_n = 0, d_node = zones->list.top; d_node;
             d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
         zone_ptr = d_node->data;
@@ -692,17 +692,17 @@ static void zones_section_menu_hosts_init(struct vrmr_ctx *vctx,
         if (zone_ptr->type == VRMR_TYPE_HOST) {
             if (strcmp(zone_ptr->zone_name, zonename) == 0 &&
                     strcmp(zone_ptr->network_name, networkname) == 0) {
-                ZonesSection.host_n++;
+                zonessec_ctx.host_n++;
             }
         }
     }
 
-    i = ZonesSection.host_n - 1;
+    i = zonessec_ctx.host_n - 1;
 
     /* alloc the menu items */
-    ZonesSection.hostitems =
-            (ITEM **)calloc(ZonesSection.host_n + 1, sizeof(ITEM *));
-    vrmr_fatal_if_null(ZonesSection.hostitems);
+    zonessec_ctx.hostitems =
+            (ITEM **)calloc(zonessec_ctx.host_n + 1, sizeof(ITEM *));
+    vrmr_fatal_if_null(zonessec_ctx.hostitems);
 
     /* create the menu items */
     for (d_node = zones->list.bot; d_node; d_node = d_node->prev) {
@@ -713,30 +713,30 @@ static void zones_section_menu_hosts_init(struct vrmr_ctx *vctx,
         if (zone_ptr->type == VRMR_TYPE_HOST) {
             if (strcmp(zone_ptr->zone_name, zonename) == 0 &&
                     strcmp(zone_ptr->network_name, networkname) == 0) {
-                ZonesSection.hostitems[i] =
+                zonessec_ctx.hostitems[i] =
                         new_item(zone_ptr->host_name, zone_ptr->ipv4.ipaddress);
-                vrmr_fatal_if_null(ZonesSection.hostitems[i]);
+                vrmr_fatal_if_null(zonessec_ctx.hostitems[i]);
                 i--;
             }
         }
     }
     /* terminate the items */
-    ZonesSection.hostitems[ZonesSection.host_n] = (ITEM *)NULL;
+    zonessec_ctx.hostitems[zonessec_ctx.host_n] = (ITEM *)NULL;
 
-    if (ZonesSection.host_n > 0) {
-        ZonesSection.h_top = ZonesSection.hostitems[0];
-        ZonesSection.h_bot = ZonesSection.hostitems[ZonesSection.host_n - 1];
+    if (zonessec_ctx.host_n > 0) {
+        zonessec_ctx.h_top = zonessec_ctx.hostitems[0];
+        zonessec_ctx.h_bot = zonessec_ctx.hostitems[zonessec_ctx.host_n - 1];
     } else {
-        ZonesSection.h_top = NULL;
-        ZonesSection.h_bot = NULL;
+        zonessec_ctx.h_top = NULL;
+        zonessec_ctx.h_bot = NULL;
     }
 
     /* now create the menu */
-    ZonesSection.h_menu = new_menu((ITEM **)ZonesSection.hostitems);
-    vrmr_fatal_if_null(ZonesSection.h_menu);
+    zonessec_ctx.h_menu = new_menu((ITEM **)zonessec_ctx.hostitems);
+    vrmr_fatal_if_null(zonessec_ctx.h_menu);
 
     /* now set the size of the window */
-    height = (int)(ZonesSection.host_n + 8);
+    height = (int)(zonessec_ctx.host_n + 8);
     width = VRMR_MAX_HOST + 18 + 2;
 
     if (height > maxy - 8) {
@@ -745,63 +745,63 @@ static void zones_section_menu_hosts_init(struct vrmr_ctx *vctx,
 
     /* place on the same y as zones list */
     VrWinGetOffset(
-            -1, -1, height, width, 4, ZonesSection.n_xre + 1, &starty, &startx);
-    ZonesSection.h_yle = starty + height;
-    ZonesSection.h_xre = startx + width;
+            -1, -1, height, width, 4, zonessec_ctx.n_xre + 1, &starty, &startx);
+    zonessec_ctx.h_yle = starty + height;
+    zonessec_ctx.h_xre = startx + width;
 
-    ZonesSection.h_win = newwin(height, width, starty, startx);
-    vrmr_fatal_if_null(ZonesSection.h_win);
-    wbkgd(ZonesSection.h_win, vccnf.color_win);
-    keypad(ZonesSection.h_win, TRUE);
-    box(ZonesSection.h_win, 0, 0);
+    zonessec_ctx.h_win = newwin(height, width, starty, startx);
+    vrmr_fatal_if_null(zonessec_ctx.h_win);
+    wbkgd(zonessec_ctx.h_win, vccnf.color_win);
+    keypad(zonessec_ctx.h_win, TRUE);
+    box(zonessec_ctx.h_win, 0, 0);
     print_in_middle(
-            ZonesSection.h_win, 1, 0, width, gettext("Hosts"), vccnf.color_win);
-    wrefresh(ZonesSection.h_win);
+            zonessec_ctx.h_win, 1, 0, width, gettext("Hosts"), vccnf.color_win);
+    wrefresh(zonessec_ctx.h_win);
 
-    ZonesSection.h_panel[0] = new_panel(ZonesSection.h_win);
-    vrmr_fatal_if_null(ZonesSection.h_panel[0]);
+    zonessec_ctx.h_panel[0] = new_panel(zonessec_ctx.h_win);
+    vrmr_fatal_if_null(zonessec_ctx.h_panel[0]);
 
-    set_menu_win(ZonesSection.h_menu, ZonesSection.h_win);
-    set_menu_sub(ZonesSection.h_menu,
-            derwin(ZonesSection.h_win, height - 7, width - 2, 3, 1));
+    set_menu_win(zonessec_ctx.h_menu, zonessec_ctx.h_win);
+    set_menu_sub(zonessec_ctx.h_menu,
+            derwin(zonessec_ctx.h_win, height - 7, width - 2, 3, 1));
 
-    set_menu_format(ZonesSection.h_menu, height - 8, 1);
+    set_menu_format(zonessec_ctx.h_menu, height - 8, 1);
 
-    mvwaddch(ZonesSection.h_win, 2, 0, ACS_LTEE);
-    mvwhline(ZonesSection.h_win, 2, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.h_win, 2, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.h_win, 2, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.h_win, 2, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.h_win, 2, width - 1, ACS_RTEE);
 
-    set_menu_back(ZonesSection.h_menu, vccnf.color_win);
-    set_menu_fore(ZonesSection.h_menu, vccnf.color_win_rev);
+    set_menu_back(zonessec_ctx.h_menu, vccnf.color_win);
+    set_menu_fore(zonessec_ctx.h_menu, vccnf.color_win_rev);
 
-    result = post_menu(ZonesSection.h_menu);
+    result = post_menu(zonessec_ctx.h_menu);
     vrmr_fatal_if(result != E_OK && result != E_NOT_CONNECTED);
 
-    mvwaddch(ZonesSection.h_win, height - 5, 0, ACS_LTEE);
-    mvwhline(ZonesSection.h_win, height - 5, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.h_win, height - 5, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.h_win, height - 5, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.h_win, height - 5, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.h_win, height - 5, width - 1, ACS_RTEE);
 
-    mvwprintw(ZonesSection.h_win, height - 4, 1, "<RET> %s", STR_EDIT);
-    mvwprintw(ZonesSection.h_win, height - 3, 1, "<INS> %s", STR_NEW);
-    mvwprintw(ZonesSection.h_win, height - 2, 1, "<DEL> %s", STR_REMOVE);
+    mvwprintw(zonessec_ctx.h_win, height - 4, 1, "<RET> %s", STR_EDIT);
+    mvwprintw(zonessec_ctx.h_win, height - 3, 1, "<INS> %s", STR_NEW);
+    mvwprintw(zonessec_ctx.h_win, height - 2, 1, "<DEL> %s", STR_REMOVE);
 
     /* create the top and bottom fields */
-    ZonesSection.h_win_top = newwin(1, 6, starty + 2, startx + width - 8);
-    vrmr_fatal_if_null(ZonesSection.h_win_top);
-    wbkgd(ZonesSection.h_win_top, vccnf.color_win);
-    ZonesSection.h_panel_top[0] = new_panel(ZonesSection.h_win_top);
+    zonessec_ctx.h_win_top = newwin(1, 6, starty + 2, startx + width - 8);
+    vrmr_fatal_if_null(zonessec_ctx.h_win_top);
+    wbkgd(zonessec_ctx.h_win_top, vccnf.color_win);
+    zonessec_ctx.h_panel_top[0] = new_panel(zonessec_ctx.h_win_top);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.h_win_top, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.h_panel_top[0]);
+    wprintw(zonessec_ctx.h_win_top, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.h_panel_top[0]);
 
-    ZonesSection.h_win_bot =
+    zonessec_ctx.h_win_bot =
             newwin(1, 6, starty + height - 5, startx + width - 8);
-    vrmr_fatal_if_null(ZonesSection.h_win_bot);
-    wbkgd(ZonesSection.h_win_bot, vccnf.color_win);
-    ZonesSection.h_panel_bot[0] = new_panel(ZonesSection.h_win_bot);
+    vrmr_fatal_if_null(zonessec_ctx.h_win_bot);
+    wbkgd(zonessec_ctx.h_win_bot, vccnf.color_win);
+    zonessec_ctx.h_panel_bot[0] = new_panel(zonessec_ctx.h_win_bot);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.h_win_bot, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.h_panel_bot[0]);
+    wprintw(zonessec_ctx.h_win_bot, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.h_panel_bot[0]);
 
     update_panels();
     doupdate();
@@ -811,21 +811,21 @@ static void zones_section_menu_hosts_destroy(void)
 {
     size_t i = 0;
 
-    unpost_menu(ZonesSection.h_menu);
-    free_menu(ZonesSection.h_menu);
-    for (i = 0; i < ZonesSection.host_n; ++i)
-        free_item(ZonesSection.hostitems[i]);
+    unpost_menu(zonessec_ctx.h_menu);
+    free_menu(zonessec_ctx.h_menu);
+    for (i = 0; i < zonessec_ctx.host_n; ++i)
+        free_item(zonessec_ctx.hostitems[i]);
 
-    free(ZonesSection.hostitems);
+    free(zonessec_ctx.hostitems);
 
-    del_panel(ZonesSection.h_panel[0]);
+    del_panel(zonessec_ctx.h_panel[0]);
 
-    destroy_win(ZonesSection.h_win);
+    destroy_win(zonessec_ctx.h_win);
 
-    del_panel(ZonesSection.h_panel_top[0]);
-    destroy_win(ZonesSection.h_win_top);
-    del_panel(ZonesSection.h_panel_bot[0]);
-    destroy_win(ZonesSection.h_win_bot);
+    del_panel(zonessec_ctx.h_panel_top[0]);
+    destroy_win(zonessec_ctx.h_win_top);
+    del_panel(zonessec_ctx.h_panel_bot[0]);
+    destroy_win(zonessec_ctx.h_win_bot);
 }
 
 /* rename a host or a group */
@@ -1036,24 +1036,24 @@ static int zones_section_menu_hosts(struct vrmr_ctx *vctx,
 
         /* loop for catching user input */
         while (quit == 0 && reload == 0) {
-            if (ZonesSection.h_top != NULL && !item_visible(ZonesSection.h_top))
-                show_panel(ZonesSection.h_panel_top[0]);
+            if (zonessec_ctx.h_top != NULL && !item_visible(zonessec_ctx.h_top))
+                show_panel(zonessec_ctx.h_panel_top[0]);
             else
-                hide_panel(ZonesSection.h_panel_top[0]);
+                hide_panel(zonessec_ctx.h_panel_top[0]);
 
-            if (ZonesSection.h_bot != NULL && !item_visible(ZonesSection.h_bot))
-                show_panel(ZonesSection.h_panel_bot[0]);
+            if (zonessec_ctx.h_bot != NULL && !item_visible(zonessec_ctx.h_bot))
+                show_panel(zonessec_ctx.h_panel_bot[0]);
             else
-                hide_panel(ZonesSection.h_panel_bot[0]);
+                hide_panel(zonessec_ctx.h_panel_bot[0]);
 
             update_panels();
             doupdate();
 
             /* restore the cursor */
-            pos_menu_cursor(ZonesSection.h_menu);
+            pos_menu_cursor(zonessec_ctx.h_menu);
 
             /* get the user input */
-            ch = wgetch(ZonesSection.h_win);
+            ch = wgetch(zonessec_ctx.h_win);
             switch (ch) {
                 case 27:
                 case KEY_LEFT:
@@ -1067,7 +1067,7 @@ static int zones_section_menu_hosts(struct vrmr_ctx *vctx,
                 case 'r':
                 case 'R':
 
-                    cur = current_item(ZonesSection.h_menu);
+                    cur = current_item(zonessec_ctx.h_menu);
                     if (cur) {
                         size = StrMemLen((char *)item_name(cur)) + 1 +
                                StrMemLen(networkname) + 1 +
@@ -1205,7 +1205,7 @@ static int zones_section_menu_hosts(struct vrmr_ctx *vctx,
                 case 'd':
                 case 'D':
 
-                    cur = current_item(ZonesSection.h_menu);
+                    cur = current_item(zonessec_ctx.h_menu);
                     if (cur &&
                             (confirm(gettext("Delete"), gettext("This host?"),
                                      vccnf.color_win_note,
@@ -1258,32 +1258,32 @@ static int zones_section_menu_hosts(struct vrmr_ctx *vctx,
                     break;
 
                 case KEY_DOWN:
-                    menu_driver(ZonesSection.h_menu, REQ_DOWN_ITEM);
+                    menu_driver(zonessec_ctx.h_menu, REQ_DOWN_ITEM);
                     break;
                 case KEY_UP:
-                    menu_driver(ZonesSection.h_menu, REQ_UP_ITEM);
+                    menu_driver(zonessec_ctx.h_menu, REQ_UP_ITEM);
                     break;
                 case KEY_NPAGE:
-                    if (menu_driver(ZonesSection.h_menu, REQ_SCR_DPAGE) !=
+                    if (menu_driver(zonessec_ctx.h_menu, REQ_SCR_DPAGE) !=
                             E_OK) {
-                        while (menu_driver(ZonesSection.h_menu,
+                        while (menu_driver(zonessec_ctx.h_menu,
                                        REQ_DOWN_ITEM) == E_OK)
                             ;
                     }
                     break;
                 case KEY_PPAGE:
-                    if (menu_driver(ZonesSection.h_menu, REQ_SCR_UPAGE) !=
+                    if (menu_driver(zonessec_ctx.h_menu, REQ_SCR_UPAGE) !=
                             E_OK) {
-                        while (menu_driver(ZonesSection.h_menu, REQ_UP_ITEM) ==
+                        while (menu_driver(zonessec_ctx.h_menu, REQ_UP_ITEM) ==
                                 E_OK)
                             ;
                     }
                     break;
                 case KEY_HOME:
-                    menu_driver(ZonesSection.h_menu, REQ_FIRST_ITEM); // home
+                    menu_driver(zonessec_ctx.h_menu, REQ_FIRST_ITEM); // home
                     break;
                 case KEY_END:
-                    menu_driver(ZonesSection.h_menu, REQ_LAST_ITEM); // end
+                    menu_driver(zonessec_ctx.h_menu, REQ_LAST_ITEM); // end
                     break;
 
                 case 32: // space
@@ -1293,7 +1293,7 @@ static int zones_section_menu_hosts(struct vrmr_ctx *vctx,
                 case 'E':
 
                     // get the current item
-                    cur = current_item(ZonesSection.h_menu);
+                    cur = current_item(zonessec_ctx.h_menu);
                     if (cur) {
                         // size
                         size = StrMemLen((char *)item_name(cur)) + 1 +
@@ -1358,21 +1358,21 @@ static void edit_zone_group_members_init(struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(zones);
     vrmr_fatal_if(group_ptr->type != VRMR_TYPE_GROUP);
 
-    ZonesSection.EditZoneGrp.n_items = group_ptr->GroupList.len;
+    zonessec_ctx.edit_group.n_items = group_ptr->GroupList.len;
 
-    ZonesSection.EditZoneGrp.items = (ITEM **)calloc(
-            ZonesSection.EditZoneGrp.n_items + 1, sizeof(ITEM *));
-    vrmr_fatal_alloc("calloc", ZonesSection.EditZoneGrp.items);
+    zonessec_ctx.edit_group.items = (ITEM **)calloc(
+            zonessec_ctx.edit_group.n_items + 1, sizeof(ITEM *));
+    vrmr_fatal_alloc("calloc", zonessec_ctx.edit_group.items);
 
     max_height = getmaxy(stdscr);
-    height = (int)(ZonesSection.EditZoneGrp.n_items +
+    height = (int)(zonessec_ctx.edit_group.n_items +
                    7); /* 7 because: 3 above the list, 4 below */
     if (height >= max_height - 6) {
         height = max_height - 6;
     }
     /* place on the same y as zones list */
     VrWinGetOffset(
-            -1, -1, height, width, 4, ZonesSection.h_xre + 1, &starty, &startx);
+            -1, -1, height, width, 4, zonessec_ctx.h_xre + 1, &starty, &startx);
 
     /* load the items */
     for (i = 0, d_node = group_ptr->GroupList.top; d_node;
@@ -1381,79 +1381,79 @@ static void edit_zone_group_members_init(struct vrmr_ctx *vctx,
         member_ptr = d_node->data;
 
         /* load all interfaces into memory */
-        ZonesSection.EditZoneGrp.items[i] =
+        zonessec_ctx.edit_group.items[i] =
                 new_item(member_ptr->host_name, member_ptr->ipv4.ipaddress);
-        vrmr_fatal_if_null(ZonesSection.EditZoneGrp.items[i]);
+        vrmr_fatal_if_null(zonessec_ctx.edit_group.items[i]);
     }
-    ZonesSection.EditZoneGrp.items[ZonesSection.EditZoneGrp.n_items] =
+    zonessec_ctx.edit_group.items[zonessec_ctx.edit_group.n_items] =
             (ITEM *)NULL;
 
-    if (ZonesSection.EditZoneGrp.n_items > 0) {
-        ZonesSection.EditZoneGrp.top = ZonesSection.EditZoneGrp.items[0];
-        ZonesSection.EditZoneGrp.bot =
-                ZonesSection.EditZoneGrp
-                        .items[ZonesSection.EditZoneGrp.n_items - 1];
+    if (zonessec_ctx.edit_group.n_items > 0) {
+        zonessec_ctx.edit_group.top = zonessec_ctx.edit_group.items[0];
+        zonessec_ctx.edit_group.bot =
+                zonessec_ctx.edit_group
+                        .items[zonessec_ctx.edit_group.n_items - 1];
     } else {
-        ZonesSection.EditZoneGrp.top = NULL;
-        ZonesSection.EditZoneGrp.bot = NULL;
+        zonessec_ctx.edit_group.top = NULL;
+        zonessec_ctx.edit_group.bot = NULL;
     }
 
     /* create win and panel */
-    ZonesSection.EditZoneGrp.win = newwin(height, width, starty, startx);
-    vrmr_fatal_if_null(ZonesSection.EditZoneGrp.win);
-    ZonesSection.EditZoneGrp.panel[0] = new_panel(ZonesSection.EditZoneGrp.win);
-    vrmr_fatal_if_null(ZonesSection.EditZoneGrp.panel[0]);
-    wbkgd(ZonesSection.EditZoneGrp.win, vccnf.color_win);
-    keypad(ZonesSection.EditZoneGrp.win, TRUE);
+    zonessec_ctx.edit_group.win = newwin(height, width, starty, startx);
+    vrmr_fatal_if_null(zonessec_ctx.edit_group.win);
+    zonessec_ctx.edit_group.panel[0] = new_panel(zonessec_ctx.edit_group.win);
+    vrmr_fatal_if_null(zonessec_ctx.edit_group.panel[0]);
+    wbkgd(zonessec_ctx.edit_group.win, vccnf.color_win);
+    keypad(zonessec_ctx.edit_group.win, TRUE);
 
-    ZonesSection.EditZoneGrp.menu =
-            new_menu((ITEM **)ZonesSection.EditZoneGrp.items);
-    vrmr_fatal_if_null(ZonesSection.EditZoneGrp.menu);
-    set_menu_win(ZonesSection.EditZoneGrp.menu, ZonesSection.EditZoneGrp.win);
-    set_menu_sub(ZonesSection.EditZoneGrp.menu,
-            derwin(ZonesSection.EditZoneGrp.win, height - 6, width - 2, 3, 1));
-    set_menu_format(ZonesSection.EditZoneGrp.menu, height - 7, 1);
+    zonessec_ctx.edit_group.menu =
+            new_menu((ITEM **)zonessec_ctx.edit_group.items);
+    vrmr_fatal_if_null(zonessec_ctx.edit_group.menu);
+    set_menu_win(zonessec_ctx.edit_group.menu, zonessec_ctx.edit_group.win);
+    set_menu_sub(zonessec_ctx.edit_group.menu,
+            derwin(zonessec_ctx.edit_group.win, height - 6, width - 2, 3, 1));
+    set_menu_format(zonessec_ctx.edit_group.menu, height - 7, 1);
 
     /* markup */
-    box(ZonesSection.EditZoneGrp.win, 0, 0);
-    print_in_middle(ZonesSection.EditZoneGrp.win, 1, 0, width,
+    box(zonessec_ctx.edit_group.win, 0, 0);
+    print_in_middle(zonessec_ctx.edit_group.win, 1, 0, width,
             gettext("Members"), vccnf.color_win);
-    mvwaddch(ZonesSection.EditZoneGrp.win, 2, 0, ACS_LTEE);
-    mvwhline(ZonesSection.EditZoneGrp.win, 2, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.EditZoneGrp.win, 2, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.edit_group.win, 2, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.edit_group.win, 2, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.edit_group.win, 2, width - 1, ACS_RTEE);
 
-    set_menu_back(ZonesSection.EditZoneGrp.menu, vccnf.color_win);
-    set_menu_fore(ZonesSection.EditZoneGrp.menu, vccnf.color_win_rev);
+    set_menu_back(zonessec_ctx.edit_group.menu, vccnf.color_win);
+    set_menu_fore(zonessec_ctx.edit_group.menu, vccnf.color_win_rev);
 
-    post_menu(ZonesSection.EditZoneGrp.menu);
+    post_menu(zonessec_ctx.edit_group.menu);
 
-    mvwaddch(ZonesSection.EditZoneGrp.win, height - 4, 0, ACS_LTEE);
-    mvwhline(ZonesSection.EditZoneGrp.win, height - 4, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.EditZoneGrp.win, height - 4, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.edit_group.win, height - 4, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.edit_group.win, height - 4, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.edit_group.win, height - 4, width - 1, ACS_RTEE);
 
-    mvwprintw(ZonesSection.EditZoneGrp.win, height - 3, 2, "<INS> %s", STR_NEW);
-    mvwprintw(ZonesSection.EditZoneGrp.win, height - 2, 2, "<DEL> %s",
-            STR_REMOVE);
+    mvwprintw(zonessec_ctx.edit_group.win, height - 3, 2, "<INS> %s", STR_NEW);
+    mvwprintw(
+            zonessec_ctx.edit_group.win, height - 2, 2, "<DEL> %s", STR_REMOVE);
 
     /* create the top and bottom fields */
-    ZonesSection.EditZoneGrp.win_top = newwin(1, 6, starty + 2, width - 8);
-    vrmr_fatal_if_null(ZonesSection.EditZoneGrp.win_top);
-    wbkgd(ZonesSection.EditZoneGrp.win_top, vccnf.color_win);
-    ZonesSection.EditZoneGrp.panel_top[0] =
-            new_panel(ZonesSection.EditZoneGrp.win_top);
+    zonessec_ctx.edit_group.win_top = newwin(1, 6, starty + 2, width - 8);
+    vrmr_fatal_if_null(zonessec_ctx.edit_group.win_top);
+    wbkgd(zonessec_ctx.edit_group.win_top, vccnf.color_win);
+    zonessec_ctx.edit_group.panel_top[0] =
+            new_panel(zonessec_ctx.edit_group.win_top);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.EditZoneGrp.win_top, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.EditZoneGrp.panel_top[0]);
+    wprintw(zonessec_ctx.edit_group.win_top, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.edit_group.panel_top[0]);
 
-    ZonesSection.EditZoneGrp.win_bot =
+    zonessec_ctx.edit_group.win_bot =
             newwin(1, 6, starty + height - 4, width - 8);
-    vrmr_fatal_if_null(ZonesSection.EditZoneGrp.win_bot);
-    wbkgd(ZonesSection.EditZoneGrp.win_bot, vccnf.color_win);
-    ZonesSection.EditZoneGrp.panel_bot[0] =
-            new_panel(ZonesSection.EditZoneGrp.win_bot);
+    vrmr_fatal_if_null(zonessec_ctx.edit_group.win_bot);
+    wbkgd(zonessec_ctx.edit_group.win_bot, vccnf.color_win);
+    zonessec_ctx.edit_group.panel_bot[0] =
+            new_panel(zonessec_ctx.edit_group.win_bot);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.EditZoneGrp.win_bot, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.EditZoneGrp.panel_bot[0]);
+    wprintw(zonessec_ctx.edit_group.win_bot, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.edit_group.panel_bot[0]);
 
     update_panels();
     doupdate();
@@ -1464,21 +1464,21 @@ static void edit_zone_group_members_destroy(void)
     size_t i = 0;
 
     // Un post form and free the memory
-    unpost_menu(ZonesSection.EditZoneGrp.menu);
-    free_menu(ZonesSection.EditZoneGrp.menu);
+    unpost_menu(zonessec_ctx.edit_group.menu);
+    free_menu(zonessec_ctx.edit_group.menu);
 
-    for (i = 0; i < ZonesSection.EditZoneGrp.n_items; i++) {
-        free_item(ZonesSection.EditZoneGrp.items[i]);
+    for (i = 0; i < zonessec_ctx.edit_group.n_items; i++) {
+        free_item(zonessec_ctx.edit_group.items[i]);
     }
-    free(ZonesSection.EditZoneGrp.items);
+    free(zonessec_ctx.edit_group.items);
 
-    del_panel(ZonesSection.EditZoneGrp.panel[0]);
-    destroy_win(ZonesSection.EditZoneGrp.win);
+    del_panel(zonessec_ctx.edit_group.panel[0]);
+    destroy_win(zonessec_ctx.edit_group.win);
 
-    del_panel(ZonesSection.EditZoneGrp.panel_top[0]);
-    destroy_win(ZonesSection.EditZoneGrp.win_top);
-    del_panel(ZonesSection.EditZoneGrp.panel_bot[0]);
-    destroy_win(ZonesSection.EditZoneGrp.win_bot);
+    del_panel(zonessec_ctx.edit_group.panel_top[0]);
+    destroy_win(zonessec_ctx.edit_group.win_top);
+    del_panel(zonessec_ctx.edit_group.panel_bot[0]);
+    destroy_win(zonessec_ctx.edit_group.win_bot);
 
     update_panels();
     doupdate();
@@ -1631,26 +1631,26 @@ static void edit_zone_group_members(struct vrmr_ctx *vctx,
         }
 
         while (quit == 0 && reload == 0) {
-            if (ZonesSection.EditZoneGrp.top != NULL &&
-                    !item_visible(ZonesSection.EditZoneGrp.top))
-                show_panel(ZonesSection.EditZoneGrp.panel_top[0]);
+            if (zonessec_ctx.edit_group.top != NULL &&
+                    !item_visible(zonessec_ctx.edit_group.top))
+                show_panel(zonessec_ctx.edit_group.panel_top[0]);
             else
-                hide_panel(ZonesSection.EditZoneGrp.panel_top[0]);
+                hide_panel(zonessec_ctx.edit_group.panel_top[0]);
 
-            if (ZonesSection.EditZoneGrp.bot != NULL &&
-                    !item_visible(ZonesSection.EditZoneGrp.bot))
-                show_panel(ZonesSection.EditZoneGrp.panel_bot[0]);
+            if (zonessec_ctx.edit_group.bot != NULL &&
+                    !item_visible(zonessec_ctx.edit_group.bot))
+                show_panel(zonessec_ctx.edit_group.panel_bot[0]);
             else
-                hide_panel(ZonesSection.EditZoneGrp.panel_bot[0]);
+                hide_panel(zonessec_ctx.edit_group.panel_bot[0]);
 
             update_panels();
             doupdate();
 
             /* restore the cursor */
-            pos_menu_cursor(ZonesSection.EditZoneGrp.menu);
+            pos_menu_cursor(zonessec_ctx.edit_group.menu);
 
             /* get user input */
-            ch = wgetch(ZonesSection.EditZoneGrp.win);
+            ch = wgetch(zonessec_ctx.edit_group.win);
             switch (ch) {
                 case 27:
                 case 'q':
@@ -1672,7 +1672,7 @@ static void edit_zone_group_members(struct vrmr_ctx *vctx,
                 case 'd':
                 case 'D':
 
-                    cur = current_item(ZonesSection.EditZoneGrp.menu);
+                    cur = current_item(zonessec_ctx.edit_group.menu);
                     if (cur) {
                         char *n = (char *)item_name(cur);
                         edit_zone_group_members_delmem(vctx, zone_ptr, n);
@@ -1681,33 +1681,33 @@ static void edit_zone_group_members(struct vrmr_ctx *vctx,
                     break;
 
                 case KEY_DOWN:
-                    menu_driver(ZonesSection.EditZoneGrp.menu, REQ_DOWN_ITEM);
+                    menu_driver(zonessec_ctx.edit_group.menu, REQ_DOWN_ITEM);
                     break;
                 case KEY_UP:
-                    menu_driver(ZonesSection.EditZoneGrp.menu, REQ_UP_ITEM);
+                    menu_driver(zonessec_ctx.edit_group.menu, REQ_UP_ITEM);
                     break;
                 case KEY_NPAGE:
-                    if (menu_driver(ZonesSection.EditZoneGrp.menu,
+                    if (menu_driver(zonessec_ctx.edit_group.menu,
                                 REQ_SCR_DPAGE) != E_OK) {
-                        while (menu_driver(ZonesSection.EditZoneGrp.menu,
+                        while (menu_driver(zonessec_ctx.edit_group.menu,
                                        REQ_DOWN_ITEM) == E_OK)
                             ;
                     }
                     break;
                 case KEY_PPAGE:
-                    if (menu_driver(ZonesSection.EditZoneGrp.menu,
+                    if (menu_driver(zonessec_ctx.edit_group.menu,
                                 REQ_SCR_UPAGE) != E_OK) {
-                        while (menu_driver(ZonesSection.EditZoneGrp.menu,
+                        while (menu_driver(zonessec_ctx.edit_group.menu,
                                        REQ_UP_ITEM) == E_OK)
                             ;
                     }
                     break;
                 case KEY_HOME:
-                    menu_driver(ZonesSection.EditZoneGrp.menu,
+                    menu_driver(zonessec_ctx.edit_group.menu,
                             REQ_FIRST_ITEM); // home
                     break;
                 case KEY_END:
-                    menu_driver(ZonesSection.EditZoneGrp.menu,
+                    menu_driver(zonessec_ctx.edit_group.menu,
                             REQ_LAST_ITEM); // end
                     break;
             }
@@ -1745,29 +1745,29 @@ static void edit_zone_group_init(struct vrmr_ctx *vctx,
     if (height > max_height - 8)
         height = max_height - 8;
     width = 54;
-    VrWinGetOffset(-1, -1, height, width, ZonesSection.h_yle + 1,
-            ZonesSection.n_xre + 1, &starty, &startx);
+    VrWinGetOffset(-1, -1, height, width, zonessec_ctx.h_yle + 1,
+            zonessec_ctx.n_xre + 1, &starty, &startx);
 
     memset(&GroupSec, 0, sizeof(GroupSec));
-    ZonesSection.EditZone.n_fields = 5;
+    zonessec_ctx.edit_zone.n_fields = 5;
 
-    ZonesSection.EditZone.fields = (FIELD **)calloc(
-            ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *));
-    vrmr_fatal_alloc("calloc", ZonesSection.EditZone.fields);
+    zonessec_ctx.edit_zone.fields = (FIELD **)calloc(
+            zonessec_ctx.edit_zone.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_alloc("calloc", zonessec_ctx.edit_zone.fields);
 
     /* preload the active field */
-    GroupSec.activelabelfld = (ZonesSection.EditZone.fields[field_num++] =
+    GroupSec.activelabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                        new_field(1, 16, 2, 0, 0, 0));
     set_field_buffer_wrap(GroupSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(GroupSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    GroupSec.activefld = (ZonesSection.EditZone.fields[field_num++] =
+    GroupSec.activefld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                   new_field(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(
             GroupSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
     /* comment label */
-    GroupSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num++] =
+    GroupSec.commentlabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                         new_field(1, 16, 5, 0, 0, 0));
     set_field_buffer_wrap(GroupSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(GroupSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
@@ -1776,39 +1776,39 @@ static void edit_zone_group_init(struct vrmr_ctx *vctx,
     comment_y = 5;
     comment_x = 48;
     /* create the comment field */
-    GroupSec.commentfld = (ZonesSection.EditZone.fields[field_num++] =
+    GroupSec.commentfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                    new_field(comment_y, comment_x, 6, 1, 0, 0));
 
     /* load the comment from the backend */
     if (vctx->zf->ask(vctx->zone_backend, zone_ptr->name, "COMMENT",
-                ZonesSection.comment, sizeof(ZonesSection.comment),
+                zonessec_ctx.comment, sizeof(zonessec_ctx.comment),
                 VRMR_TYPE_GROUP, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
-    set_field_buffer_wrap(GroupSec.commentfld, 0, ZonesSection.comment);
+    set_field_buffer_wrap(GroupSec.commentfld, 0, zonessec_ctx.comment);
 
     /* comment label */
-    GroupSec.warningfld = (ZonesSection.EditZone.fields[field_num++] =
+    GroupSec.warningfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                    new_field(1, 48, 11, 1, 0, 0));
     field_opts_off(GroupSec.warningfld, O_AUTOSKIP | O_ACTIVE | O_VISIBLE);
     set_field_just(GroupSec.warningfld, JUSTIFY_CENTER);
 
-    vrmr_fatal_if(field_num != ZonesSection.EditZone.n_fields);
+    vrmr_fatal_if(field_num != zonessec_ctx.edit_zone.n_fields);
 
     /* terminate */
-    ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
+    zonessec_ctx.edit_zone.fields[zonessec_ctx.edit_zone.n_fields] = NULL;
 
-    ZonesSection.EditZone.win = create_newwin(height, width, starty, startx,
+    zonessec_ctx.edit_zone.win = create_newwin(height, width, starty, startx,
             gettext("Edit Zone: Group"), vccnf.color_win);
-    vrmr_fatal_if_null(ZonesSection.EditZone.win);
-    ZonesSection.EditZone.panel[0] = new_panel(ZonesSection.EditZone.win);
-    vrmr_fatal_if_null(ZonesSection.EditZone.panel[0]);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.win);
+    zonessec_ctx.edit_zone.panel[0] = new_panel(zonessec_ctx.edit_zone.win);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.panel[0]);
 
     /* set field options */
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
-        set_field_back(ZonesSection.EditZone.fields[i], vccnf.color_win_rev);
-        field_opts_off(ZonesSection.EditZone.fields[i], O_AUTOSKIP);
-        set_field_status(ZonesSection.EditZone.fields[i], FALSE);
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
+        set_field_back(zonessec_ctx.edit_zone.fields[i], vccnf.color_win_rev);
+        field_opts_off(zonessec_ctx.edit_zone.fields[i], O_AUTOSKIP);
+        set_field_status(zonessec_ctx.edit_zone.fields[i], FALSE);
     }
     set_field_back(GroupSec.activelabelfld, vccnf.color_win);
     set_field_back(GroupSec.commentlabelfld, vccnf.color_win);
@@ -1817,25 +1817,25 @@ static void edit_zone_group_init(struct vrmr_ctx *vctx,
     set_field_fore(GroupSec.warningfld, vccnf.color_win_warn | A_BOLD);
 
     /* Create the form and post it */
-    ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields);
-    vrmr_fatal_if_null(ZonesSection.EditZone.form);
+    zonessec_ctx.edit_zone.form = new_form(zonessec_ctx.edit_zone.fields);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.form);
     /* Calculate the area required for the form */
-    scale_form(ZonesSection.EditZone.form, &rows, &cols);
-    keypad(ZonesSection.EditZone.win, TRUE);
+    scale_form(zonessec_ctx.edit_zone.form, &rows, &cols);
+    keypad(zonessec_ctx.edit_zone.win, TRUE);
 
     /* Set main window and sub window */
-    set_form_win(ZonesSection.EditZone.form, ZonesSection.EditZone.win);
-    set_form_sub(ZonesSection.EditZone.form,
-            derwin(ZonesSection.EditZone.win, rows, cols, 1, 2));
-    post_form(ZonesSection.EditZone.form);
+    set_form_win(zonessec_ctx.edit_zone.form, zonessec_ctx.edit_zone.win);
+    set_form_sub(zonessec_ctx.edit_zone.form,
+            derwin(zonessec_ctx.edit_zone.win, rows, cols, 1, 2));
+    post_form(zonessec_ctx.edit_zone.form);
 
     /* draw labels */
-    mvwprintw(ZonesSection.EditZone.win, 1, 2, "%s: %s", gettext("Name"),
+    mvwprintw(zonessec_ctx.edit_zone.win, 1, 2, "%s: %s", gettext("Name"),
             zone_ptr->name);
-    mvwprintw(ZonesSection.EditZone.win, 13, 2,
+    mvwprintw(zonessec_ctx.edit_zone.win, 13, 2,
             gettext("Press <F6> to manage the members of this group."));
 
-    wrefresh(ZonesSection.EditZone.win);
+    wrefresh(zonessec_ctx.edit_zone.win);
     update_panels();
     doupdate();
 }
@@ -1850,21 +1850,21 @@ static int edit_zone_group_save(
     vrmr_fatal_if_null(group_ptr);
 
     /* check for changed fields */
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
-        if (field_status(ZonesSection.EditZone.fields[i]) == FALSE)
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
+        if (field_status(zonessec_ctx.edit_zone.fields[i]) == FALSE)
             continue;
 
         /* active field */
-        if (ZonesSection.EditZone.fields[i] == GroupSec.activefld) {
+        if (zonessec_ctx.edit_zone.fields[i] == GroupSec.activefld) {
             group_ptr->status = VRMR_ST_CHANGED;
 
             active = group_ptr->active;
 
-            if (strncasecmp(field_buffer(ZonesSection.EditZone.fields[i], 0),
+            if (strncasecmp(field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                         STR_YES, StrLen(STR_YES)) == 0) {
                 group_ptr->active = 1;
-            } else if (strncasecmp(
-                               field_buffer(ZonesSection.EditZone.fields[i], 0),
+            } else if (strncasecmp(field_buffer(
+                                           zonessec_ctx.edit_zone.fields[i], 0),
                                STR_NO, StrLen(STR_NO)) == 0) {
                 group_ptr->active = 0;
             } else {
@@ -1885,9 +1885,9 @@ static int edit_zone_group_save(
                     group_ptr->name, STR_HAS_BEEN_CHANGED, STR_ACTIVE,
                     STR_IS_NOW_SET_TO, group_ptr->active ? STR_YES : STR_NO,
                     STR_WAS, active ? STR_YES : STR_NO);
-        } else if (ZonesSection.EditZone.fields[i] == GroupSec.commentfld) {
+        } else if (zonessec_ctx.edit_zone.fields[i] == GroupSec.commentfld) {
             if (vctx->zf->tell(vctx->zone_backend, group_ptr->name, "COMMENT",
-                        field_buffer(ZonesSection.EditZone.fields[i], 0), 1,
+                        field_buffer(zonessec_ctx.edit_zone.fields[i], 0), 1,
                         VRMR_TYPE_GROUP) < 0) {
                 vrmr_error(-1, VR_ERR,
                         gettext("saving to backend failed (in: %s:%d)."),
@@ -1899,7 +1899,7 @@ static int edit_zone_group_save(
              * was changed." */
             vrmr_audit("%s '%s' %s: %s.", STR_GROUP, group_ptr->name,
                     STR_HAS_BEEN_CHANGED, STR_COMMENT_CHANGED);
-        } else if (ZonesSection.EditZone.fields[i] == GroupSec.warningfld) {
+        } else if (zonessec_ctx.edit_zone.fields[i] == GroupSec.warningfld) {
             /* do nothing */
         } else {
             vrmr_fatal("unknown field");
@@ -1914,19 +1914,19 @@ static void edit_zone_group_destroy(void)
     size_t i = 0;
 
     /* Un post form and free the memory */
-    unpost_form(ZonesSection.EditZone.form);
-    free_form(ZonesSection.EditZone.form);
+    unpost_form(zonessec_ctx.edit_zone.form);
+    free_form(zonessec_ctx.edit_zone.form);
 
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
-        free_field(ZonesSection.EditZone.fields[i]);
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
+        free_field(zonessec_ctx.edit_zone.fields[i]);
     }
-    free(ZonesSection.EditZone.fields);
+    free(zonessec_ctx.edit_zone.fields);
 
-    del_panel(ZonesSection.EditZone.panel[0]);
-    destroy_win(ZonesSection.EditZone.win);
+    del_panel(zonessec_ctx.edit_zone.panel[0]);
+    destroy_win(zonessec_ctx.edit_zone.win);
 
     /* clear comment string */
-    strcpy(ZonesSection.comment, "");
+    strcpy(zonessec_ctx.comment, "");
 }
 
 /*  edit_zone_group
@@ -1977,35 +1977,35 @@ static int edit_zone_group(
             set_field_status(GroupSec.warningfld, FALSE);
         }
 
-        mvwprintw(ZonesSection.EditZone.win, 4, 37, "%s: %4d",
+        mvwprintw(zonessec_ctx.edit_zone.win, 4, 37, "%s: %4d",
                 gettext("Members"), zone_ptr->GroupList.len);
 
         /* print, set cursor etc */
-        pos_form_cursor(ZonesSection.EditZone.form);
-        cur = current_field(ZonesSection.EditZone.form);
+        pos_form_cursor(zonessec_ctx.edit_zone.form);
+        cur = current_field(zonessec_ctx.edit_zone.form);
 
         draw_top_menu(top_win, gettext("Edit Group"), key_choices_n,
                 key_choices, cmd_choices_n, cmd_choices);
 
-        wrefresh(ZonesSection.EditZone.win);
+        wrefresh(zonessec_ctx.edit_zone.win);
         update_panels();
         doupdate();
 
         while (quit == 0) {
-            draw_field_active_mark(cur, prev, ZonesSection.EditZone.win,
-                    ZonesSection.EditZone.form, vccnf.color_win_mark | A_BOLD);
+            draw_field_active_mark(cur, prev, zonessec_ctx.edit_zone.win,
+                    zonessec_ctx.edit_zone.form, vccnf.color_win_mark | A_BOLD);
 
             /* get user input */
-            ch = wgetch(ZonesSection.EditZone.win);
+            ch = wgetch(zonessec_ctx.edit_zone.win);
 
             not_defined = 0;
 
             /* handle input */
             if (cur == GroupSec.commentfld) {
-                if (nav_field_comment(ZonesSection.EditZone.form, ch) < 0)
+                if (nav_field_comment(zonessec_ctx.edit_zone.form, ch) < 0)
                     not_defined = 1;
             } else if (cur == GroupSec.activefld) {
-                if (nav_field_yesno(ZonesSection.EditZone.form, ch) < 0)
+                if (nav_field_yesno(zonessec_ctx.edit_zone.form, ch) < 0)
                     not_defined = 1;
             } else
                 not_defined = 1;
@@ -2037,14 +2037,16 @@ static int edit_zone_group(
                     case 9:  // tab
                     case 10: // enter
 
-                        form_driver(ZonesSection.EditZone.form, REQ_NEXT_FIELD);
-                        form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
+                        form_driver(
+                                zonessec_ctx.edit_zone.form, REQ_NEXT_FIELD);
+                        form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                         break;
 
                     case KEY_UP:
 
-                        form_driver(ZonesSection.EditZone.form, REQ_PREV_FIELD);
-                        form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
+                        form_driver(
+                                zonessec_ctx.edit_zone.form, REQ_PREV_FIELD);
+                        form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                         break;
 
                     case KEY_F(12):
@@ -2059,7 +2061,7 @@ static int edit_zone_group(
 
             /* before we get the new 'cur', store cur in prev */
             prev = cur;
-            cur = current_field(ZonesSection.EditZone.form);
+            cur = current_field(zonessec_ctx.edit_zone.form);
 
             /* draw empty group warning */
             if (zone_ptr->GroupList.len == 0) {
@@ -2080,12 +2082,12 @@ static int edit_zone_group(
                 field_opts_off(GroupSec.warningfld, O_VISIBLE);
             }
 
-            mvwprintw(ZonesSection.EditZone.win, 4, 37, "%s: %4d",
+            mvwprintw(zonessec_ctx.edit_zone.win, 4, 37, "%s: %4d",
                     gettext("Members"), zone_ptr->GroupList.len);
 
             /* refresh and restore cursor. */
-            wrefresh(ZonesSection.EditZone.win);
-            pos_form_cursor(ZonesSection.EditZone.form);
+            wrefresh(zonessec_ctx.edit_zone.win);
+            pos_form_cursor(zonessec_ctx.edit_zone.form);
         }
     }
 
@@ -2121,7 +2123,7 @@ static void zones_section_menu_groups_init(
     maxy = getmaxy(stdscr);
 
     /* count how many zones there are */
-    ZonesSection.host_n = 0;
+    zonessec_ctx.host_n = 0;
 
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
@@ -2130,18 +2132,18 @@ static void zones_section_menu_groups_init(
         if (zone_ptr->type == VRMR_TYPE_GROUP) {
             if (strcmp(zone_ptr->zone_name, zonename) == 0 &&
                     strcmp(zone_ptr->network_name, networkname) == 0) {
-                ZonesSection.host_n++;
+                zonessec_ctx.host_n++;
             }
         }
     }
 
-    vrmr_list_setup(&ZonesSection.group_desc_list, free);
+    vrmr_list_setup(&zonessec_ctx.group_desc_list, free);
 
-    i = ZonesSection.host_n - 1;
+    i = zonessec_ctx.host_n - 1;
 
-    ZonesSection.hostitems =
-            (ITEM **)calloc(ZonesSection.host_n + 1, sizeof(ITEM *));
-    vrmr_fatal_alloc("calloc", ZonesSection.hostitems);
+    zonessec_ctx.hostitems =
+            (ITEM **)calloc(zonessec_ctx.host_n + 1, sizeof(ITEM *));
+    vrmr_fatal_alloc("calloc", zonessec_ctx.hostitems);
 
     for (d_node = zones->list.bot; d_node; d_node = d_node->prev) {
         vrmr_fatal_if_null(d_node->data);
@@ -2156,30 +2158,30 @@ static void zones_section_menu_groups_init(
                 desc_ptr = strdup(temp);
                 vrmr_fatal_alloc("strdup", desc_ptr);
 
-                vrmr_fatal_if(vrmr_list_append(&ZonesSection.group_desc_list,
+                vrmr_fatal_if(vrmr_list_append(&zonessec_ctx.group_desc_list,
                                       desc_ptr) == NULL);
 
-                ZonesSection.hostitems[i] =
+                zonessec_ctx.hostitems[i] =
                         new_item(zone_ptr->host_name, desc_ptr);
-                vrmr_fatal_if_null(ZonesSection.hostitems[i]);
+                vrmr_fatal_if_null(zonessec_ctx.hostitems[i]);
                 i--;
             }
         }
     }
-    ZonesSection.hostitems[ZonesSection.host_n] = (ITEM *)NULL;
+    zonessec_ctx.hostitems[zonessec_ctx.host_n] = (ITEM *)NULL;
 
-    if (ZonesSection.host_n > 0) {
-        ZonesSection.h_top = ZonesSection.hostitems[0];
-        ZonesSection.h_bot = ZonesSection.hostitems[ZonesSection.host_n - 1];
+    if (zonessec_ctx.host_n > 0) {
+        zonessec_ctx.h_top = zonessec_ctx.hostitems[0];
+        zonessec_ctx.h_bot = zonessec_ctx.hostitems[zonessec_ctx.host_n - 1];
     } else {
-        ZonesSection.h_top = NULL;
-        ZonesSection.h_bot = NULL;
+        zonessec_ctx.h_top = NULL;
+        zonessec_ctx.h_bot = NULL;
     }
 
-    ZonesSection.h_menu = new_menu((ITEM **)ZonesSection.hostitems);
-    vrmr_fatal_if_null(ZonesSection.h_menu);
+    zonessec_ctx.h_menu = new_menu((ITEM **)zonessec_ctx.hostitems);
+    vrmr_fatal_if_null(zonessec_ctx.h_menu);
 
-    height = (int)(ZonesSection.host_n + 9);
+    height = (int)(zonessec_ctx.host_n + 9);
     if (height > maxy - 8) {
         height = maxy - 8;
     }
@@ -2187,83 +2189,83 @@ static void zones_section_menu_groups_init(
 
     /* place on the same y as zones list */
     VrWinGetOffset(
-            -1, -1, height, width, 4, ZonesSection.n_xre + 1, &starty, &startx);
-    ZonesSection.h_yle = starty + height;
-    ZonesSection.h_xre = startx + width;
+            -1, -1, height, width, 4, zonessec_ctx.n_xre + 1, &starty, &startx);
+    zonessec_ctx.h_yle = starty + height;
+    zonessec_ctx.h_xre = startx + width;
 
-    ZonesSection.h_win = newwin(height, width, starty, startx);
-    vrmr_fatal_if_null(ZonesSection.h_win);
-    wbkgd(ZonesSection.h_win, vccnf.color_win);
-    keypad(ZonesSection.h_win, TRUE);
-    box(ZonesSection.h_win, 0, 0);
-    print_in_middle(ZonesSection.h_win, 1, 0, width, gettext("Groups"),
+    zonessec_ctx.h_win = newwin(height, width, starty, startx);
+    vrmr_fatal_if_null(zonessec_ctx.h_win);
+    wbkgd(zonessec_ctx.h_win, vccnf.color_win);
+    keypad(zonessec_ctx.h_win, TRUE);
+    box(zonessec_ctx.h_win, 0, 0);
+    print_in_middle(zonessec_ctx.h_win, 1, 0, width, gettext("Groups"),
             vccnf.color_win);
-    wrefresh(ZonesSection.h_win);
+    wrefresh(zonessec_ctx.h_win);
 
-    ZonesSection.h_panel[0] = new_panel(ZonesSection.h_win);
-    vrmr_fatal_if_null(ZonesSection.h_panel[0]);
+    zonessec_ctx.h_panel[0] = new_panel(zonessec_ctx.h_win);
+    vrmr_fatal_if_null(zonessec_ctx.h_panel[0]);
     update_panels();
 
-    set_menu_win(ZonesSection.h_menu, ZonesSection.h_win);
-    set_menu_sub(ZonesSection.h_menu,
-            derwin(ZonesSection.h_win, height - 7, width - 2, 3, 1));
-    set_menu_format(ZonesSection.h_menu, height - 8, 1);
+    set_menu_win(zonessec_ctx.h_menu, zonessec_ctx.h_win);
+    set_menu_sub(zonessec_ctx.h_menu,
+            derwin(zonessec_ctx.h_win, height - 7, width - 2, 3, 1));
+    set_menu_format(zonessec_ctx.h_menu, height - 8, 1);
 
-    mvwaddch(ZonesSection.h_win, 2, 0, ACS_LTEE);
-    mvwhline(ZonesSection.h_win, 2, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.h_win, 2, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.h_win, 2, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.h_win, 2, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.h_win, 2, width - 1, ACS_RTEE);
 
-    set_menu_back(ZonesSection.h_menu, vccnf.color_win);
-    set_menu_fore(ZonesSection.h_menu, vccnf.color_win_rev);
+    set_menu_back(zonessec_ctx.h_menu, vccnf.color_win);
+    set_menu_fore(zonessec_ctx.h_menu, vccnf.color_win_rev);
 
-    post_menu(ZonesSection.h_menu);
+    post_menu(zonessec_ctx.h_menu);
     doupdate();
 
-    mvwaddch(ZonesSection.h_win, height - 5, 0, ACS_LTEE);
-    mvwhline(ZonesSection.h_win, height - 5, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.h_win, height - 5, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.h_win, height - 5, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.h_win, height - 5, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.h_win, height - 5, width - 1, ACS_RTEE);
 
-    mvwprintw(ZonesSection.h_win, height - 4, 1, "<RET> %s", STR_EDIT);
-    mvwprintw(ZonesSection.h_win, height - 3, 1, "<INS> %s", STR_NEW);
-    mvwprintw(ZonesSection.h_win, height - 2, 1, "<DEL> %s", STR_REMOVE);
+    mvwprintw(zonessec_ctx.h_win, height - 4, 1, "<RET> %s", STR_EDIT);
+    mvwprintw(zonessec_ctx.h_win, height - 3, 1, "<INS> %s", STR_NEW);
+    mvwprintw(zonessec_ctx.h_win, height - 2, 1, "<DEL> %s", STR_REMOVE);
 
     /* create the top and bottom fields */
-    ZonesSection.h_win_top = newwin(1, 6, starty + 2, startx + width - 8);
-    vrmr_fatal_if_null(ZonesSection.h_win_top);
-    wbkgd(ZonesSection.h_win_top, vccnf.color_win);
-    ZonesSection.h_panel_top[0] = new_panel(ZonesSection.h_win_top);
-    vrmr_fatal_if_null(ZonesSection.h_panel_top[0]);
+    zonessec_ctx.h_win_top = newwin(1, 6, starty + 2, startx + width - 8);
+    vrmr_fatal_if_null(zonessec_ctx.h_win_top);
+    wbkgd(zonessec_ctx.h_win_top, vccnf.color_win);
+    zonessec_ctx.h_panel_top[0] = new_panel(zonessec_ctx.h_win_top);
+    vrmr_fatal_if_null(zonessec_ctx.h_panel_top[0]);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.h_win_top, "(%s)", gettext("more"));
-    //    hide_panel(ZonesSection.h_panel_top[0]);
+    wprintw(zonessec_ctx.h_win_top, "(%s)", gettext("more"));
+    //    hide_panel(zonessec_ctx.h_panel_top[0]);
 
-    ZonesSection.h_win_bot =
+    zonessec_ctx.h_win_bot =
             newwin(1, 6, starty + height - 5, startx + width - 8);
-    vrmr_fatal_if_null(ZonesSection.h_win_bot);
-    wbkgd(ZonesSection.h_win_bot, vccnf.color_win);
-    ZonesSection.h_panel_bot[0] = new_panel(ZonesSection.h_win_bot);
-    vrmr_fatal_if_null(ZonesSection.h_panel_bot[0]);
+    vrmr_fatal_if_null(zonessec_ctx.h_win_bot);
+    wbkgd(zonessec_ctx.h_win_bot, vccnf.color_win);
+    zonessec_ctx.h_panel_bot[0] = new_panel(zonessec_ctx.h_win_bot);
+    vrmr_fatal_if_null(zonessec_ctx.h_panel_bot[0]);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.h_win_bot, "(%s)", gettext("more"));
-    //    hide_panel(ZonesSection.h_panel_bot[0]);
+    wprintw(zonessec_ctx.h_win_bot, "(%s)", gettext("more"));
+    //    hide_panel(zonessec_ctx.h_panel_bot[0]);
 }
 
 static void zones_section_menu_groups_destroy(void)
 {
     size_t i = 0;
 
-    unpost_menu(ZonesSection.h_menu);
-    free_menu(ZonesSection.h_menu);
-    for (i = 0; i < ZonesSection.host_n; ++i)
-        free_item(ZonesSection.hostitems[i]);
-    vrmr_list_cleanup(&ZonesSection.group_desc_list);
-    free(ZonesSection.hostitems);
-    del_panel(ZonesSection.h_panel[0]);
-    destroy_win(ZonesSection.h_win);
-    del_panel(ZonesSection.h_panel_top[0]);
-    destroy_win(ZonesSection.h_win_top);
-    del_panel(ZonesSection.h_panel_bot[0]);
-    destroy_win(ZonesSection.h_win_bot);
+    unpost_menu(zonessec_ctx.h_menu);
+    free_menu(zonessec_ctx.h_menu);
+    for (i = 0; i < zonessec_ctx.host_n; ++i)
+        free_item(zonessec_ctx.hostitems[i]);
+    vrmr_list_cleanup(&zonessec_ctx.group_desc_list);
+    free(zonessec_ctx.hostitems);
+    del_panel(zonessec_ctx.h_panel[0]);
+    destroy_win(zonessec_ctx.h_win);
+    del_panel(zonessec_ctx.h_panel_top[0]);
+    destroy_win(zonessec_ctx.h_win_top);
+    del_panel(zonessec_ctx.h_panel_bot[0]);
+    destroy_win(zonessec_ctx.h_win_bot);
 }
 
 static void zones_section_menu_groups(struct vrmr_ctx *vctx,
@@ -2309,23 +2311,23 @@ static void zones_section_menu_groups(struct vrmr_ctx *vctx,
         }
 
         while (quit == 0 && reload == 0) {
-            if (ZonesSection.h_top != NULL && !item_visible(ZonesSection.h_top))
-                show_panel(ZonesSection.h_panel_top[0]);
+            if (zonessec_ctx.h_top != NULL && !item_visible(zonessec_ctx.h_top))
+                show_panel(zonessec_ctx.h_panel_top[0]);
             else
-                hide_panel(ZonesSection.h_panel_top[0]);
+                hide_panel(zonessec_ctx.h_panel_top[0]);
 
-            if (ZonesSection.h_bot != NULL && !item_visible(ZonesSection.h_bot))
-                show_panel(ZonesSection.h_panel_bot[0]);
+            if (zonessec_ctx.h_bot != NULL && !item_visible(zonessec_ctx.h_bot))
+                show_panel(zonessec_ctx.h_panel_bot[0]);
             else
-                hide_panel(ZonesSection.h_panel_bot[0]);
+                hide_panel(zonessec_ctx.h_panel_bot[0]);
 
             update_panels();
             doupdate();
 
             /* restore the cursor */
-            pos_menu_cursor(ZonesSection.h_menu);
+            pos_menu_cursor(zonessec_ctx.h_menu);
 
-            ch = wgetch(ZonesSection.h_win);
+            ch = wgetch(zonessec_ctx.h_win);
             switch (ch) {
                 case 27:
                 case KEY_F(10):
@@ -2338,7 +2340,7 @@ static void zones_section_menu_groups(struct vrmr_ctx *vctx,
                 case 'r':
                 case 'R':
 
-                    cur = current_item(ZonesSection.h_menu);
+                    cur = current_item(zonessec_ctx.h_menu);
                     if (cur) {
                         size = StrMemLen((char *)item_name(cur)) + 1 +
                                StrMemLen(networkname) + 1 +
@@ -2470,7 +2472,7 @@ static void zones_section_menu_groups(struct vrmr_ctx *vctx,
                 case 'd':
                 case 'D':
 
-                    cur = current_item(ZonesSection.h_menu);
+                    cur = current_item(zonessec_ctx.h_menu);
                     if (cur &&
                             confirm(gettext("Delete"), gettext("This group?"),
                                     vccnf.color_win_note,
@@ -2517,32 +2519,32 @@ static void zones_section_menu_groups(struct vrmr_ctx *vctx,
                     break;
 
                 case KEY_DOWN:
-                    menu_driver(ZonesSection.h_menu, REQ_DOWN_ITEM);
+                    menu_driver(zonessec_ctx.h_menu, REQ_DOWN_ITEM);
                     break;
                 case KEY_UP:
-                    menu_driver(ZonesSection.h_menu, REQ_UP_ITEM);
+                    menu_driver(zonessec_ctx.h_menu, REQ_UP_ITEM);
                     break;
                 case KEY_NPAGE:
-                    if (menu_driver(ZonesSection.h_menu, REQ_SCR_DPAGE) !=
+                    if (menu_driver(zonessec_ctx.h_menu, REQ_SCR_DPAGE) !=
                             E_OK) {
-                        while (menu_driver(ZonesSection.h_menu,
+                        while (menu_driver(zonessec_ctx.h_menu,
                                        REQ_DOWN_ITEM) == E_OK)
                             ;
                     }
                     break;
                 case KEY_PPAGE:
-                    if (menu_driver(ZonesSection.h_menu, REQ_SCR_UPAGE) !=
+                    if (menu_driver(zonessec_ctx.h_menu, REQ_SCR_UPAGE) !=
                             E_OK) {
-                        while (menu_driver(ZonesSection.h_menu, REQ_UP_ITEM) ==
+                        while (menu_driver(zonessec_ctx.h_menu, REQ_UP_ITEM) ==
                                 E_OK)
                             ;
                     }
                     break;
                 case KEY_HOME:
-                    menu_driver(ZonesSection.h_menu, REQ_FIRST_ITEM); // home
+                    menu_driver(zonessec_ctx.h_menu, REQ_FIRST_ITEM); // home
                     break;
                 case KEY_END:
-                    menu_driver(ZonesSection.h_menu, REQ_LAST_ITEM); // end
+                    menu_driver(zonessec_ctx.h_menu, REQ_LAST_ITEM); // end
                     break;
 
                 case 32: // space
@@ -2551,7 +2553,7 @@ static void zones_section_menu_groups(struct vrmr_ctx *vctx,
                 case 'e':
                 case 'E':
 
-                    cur = current_item(ZonesSection.h_menu);
+                    cur = current_item(zonessec_ctx.h_menu);
                     if (cur) {
                         size = StrMemLen((char *)item_name(cur)) + 1 +
                                StrMemLen(networkname) + 1 +
@@ -2943,15 +2945,15 @@ static void edit_zone_network_interfaces_init(struct vrmr_zone *zone_ptr)
     vrmr_fatal_if_null(zone_ptr);
     vrmr_fatal_if(zone_ptr->type != VRMR_TYPE_NETWORK);
 
-    ZonesSection.EditZoneInt.n_items = zone_ptr->InterfaceList.len;
+    zonessec_ctx.edit_iface.n_items = zone_ptr->InterfaceList.len;
 
-    ZonesSection.EditZoneInt.items = (ITEM **)calloc(
-            ZonesSection.EditZoneInt.n_items + 1, sizeof(ITEM *));
-    vrmr_fatal_alloc("calloc", ZonesSection.EditZoneInt.items);
+    zonessec_ctx.edit_iface.items = (ITEM **)calloc(
+            zonessec_ctx.edit_iface.n_items + 1, sizeof(ITEM *));
+    vrmr_fatal_alloc("calloc", zonessec_ctx.edit_iface.items);
 
     max_height = getmaxy(stdscr);
 
-    height = (int)(ZonesSection.EditZoneInt.n_items +
+    height = (int)(zonessec_ctx.edit_iface.n_items +
                    7); // 7 because: 3 above the list, 4 below
     if (height >= max_height - starty - 3) {
         height = max_height - 6;
@@ -2964,76 +2966,76 @@ static void edit_zone_network_interfaces_init(struct vrmr_zone *zone_ptr)
         iface_ptr = d_node->data;
 
         /* load all interfaces into memory */
-        ZonesSection.EditZoneInt.items[i] = new_item(iface_ptr->name, NULL);
-        vrmr_fatal_if_null(ZonesSection.EditZoneInt.items[i]);
+        zonessec_ctx.edit_iface.items[i] = new_item(iface_ptr->name, NULL);
+        vrmr_fatal_if_null(zonessec_ctx.edit_iface.items[i]);
     }
-    ZonesSection.EditZoneInt.items[ZonesSection.EditZoneInt.n_items] =
+    zonessec_ctx.edit_iface.items[zonessec_ctx.edit_iface.n_items] =
             (ITEM *)NULL;
 
-    if (ZonesSection.EditZoneInt.n_items > 0) {
-        ZonesSection.EditZoneInt.top = ZonesSection.EditZoneInt.items[0];
-        ZonesSection.EditZoneInt.bot =
-                ZonesSection.EditZoneInt
-                        .items[ZonesSection.EditZoneInt.n_items - 1];
+    if (zonessec_ctx.edit_iface.n_items > 0) {
+        zonessec_ctx.edit_iface.top = zonessec_ctx.edit_iface.items[0];
+        zonessec_ctx.edit_iface.bot =
+                zonessec_ctx.edit_iface
+                        .items[zonessec_ctx.edit_iface.n_items - 1];
     } else {
-        ZonesSection.EditZoneInt.top = NULL;
-        ZonesSection.EditZoneInt.bot = NULL;
+        zonessec_ctx.edit_iface.top = NULL;
+        zonessec_ctx.edit_iface.bot = NULL;
     }
 
     /* create the window */
-    ZonesSection.EditZoneInt.win = newwin(height, width, starty, startx);
-    vrmr_fatal_if_null(ZonesSection.EditZoneInt.win);
-    ZonesSection.EditZoneInt.panel[0] = new_panel(ZonesSection.EditZoneInt.win);
-    vrmr_fatal_if_null(ZonesSection.EditZoneInt.panel[0]);
-    wbkgd(ZonesSection.EditZoneInt.win, vccnf.color_win);
-    keypad(ZonesSection.EditZoneInt.win, TRUE);
-    wrefresh(ZonesSection.EditZoneInt.win);
+    zonessec_ctx.edit_iface.win = newwin(height, width, starty, startx);
+    vrmr_fatal_if_null(zonessec_ctx.edit_iface.win);
+    zonessec_ctx.edit_iface.panel[0] = new_panel(zonessec_ctx.edit_iface.win);
+    vrmr_fatal_if_null(zonessec_ctx.edit_iface.panel[0]);
+    wbkgd(zonessec_ctx.edit_iface.win, vccnf.color_win);
+    keypad(zonessec_ctx.edit_iface.win, TRUE);
+    wrefresh(zonessec_ctx.edit_iface.win);
 
-    ZonesSection.EditZoneInt.menu =
-            new_menu((ITEM **)ZonesSection.EditZoneInt.items);
-    vrmr_fatal_if_null(ZonesSection.EditZoneInt.menu);
-    set_menu_win(ZonesSection.EditZoneInt.menu, ZonesSection.EditZoneInt.win);
-    set_menu_sub(ZonesSection.EditZoneInt.menu,
-            derwin(ZonesSection.EditZoneInt.win, height - 6, width - 2, 3, 1));
-    set_menu_format(ZonesSection.EditZoneInt.menu, height - 7, 1);
+    zonessec_ctx.edit_iface.menu =
+            new_menu((ITEM **)zonessec_ctx.edit_iface.items);
+    vrmr_fatal_if_null(zonessec_ctx.edit_iface.menu);
+    set_menu_win(zonessec_ctx.edit_iface.menu, zonessec_ctx.edit_iface.win);
+    set_menu_sub(zonessec_ctx.edit_iface.menu,
+            derwin(zonessec_ctx.edit_iface.win, height - 6, width - 2, 3, 1));
+    set_menu_format(zonessec_ctx.edit_iface.menu, height - 7, 1);
 
-    box(ZonesSection.EditZoneInt.win, 0, 0);
-    print_in_middle(ZonesSection.EditZoneInt.win, 1, 0, width,
+    box(zonessec_ctx.edit_iface.win, 0, 0);
+    print_in_middle(zonessec_ctx.edit_iface.win, 1, 0, width,
             gettext("Interfaces"), vccnf.color_win);
-    mvwaddch(ZonesSection.EditZoneInt.win, 2, 0, ACS_LTEE);
-    mvwhline(ZonesSection.EditZoneInt.win, 2, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.EditZoneInt.win, 2, width - 1, ACS_RTEE);
-    set_menu_back(ZonesSection.EditZoneInt.menu, vccnf.color_win);
-    set_menu_fore(ZonesSection.EditZoneInt.menu, vccnf.color_win_rev);
-    post_menu(ZonesSection.EditZoneInt.menu);
+    mvwaddch(zonessec_ctx.edit_iface.win, 2, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.edit_iface.win, 2, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.edit_iface.win, 2, width - 1, ACS_RTEE);
+    set_menu_back(zonessec_ctx.edit_iface.menu, vccnf.color_win);
+    set_menu_fore(zonessec_ctx.edit_iface.menu, vccnf.color_win_rev);
+    post_menu(zonessec_ctx.edit_iface.menu);
 
-    mvwaddch(ZonesSection.EditZoneInt.win, height - 4, 0, ACS_LTEE);
-    mvwhline(ZonesSection.EditZoneInt.win, height - 4, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.EditZoneInt.win, height - 4, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.edit_iface.win, height - 4, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.edit_iface.win, height - 4, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.edit_iface.win, height - 4, width - 1, ACS_RTEE);
 
-    mvwprintw(ZonesSection.EditZoneInt.win, height - 3, 2, "<INS> %s", STR_NEW);
-    mvwprintw(ZonesSection.EditZoneInt.win, height - 2, 2, "<DEL> %s",
-            STR_REMOVE);
+    mvwprintw(zonessec_ctx.edit_iface.win, height - 3, 2, "<INS> %s", STR_NEW);
+    mvwprintw(
+            zonessec_ctx.edit_iface.win, height - 2, 2, "<DEL> %s", STR_REMOVE);
 
     /* create the top and bottom fields */
-    ZonesSection.EditZoneInt.win_top = newwin(1, 6, starty + 2, width - 6);
-    vrmr_fatal_if_null(ZonesSection.EditZoneInt.win_top);
-    wbkgd(ZonesSection.EditZoneInt.win_top, vccnf.color_win);
-    ZonesSection.EditZoneInt.panel_top[0] =
-            new_panel(ZonesSection.EditZoneInt.win_top);
+    zonessec_ctx.edit_iface.win_top = newwin(1, 6, starty + 2, width - 6);
+    vrmr_fatal_if_null(zonessec_ctx.edit_iface.win_top);
+    wbkgd(zonessec_ctx.edit_iface.win_top, vccnf.color_win);
+    zonessec_ctx.edit_iface.panel_top[0] =
+            new_panel(zonessec_ctx.edit_iface.win_top);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.EditZoneInt.win_top, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.EditZoneInt.panel_top[0]);
+    wprintw(zonessec_ctx.edit_iface.win_top, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.edit_iface.panel_top[0]);
 
-    ZonesSection.EditZoneInt.win_bot =
+    zonessec_ctx.edit_iface.win_bot =
             newwin(1, 6, starty + height - 4, width - 6);
-    vrmr_fatal_if_null(ZonesSection.EditZoneInt.win_bot);
-    wbkgd(ZonesSection.EditZoneInt.win_bot, vccnf.color_win);
-    ZonesSection.EditZoneInt.panel_bot[0] =
-            new_panel(ZonesSection.EditZoneInt.win_bot);
+    vrmr_fatal_if_null(zonessec_ctx.edit_iface.win_bot);
+    wbkgd(zonessec_ctx.edit_iface.win_bot, vccnf.color_win);
+    zonessec_ctx.edit_iface.panel_bot[0] =
+            new_panel(zonessec_ctx.edit_iface.win_bot);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.EditZoneInt.win_bot, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.EditZoneInt.panel_bot[0]);
+    wprintw(zonessec_ctx.edit_iface.win_bot, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.edit_iface.panel_bot[0]);
 
     update_panels();
     doupdate();
@@ -3044,16 +3046,16 @@ static void edit_zone_network_interfaces_destroy(void)
     size_t i = 0;
 
     /* un post form and free the memory */
-    unpost_menu(ZonesSection.EditZoneInt.menu);
-    free_menu(ZonesSection.EditZoneInt.menu);
-    for (i = 0; i < ZonesSection.EditZoneInt.n_items; i++) {
-        free_item(ZonesSection.EditZoneInt.items[i]);
+    unpost_menu(zonessec_ctx.edit_iface.menu);
+    free_menu(zonessec_ctx.edit_iface.menu);
+    for (i = 0; i < zonessec_ctx.edit_iface.n_items; i++) {
+        free_item(zonessec_ctx.edit_iface.items[i]);
     }
-    free(ZonesSection.EditZoneInt.items);
-    del_panel(ZonesSection.EditZoneInt.panel[0]);
-    del_panel(ZonesSection.EditZoneInt.panel_top[0]);
-    del_panel(ZonesSection.EditZoneInt.panel_bot[0]);
-    destroy_win(ZonesSection.EditZoneInt.win);
+    free(zonessec_ctx.edit_iface.items);
+    del_panel(zonessec_ctx.edit_iface.panel[0]);
+    del_panel(zonessec_ctx.edit_iface.panel_top[0]);
+    del_panel(zonessec_ctx.edit_iface.panel_bot[0]);
+    destroy_win(zonessec_ctx.edit_iface.win);
 }
 
 static void edit_zone_network_interfaces(struct vrmr_ctx *vctx,
@@ -3077,25 +3079,25 @@ static void edit_zone_network_interfaces(struct vrmr_ctx *vctx,
         }
 
         while (quit == 0 && reload == 0) {
-            if (ZonesSection.EditZoneInt.top != NULL &&
-                    !item_visible(ZonesSection.EditZoneInt.top))
-                show_panel(ZonesSection.EditZoneInt.panel_top[0]);
+            if (zonessec_ctx.edit_iface.top != NULL &&
+                    !item_visible(zonessec_ctx.edit_iface.top))
+                show_panel(zonessec_ctx.edit_iface.panel_top[0]);
             else
-                hide_panel(ZonesSection.EditZoneInt.panel_top[0]);
+                hide_panel(zonessec_ctx.edit_iface.panel_top[0]);
 
-            if (ZonesSection.EditZoneInt.bot != NULL &&
-                    !item_visible(ZonesSection.EditZoneInt.bot))
-                show_panel(ZonesSection.EditZoneInt.panel_bot[0]);
+            if (zonessec_ctx.edit_iface.bot != NULL &&
+                    !item_visible(zonessec_ctx.edit_iface.bot))
+                show_panel(zonessec_ctx.edit_iface.panel_bot[0]);
             else
-                hide_panel(ZonesSection.EditZoneInt.panel_bot[0]);
+                hide_panel(zonessec_ctx.edit_iface.panel_bot[0]);
 
             update_panels();
             doupdate();
 
             /* restore the cursor */
-            pos_menu_cursor(ZonesSection.EditZoneInt.menu);
+            pos_menu_cursor(zonessec_ctx.edit_iface.menu);
 
-            ch = wgetch(ZonesSection.EditZoneInt.win);
+            ch = wgetch(zonessec_ctx.edit_iface.win);
             switch (ch) {
                 case 27:
                 case KEY_LEFT:
@@ -3118,7 +3120,7 @@ static void edit_zone_network_interfaces(struct vrmr_ctx *vctx,
                 case 'd':
                 case 'D':
 
-                    cur = current_item(ZonesSection.EditZoneInt.menu);
+                    cur = current_item(zonessec_ctx.edit_iface.menu);
                     if (cur) {
                         (void)strlcpy(save_iface, (char *)item_name(cur),
                                 sizeof(save_iface));
@@ -3136,33 +3138,33 @@ static void edit_zone_network_interfaces(struct vrmr_ctx *vctx,
                     break;
 
                 case KEY_DOWN:
-                    menu_driver(ZonesSection.EditZoneInt.menu, REQ_DOWN_ITEM);
+                    menu_driver(zonessec_ctx.edit_iface.menu, REQ_DOWN_ITEM);
                     break;
                 case KEY_UP:
-                    menu_driver(ZonesSection.EditZoneInt.menu, REQ_UP_ITEM);
+                    menu_driver(zonessec_ctx.edit_iface.menu, REQ_UP_ITEM);
                     break;
                 case KEY_NPAGE:
-                    if (menu_driver(ZonesSection.EditZoneInt.menu,
+                    if (menu_driver(zonessec_ctx.edit_iface.menu,
                                 REQ_SCR_DPAGE) != E_OK) {
-                        while (menu_driver(ZonesSection.EditZoneInt.menu,
+                        while (menu_driver(zonessec_ctx.edit_iface.menu,
                                        REQ_DOWN_ITEM) == E_OK)
                             ;
                     }
                     break;
                 case KEY_PPAGE:
-                    if (menu_driver(ZonesSection.EditZoneInt.menu,
+                    if (menu_driver(zonessec_ctx.edit_iface.menu,
                                 REQ_SCR_UPAGE) != E_OK) {
-                        while (menu_driver(ZonesSection.EditZoneInt.menu,
+                        while (menu_driver(zonessec_ctx.edit_iface.menu,
                                        REQ_UP_ITEM) == E_OK)
                             ;
                     }
                     break;
                 case KEY_HOME:
-                    menu_driver(ZonesSection.EditZoneInt.menu,
+                    menu_driver(zonessec_ctx.edit_iface.menu,
                             REQ_FIRST_ITEM); // home
                     break;
                 case KEY_END:
-                    menu_driver(ZonesSection.EditZoneInt.menu,
+                    menu_driver(zonessec_ctx.edit_iface.menu,
                             REQ_LAST_ITEM); // end
                     break;
             }
@@ -3427,52 +3429,52 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(zone_ptr);
     vrmr_fatal_if_null(zones);
 
-    ZonesSection.EditZone.n_fields = 52;
-    ZonesSection.EditZone.fields = (FIELD **)calloc(
-            ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *));
-    vrmr_fatal_if_null(ZonesSection.EditZone.fields);
+    zonessec_ctx.edit_zone.n_fields = 52;
+    zonessec_ctx.edit_zone.fields = (FIELD **)calloc(
+            zonessec_ctx.edit_zone.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.fields);
 
     /* active toggle */
-    NetworkSec.activelabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.activelabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                          new_field(1, 16, 2, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(NetworkSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.activefld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.activefld = (zonessec_ctx.edit_zone.fields[field_num] =
                                     new_field(1, 3, 3, 1, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
     /* network */
-    NetworkSec.networklabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.networklabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                           new_field(1, 8, 5, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.networklabelfld, 0, gettext("Network"));
     field_opts_off(NetworkSec.networklabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.networkfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.networkfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                      new_field(1, 16, 6, 1, 0, 0));
     set_field_type(NetworkSec.networkfld, TYPE_IPV4);
     field_num++;
     set_field_buffer_wrap(NetworkSec.networkfld, 0, zone_ptr->ipv4.network);
 
     /* network */
-    NetworkSec.netmasklabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.netmasklabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                           new_field(1, 8, 7, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.netmasklabelfld, 0, gettext("Netmask"));
     field_opts_off(NetworkSec.netmasklabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.netmaskfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.netmaskfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                      new_field(1, 16, 8, 1, 0, 0));
     set_field_type(NetworkSec.netmaskfld, TYPE_IPV4);
     field_num++;
     set_field_buffer_wrap(NetworkSec.netmaskfld, 0, zone_ptr->ipv4.netmask);
 
     /* network */
-    NetworkSec.network6labelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.network6labelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                            new_field(1, 12, 9, 0, 0, 0));
     field_num++;
 #ifdef IPV6_ENABLED
@@ -3482,7 +3484,7 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
     field_opts_off(NetworkSec.network6labelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.network6fld =
-            (ZonesSection.EditZone.fields[field_num++] =
+            (zonessec_ctx.edit_zone.fields[field_num++] =
                             new_field(1, VRMR_MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
     // set_field_type(NetworkSec.networkfld, TYPE_IPV4);
 #ifdef IPV6_ENABLED
@@ -3490,14 +3492,14 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 #endif
 
     /* cidr */
-    NetworkSec.cidr6labelfld = (ZonesSection.EditZone.fields[field_num++] =
+    NetworkSec.cidr6labelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                         new_field(1, 9, 11, 0, 0, 0));
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(NetworkSec.cidr6labelfld, 0, gettext("IPv6 CIDR"));
 #endif
     field_opts_off(NetworkSec.cidr6labelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.cidr6fld = (ZonesSection.EditZone.fields[field_num++] =
+    NetworkSec.cidr6fld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                    new_field(1, 3, 12, 1, 0, 0));
 #ifdef IPV6_ENABLED
     char cidr[3] = "";
@@ -3506,19 +3508,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 #endif
 
     /* anti-spoof loopback */
-    NetworkSec.loopbacklabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.loopbacklabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                            new_field(1, 8, 4, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.loopbacklabelfld, 0, gettext("Loopback"));
     field_opts_off(NetworkSec.loopbacklabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.loopbackbracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.loopbackbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                               new_field(1, 3, 4, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.loopbackbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.loopbackbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.loopbackfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.loopbackfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                       new_field(1, 1, 4, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.loopbackfld, 0,
@@ -3528,19 +3530,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* anti-spoof class-a */
-    NetworkSec.classalabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classalabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                          new_field(1, 8, 5, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classalabelfld, 0, gettext("Class A"));
     field_opts_off(NetworkSec.classalabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.classabracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classabracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                             new_field(1, 3, 5, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classabracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classabracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.classafld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classafld = (zonessec_ctx.edit_zone.fields[field_num] =
                                     new_field(1, 1, 5, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classafld, 0,
@@ -3550,19 +3552,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* anti-spoof class-b */
-    NetworkSec.classblabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classblabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                          new_field(1, 8, 6, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classblabelfld, 0, gettext("Class B"));
     field_opts_off(NetworkSec.classblabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.classbbracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classbbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                             new_field(1, 3, 6, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classbbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classbbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.classbfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classbfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                     new_field(1, 1, 6, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classbfld, 0,
@@ -3572,19 +3574,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* anti-spoof class-c */
-    NetworkSec.classclabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classclabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                          new_field(1, 8, 7, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classclabelfld, 0, gettext("Class C"));
     field_opts_off(NetworkSec.classclabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.classcbracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classcbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                             new_field(1, 3, 7, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classcbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classcbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.classcfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classcfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                     new_field(1, 1, 7, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classcfld, 0,
@@ -3594,19 +3596,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* anti-spoof class-d */
-    NetworkSec.classdlabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classdlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                          new_field(1, 8, 8, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classdlabelfld, 0, gettext("Class D"));
     field_opts_off(NetworkSec.classdlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.classdbracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classdbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                             new_field(1, 3, 8, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classdbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classdbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.classdfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classdfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                     new_field(1, 1, 8, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classdfld, 0,
@@ -3616,19 +3618,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* anti-spoof class-e */
-    NetworkSec.classelabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classelabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                          new_field(1, 8, 9, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classelabelfld, 0, gettext("Class E"));
     field_opts_off(NetworkSec.classelabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.classebracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classebracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                             new_field(1, 3, 9, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classebracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classebracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.classefld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.classefld = (zonessec_ctx.edit_zone.fields[field_num] =
                                     new_field(1, 1, 9, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classefld, 0,
@@ -3638,19 +3640,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* anti-spoof testnet */
-    NetworkSec.testnetlabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.testnetlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                           new_field(1, 14, 4, 37, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.testnetlabelfld, 0, gettext("Test-net"));
     field_opts_off(NetworkSec.testnetlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.testnetbracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.testnetbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                              new_field(1, 3, 4, 52, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.testnetbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.testnetbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.testnetfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.testnetfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                      new_field(1, 1, 4, 53, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.testnetfld, 0,
@@ -3660,20 +3662,21 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* anti-spoof link local net */
-    NetworkSec.lnklocnetlabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.lnklocnetlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                             new_field(1, 14, 5, 37, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.lnklocnetlabelfld, 0, gettext("Link local net"));
     field_opts_off(NetworkSec.lnklocnetlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.lnklocnetbracketsfld = (ZonesSection.EditZone.fields[field_num] =
-                                               new_field(1, 3, 5, 52, 0, 0));
+    NetworkSec.lnklocnetbracketsfld =
+            (zonessec_ctx.edit_zone.fields[field_num] =
+                            new_field(1, 3, 5, 52, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.lnklocnetbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.lnklocnetbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.lnklocnetfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.lnklocnetfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                        new_field(1, 1, 5, 53, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.lnklocnetfld, 0,
@@ -3683,20 +3686,20 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* anti-spoof link local net */
-    NetworkSec.iana08labelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.iana08labelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                          new_field(1, 14, 6, 37, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.iana08labelfld, 0, gettext("0.0.0.0/8 res."));
     field_opts_off(NetworkSec.iana08labelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.iana08bracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.iana08bracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                             new_field(1, 3, 6, 52, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.iana08bracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.iana08bracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.iana08fld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.iana08fld = (zonessec_ctx.edit_zone.fields[field_num] =
                                     new_field(1, 1, 6, 53, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.iana08fld, 0,
@@ -3706,20 +3709,20 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* anti-spoof link local net */
-    NetworkSec.brdsrclabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.brdsrclabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                          new_field(1, 14, 7, 37, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.brdsrclabelfld, 0, gettext("Broadcast src."));
     field_opts_off(NetworkSec.brdsrclabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.brdsrcbracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.brdsrcbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                             new_field(1, 3, 7, 52, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.brdsrcbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.brdsrcbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.brdsrcfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.brdsrcfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                     new_field(1, 1, 7, 53, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.brdsrcfld, 0,
@@ -3729,20 +3732,20 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* anti-spoof link local net */
-    NetworkSec.brddstlabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.brddstlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                          new_field(1, 14, 8, 37, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.brddstlabelfld, 0, gettext("Broadcast dst."));
     field_opts_off(NetworkSec.brddstlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.brddstbracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.brddstbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                             new_field(1, 3, 8, 52, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.brddstbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.brddstbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.brddstfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.brddstfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                     new_field(1, 1, 8, 53, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.brddstfld, 0,
@@ -3752,20 +3755,20 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* DHCP Server */
-    NetworkSec.dhcpsrvlabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.dhcpsrvlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                           new_field(1, 14, 4, 57, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.dhcpsrvlabelfld, 0, gettext("DHCP Server"));
     field_opts_off(NetworkSec.dhcpsrvlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.dhcpsrvbracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.dhcpsrvbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                              new_field(1, 3, 4, 71, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.dhcpsrvbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.dhcpsrvbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.dhcpsrvfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.dhcpsrvfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                      new_field(1, 1, 4, 72, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.dhcpsrvfld, 0,
@@ -3775,20 +3778,20 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
                     : " ");
 
     /* DHCP Client */
-    NetworkSec.dhcpclilabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.dhcpclilabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                           new_field(1, 14, 5, 57, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.dhcpclilabelfld, 0, gettext("DHCP Client"));
     field_opts_off(NetworkSec.dhcpclilabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.dhcpclibracketsfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.dhcpclibracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                              new_field(1, 3, 5, 71, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.dhcpclibracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.dhcpclibracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.dhcpclifld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.dhcpclifld = (zonessec_ctx.edit_zone.fields[field_num] =
                                      new_field(1, 1, 5, 72, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.dhcpclifld, 0,
@@ -3802,49 +3805,49 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
     comment_x = 48;
 
     /* comment */
-    NetworkSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.commentlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                           new_field(1, 16, 13, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(NetworkSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.commentfld =
-            (ZonesSection.EditZone.fields[field_num] =
+            (zonessec_ctx.edit_zone.fields[field_num] =
                             new_field(comment_y, comment_x, 14, 1, 0, 0));
     field_num++;
 
-    NetworkSec.warningfld = (ZonesSection.EditZone.fields[field_num] =
+    NetworkSec.warningfld = (zonessec_ctx.edit_zone.fields[field_num] =
                                      new_field(1, width - 4, 1, 0, 0, 0));
 
     field_opts_off(NetworkSec.warningfld, O_VISIBLE | O_ACTIVE);
     field_num++;
 
     /* terminate */
-    ZonesSection.EditZone.fields[field_num] = NULL;
+    zonessec_ctx.edit_zone.fields[field_num] = NULL;
 
-    vrmr_fatal_if(ZonesSection.EditZone.n_fields != field_num);
+    vrmr_fatal_if(zonessec_ctx.edit_zone.n_fields != field_num);
 
     /* read the comment from backend */
     if (vctx->zf->ask(vctx->zone_backend, zone_ptr->name, "COMMENT",
-                ZonesSection.comment, sizeof(ZonesSection.comment),
+                zonessec_ctx.comment, sizeof(zonessec_ctx.comment),
                 VRMR_TYPE_NETWORK, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
-    set_field_buffer_wrap(NetworkSec.commentfld, 0, ZonesSection.comment);
+    set_field_buffer_wrap(NetworkSec.commentfld, 0, zonessec_ctx.comment);
 
     /* create window and panel */
-    ZonesSection.EditZone.win = create_newwin(height, width, starty, startx,
+    zonessec_ctx.edit_zone.win = create_newwin(height, width, starty, startx,
             gettext("Edit Zone: Network"), vccnf.color_win);
-    vrmr_fatal_if_null(ZonesSection.EditZone.win);
-    ZonesSection.EditZone.panel[0] = new_panel(ZonesSection.EditZone.win);
-    vrmr_fatal_if_null(ZonesSection.EditZone.panel[0]);
-    keypad(ZonesSection.EditZone.win, TRUE);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.win);
+    zonessec_ctx.edit_zone.panel[0] = new_panel(zonessec_ctx.edit_zone.win);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.panel[0]);
+    keypad(zonessec_ctx.edit_zone.win, TRUE);
 
     /* set field options */
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
-        set_field_back(ZonesSection.EditZone.fields[i], vccnf.color_win);
-        field_opts_off(ZonesSection.EditZone.fields[i], O_AUTOSKIP);
-        set_field_status(ZonesSection.EditZone.fields[i], FALSE);
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
+        set_field_back(zonessec_ctx.edit_zone.fields[i], vccnf.color_win);
+        field_opts_off(zonessec_ctx.edit_zone.fields[i], O_AUTOSKIP);
+        set_field_status(zonessec_ctx.edit_zone.fields[i], FALSE);
     }
 
     set_field_back(NetworkSec.activefld, vccnf.color_win_rev);
@@ -3876,33 +3879,33 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 #endif
 
     /* Create the form and post it */
-    ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields);
-    vrmr_fatal_if_null(ZonesSection.EditZone.form);
-    scale_form(ZonesSection.EditZone.form, &rows, &cols);
-    set_form_win(ZonesSection.EditZone.form, ZonesSection.EditZone.win);
-    set_form_sub(ZonesSection.EditZone.form,
-            derwin(ZonesSection.EditZone.win, rows, cols, 1, 2));
-    post_form(ZonesSection.EditZone.form);
+    zonessec_ctx.edit_zone.form = new_form(zonessec_ctx.edit_zone.fields);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.form);
+    scale_form(zonessec_ctx.edit_zone.form, &rows, &cols);
+    set_form_win(zonessec_ctx.edit_zone.form, zonessec_ctx.edit_zone.win);
+    set_form_sub(zonessec_ctx.edit_zone.form,
+            derwin(zonessec_ctx.edit_zone.win, rows, cols, 1, 2));
+    post_form(zonessec_ctx.edit_zone.form);
 
     /* the labels */
-    mvwprintw(ZonesSection.EditZone.win, 1, 2, "%s: %s", gettext("Name"),
+    mvwprintw(zonessec_ctx.edit_zone.win, 1, 2, "%s: %s", gettext("Name"),
             zone_ptr->name);
-    mvwprintw(ZonesSection.EditZone.win, 3, 30, gettext("Anti-spoofing"));
+    mvwprintw(zonessec_ctx.edit_zone.win, 3, 30, gettext("Anti-spoofing"));
 
-    //    mvwprintw(ZonesSection.EditZone.win, 12, 54, "Press <F6> to assign");
-    //    mvwprintw(ZonesSection.EditZone.win, 13, 54, "(an) interface(s) to");
-    //    mvwprintw(ZonesSection.EditZone.win, 14, 54, "this network.");
+    //    mvwprintw(zonessec_ctx.edit_zone.win, 12, 54, "Press <F6> to assign");
+    //    mvwprintw(zonessec_ctx.edit_zone.win, 13, 54, "(an) interface(s) to");
+    //    mvwprintw(zonessec_ctx.edit_zone.win, 14, 54, "this network.");
 
-    mvwprintw(ZonesSection.EditZone.win, 12, 62, "%s", gettext("Hosts"));
-    mvwprintw(ZonesSection.EditZone.win, 12, 70, "%4d",
+    mvwprintw(zonessec_ctx.edit_zone.win, 12, 62, "%s", gettext("Hosts"));
+    mvwprintw(zonessec_ctx.edit_zone.win, 12, 70, "%4d",
             vrmr_count_zones(zones, VRMR_TYPE_HOST, zone_ptr->network_name,
                     zone_ptr->zone_name));
-    mvwprintw(ZonesSection.EditZone.win, 13, 62, "%s", gettext("Groups"));
-    mvwprintw(ZonesSection.EditZone.win, 13, 70, "%4d",
+    mvwprintw(zonessec_ctx.edit_zone.win, 13, 62, "%s", gettext("Groups"));
+    mvwprintw(zonessec_ctx.edit_zone.win, 13, 70, "%4d",
             vrmr_count_zones(zones, VRMR_TYPE_GROUP, zone_ptr->network_name,
                     zone_ptr->zone_name));
 
-    wrefresh(ZonesSection.EditZone.win);
+    wrefresh(zonessec_ctx.edit_zone.win);
 }
 
 /*  edit_zone_network_save
@@ -3924,19 +3927,19 @@ static int edit_zone_network_save(
     size_t i = 0;
 
     /* check for changed fields */
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
-        if (field_status(ZonesSection.EditZone.fields[i]) == FALSE)
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
+        if (field_status(zonessec_ctx.edit_zone.fields[i]) == FALSE)
             continue;
 
         retval = 1;
 
-        if (ZonesSection.EditZone.fields[i] == NetworkSec.activefld) {
+        if (zonessec_ctx.edit_zone.fields[i] == NetworkSec.activefld) {
             /* active */
             zone_ptr->status = VRMR_ST_CHANGED;
 
             active = zone_ptr->active;
 
-            if (strncasecmp(field_buffer(ZonesSection.EditZone.fields[i], 0),
+            if (strncasecmp(field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                         STR_YES, StrLen(STR_YES)) == 0) {
                 zone_ptr->active = 1;
             } else {
@@ -3957,14 +3960,14 @@ static int edit_zone_network_save(
                     zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_ACTIVE,
                     STR_IS_NOW_SET_TO, zone_ptr->active ? STR_YES : STR_NO,
                     STR_WAS, active ? STR_YES : STR_NO);
-        } else if (ZonesSection.EditZone.fields[i] == NetworkSec.networkfld) {
+        } else if (zonessec_ctx.edit_zone.fields[i] == NetworkSec.networkfld) {
             /* network */
             zone_ptr->status = VRMR_ST_CHANGED;
 
             (void)strlcpy(network, zone_ptr->ipv4.network, sizeof(network));
 
             copy_field2buf(zone_ptr->ipv4.network,
-                    field_buffer(ZonesSection.EditZone.fields[i], 0),
+                    field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                     sizeof(zone_ptr->ipv4.network));
 
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "NETWORK",
@@ -3980,14 +3983,14 @@ static int edit_zone_network_save(
                     zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETADDR,
                     STR_IS_NOW_SET_TO, zone_ptr->ipv4.network, STR_WAS,
                     network);
-        } else if (ZonesSection.EditZone.fields[i] == NetworkSec.netmaskfld) {
+        } else if (zonessec_ctx.edit_zone.fields[i] == NetworkSec.netmaskfld) {
             /* netmask */
             zone_ptr->status = VRMR_ST_CHANGED;
 
             (void)strlcpy(network, zone_ptr->ipv4.network, sizeof(network));
 
             copy_field2buf(zone_ptr->ipv4.netmask,
-                    field_buffer(ZonesSection.EditZone.fields[i], 0),
+                    field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                     sizeof(zone_ptr->ipv4.netmask));
 
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "NETMASK",
@@ -4003,7 +4006,7 @@ static int edit_zone_network_save(
                     zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETMASK,
                     STR_IS_NOW_SET_TO, zone_ptr->ipv4.netmask, STR_WAS,
                     netmask);
-        } else if (ZonesSection.EditZone.fields[i] == NetworkSec.network6fld) {
+        } else if (zonessec_ctx.edit_zone.fields[i] == NetworkSec.network6fld) {
 #ifdef IPV6_ENABLED
             char network6[VRMR_MAX_IPV6_ADDR_LEN] = "";
 
@@ -4013,7 +4016,7 @@ static int edit_zone_network_save(
             (void)strlcpy(network6, zone_ptr->ipv6.net6, sizeof(network6));
 
             copy_field2buf(zone_ptr->ipv6.net6,
-                    field_buffer(ZonesSection.EditZone.fields[i], 0),
+                    field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                     sizeof(zone_ptr->ipv6.net6));
 
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name,
@@ -4030,7 +4033,7 @@ static int edit_zone_network_save(
                     zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETADDR,
                     STR_IS_NOW_SET_TO, zone_ptr->ipv6.net6, STR_WAS, network6);
 #endif
-        } else if (ZonesSection.EditZone.fields[i] == NetworkSec.cidr6fld) {
+        } else if (zonessec_ctx.edit_zone.fields[i] == NetworkSec.cidr6fld) {
 #ifdef IPV6_ENABLED
             /* netmask */
             zone_ptr->status = VRMR_ST_CHANGED;
@@ -4039,7 +4042,7 @@ static int edit_zone_network_save(
             char cidrstr[3] = "";
 
             copy_field2buf(cidrstr,
-                    field_buffer(ZonesSection.EditZone.fields[i], 0),
+                    field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                     sizeof(cidrstr));
 
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "IPV6CIDR",
@@ -4057,9 +4060,9 @@ static int edit_zone_network_save(
 #endif
         }
         /* save the comment to the backend */
-        else if (ZonesSection.EditZone.fields[i] == NetworkSec.commentfld) {
+        else if (zonessec_ctx.edit_zone.fields[i] == NetworkSec.commentfld) {
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "COMMENT",
-                        field_buffer(ZonesSection.EditZone.fields[i], 0), 1,
+                        field_buffer(zonessec_ctx.edit_zone.fields[i], 0), 1,
                         VRMR_TYPE_NETWORK) < 0) {
                 vrmr_error(-1, VR_ERR,
                         gettext("saving to backend failed (in: %s:%d)."),
@@ -4071,21 +4074,22 @@ static int edit_zone_network_save(
              * changed." */
             vrmr_audit("%s '%s' %s: %s.", STR_NETWORK, zone_ptr->name,
                     STR_HAS_BEEN_CHANGED, STR_COMMENT_CHANGED);
-        } else if (ZonesSection.EditZone.fields[i] == NetworkSec.loopbackfld ||
-                   ZonesSection.EditZone.fields[i] == NetworkSec.classafld ||
-                   ZonesSection.EditZone.fields[i] == NetworkSec.classbfld ||
-                   ZonesSection.EditZone.fields[i] == NetworkSec.classcfld ||
-                   ZonesSection.EditZone.fields[i] == NetworkSec.classdfld ||
-                   ZonesSection.EditZone.fields[i] == NetworkSec.classefld ||
-                   ZonesSection.EditZone.fields[i] == NetworkSec.testnetfld ||
+        } else if (zonessec_ctx.edit_zone.fields[i] == NetworkSec.loopbackfld ||
+                   zonessec_ctx.edit_zone.fields[i] == NetworkSec.classafld ||
+                   zonessec_ctx.edit_zone.fields[i] == NetworkSec.classbfld ||
+                   zonessec_ctx.edit_zone.fields[i] == NetworkSec.classcfld ||
+                   zonessec_ctx.edit_zone.fields[i] == NetworkSec.classdfld ||
+                   zonessec_ctx.edit_zone.fields[i] == NetworkSec.classefld ||
+                   zonessec_ctx.edit_zone.fields[i] == NetworkSec.testnetfld ||
 
-                   ZonesSection.EditZone.fields[i] == NetworkSec.lnklocnetfld ||
-                   ZonesSection.EditZone.fields[i] == NetworkSec.iana08fld ||
-                   ZonesSection.EditZone.fields[i] == NetworkSec.brdsrcfld ||
-                   ZonesSection.EditZone.fields[i] == NetworkSec.brddstfld ||
+                   zonessec_ctx.edit_zone.fields[i] ==
+                           NetworkSec.lnklocnetfld ||
+                   zonessec_ctx.edit_zone.fields[i] == NetworkSec.iana08fld ||
+                   zonessec_ctx.edit_zone.fields[i] == NetworkSec.brdsrcfld ||
+                   zonessec_ctx.edit_zone.fields[i] == NetworkSec.brddstfld ||
 
-                   ZonesSection.EditZone.fields[i] == NetworkSec.dhcpsrvfld ||
-                   ZonesSection.EditZone.fields[i] == NetworkSec.dhcpclifld) {
+                   zonessec_ctx.edit_zone.fields[i] == NetworkSec.dhcpsrvfld ||
+                   zonessec_ctx.edit_zone.fields[i] == NetworkSec.dhcpclifld) {
             if (edit_zone_network_save_protectrules(vctx, zone_ptr) < 0) {
                 return (-1);
             }
@@ -4133,16 +4137,16 @@ static void edit_zone_network_destroy(void)
     size_t i = 0;
 
     /* unpost form and free the memory */
-    unpost_form(ZonesSection.EditZone.form);
-    free_form(ZonesSection.EditZone.form);
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
-        free_field(ZonesSection.EditZone.fields[i]);
+    unpost_form(zonessec_ctx.edit_zone.form);
+    free_form(zonessec_ctx.edit_zone.form);
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
+        free_field(zonessec_ctx.edit_zone.fields[i]);
     }
-    free(ZonesSection.EditZone.fields);
-    del_panel(ZonesSection.EditZone.panel[0]);
-    destroy_win(ZonesSection.EditZone.win);
+    free(zonessec_ctx.edit_zone.fields);
+    del_panel(zonessec_ctx.edit_zone.panel[0]);
+    destroy_win(zonessec_ctx.edit_zone.win);
     /* reset the comment field */
-    strcpy(ZonesSection.comment, "");
+    strcpy(zonessec_ctx.comment, "");
 }
 
 /*  edit_zone_network
@@ -4176,7 +4180,7 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     height = 21;
     width = 78;
     VrWinGetOffset(
-            -1, -1, height, width, 4, ZonesSection.n_xre + 1, &starty, &startx);
+            -1, -1, height, width, 4, zonessec_ctx.n_xre + 1, &starty, &startx);
 
     zone_ptr = vrmr_search_zonedata(zones, name);
     vrmr_fatal_if_null(zone_ptr);
@@ -4198,9 +4202,9 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         set_field_status(NetworkSec.warningfld, FALSE);
     }
 
-    wrefresh(ZonesSection.EditZone.win);
-    cur = current_field(ZonesSection.EditZone.form);
-    pos_form_cursor(ZonesSection.EditZone.form);
+    wrefresh(zonessec_ctx.edit_zone.win);
+    cur = current_field(zonessec_ctx.edit_zone.form);
+    pos_form_cursor(zonessec_ctx.edit_zone.form);
 
     draw_top_menu(top_win, gettext("Network"), key_choices_n, key_choices,
             cmd_choices_n, cmd_choices);
@@ -4212,27 +4216,27 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     while (quit == 0) {
         prev = cur;
         /* get current field */
-        cur = current_field(ZonesSection.EditZone.form);
+        cur = current_field(zonessec_ctx.edit_zone.form);
 
         /* draw the arrow around the active field */
-        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win,
-                ZonesSection.EditZone.form, vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, zonessec_ctx.edit_zone.win,
+                zonessec_ctx.edit_zone.form, vccnf.color_win_mark | A_BOLD);
 
         not_defined = 0;
 
         /* get the input */
-        ch = wgetch(ZonesSection.EditZone.win);
+        ch = wgetch(zonessec_ctx.edit_zone.win);
 
         if (cur == NetworkSec.commentfld) {
-            if (nav_field_comment(ZonesSection.EditZone.form, ch) < 0)
+            if (nav_field_comment(zonessec_ctx.edit_zone.form, ch) < 0)
                 not_defined = 1;
         } else if (cur == NetworkSec.activefld) {
-            if (nav_field_yesno(ZonesSection.EditZone.form, ch) < 0)
+            if (nav_field_yesno(zonessec_ctx.edit_zone.form, ch) < 0)
                 not_defined = 1;
         } else if (cur == NetworkSec.networkfld ||
                    cur == NetworkSec.network6fld ||
                    cur == NetworkSec.netmaskfld || cur == NetworkSec.cidr6fld) {
-            if (nav_field_simpletext(ZonesSection.EditZone.form, ch) < 0)
+            if (nav_field_simpletext(zonessec_ctx.edit_zone.form, ch) < 0)
                 not_defined = 1;
         }
         /* this one needs to be last */
@@ -4244,7 +4248,7 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                  cur == NetworkSec.iana08fld || cur == NetworkSec.brdsrcfld ||
                  cur == NetworkSec.brddstfld || cur == NetworkSec.dhcpsrvfld ||
                  cur == NetworkSec.dhcpclifld) {
-            if (nav_field_toggleX(ZonesSection.EditZone.form, ch) < 0)
+            if (nav_field_toggleX(zonessec_ctx.edit_zone.form, ch) < 0)
                 not_defined = 1;
         } else
             not_defined = 1;
@@ -4266,14 +4270,14 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                 case 10: // enter
                 case 9:  // tab
 
-                    form_driver(ZonesSection.EditZone.form, REQ_NEXT_FIELD);
-                    form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_NEXT_FIELD);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case KEY_UP:
 
-                    form_driver(ZonesSection.EditZone.form, REQ_PREV_FIELD);
-                    form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_PREV_FIELD);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case 27:
@@ -4318,8 +4322,8 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         }
 
         /* draw and set cursor */
-        wrefresh(ZonesSection.EditZone.win);
-        pos_form_cursor(ZonesSection.EditZone.form);
+        wrefresh(zonessec_ctx.edit_zone.win);
+        pos_form_cursor(zonessec_ctx.edit_zone.form);
     }
 
     /* save */
@@ -4358,7 +4362,7 @@ static void zones_section_menu_networks_init(
     maxy = getmaxy(stdscr);
 
     /* count how many networks there are */
-    ZonesSection.network_n = 0;
+    zonessec_ctx.network_n = 0;
 
     /* count the networks */
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
@@ -4367,16 +4371,16 @@ static void zones_section_menu_networks_init(
 
         if (zone_ptr->type == VRMR_TYPE_NETWORK &&
                 strcmp(zone_ptr->zone_name, zonename) == 0)
-            ZonesSection.network_n++;
+            zonessec_ctx.network_n++;
     }
 
-    vrmr_list_setup(&ZonesSection.network_desc_list, free);
+    vrmr_list_setup(&zonessec_ctx.network_desc_list, free);
 
-    i = ZonesSection.network_n - 1;
+    i = zonessec_ctx.network_n - 1;
 
-    ZonesSection.networkitems =
-            (ITEM **)calloc(ZonesSection.network_n + 1, sizeof(ITEM *));
-    vrmr_fatal_alloc("calloc", ZonesSection.networkitems);
+    zonessec_ctx.networkitems =
+            (ITEM **)calloc(zonessec_ctx.network_n + 1, sizeof(ITEM *));
+    vrmr_fatal_alloc("calloc", zonessec_ctx.networkitems);
 
     /* now load the items */
     for (d_node = zones->list.bot; d_node; d_node = d_node->prev) {
@@ -4397,32 +4401,32 @@ static void zones_section_menu_networks_init(
             desc_ptr = strdup(temp);
             vrmr_fatal_alloc("strdup", desc_ptr);
 
-            vrmr_fatal_if(vrmr_list_append(&ZonesSection.network_desc_list,
+            vrmr_fatal_if(vrmr_list_append(&zonessec_ctx.network_desc_list,
                                   desc_ptr) == NULL);
 
-            ZonesSection.networkitems[i] =
+            zonessec_ctx.networkitems[i] =
                     new_item(zone_ptr->network_name, desc_ptr);
-            vrmr_fatal_if_null(ZonesSection.networkitems[i]);
+            vrmr_fatal_if_null(zonessec_ctx.networkitems[i]);
 
             i--;
         }
     }
-    ZonesSection.networkitems[ZonesSection.network_n] = (ITEM *)NULL;
+    zonessec_ctx.networkitems[zonessec_ctx.network_n] = (ITEM *)NULL;
 
-    if (ZonesSection.network_n > 0) {
-        ZonesSection.n_top = ZonesSection.networkitems[0];
-        ZonesSection.n_bot =
-                ZonesSection.networkitems[ZonesSection.network_n - 1];
+    if (zonessec_ctx.network_n > 0) {
+        zonessec_ctx.n_top = zonessec_ctx.networkitems[0];
+        zonessec_ctx.n_bot =
+                zonessec_ctx.networkitems[zonessec_ctx.network_n - 1];
     } else {
-        ZonesSection.n_top = NULL;
-        ZonesSection.n_bot = NULL;
+        zonessec_ctx.n_top = NULL;
+        zonessec_ctx.n_bot = NULL;
     }
 
-    ZonesSection.n_menu = new_menu((ITEM **)ZonesSection.networkitems);
-    vrmr_fatal_if_null(ZonesSection.n_menu);
+    zonessec_ctx.n_menu = new_menu((ITEM **)zonessec_ctx.networkitems);
+    vrmr_fatal_if_null(zonessec_ctx.n_menu);
 
     starty = 4;
-    height = (int)(ZonesSection.network_n + 9);
+    height = (int)(zonessec_ctx.network_n + 9);
     width = VRMR_MAX_NETWORK + 32 + 4;
 
     if (maxy < starty + height + 4) {
@@ -4431,60 +4435,60 @@ static void zones_section_menu_networks_init(
 
     /* place on the same y as zones list */
     VrWinGetOffset(
-            -1, -1, height, width, 4, ZonesSection.z_xre + 1, &starty, &startx);
-    ZonesSection.n_yle = starty + height;
-    ZonesSection.n_xre = startx + width;
+            -1, -1, height, width, 4, zonessec_ctx.z_xre + 1, &starty, &startx);
+    zonessec_ctx.n_yle = starty + height;
+    zonessec_ctx.n_xre = startx + width;
 
-    ZonesSection.n_win = newwin(height, width, starty, startx);
-    vrmr_fatal_if_null(ZonesSection.n_win);
-    ZonesSection.n_panel[0] = new_panel(ZonesSection.n_win);
-    vrmr_fatal_if_null(ZonesSection.n_panel[0]);
-    wbkgd(ZonesSection.n_win, vccnf.color_win);
-    keypad(ZonesSection.n_win, TRUE);
+    zonessec_ctx.n_win = newwin(height, width, starty, startx);
+    vrmr_fatal_if_null(zonessec_ctx.n_win);
+    zonessec_ctx.n_panel[0] = new_panel(zonessec_ctx.n_win);
+    vrmr_fatal_if_null(zonessec_ctx.n_panel[0]);
+    wbkgd(zonessec_ctx.n_win, vccnf.color_win);
+    keypad(zonessec_ctx.n_win, TRUE);
 
-    set_menu_win(ZonesSection.n_menu, ZonesSection.n_win);
-    set_menu_sub(ZonesSection.n_menu,
-            derwin(ZonesSection.n_win, height - 8, width - 2, 3, 1));
-    set_menu_format(ZonesSection.n_menu, height - 9, 1);
+    set_menu_win(zonessec_ctx.n_menu, zonessec_ctx.n_win);
+    set_menu_sub(zonessec_ctx.n_menu,
+            derwin(zonessec_ctx.n_win, height - 8, width - 2, 3, 1));
+    set_menu_format(zonessec_ctx.n_menu, height - 9, 1);
 
-    box(ZonesSection.n_win, 0, 0);
-    print_in_middle(ZonesSection.n_win, 1, 0, width, gettext("Networks"),
+    box(zonessec_ctx.n_win, 0, 0);
+    print_in_middle(zonessec_ctx.n_win, 1, 0, width, gettext("Networks"),
             vccnf.color_win);
-    mvwaddch(ZonesSection.n_win, 2, 0, ACS_LTEE);
-    mvwhline(ZonesSection.n_win, 2, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.n_win, 2, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.n_win, 2, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.n_win, 2, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.n_win, 2, width - 1, ACS_RTEE);
 
-    set_menu_back(ZonesSection.n_menu, vccnf.color_win);
-    set_menu_fore(ZonesSection.n_menu, vccnf.color_win_rev);
-    post_menu(ZonesSection.n_menu);
+    set_menu_back(zonessec_ctx.n_menu, vccnf.color_win);
+    set_menu_fore(zonessec_ctx.n_menu, vccnf.color_win_rev);
+    post_menu(zonessec_ctx.n_menu);
 
-    mvwaddch(ZonesSection.n_win, height - 6, 0, ACS_LTEE);
-    mvwhline(ZonesSection.n_win, height - 6, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.n_win, height - 6, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.n_win, height - 6, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.n_win, height - 6, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.n_win, height - 6, width - 1, ACS_RTEE);
 
-    mvwprintw(ZonesSection.n_win, height - 5, 2, "<RET> %s",
+    mvwprintw(zonessec_ctx.n_win, height - 5, 2, "<RET> %s",
             gettext("to enter the hosts/groups of this network"));
-    mvwprintw(ZonesSection.n_win, height - 4, 2, "<INS> %s", STR_NEW);
-    mvwprintw(ZonesSection.n_win, height - 3, 2, "<DEL> %s", STR_REMOVE);
-    mvwprintw(ZonesSection.n_win, height - 2, 2, "< e > %s", STR_EDIT);
+    mvwprintw(zonessec_ctx.n_win, height - 4, 2, "<INS> %s", STR_NEW);
+    mvwprintw(zonessec_ctx.n_win, height - 3, 2, "<DEL> %s", STR_REMOVE);
+    mvwprintw(zonessec_ctx.n_win, height - 2, 2, "< e > %s", STR_EDIT);
 
     /* create the top and bottom fields */
-    ZonesSection.n_win_top = newwin(1, 6, starty + 2, startx + width - 8);
-    vrmr_fatal_if_null(ZonesSection.n_win_top);
-    wbkgd(ZonesSection.n_win_top, vccnf.color_win);
-    ZonesSection.n_panel_top[0] = new_panel(ZonesSection.n_win_top);
+    zonessec_ctx.n_win_top = newwin(1, 6, starty + 2, startx + width - 8);
+    vrmr_fatal_if_null(zonessec_ctx.n_win_top);
+    wbkgd(zonessec_ctx.n_win_top, vccnf.color_win);
+    zonessec_ctx.n_panel_top[0] = new_panel(zonessec_ctx.n_win_top);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.n_win_top, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.n_panel_top[0]);
+    wprintw(zonessec_ctx.n_win_top, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.n_panel_top[0]);
 
-    ZonesSection.n_win_bot =
+    zonessec_ctx.n_win_bot =
             newwin(1, 6, starty + height - 6, startx + width - 8);
-    vrmr_fatal_if_null(ZonesSection.n_win_bot);
-    wbkgd(ZonesSection.n_win_bot, vccnf.color_win);
-    ZonesSection.n_panel_bot[0] = new_panel(ZonesSection.n_win_bot);
+    vrmr_fatal_if_null(zonessec_ctx.n_win_bot);
+    wbkgd(zonessec_ctx.n_win_bot, vccnf.color_win);
+    zonessec_ctx.n_panel_bot[0] = new_panel(zonessec_ctx.n_win_bot);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.n_win_bot, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.n_panel_bot[0]);
+    wprintw(zonessec_ctx.n_win_bot, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.n_panel_bot[0]);
 
     update_panels();
     doupdate();
@@ -4494,23 +4498,23 @@ static void zones_section_menu_networks_destroy(void)
 {
     size_t i = 0;
 
-    unpost_menu(ZonesSection.n_menu);
-    free_menu(ZonesSection.n_menu);
+    unpost_menu(zonessec_ctx.n_menu);
+    free_menu(zonessec_ctx.n_menu);
 
-    for (i = 0; i < ZonesSection.network_n; ++i)
-        free_item(ZonesSection.networkitems[i]);
+    for (i = 0; i < zonessec_ctx.network_n; ++i)
+        free_item(zonessec_ctx.networkitems[i]);
 
-    free(ZonesSection.networkitems);
+    free(zonessec_ctx.networkitems);
 
-    del_panel(ZonesSection.n_panel[0]);
-    destroy_win(ZonesSection.n_win);
+    del_panel(zonessec_ctx.n_panel[0]);
+    destroy_win(zonessec_ctx.n_win);
 
-    vrmr_list_cleanup(&ZonesSection.network_desc_list);
+    vrmr_list_cleanup(&zonessec_ctx.network_desc_list);
 
-    del_panel(ZonesSection.n_panel_top[0]);
-    destroy_win(ZonesSection.n_win_top);
-    del_panel(ZonesSection.n_panel_bot[0]);
-    destroy_win(ZonesSection.n_win_bot);
+    del_panel(zonessec_ctx.n_panel_top[0]);
+    destroy_win(zonessec_ctx.n_win_top);
+    del_panel(zonessec_ctx.n_panel_bot[0]);
+    destroy_win(zonessec_ctx.n_win_bot);
 }
 
 static void zones_section_menu_networks(struct vrmr_ctx *vctx,
@@ -4555,23 +4559,23 @@ static void zones_section_menu_networks(struct vrmr_ctx *vctx,
         }
 
         while (quit == 0 && reload == 0) {
-            if (ZonesSection.n_top != NULL && !item_visible(ZonesSection.n_top))
-                show_panel(ZonesSection.n_panel_top[0]);
+            if (zonessec_ctx.n_top != NULL && !item_visible(zonessec_ctx.n_top))
+                show_panel(zonessec_ctx.n_panel_top[0]);
             else
-                hide_panel(ZonesSection.n_panel_top[0]);
+                hide_panel(zonessec_ctx.n_panel_top[0]);
 
-            if (ZonesSection.n_bot != NULL && !item_visible(ZonesSection.n_bot))
-                show_panel(ZonesSection.n_panel_bot[0]);
+            if (zonessec_ctx.n_bot != NULL && !item_visible(zonessec_ctx.n_bot))
+                show_panel(zonessec_ctx.n_panel_bot[0]);
             else
-                hide_panel(ZonesSection.n_panel_bot[0]);
+                hide_panel(zonessec_ctx.n_panel_bot[0]);
 
             update_panels();
             doupdate();
 
             /* restore the cursor */
-            pos_menu_cursor(ZonesSection.n_menu);
+            pos_menu_cursor(zonessec_ctx.n_menu);
 
-            ch = wgetch(ZonesSection.n_win);
+            ch = wgetch(zonessec_ctx.n_win);
 
             switch (ch) {
                 case 27:
@@ -4585,7 +4589,7 @@ static void zones_section_menu_networks(struct vrmr_ctx *vctx,
                 case 'r':
                 case 'R':
 
-                    cur = current_item(ZonesSection.n_menu);
+                    cur = current_item(zonessec_ctx.n_menu);
                     if (cur) {
                         size = StrMemLen((char *)item_name(cur)) + 1 +
                                StrMemLen(zonename) + 1;
@@ -4709,7 +4713,7 @@ static void zones_section_menu_networks(struct vrmr_ctx *vctx,
                 case 'd':
                 case 'D':
 
-                    cur = current_item(ZonesSection.n_menu);
+                    cur = current_item(zonessec_ctx.n_menu);
                     if (cur) {
                         if (vrmr_count_zones(zones, VRMR_TYPE_HOST,
                                     (char *)item_name(cur), zonename) <= 0 &&
@@ -4753,32 +4757,32 @@ static void zones_section_menu_networks(struct vrmr_ctx *vctx,
                     break;
 
                 case KEY_DOWN:
-                    menu_driver(ZonesSection.n_menu, REQ_DOWN_ITEM);
+                    menu_driver(zonessec_ctx.n_menu, REQ_DOWN_ITEM);
                     break;
                 case KEY_UP:
-                    menu_driver(ZonesSection.n_menu, REQ_UP_ITEM);
+                    menu_driver(zonessec_ctx.n_menu, REQ_UP_ITEM);
                     break;
                 case KEY_NPAGE:
-                    if (menu_driver(ZonesSection.n_menu, REQ_SCR_DPAGE) !=
+                    if (menu_driver(zonessec_ctx.n_menu, REQ_SCR_DPAGE) !=
                             E_OK) {
-                        while (menu_driver(ZonesSection.n_menu,
+                        while (menu_driver(zonessec_ctx.n_menu,
                                        REQ_DOWN_ITEM) == E_OK)
                             ;
                     }
                     break;
                 case KEY_PPAGE:
-                    if (menu_driver(ZonesSection.n_menu, REQ_SCR_UPAGE) !=
+                    if (menu_driver(zonessec_ctx.n_menu, REQ_SCR_UPAGE) !=
                             E_OK) {
-                        while (menu_driver(ZonesSection.n_menu, REQ_UP_ITEM) ==
+                        while (menu_driver(zonessec_ctx.n_menu, REQ_UP_ITEM) ==
                                 E_OK)
                             ;
                     }
                     break;
                 case KEY_HOME:
-                    menu_driver(ZonesSection.n_menu, REQ_FIRST_ITEM); // home
+                    menu_driver(zonessec_ctx.n_menu, REQ_FIRST_ITEM); // home
                     break;
                 case KEY_END:
-                    menu_driver(ZonesSection.n_menu, REQ_LAST_ITEM); // end
+                    menu_driver(zonessec_ctx.n_menu, REQ_LAST_ITEM); // end
                     break;
 
                 case KEY_RIGHT:
@@ -4786,7 +4790,7 @@ static void zones_section_menu_networks(struct vrmr_ctx *vctx,
                 case 'b':
                 case 'B':
 
-                    cur = current_item(ZonesSection.n_menu);
+                    cur = current_item(zonessec_ctx.n_menu);
                     choice_ptr = selectbox(gettext("Select"),
                             gettext("Hosts, Groups or this Network"), 3,
                             choices, 1, NULL);
@@ -4830,7 +4834,7 @@ static void zones_section_menu_networks(struct vrmr_ctx *vctx,
                 case 'g': /* group quick key */
                 case 'G': /* group quick key */
 
-                    cur = current_item(ZonesSection.n_menu);
+                    cur = current_item(zonessec_ctx.n_menu);
                     if (cur) {
                         zones_section_menu_groups(vctx, zones, rules, blocklist,
                                 zonename, (char *)item_name(cur), reg);
@@ -4840,7 +4844,7 @@ static void zones_section_menu_networks(struct vrmr_ctx *vctx,
                 case 'h': /* host quick key */
                 case 'H': /* host quick key */
 
-                    cur = current_item(ZonesSection.n_menu);
+                    cur = current_item(zonessec_ctx.n_menu);
                     if (cur) {
                         (void)zones_section_menu_hosts(vctx, zones, rules,
                                 blocklist, zonename, (char *)item_name(cur),
@@ -4852,7 +4856,7 @@ static void zones_section_menu_networks(struct vrmr_ctx *vctx,
                 case 'E':
                 case 32: /* spacebar */
 
-                    cur = current_item(ZonesSection.n_menu);
+                    cur = current_item(zonessec_ctx.n_menu);
                     if (cur) {
                         size = StrMemLen((char *)item_name(cur)) + 1 +
                                StrMemLen(zonename) + 1;
@@ -4912,23 +4916,23 @@ static void edit_zone_zone_init(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     vrmr_fatal_if_null(zones);
 
     /* alloc fields */
-    ZonesSection.EditZone.n_fields = 4;
+    zonessec_ctx.edit_zone.n_fields = 4;
 
-    ZonesSection.EditZone.fields = (FIELD **)calloc(
-            ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *));
-    vrmr_fatal_alloc("calloc", ZonesSection.EditZone.fields);
+    zonessec_ctx.edit_zone.fields = (FIELD **)calloc(
+            zonessec_ctx.edit_zone.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_alloc("calloc", zonessec_ctx.edit_zone.fields);
 
-    ZoneSec.activelabelfld = (ZonesSection.EditZone.fields[field_num++] =
+    ZoneSec.activelabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                       new_field(1, 16, 2, 0, 0, 0));
     set_field_buffer_wrap(ZoneSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(ZoneSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    ZoneSec.activefld = (ZonesSection.EditZone.fields[field_num++] =
+    ZoneSec.activefld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                  new_field(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(
             ZoneSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
-    ZoneSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num++] =
+    ZoneSec.commentlabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                        new_field(1, 16, 5, 0, 0, 0));
     set_field_buffer_wrap(ZoneSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(ZoneSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
@@ -4937,62 +4941,62 @@ static void edit_zone_zone_init(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     comment_y = 5;
     comment_x = 48;
     /* create and label the comment field */
-    ZoneSec.commentfld = (ZonesSection.EditZone.fields[field_num++] =
+    ZoneSec.commentfld = (zonessec_ctx.edit_zone.fields[field_num++] =
                                   new_field(comment_y, comment_x, 6, 1, 0, 0));
     /* load the comment from the backend */
     if (vctx->zf->ask(vctx->zone_backend, zone_ptr->name, "COMMENT",
-                ZonesSection.comment, sizeof(ZonesSection.comment),
+                zonessec_ctx.comment, sizeof(zonessec_ctx.comment),
                 VRMR_TYPE_ZONE, 0) < 0)
         vrmr_error(-1, "Error", "error while loading the comment.");
 
-    set_field_buffer_wrap(ZoneSec.commentfld, 0, ZonesSection.comment);
+    set_field_buffer_wrap(ZoneSec.commentfld, 0, zonessec_ctx.comment);
 
-    vrmr_fatal_if(field_num != ZonesSection.EditZone.n_fields);
-    ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
+    vrmr_fatal_if(field_num != zonessec_ctx.edit_zone.n_fields);
+    zonessec_ctx.edit_zone.fields[zonessec_ctx.edit_zone.n_fields] = NULL;
 
     /* create the window and panel */
-    ZonesSection.EditZone.win = create_newwin(height, width, starty, startx,
+    zonessec_ctx.edit_zone.win = create_newwin(height, width, starty, startx,
             gettext("Edit Zone: Zone"), vccnf.color_win);
-    vrmr_fatal_if_null(ZonesSection.EditZone.win);
-    ZonesSection.EditZone.panel[0] = new_panel(ZonesSection.EditZone.win);
-    vrmr_fatal_if_null(ZonesSection.EditZone.panel[0]);
-    keypad(ZonesSection.EditZone.win, TRUE);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.win);
+    zonessec_ctx.edit_zone.panel[0] = new_panel(zonessec_ctx.edit_zone.win);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.panel[0]);
+    keypad(zonessec_ctx.edit_zone.win, TRUE);
 
     /* set the options */
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
-        set_field_back(ZonesSection.EditZone.fields[i], vccnf.color_win_rev);
-        field_opts_off(ZonesSection.EditZone.fields[i], O_AUTOSKIP);
-        set_field_status(ZonesSection.EditZone.fields[i], FALSE);
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
+        set_field_back(zonessec_ctx.edit_zone.fields[i], vccnf.color_win_rev);
+        field_opts_off(zonessec_ctx.edit_zone.fields[i], O_AUTOSKIP);
+        set_field_status(zonessec_ctx.edit_zone.fields[i], FALSE);
     }
     set_field_back(ZoneSec.activelabelfld, vccnf.color_win);
     set_field_back(ZoneSec.commentlabelfld, vccnf.color_win);
 
     /* Create the form and post it */
-    ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields);
-    vrmr_fatal_if_null(ZonesSection.EditZone.form);
-    scale_form(ZonesSection.EditZone.form, &rows, &cols);
-    set_form_win(ZonesSection.EditZone.form, ZonesSection.EditZone.win);
-    set_form_sub(ZonesSection.EditZone.form,
-            derwin(ZonesSection.EditZone.win, rows, cols, 1, 2));
-    post_form(ZonesSection.EditZone.form);
+    zonessec_ctx.edit_zone.form = new_form(zonessec_ctx.edit_zone.fields);
+    vrmr_fatal_if_null(zonessec_ctx.edit_zone.form);
+    scale_form(zonessec_ctx.edit_zone.form, &rows, &cols);
+    set_form_win(zonessec_ctx.edit_zone.form, zonessec_ctx.edit_zone.win);
+    set_form_sub(zonessec_ctx.edit_zone.form,
+            derwin(zonessec_ctx.edit_zone.win, rows, cols, 1, 2));
+    post_form(zonessec_ctx.edit_zone.form);
 
     /* draw labels and other information */
-    mvwprintw(ZonesSection.EditZone.win, 1, 2, "%s: %s", gettext("Name"),
+    mvwprintw(zonessec_ctx.edit_zone.win, 1, 2, "%s: %s", gettext("Name"),
             zone_ptr->name);
 
-    mvwprintw(ZonesSection.EditZone.win, 3, 35, "%s", gettext("Networks"));
-    mvwprintw(ZonesSection.EditZone.win, 3, 45, "%4d",
+    mvwprintw(zonessec_ctx.edit_zone.win, 3, 35, "%s", gettext("Networks"));
+    mvwprintw(zonessec_ctx.edit_zone.win, 3, 45, "%4d",
             vrmr_count_zones(zones, VRMR_TYPE_NETWORK, NULL, zone_ptr->name));
-    mvwprintw(ZonesSection.EditZone.win, 4, 35, "%s", gettext("Hosts"));
-    mvwprintw(ZonesSection.EditZone.win, 4, 45, "%4d",
+    mvwprintw(zonessec_ctx.edit_zone.win, 4, 35, "%s", gettext("Hosts"));
+    mvwprintw(zonessec_ctx.edit_zone.win, 4, 45, "%4d",
             vrmr_count_zones(zones, VRMR_TYPE_HOST, NULL, zone_ptr->name));
-    mvwprintw(ZonesSection.EditZone.win, 5, 35, "%s", gettext("Groups"));
-    mvwprintw(ZonesSection.EditZone.win, 5, 45, "%4d",
+    mvwprintw(zonessec_ctx.edit_zone.win, 5, 35, "%s", gettext("Groups"));
+    mvwprintw(zonessec_ctx.edit_zone.win, 5, 45, "%4d",
             vrmr_count_zones(zones, VRMR_TYPE_GROUP, NULL, zone_ptr->name));
 
     /* draw and set cursor */
-    wrefresh(ZonesSection.EditZone.win);
-    pos_form_cursor(ZonesSection.EditZone.form);
+    wrefresh(zonessec_ctx.edit_zone.win);
+    pos_form_cursor(zonessec_ctx.edit_zone.form);
 
     update_panels();
     doupdate();
@@ -5008,18 +5012,18 @@ static int edit_zone_zone_save(
     vrmr_fatal_if_null(zone_ptr);
 
     /* check for changed fields */
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
         /* check is field is changed */
-        if (field_status(ZonesSection.EditZone.fields[i]) == FALSE)
+        if (field_status(zonessec_ctx.edit_zone.fields[i]) == FALSE)
             continue;
 
         /* active */
-        if (ZonesSection.EditZone.fields[i] == ZoneSec.activefld) {
+        if (zonessec_ctx.edit_zone.fields[i] == ZoneSec.activefld) {
             zone_ptr->status = VRMR_ST_CHANGED;
 
             active = zone_ptr->active;
 
-            if (strncasecmp(field_buffer(ZonesSection.EditZone.fields[i], 0),
+            if (strncasecmp(field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                         STR_YES, StrLen(STR_YES)) == 0) {
                 zone_ptr->active = TRUE;
             } else {
@@ -5043,10 +5047,10 @@ static int edit_zone_zone_save(
                     STR_WAS, active ? STR_YES : STR_NO);
         }
         /* comment */
-        else if (ZonesSection.EditZone.fields[i] == ZoneSec.commentfld) {
+        else if (zonessec_ctx.edit_zone.fields[i] == ZoneSec.commentfld) {
             /* save the comment field to the backend */
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "COMMENT",
-                        field_buffer(ZonesSection.EditZone.fields[i], 0), 1,
+                        field_buffer(zonessec_ctx.edit_zone.fields[i], 0), 1,
                         VRMR_TYPE_ZONE) < 0) {
                 vrmr_error(-1, VR_ERR,
                         gettext("saving to backend failed (in: %s:%d)."),
@@ -5069,16 +5073,16 @@ static void edit_zone_zone_destroy(void)
 {
     size_t i = 0;
 
-    unpost_form(ZonesSection.EditZone.form);
-    free_form(ZonesSection.EditZone.form);
-    for (i = 0; i < ZonesSection.EditZone.n_fields; i++) {
-        free_field(ZonesSection.EditZone.fields[i]);
+    unpost_form(zonessec_ctx.edit_zone.form);
+    free_form(zonessec_ctx.edit_zone.form);
+    for (i = 0; i < zonessec_ctx.edit_zone.n_fields; i++) {
+        free_field(zonessec_ctx.edit_zone.fields[i]);
     }
-    free(ZonesSection.EditZone.fields);
-    del_panel(ZonesSection.EditZone.panel[0]);
-    destroy_win(ZonesSection.EditZone.win);
+    free(zonessec_ctx.edit_zone.fields);
+    del_panel(zonessec_ctx.edit_zone.panel[0]);
+    destroy_win(zonessec_ctx.edit_zone.win);
     // clear comment string
-    strcpy(ZonesSection.comment, "");
+    strcpy(zonessec_ctx.comment, "");
 }
 
 /*  edit_zone_zone
@@ -5111,7 +5115,7 @@ static int edit_zone_zone(
     width = 54;
     /* place on the same y as zones list */
     VrWinGetOffset(
-            -1, -1, height, width, 4, ZonesSection.z_xre + 1, &starty, &startx);
+            -1, -1, height, width, 4, zonessec_ctx.z_xre + 1, &starty, &startx);
 
     /* look for the zone in the list */
     zone_ptr = vrmr_search_zonedata(zones, name);
@@ -5121,7 +5125,7 @@ static int edit_zone_zone(
     edit_zone_zone_init(
             vctx, zones, name, height, width, starty, startx, zone_ptr);
 
-    cur = current_field(ZonesSection.EditZone.form);
+    cur = current_field(zonessec_ctx.edit_zone.form);
 
     draw_top_menu(top_win, gettext("Edit Zone"), key_choices_n, key_choices,
             cmd_choices_n, cmd_choices);
@@ -5131,24 +5135,24 @@ static int edit_zone_zone(
 
     /* Loop through to get user requests/commands */
     while (quit == 0) {
-        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win,
-                ZonesSection.EditZone.form, vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, zonessec_ctx.edit_zone.win,
+                zonessec_ctx.edit_zone.form, vccnf.color_win_mark | A_BOLD);
 
         not_defined = 0;
 
         /* get user input */
-        ch = wgetch(ZonesSection.EditZone.win);
+        ch = wgetch(zonessec_ctx.edit_zone.win);
 
         /* user fields */
 
         /* comment */
         if (cur == ZoneSec.commentfld) {
-            if (nav_field_comment(ZonesSection.EditZone.form, ch) < 0)
+            if (nav_field_comment(zonessec_ctx.edit_zone.form, ch) < 0)
                 not_defined = 1;
         }
         /* active */
         else if (cur == ZoneSec.activefld) {
-            if (nav_field_yesno(ZonesSection.EditZone.form, ch) < 0)
+            if (nav_field_yesno(zonessec_ctx.edit_zone.form, ch) < 0)
                 not_defined = 1;
         } else
             not_defined = 1;
@@ -5159,14 +5163,14 @@ static int edit_zone_zone(
                 case KEY_DOWN:
                 case 10: // enter
                 case 9:  // tab
-                    form_driver(ZonesSection.EditZone.form, REQ_NEXT_FIELD);
-                    form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_NEXT_FIELD);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(ZonesSection.EditZone.form, REQ_PREV_FIELD);
-                    form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_PREV_FIELD);
+                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case 27:
@@ -5187,11 +5191,11 @@ static int edit_zone_zone(
 
         /* set current field to prev */
         prev = cur;
-        cur = current_field(ZonesSection.EditZone.form);
+        cur = current_field(zonessec_ctx.edit_zone.form);
 
         /* draw and set cursor */
-        wrefresh(ZonesSection.EditZone.win);
-        pos_form_cursor(ZonesSection.EditZone.form);
+        wrefresh(zonessec_ctx.edit_zone.win);
+        pos_form_cursor(zonessec_ctx.edit_zone.form);
     }
 
     /* save changes (if any) */
@@ -5227,37 +5231,37 @@ static void zones_section_init(struct vrmr_zones *zones)
         if (zone_ptr->type == VRMR_TYPE_ZONE)
             zones_cnt++;
     }
-    ZonesSection.zone_n = zones_cnt;
+    zonessec_ctx.zone_n = zones_cnt;
     i = zones_cnt - 1;
 
-    ZonesSection.zoneitems =
-            (ITEM **)calloc(ZonesSection.zone_n + 1, sizeof(ITEM *));
-    vrmr_fatal_alloc("calloc", ZonesSection.zoneitems);
+    zonessec_ctx.zoneitems =
+            (ITEM **)calloc(zonessec_ctx.zone_n + 1, sizeof(ITEM *));
+    vrmr_fatal_alloc("calloc", zonessec_ctx.zoneitems);
 
     for (d_node = zones->list.bot; d_node; d_node = d_node->prev) {
         vrmr_fatal_if_null(d_node->data);
         zone_ptr = d_node->data;
 
         if (zone_ptr->type == VRMR_TYPE_ZONE) {
-            ZonesSection.zoneitems[i] = new_item(zone_ptr->name, NULL);
-            vrmr_fatal_if_null(ZonesSection.zoneitems[i]);
+            zonessec_ctx.zoneitems[i] = new_item(zone_ptr->name, NULL);
+            vrmr_fatal_if_null(zonessec_ctx.zoneitems[i]);
             i--;
         }
     }
-    ZonesSection.zoneitems[ZonesSection.zone_n] = (ITEM *)NULL;
+    zonessec_ctx.zoneitems[zonessec_ctx.zone_n] = (ITEM *)NULL;
 
-    if (ZonesSection.zone_n > 0) {
-        ZonesSection.z_top = ZonesSection.zoneitems[0];
-        ZonesSection.z_bot = ZonesSection.zoneitems[ZonesSection.zone_n - 1];
+    if (zonessec_ctx.zone_n > 0) {
+        zonessec_ctx.z_top = zonessec_ctx.zoneitems[0];
+        zonessec_ctx.z_bot = zonessec_ctx.zoneitems[zonessec_ctx.zone_n - 1];
     } else {
-        ZonesSection.z_top = NULL;
-        ZonesSection.z_bot = NULL;
+        zonessec_ctx.z_top = NULL;
+        zonessec_ctx.z_bot = NULL;
     }
 
-    ZonesSection.menu = new_menu((ITEM **)ZonesSection.zoneitems);
-    vrmr_fatal_if_null(ZonesSection.menu);
+    zonessec_ctx.menu = new_menu((ITEM **)zonessec_ctx.zoneitems);
+    vrmr_fatal_if_null(zonessec_ctx.menu);
 
-    height = (int)(ZonesSection.zone_n + 9);
+    height = (int)(zonessec_ctx.zone_n + 9);
     width = 45;
     startx = 1;
     starty = 4;
@@ -5267,60 +5271,60 @@ static void zones_section_init(struct vrmr_zones *zones)
         height = maxy - (2 * starty);
     }
 
-    ZonesSection.z_yle = starty + height;
-    ZonesSection.z_xre = startx + width;
+    zonessec_ctx.z_yle = starty + height;
+    zonessec_ctx.z_xre = startx + width;
 
-    ZonesSection.win = newwin(height, width, starty, startx);
-    vrmr_fatal_if_null(ZonesSection.win);
-    ZonesSection.panel[0] = new_panel(ZonesSection.win);
-    vrmr_fatal_if_null(ZonesSection.panel[0]);
-    wbkgd(ZonesSection.win, vccnf.color_win);
-    keypad(ZonesSection.win, TRUE);
+    zonessec_ctx.win = newwin(height, width, starty, startx);
+    vrmr_fatal_if_null(zonessec_ctx.win);
+    zonessec_ctx.panel[0] = new_panel(zonessec_ctx.win);
+    vrmr_fatal_if_null(zonessec_ctx.panel[0]);
+    wbkgd(zonessec_ctx.win, vccnf.color_win);
+    keypad(zonessec_ctx.win, TRUE);
 
-    set_menu_win(ZonesSection.menu, ZonesSection.win);
-    set_menu_sub(ZonesSection.menu,
-            derwin(ZonesSection.win, height - 8, width - 2, 3, 1));
-    set_menu_format(ZonesSection.menu, height - 9, 1);
+    set_menu_win(zonessec_ctx.menu, zonessec_ctx.win);
+    set_menu_sub(zonessec_ctx.menu,
+            derwin(zonessec_ctx.win, height - 8, width - 2, 3, 1));
+    set_menu_format(zonessec_ctx.menu, height - 9, 1);
 
-    box(ZonesSection.win, 0, 0);
+    box(zonessec_ctx.win, 0, 0);
     print_in_middle(
-            ZonesSection.win, 1, 0, width, gettext("Zones"), vccnf.color_win);
-    mvwaddch(ZonesSection.win, 2, 0, ACS_LTEE);
-    mvwhline(ZonesSection.win, 2, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.win, 2, width - 1, ACS_RTEE);
+            zonessec_ctx.win, 1, 0, width, gettext("Zones"), vccnf.color_win);
+    mvwaddch(zonessec_ctx.win, 2, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.win, 2, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.win, 2, width - 1, ACS_RTEE);
 
-    set_menu_back(ZonesSection.menu, vccnf.color_win);
-    set_menu_fore(ZonesSection.menu, vccnf.color_win_rev);
-    post_menu(ZonesSection.menu);
+    set_menu_back(zonessec_ctx.menu, vccnf.color_win);
+    set_menu_fore(zonessec_ctx.menu, vccnf.color_win_rev);
+    post_menu(zonessec_ctx.menu);
 
-    mvwaddch(ZonesSection.win, height - 6, 0, ACS_LTEE);
-    mvwhline(ZonesSection.win, height - 6, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.win, height - 6, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.win, height - 6, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.win, height - 6, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.win, height - 6, width - 1, ACS_RTEE);
 
     /* print labels */
-    mvwprintw(ZonesSection.win, height - 5, 2, "<RET> %s",
+    mvwprintw(zonessec_ctx.win, height - 5, 2, "<RET> %s",
             gettext("to enter the networks of this zone"));
-    mvwprintw(ZonesSection.win, height - 4, 2, "<INS> %s", STR_NEW);
-    mvwprintw(ZonesSection.win, height - 3, 2, "<DEL> %s", STR_REMOVE);
-    mvwprintw(ZonesSection.win, height - 2, 2, "< e > %s", STR_EDIT);
+    mvwprintw(zonessec_ctx.win, height - 4, 2, "<INS> %s", STR_NEW);
+    mvwprintw(zonessec_ctx.win, height - 3, 2, "<DEL> %s", STR_REMOVE);
+    mvwprintw(zonessec_ctx.win, height - 2, 2, "< e > %s", STR_EDIT);
 
     /* create the top and bottom fields */
-    ZonesSection.z_win_top = newwin(1, 6, starty + 2, startx + width - 8);
-    vrmr_fatal_if_null(ZonesSection.z_win_top);
-    wbkgd(ZonesSection.z_win_top, vccnf.color_win);
-    ZonesSection.z_panel_top[0] = new_panel(ZonesSection.z_win_top);
+    zonessec_ctx.z_win_top = newwin(1, 6, starty + 2, startx + width - 8);
+    vrmr_fatal_if_null(zonessec_ctx.z_win_top);
+    wbkgd(zonessec_ctx.z_win_top, vccnf.color_win);
+    zonessec_ctx.z_panel_top[0] = new_panel(zonessec_ctx.z_win_top);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.z_win_top, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.z_panel_top[0]);
+    wprintw(zonessec_ctx.z_win_top, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.z_panel_top[0]);
 
-    ZonesSection.z_win_bot =
+    zonessec_ctx.z_win_bot =
             newwin(1, 6, starty + height - 6, startx + width - 8);
-    vrmr_fatal_if_null(ZonesSection.z_win_bot);
-    wbkgd(ZonesSection.z_win_bot, vccnf.color_win);
-    ZonesSection.z_panel_bot[0] = new_panel(ZonesSection.z_win_bot);
+    vrmr_fatal_if_null(zonessec_ctx.z_win_bot);
+    wbkgd(zonessec_ctx.z_win_bot, vccnf.color_win);
+    zonessec_ctx.z_panel_bot[0] = new_panel(zonessec_ctx.z_win_bot);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.z_win_bot, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.z_panel_bot[0]);
+    wprintw(zonessec_ctx.z_win_bot, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.z_panel_bot[0]);
 
     update_panels();
     doupdate();
@@ -5330,17 +5334,17 @@ static void zones_section_destroy(void)
 {
     size_t i = 0;
 
-    unpost_menu(ZonesSection.menu);
-    free_menu(ZonesSection.menu);
-    for (i = 0; i < ZonesSection.zone_n; ++i)
-        free_item(ZonesSection.zoneitems[i]);
-    free(ZonesSection.zoneitems);
-    del_panel(ZonesSection.panel[0]);
-    destroy_win(ZonesSection.win);
-    del_panel(ZonesSection.z_panel_top[0]);
-    destroy_win(ZonesSection.z_win_top);
-    del_panel(ZonesSection.z_panel_bot[0]);
-    destroy_win(ZonesSection.z_win_bot);
+    unpost_menu(zonessec_ctx.menu);
+    free_menu(zonessec_ctx.menu);
+    for (i = 0; i < zonessec_ctx.zone_n; ++i)
+        free_item(zonessec_ctx.zoneitems[i]);
+    free(zonessec_ctx.zoneitems);
+    del_panel(zonessec_ctx.panel[0]);
+    destroy_win(zonessec_ctx.win);
+    del_panel(zonessec_ctx.z_panel_top[0]);
+    destroy_win(zonessec_ctx.z_win_top);
+    del_panel(zonessec_ctx.z_panel_bot[0]);
+    destroy_win(zonessec_ctx.z_win_bot);
 }
 
 int zones_section(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
@@ -5377,23 +5381,23 @@ int zones_section(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         }
 
         while (quit == 0 && reload == 0) {
-            if (ZonesSection.z_top != NULL && !item_visible(ZonesSection.z_top))
-                show_panel(ZonesSection.z_panel_top[0]);
+            if (zonessec_ctx.z_top != NULL && !item_visible(zonessec_ctx.z_top))
+                show_panel(zonessec_ctx.z_panel_top[0]);
             else
-                hide_panel(ZonesSection.z_panel_top[0]);
+                hide_panel(zonessec_ctx.z_panel_top[0]);
 
-            if (ZonesSection.z_bot != NULL && !item_visible(ZonesSection.z_bot))
-                show_panel(ZonesSection.z_panel_bot[0]);
+            if (zonessec_ctx.z_bot != NULL && !item_visible(zonessec_ctx.z_bot))
+                show_panel(zonessec_ctx.z_panel_bot[0]);
             else
-                hide_panel(ZonesSection.z_panel_bot[0]);
+                hide_panel(zonessec_ctx.z_panel_bot[0]);
 
             update_panels();
             doupdate();
 
             /* restore the cursor */
-            pos_menu_cursor(ZonesSection.menu);
+            pos_menu_cursor(zonessec_ctx.menu);
 
-            ch = wgetch(ZonesSection.win);
+            ch = wgetch(zonessec_ctx.win);
 
             switch (ch) {
                 case 27:
@@ -5406,7 +5410,7 @@ int zones_section(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                 case 'r':
                 case 'R':
 
-                    cur = current_item(ZonesSection.menu);
+                    cur = current_item(zonessec_ctx.menu);
                     if (cur) {
                         vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST,
                                 gettext("Rename Zone"),
@@ -5472,7 +5476,7 @@ int zones_section(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                 case 'd':
                 case 'D':
 
-                    cur = current_item(ZonesSection.menu);
+                    cur = current_item(zonessec_ctx.menu);
                     if (cur) {
                         if (vrmr_count_zones(zones, VRMR_TYPE_NETWORK, NULL,
                                     (char *)item_name(cur)) <= 0 &&
@@ -5514,37 +5518,37 @@ int zones_section(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                     break;
 
                 case KEY_DOWN:
-                    menu_driver(ZonesSection.menu, REQ_DOWN_ITEM);
+                    menu_driver(zonessec_ctx.menu, REQ_DOWN_ITEM);
                     break;
                 case KEY_UP:
-                    menu_driver(ZonesSection.menu, REQ_UP_ITEM);
+                    menu_driver(zonessec_ctx.menu, REQ_UP_ITEM);
                     break;
                 case KEY_NPAGE:
-                    if (menu_driver(ZonesSection.menu, REQ_SCR_DPAGE) != E_OK) {
-                        while (menu_driver(ZonesSection.menu, REQ_DOWN_ITEM) ==
+                    if (menu_driver(zonessec_ctx.menu, REQ_SCR_DPAGE) != E_OK) {
+                        while (menu_driver(zonessec_ctx.menu, REQ_DOWN_ITEM) ==
                                 E_OK)
                             ;
                     }
                     break;
                 case KEY_PPAGE:
-                    if (menu_driver(ZonesSection.menu, REQ_SCR_UPAGE) != E_OK) {
-                        while (menu_driver(ZonesSection.menu, REQ_UP_ITEM) ==
+                    if (menu_driver(zonessec_ctx.menu, REQ_SCR_UPAGE) != E_OK) {
+                        while (menu_driver(zonessec_ctx.menu, REQ_UP_ITEM) ==
                                 E_OK)
                             ;
                     }
                     break;
                 case KEY_HOME:
-                    menu_driver(ZonesSection.menu, REQ_FIRST_ITEM); // home
+                    menu_driver(zonessec_ctx.menu, REQ_FIRST_ITEM); // home
                     break;
                 case KEY_END:
-                    menu_driver(ZonesSection.menu, REQ_LAST_ITEM); // end
+                    menu_driver(zonessec_ctx.menu, REQ_LAST_ITEM); // end
                     break;
 
                 case 'e':
                 case 'E':
                 case 32:
 
-                    cur = current_item(ZonesSection.menu);
+                    cur = current_item(zonessec_ctx.menu);
                     if (cur) {
                         if (edit_zone_zone(
                                     vctx, zones, (char *)item_name(cur)) < 0) {
@@ -5562,7 +5566,7 @@ int zones_section(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                 case 'b': // b - browse
                 case 'B':
 
-                    cur = current_item(ZonesSection.menu);
+                    cur = current_item(zonessec_ctx.menu);
                     if (cur) {
                         char *n = (char *)item_name(cur);
 
@@ -5604,12 +5608,12 @@ static void zones_blocklist_init(struct vrmr_blocklist *blocklist)
     getmaxyx(stdscr, maxy, maxx);
 
     /* number of items */
-    ZonesSection.host_n = blocklist->list.len;
+    zonessec_ctx.host_n = blocklist->list.len;
 
     /* allow the menu items */
-    ZonesSection.hostitems =
-            (ITEM **)calloc(ZonesSection.host_n + 1, sizeof(ITEM *));
-    vrmr_fatal_if_null(ZonesSection.hostitems);
+    zonessec_ctx.hostitems =
+            (ITEM **)calloc(zonessec_ctx.host_n + 1, sizeof(ITEM *));
+    vrmr_fatal_if_null(zonessec_ctx.hostitems);
 
     /* create the menu items */
     for (d_node = blocklist->list.top, i = 0; d_node;
@@ -5617,25 +5621,25 @@ static void zones_blocklist_init(struct vrmr_blocklist *blocklist)
         vrmr_fatal_if_null(d_node->data);
         string = d_node->data;
 
-        ZonesSection.hostitems[i] = new_item(string, NULL);
-        vrmr_fatal_if_null(ZonesSection.hostitems[i]);
+        zonessec_ctx.hostitems[i] = new_item(string, NULL);
+        vrmr_fatal_if_null(zonessec_ctx.hostitems[i]);
     }
-    ZonesSection.hostitems[ZonesSection.host_n] = (ITEM *)NULL;
+    zonessec_ctx.hostitems[zonessec_ctx.host_n] = (ITEM *)NULL;
 
-    if (ZonesSection.host_n > 0) {
-        ZonesSection.h_top = ZonesSection.hostitems[0];
-        ZonesSection.h_bot = ZonesSection.hostitems[ZonesSection.host_n - 1];
+    if (zonessec_ctx.host_n > 0) {
+        zonessec_ctx.h_top = zonessec_ctx.hostitems[0];
+        zonessec_ctx.h_bot = zonessec_ctx.hostitems[zonessec_ctx.host_n - 1];
     } else {
-        ZonesSection.h_top = NULL;
-        ZonesSection.h_bot = NULL;
+        zonessec_ctx.h_top = NULL;
+        zonessec_ctx.h_bot = NULL;
     }
 
     /* now create the menu */
-    ZonesSection.h_menu = new_menu((ITEM **)ZonesSection.hostitems);
-    vrmr_fatal_if_null(ZonesSection.h_menu);
+    zonessec_ctx.h_menu = new_menu((ITEM **)zonessec_ctx.hostitems);
+    vrmr_fatal_if_null(zonessec_ctx.h_menu);
 
     /* now set the size of the window */
-    height = (int)(ZonesSection.host_n + 7);
+    height = (int)(zonessec_ctx.host_n + 7);
     width = VRMR_VRMR_MAX_HOST_NET_ZONE + 2;
     startx = 1;
     starty = 4;
@@ -5650,56 +5654,56 @@ static void zones_blocklist_init(struct vrmr_blocklist *blocklist)
         width = maxx - 2 * startx;
     }
 
-    ZonesSection.h_win = newwin(height, width, starty, startx);
-    vrmr_fatal_if_null(ZonesSection.h_win);
-    wbkgd(ZonesSection.h_win, vccnf.color_win);
-    keypad(ZonesSection.h_win, TRUE);
-    box(ZonesSection.h_win, 0, 0);
-    print_in_middle(ZonesSection.h_win, 1, 0, width, gettext("BlockList"),
+    zonessec_ctx.h_win = newwin(height, width, starty, startx);
+    vrmr_fatal_if_null(zonessec_ctx.h_win);
+    wbkgd(zonessec_ctx.h_win, vccnf.color_win);
+    keypad(zonessec_ctx.h_win, TRUE);
+    box(zonessec_ctx.h_win, 0, 0);
+    print_in_middle(zonessec_ctx.h_win, 1, 0, width, gettext("BlockList"),
             vccnf.color_win);
-    wrefresh(ZonesSection.h_win);
+    wrefresh(zonessec_ctx.h_win);
 
-    ZonesSection.h_panel[0] = new_panel(ZonesSection.h_win);
-    vrmr_fatal_if_null(ZonesSection.h_panel[0]);
+    zonessec_ctx.h_panel[0] = new_panel(zonessec_ctx.h_win);
+    vrmr_fatal_if_null(zonessec_ctx.h_panel[0]);
 
-    set_menu_win(ZonesSection.h_menu, ZonesSection.h_win);
-    set_menu_sub(ZonesSection.h_menu,
-            derwin(ZonesSection.h_win, height - 6, width - 2, 3, 1));
-    set_menu_format(ZonesSection.h_menu, height - 7, 1);
+    set_menu_win(zonessec_ctx.h_menu, zonessec_ctx.h_win);
+    set_menu_sub(zonessec_ctx.h_menu,
+            derwin(zonessec_ctx.h_win, height - 6, width - 2, 3, 1));
+    set_menu_format(zonessec_ctx.h_menu, height - 7, 1);
 
-    mvwaddch(ZonesSection.h_win, 2, 0, ACS_LTEE);
-    mvwhline(ZonesSection.h_win, 2, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.h_win, 2, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.h_win, 2, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.h_win, 2, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.h_win, 2, width - 1, ACS_RTEE);
 
-    set_menu_back(ZonesSection.h_menu, vccnf.color_win);
-    set_menu_fore(ZonesSection.h_menu, vccnf.color_win_rev);
+    set_menu_back(zonessec_ctx.h_menu, vccnf.color_win);
+    set_menu_fore(zonessec_ctx.h_menu, vccnf.color_win_rev);
 
-    result = post_menu(ZonesSection.h_menu);
+    result = post_menu(zonessec_ctx.h_menu);
     vrmr_fatal_if(result != E_OK && result != E_NOT_CONNECTED);
 
-    mvwaddch(ZonesSection.h_win, height - 4, 0, ACS_LTEE);
-    mvwhline(ZonesSection.h_win, height - 4, 1, ACS_HLINE, width - 2);
-    mvwaddch(ZonesSection.h_win, height - 4, width - 1, ACS_RTEE);
+    mvwaddch(zonessec_ctx.h_win, height - 4, 0, ACS_LTEE);
+    mvwhline(zonessec_ctx.h_win, height - 4, 1, ACS_HLINE, width - 2);
+    mvwaddch(zonessec_ctx.h_win, height - 4, width - 1, ACS_RTEE);
 
-    mvwprintw(ZonesSection.h_win, height - 3, 1, "<INS> %s", STR_NEW);
-    mvwprintw(ZonesSection.h_win, height - 2, 1, "<DEL> %s", STR_REMOVE);
+    mvwprintw(zonessec_ctx.h_win, height - 3, 1, "<INS> %s", STR_NEW);
+    mvwprintw(zonessec_ctx.h_win, height - 2, 1, "<DEL> %s", STR_REMOVE);
 
     /* create the top and bottom fields */
-    ZonesSection.h_win_top = newwin(1, 6, starty + 2, width - 8);
-    vrmr_fatal_if_null(ZonesSection.h_win_top);
-    wbkgd(ZonesSection.h_win_top, vccnf.color_win);
-    ZonesSection.h_panel_top[0] = new_panel(ZonesSection.h_win_top);
+    zonessec_ctx.h_win_top = newwin(1, 6, starty + 2, width - 8);
+    vrmr_fatal_if_null(zonessec_ctx.h_win_top);
+    wbkgd(zonessec_ctx.h_win_top, vccnf.color_win);
+    zonessec_ctx.h_panel_top[0] = new_panel(zonessec_ctx.h_win_top);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.h_win_top, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.h_panel_top[0]);
+    wprintw(zonessec_ctx.h_win_top, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.h_panel_top[0]);
 
-    ZonesSection.h_win_bot = newwin(1, 6, starty + height - 4, width - 8);
-    vrmr_fatal_if_null(ZonesSection.h_win_bot);
-    wbkgd(ZonesSection.h_win_bot, vccnf.color_win);
-    ZonesSection.h_panel_bot[0] = new_panel(ZonesSection.h_win_bot);
+    zonessec_ctx.h_win_bot = newwin(1, 6, starty + height - 4, width - 8);
+    vrmr_fatal_if_null(zonessec_ctx.h_win_bot);
+    wbkgd(zonessec_ctx.h_win_bot, vccnf.color_win);
+    zonessec_ctx.h_panel_bot[0] = new_panel(zonessec_ctx.h_win_bot);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ZonesSection.h_win_bot, "(%s)", gettext("more"));
-    hide_panel(ZonesSection.h_panel_bot[0]);
+    wprintw(zonessec_ctx.h_win_bot, "(%s)", gettext("more"));
+    hide_panel(zonessec_ctx.h_panel_bot[0]);
 
     update_panels();
     doupdate();
@@ -5709,17 +5713,17 @@ static void zones_blocklist_destroy(void)
 {
     size_t i = 0;
 
-    unpost_menu(ZonesSection.h_menu);
-    free_menu(ZonesSection.h_menu);
-    for (i = 0; i < ZonesSection.host_n; ++i)
-        free_item(ZonesSection.hostitems[i]);
-    free(ZonesSection.hostitems);
-    del_panel(ZonesSection.h_panel[0]);
-    destroy_win(ZonesSection.h_win);
-    del_panel(ZonesSection.h_panel_top[0]);
-    destroy_win(ZonesSection.h_win_top);
-    del_panel(ZonesSection.h_panel_bot[0]);
-    destroy_win(ZonesSection.h_win_bot);
+    unpost_menu(zonessec_ctx.h_menu);
+    free_menu(zonessec_ctx.h_menu);
+    for (i = 0; i < zonessec_ctx.host_n; ++i)
+        free_item(zonessec_ctx.hostitems[i]);
+    free(zonessec_ctx.hostitems);
+    del_panel(zonessec_ctx.h_panel[0]);
+    destroy_win(zonessec_ctx.h_win);
+    del_panel(zonessec_ctx.h_panel_top[0]);
+    destroy_win(zonessec_ctx.h_win_top);
+    del_panel(zonessec_ctx.h_panel_bot[0]);
+    destroy_win(zonessec_ctx.h_win_bot);
 }
 
 int zones_blocklist_add_one(
@@ -5773,7 +5777,7 @@ int zones_blocklist_add_one(
             }
         } else if (strcasecmp(choice_ptr, gettext("Host")) == 0 ||
                    strcasecmp(choice_ptr, gettext("Group")) == 0) {
-            (void)vrmr_list_setup(&ZonesSection.group_desc_list, free);
+            (void)vrmr_list_setup(&zonessec_ctx.group_desc_list, free);
 
             /* get the type */
             if (strcasecmp(choice_ptr, gettext("Host")) == 0)
@@ -5885,24 +5889,24 @@ int zones_blocklist(struct vrmr_ctx *vctx, struct vrmr_blocklist *blocklist,
 
         /* loop for catching user input */
         while (quit == 0 && reload == 0) {
-            if (ZonesSection.h_top != NULL && !item_visible(ZonesSection.h_top))
-                show_panel(ZonesSection.h_panel_top[0]);
+            if (zonessec_ctx.h_top != NULL && !item_visible(zonessec_ctx.h_top))
+                show_panel(zonessec_ctx.h_panel_top[0]);
             else
-                hide_panel(ZonesSection.h_panel_top[0]);
+                hide_panel(zonessec_ctx.h_panel_top[0]);
 
-            if (ZonesSection.h_bot != NULL && !item_visible(ZonesSection.h_bot))
-                show_panel(ZonesSection.h_panel_bot[0]);
+            if (zonessec_ctx.h_bot != NULL && !item_visible(zonessec_ctx.h_bot))
+                show_panel(zonessec_ctx.h_panel_bot[0]);
             else
-                hide_panel(ZonesSection.h_panel_bot[0]);
+                hide_panel(zonessec_ctx.h_panel_bot[0]);
 
             update_panels();
             doupdate();
 
             /* restore the cursor */
-            pos_menu_cursor(ZonesSection.h_menu);
+            pos_menu_cursor(zonessec_ctx.h_menu);
 
             /* get the user input */
-            ch = wgetch(ZonesSection.h_win);
+            ch = wgetch(zonessec_ctx.h_win);
             switch (ch) {
                 case 27:
                 case KEY_LEFT:
@@ -5938,7 +5942,7 @@ int zones_blocklist(struct vrmr_ctx *vctx, struct vrmr_blocklist *blocklist,
                                     vccnf.color_win_note_rev | A_BOLD,
                                     0) == 1) {
                             /* get the current item */
-                            cur = current_item(ZonesSection.h_menu);
+                            cur = current_item(zonessec_ctx.h_menu);
                             vrmr_fatal_if_null(cur);
 
                             itemname = (char *)item_name(cur);
@@ -5966,32 +5970,32 @@ int zones_blocklist(struct vrmr_ctx *vctx, struct vrmr_blocklist *blocklist,
                     break;
 
                 case KEY_DOWN:
-                    menu_driver(ZonesSection.h_menu, REQ_DOWN_ITEM);
+                    menu_driver(zonessec_ctx.h_menu, REQ_DOWN_ITEM);
                     break;
                 case KEY_UP:
-                    menu_driver(ZonesSection.h_menu, REQ_UP_ITEM);
+                    menu_driver(zonessec_ctx.h_menu, REQ_UP_ITEM);
                     break;
                 case KEY_NPAGE:
-                    if (menu_driver(ZonesSection.h_menu, REQ_SCR_DPAGE) !=
+                    if (menu_driver(zonessec_ctx.h_menu, REQ_SCR_DPAGE) !=
                             E_OK) {
-                        while (menu_driver(ZonesSection.h_menu,
+                        while (menu_driver(zonessec_ctx.h_menu,
                                        REQ_DOWN_ITEM) == E_OK)
                             ;
                     }
                     break;
                 case KEY_PPAGE:
-                    if (menu_driver(ZonesSection.h_menu, REQ_SCR_UPAGE) !=
+                    if (menu_driver(zonessec_ctx.h_menu, REQ_SCR_UPAGE) !=
                             E_OK) {
-                        while (menu_driver(ZonesSection.h_menu, REQ_UP_ITEM) ==
+                        while (menu_driver(zonessec_ctx.h_menu, REQ_UP_ITEM) ==
                                 E_OK)
                             ;
                     }
                     break;
                 case KEY_HOME:
-                    menu_driver(ZonesSection.h_menu, REQ_FIRST_ITEM); // home
+                    menu_driver(zonessec_ctx.h_menu, REQ_FIRST_ITEM); // home
                     break;
                 case KEY_END:
-                    menu_driver(ZonesSection.h_menu, REQ_LAST_ITEM); // end
+                    menu_driver(zonessec_ctx.h_menu, REQ_LAST_ITEM); // end
                     break;
 
                 case KEY_F(12):

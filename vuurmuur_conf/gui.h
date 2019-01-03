@@ -22,7 +22,7 @@
 #define __GUI_H__
 
 /* menu wrapper */
-typedef struct {
+struct vrmr_gui_menu {
     MENU *m;
     ITEM **i;
     unsigned int nitems;
@@ -46,8 +46,7 @@ typedef struct {
             x;  /*  x start relative
                     to win */
     WINDOW *dw; /* used by derwin */
-
-} VrMenu;
+};
 
 /** form field types */
 enum vrmr_gui_form_field_types
@@ -70,7 +69,7 @@ struct vrmr_gui_form_field {
 };
 
 /* form wrapper */
-typedef struct {
+struct vrmr_gui_form {
     FORM *f;
     FIELD **fields;
     FIELD *cur, *prev;
@@ -92,10 +91,10 @@ typedef struct {
 
     struct vrmr_list list; /**< list of vrmr_gui_form_field's, filled
                             *   during setup of a form. */
-} VrForm;
+};
 
 /* window/panel wrapper */
-typedef struct {
+struct vrmr_gui_win {
 
     WINDOW *w;
     PANEL *p;
@@ -105,11 +104,10 @@ typedef struct {
     int y, x;
 
     /* TODO: add menu? */
-
-} VrWin;
+};
 
 /* global busywin */
-VrWin *vr_busywin;
+struct vrmr_gui_win *vr_busywin;
 
 void VrBusyWinCreate(void);
 void VrBusyWinShow(void);
@@ -118,40 +116,43 @@ void VrBusyWinDelete(void);
 
 int VrWinGetOffset(
         int yj, int xj, int h, int w, int yo, int xo, int *y, int *x);
-VrWin *VrNewWin(int h, int w, int y, int x, chtype cp);
-void VrDelWin(VrWin *win);
-int VrWinSetTitle(VrWin *win, char *title);
-int VrWinGetch(VrWin *win);
+struct vrmr_gui_win *VrNewWin(int h, int w, int y, int x, chtype cp);
+void VrDelWin(struct vrmr_gui_win *win);
+int VrWinSetTitle(struct vrmr_gui_win *win, char *title);
+int VrWinGetch(struct vrmr_gui_win *win);
 
-VrMenu *VrNewMenu(
+struct vrmr_gui_menu *VrNewMenu(
         int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg);
-void VrDelMenu(VrMenu *);
-void VrMenuSetupNameList(VrMenu *menu);
-void VrMenuSetupDescList(VrMenu *menu);
-void VrMenuSetNameFreeFunc(VrMenu *menu, void (*free_func)(void *ptr));
-void VrMenuSetDescFreeFunc(VrMenu *menu, void (*free_func)(void *ptr));
-int VrMenuAddItem(VrMenu *menu, char *name, char *desc);
-int VrMenuAddSepItem(VrMenu *menu, char *desc);
-void VrMenuConnectToWin(VrMenu *menu, VrWin *win);
-char VrMenuDefaultNavigation(VrMenu *menu, int key);
-void VrMenuPost(VrMenu *);
-void VrMenuUnPost(VrMenu *);
+void VrDelMenu(struct vrmr_gui_menu *);
+void VrMenuSetupNameList(struct vrmr_gui_menu *menu);
+void VrMenuSetupDescList(struct vrmr_gui_menu *menu);
+void VrMenuSetNameFreeFunc(
+        struct vrmr_gui_menu *menu, void (*free_func)(void *ptr));
+void VrMenuSetDescFreeFunc(
+        struct vrmr_gui_menu *menu, void (*free_func)(void *ptr));
+int VrMenuAddItem(struct vrmr_gui_menu *menu, char *name, char *desc);
+int VrMenuAddSepItem(struct vrmr_gui_menu *menu, char *desc);
+void VrMenuConnectToWin(struct vrmr_gui_menu *menu, struct vrmr_gui_win *win);
+char VrMenuDefaultNavigation(struct vrmr_gui_menu *menu, int key);
+void VrMenuPost(struct vrmr_gui_menu *);
+void VrMenuUnPost(struct vrmr_gui_menu *);
 
-VrForm *VrNewForm(int h, int w, int y, int x, chtype bg, chtype fg);
-void VrDelForm(VrForm *form);
-void VrFormPost(VrForm *form);
-void VrFormUnPost(VrForm *form);
-void VrFormAddTextField(VrForm *form, int height, int width, int toprow,
-        int leftcol, chtype cp, char *name, char *value);
-void VrFormAddLabelField(VrForm *form, int height, int width, int toprow,
-        int leftcol, chtype cp, char *value);
-void VrFormAddCheckboxField(VrForm *form, int toprow, int leftcol, chtype cp,
-        char *name, char enabled);
-void VrFormConnectToWin(VrForm *form, VrWin *win);
-char VrFormDefaultNavigation(VrForm *form, int key);
-int VrFormCheckOKCancel(VrForm *form, int key);
-void VrFormDrawMarker(VrWin *win, VrForm *form);
-int VrFormSetSaveFunc(VrForm *form,
+struct vrmr_gui_form *VrNewForm(
+        int h, int w, int y, int x, chtype bg, chtype fg);
+void VrDelForm(struct vrmr_gui_form *form);
+void VrFormPost(struct vrmr_gui_form *form);
+void VrFormUnPost(struct vrmr_gui_form *form);
+void VrFormAddTextField(struct vrmr_gui_form *form, int height, int width,
+        int toprow, int leftcol, chtype cp, char *name, char *value);
+void VrFormAddLabelField(struct vrmr_gui_form *form, int height, int width,
+        int toprow, int leftcol, chtype cp, char *value);
+void VrFormAddCheckboxField(struct vrmr_gui_form *form, int toprow, int leftcol,
+        chtype cp, char *name, char enabled);
+void VrFormConnectToWin(struct vrmr_gui_form *form, struct vrmr_gui_win *win);
+char VrFormDefaultNavigation(struct vrmr_gui_form *form, int key);
+int VrFormCheckOKCancel(struct vrmr_gui_form *form, int key);
+void VrFormDrawMarker(struct vrmr_gui_win *win, struct vrmr_gui_form *form);
+int VrFormSetSaveFunc(struct vrmr_gui_form *form,
         int (*save)(void *ctx, char *name, char *value), void *ctx);
 
 #endif /* __GUI_H__ */

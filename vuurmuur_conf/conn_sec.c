@@ -480,7 +480,7 @@ static void update_draw_size(struct vrmr_conntrack_request *connreq, int width,
             sizeof(tozone_snprintf_str));
 }
 
-void conn_free_ct(Conntrack **ct, struct vrmr_zones *zones)
+void conn_free_ct(struct conntrack **ct, struct vrmr_zones *zones)
 {
     /* zones may be NULL if we have multiple ct's */
     if (zones != NULL) {
@@ -499,11 +499,11 @@ void conn_free_ct(Conntrack **ct, struct vrmr_zones *zones)
     free(*ct);
 }
 
-Conntrack *ATTR_RETURNS_NONNULL conn_init_ct(struct vrmr_zones *zones,
+struct conntrack *ATTR_RETURNS_NONNULL conn_init_ct(struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces, struct vrmr_services *services,
         struct vrmr_blocklist *blocklist)
 {
-    Conntrack *ct = calloc(1, sizeof(Conntrack));
+    struct conntrack *ct = calloc(1, sizeof(*ct));
     vrmr_fatal_alloc("calloc", ct);
 
     /*  insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist
@@ -550,7 +550,7 @@ static int conn_sort_by_cnt(const void *a, const void *b)
         return s0->cnt > s1->cnt ? -1 : 1;
 }
 
-int conn_ct_get_connections(struct vrmr_config *cnf, Conntrack *ct,
+int conn_ct_get_connections(struct vrmr_config *cnf, struct conntrack *ct,
         struct vrmr_conntrack_request *req)
 {
     ct->conn_stats.fromname_max = ct->conn_stats.toname_max =
@@ -593,7 +593,7 @@ int conn_ct_get_connections(struct vrmr_config *cnf, Conntrack *ct,
     return (0);
 }
 
-void conn_ct_clear_connections(Conntrack *ct)
+void conn_ct_clear_connections(struct conntrack *ct)
 {
     /* store prev list size */
     ct->prev_list_size = ct->conn_list.len;
@@ -646,7 +646,7 @@ int connections_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             gettext("account"), gettext("details"), gettext("back")};
     int cmd_choices_n = 10;
 
-    Conntrack *ct = NULL;
+    struct conntrack *ct = NULL;
     struct vrmr_conntrack_request connreq;
     int printed = 0;
     int print_accounting = 0;
@@ -1159,7 +1159,7 @@ int kill_connection(
     return (result);
 }
 
-int kill_connections_by_name(struct vrmr_config *cnf, Conntrack *ct,
+int kill_connections_by_name(struct vrmr_config *cnf, struct conntrack *ct,
         char *srcname, char *dstname, char *sername, char connect_status)
 {
     struct vrmr_list_node *d_node = NULL;
@@ -1224,8 +1224,8 @@ int kill_connections_by_name(struct vrmr_config *cnf, Conntrack *ct,
     return (0);
 }
 
-int kill_connections_by_ip(struct vrmr_config *cnf, Conntrack *ct, char *srcip,
-        char *dstip, char *sername, char connect_status)
+int kill_connections_by_ip(struct vrmr_config *cnf, struct conntrack *ct,
+        char *srcip, char *dstip, char *sername, char connect_status)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_conntrack_entry *cd_ptr = NULL;
@@ -1301,7 +1301,7 @@ int kill_connections_by_ip(struct vrmr_config *cnf, Conntrack *ct, char *srcip,
     We first add it to the blocklist and apply changes to prevent
     new connections to be established.
 */
-int block_and_kill(struct vrmr_ctx *vctx, Conntrack *ct,
+int block_and_kill(struct vrmr_ctx *vctx, struct conntrack *ct,
         struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
         struct vrmr_interfaces *interfaces, char *ip)
 {

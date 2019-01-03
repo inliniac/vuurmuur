@@ -20,7 +20,7 @@
 
 #include "main.h"
 
-struct ServicesSection_ {
+struct {
     PANEL *panel[1];
     WINDOW *win;
     MENU *menu;
@@ -35,7 +35,7 @@ struct ServicesSection_ {
     int sl_yle; /**< y lower edge */
     unsigned int list_items;
 
-    struct EditService_ {
+    struct edit {
         WINDOW *win;
         PANEL *panel[1];
 
@@ -58,12 +58,12 @@ struct ServicesSection_ {
 
         int se_xre; /**< x right edge */
         int se_yle; /**< y lower edge */
-    } EditService;
+    } edit_service;
 
-    struct EditService_ EditServicePrt;
+    struct edit edit_service_port;
 
     char comment[512];
-} ServicesSection;
+} sersec_ctx;
 
 /*  edit_serv_portranges_new_validate
 
@@ -1224,27 +1224,27 @@ static void edit_serv_portranges_init(struct vrmr_service *ser_ptr)
     vrmr_fatal_if_null(ser_ptr);
 
     /* get number of items and calloc them */
-    ServicesSection.EditServicePrt.n_items = ser_ptr->PortrangeList.len;
+    sersec_ctx.edit_service_port.n_items = ser_ptr->PortrangeList.len;
 
     /* get some mem for the menu items */
-    ServicesSection.EditServicePrt.items = (ITEM **)calloc(
-            ServicesSection.EditServicePrt.n_items + 1, sizeof(ITEM *));
-    vrmr_fatal_alloc("calloc", ServicesSection.EditServicePrt.items);
+    sersec_ctx.edit_service_port.items = (ITEM **)calloc(
+            sersec_ctx.edit_service_port.n_items + 1, sizeof(ITEM *));
+    vrmr_fatal_alloc("calloc", sersec_ctx.edit_service_port.items);
 
     max_height = getmaxy(stdscr);
     /* get window height */
-    height = (int)ServicesSection.EditServicePrt.n_items +
+    height = (int)sersec_ctx.edit_service_port.n_items +
              8; /* 8 because: 3 above the list, 5 below */
     if ((height + 8) > max_height)
         height = max_height - 8;
     /* place on the same y as "edit service" */
-    VrWinGetOffset(-1, -1, height, width, 4,
-            ServicesSection.EditService.se_xre + 1, &starty, &startx);
+    VrWinGetOffset(-1, -1, height, width, 4, sersec_ctx.edit_service.se_xre + 1,
+            &starty, &startx);
 
     // string item list
-    vrmr_list_setup(&ServicesSection.EditServicePrt.item_list, free);
+    vrmr_list_setup(&sersec_ctx.edit_service_port.item_list, free);
     // number item list
-    vrmr_list_setup(&ServicesSection.EditServicePrt.item_number_list, free);
+    vrmr_list_setup(&sersec_ctx.edit_service_port.item_number_list, free);
 
     for (i = 0, d_node = ser_ptr->PortrangeList.top; d_node;
             d_node = d_node->next, i++) {
@@ -1309,95 +1309,93 @@ static void edit_serv_portranges_init(struct vrmr_service *ser_ptr)
         }
 
         /* load all into item array */
-        ServicesSection.EditServicePrt.items[i] =
+        sersec_ctx.edit_service_port.items[i] =
                 new_item(item_number_ptr, port_string_ptr);
-        vrmr_fatal_if_null(ServicesSection.EditServicePrt.items[i]);
+        vrmr_fatal_if_null(sersec_ctx.edit_service_port.items[i]);
 
         /* store in list */
+        vrmr_fatal_if(vrmr_list_append(&sersec_ctx.edit_service_port.item_list,
+                              port_string_ptr) == NULL);
         vrmr_fatal_if(
-                vrmr_list_append(&ServicesSection.EditServicePrt.item_list,
-                        port_string_ptr) == NULL);
-        vrmr_fatal_if(vrmr_list_append(
-                              &ServicesSection.EditServicePrt.item_number_list,
-                              item_number_ptr) == NULL);
+                vrmr_list_append(&sersec_ctx.edit_service_port.item_number_list,
+                        item_number_ptr) == NULL);
     }
-    ServicesSection.EditServicePrt
-            .items[ServicesSection.EditServicePrt.n_items] = (ITEM *)NULL;
+    sersec_ctx.edit_service_port.items[sersec_ctx.edit_service_port.n_items] =
+            (ITEM *)NULL;
 
-    if (ServicesSection.EditServicePrt.n_items > 0) {
-        ServicesSection.EditServicePrt.top =
-                ServicesSection.EditServicePrt.items[0];
-        ServicesSection.EditServicePrt.bot =
-                ServicesSection.EditServicePrt
-                        .items[ServicesSection.EditServicePrt.n_items - 1];
+    if (sersec_ctx.edit_service_port.n_items > 0) {
+        sersec_ctx.edit_service_port.top =
+                sersec_ctx.edit_service_port.items[0];
+        sersec_ctx.edit_service_port.bot =
+                sersec_ctx.edit_service_port
+                        .items[sersec_ctx.edit_service_port.n_items - 1];
     } else {
-        ServicesSection.EditServicePrt.top = NULL;
-        ServicesSection.EditServicePrt.bot = NULL;
+        sersec_ctx.edit_service_port.top = NULL;
+        sersec_ctx.edit_service_port.bot = NULL;
     }
 
     /* create win and panel */
-    ServicesSection.EditServicePrt.win = newwin(height, width, starty, startx);
-    vrmr_fatal_if_null(ServicesSection.EditServicePrt.win);
-    wbkgd(ServicesSection.EditServicePrt.win, vccnf.color_win);
-    keypad(ServicesSection.EditServicePrt.win, TRUE);
-    ServicesSection.EditServicePrt.panel[0] =
-            new_panel(ServicesSection.EditServicePrt.win);
-    vrmr_fatal_if_null(ServicesSection.EditServicePrt.panel[0]);
-    ServicesSection.EditServicePrt.menu =
-            new_menu((ITEM **)ServicesSection.EditServicePrt.items);
-    vrmr_fatal_if_null(ServicesSection.EditServicePrt.menu);
+    sersec_ctx.edit_service_port.win = newwin(height, width, starty, startx);
+    vrmr_fatal_if_null(sersec_ctx.edit_service_port.win);
+    wbkgd(sersec_ctx.edit_service_port.win, vccnf.color_win);
+    keypad(sersec_ctx.edit_service_port.win, TRUE);
+    sersec_ctx.edit_service_port.panel[0] =
+            new_panel(sersec_ctx.edit_service_port.win);
+    vrmr_fatal_if_null(sersec_ctx.edit_service_port.panel[0]);
+    sersec_ctx.edit_service_port.menu =
+            new_menu((ITEM **)sersec_ctx.edit_service_port.items);
+    vrmr_fatal_if_null(sersec_ctx.edit_service_port.menu);
 
-    set_menu_win(ServicesSection.EditServicePrt.menu,
-            ServicesSection.EditServicePrt.win);
-    set_menu_sub(ServicesSection.EditServicePrt.menu,
-            derwin(ServicesSection.EditServicePrt.win, height - 8, width - 2, 3,
+    set_menu_win(sersec_ctx.edit_service_port.menu,
+            sersec_ctx.edit_service_port.win);
+    set_menu_sub(sersec_ctx.edit_service_port.menu,
+            derwin(sersec_ctx.edit_service_port.win, height - 8, width - 2, 3,
                     1));
-    set_menu_format(ServicesSection.EditServicePrt.menu, height - 8, 1);
+    set_menu_format(sersec_ctx.edit_service_port.menu, height - 8, 1);
 
-    box(ServicesSection.EditServicePrt.win, 0, 0);
-    print_in_middle(ServicesSection.EditServicePrt.win, 1, 0, width,
+    box(sersec_ctx.edit_service_port.win, 0, 0);
+    print_in_middle(sersec_ctx.edit_service_port.win, 1, 0, width,
             STR_CPORTRANGES, vccnf.color_win);
-    mvwaddch(ServicesSection.EditServicePrt.win, 2, 0, ACS_LTEE);
-    mvwhline(ServicesSection.EditServicePrt.win, 2, 1, ACS_HLINE, width - 2);
-    mvwaddch(ServicesSection.EditServicePrt.win, 2, width - 1, ACS_RTEE);
+    mvwaddch(sersec_ctx.edit_service_port.win, 2, 0, ACS_LTEE);
+    mvwhline(sersec_ctx.edit_service_port.win, 2, 1, ACS_HLINE, width - 2);
+    mvwaddch(sersec_ctx.edit_service_port.win, 2, width - 1, ACS_RTEE);
 
-    set_menu_back(ServicesSection.EditServicePrt.menu, vccnf.color_win);
-    set_menu_fore(ServicesSection.EditServicePrt.menu, vccnf.color_win_rev);
-    post_menu(ServicesSection.EditServicePrt.menu);
+    set_menu_back(sersec_ctx.edit_service_port.menu, vccnf.color_win);
+    set_menu_fore(sersec_ctx.edit_service_port.menu, vccnf.color_win_rev);
+    post_menu(sersec_ctx.edit_service_port.menu);
 
-    mvwaddch(ServicesSection.EditServicePrt.win, height - 5, 0, ACS_LTEE);
-    mvwhline(ServicesSection.EditServicePrt.win, height - 5, 1, ACS_HLINE,
+    mvwaddch(sersec_ctx.edit_service_port.win, height - 5, 0, ACS_LTEE);
+    mvwhline(sersec_ctx.edit_service_port.win, height - 5, 1, ACS_HLINE,
             width - 2);
-    mvwaddch(ServicesSection.EditServicePrt.win, height - 5, width - 1,
-            ACS_RTEE);
+    mvwaddch(sersec_ctx.edit_service_port.win, height - 5, width - 1, ACS_RTEE);
 
-    mvwprintw(ServicesSection.EditServicePrt.win, height - 4, 2, "<INS> %s",
+    mvwprintw(sersec_ctx.edit_service_port.win, height - 4, 2, "<INS> %s",
             STR_NEW);
-    mvwprintw(ServicesSection.EditServicePrt.win, height - 3, 2, "<DEL> %s",
+    mvwprintw(sersec_ctx.edit_service_port.win, height - 3, 2, "<DEL> %s",
             STR_REMOVE);
-    mvwprintw(ServicesSection.EditServicePrt.win, height - 2, 2, "<RET> %s",
+    mvwprintw(sersec_ctx.edit_service_port.win, height - 2, 2, "<RET> %s",
             STR_EDIT);
 
     /* create the top and bottom fields */
-    ServicesSection.EditServicePrt.win_top =
+    sersec_ctx.edit_service_port.win_top =
             newwin(1, 6, starty + 2, startx + width - 8);
-    vrmr_fatal_if_null(ServicesSection.EditServicePrt.win_top);
-    wbkgd(ServicesSection.EditServicePrt.win_top, vccnf.color_win);
-    ServicesSection.EditServicePrt.panel_top[0] =
-            new_panel(ServicesSection.EditServicePrt.win_top);
+    vrmr_fatal_if_null(sersec_ctx.edit_service_port.win_top);
+    wbkgd(sersec_ctx.edit_service_port.win_top, vccnf.color_win);
+    sersec_ctx.edit_service_port.panel_top[0] =
+            new_panel(sersec_ctx.edit_service_port.win_top);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ServicesSection.EditServicePrt.win_top, "(%s)", gettext("more"));
-    hide_panel(ServicesSection.EditServicePrt.panel_top[0]);
+    wprintw(sersec_ctx.edit_service_port.win_top, "(%s)", gettext("more"));
+    hide_panel(sersec_ctx.edit_service_port.panel_top[0]);
 
-    ServicesSection.EditServicePrt.win_bot =
+    sersec_ctx.edit_service_port.win_bot =
             newwin(1, 6, starty + height - 5, startx + width - 8);
-    vrmr_fatal_if_null(ServicesSection.EditServicePrt.win_bot);
-    wbkgd(ServicesSection.EditServicePrt.win_bot, vccnf.color_win);
-    ServicesSection.EditServicePrt.panel_bot[0] =
-            new_panel(ServicesSection.EditServicePrt.win_bot);
+    vrmr_fatal_if_null(sersec_ctx.edit_service_port.win_bot);
+    wbkgd(sersec_ctx.edit_service_port.win_bot, vccnf.color_win);
+    sersec_ctx.edit_service_port.panel_bot[0] =
+            new_panel(sersec_ctx.edit_service_port.win_bot);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ServicesSection.EditServicePrt.win_bot, "(%s)", gettext("more"));
-    hide_panel(ServicesSection.EditServicePrt.panel_bot[0]);
+    wprintw(sersec_ctx.edit_service_port.win_bot, "(%s)", gettext("more"));
+    hide_panel(sersec_ctx.edit_service_port.panel_bot[0]);
 }
 
 static void edit_serv_portranges_destroy(void)
@@ -1405,20 +1403,20 @@ static void edit_serv_portranges_destroy(void)
     size_t i = 0;
 
     // Un post form and free the memory
-    unpost_menu(ServicesSection.EditServicePrt.menu);
-    free_menu(ServicesSection.EditServicePrt.menu);
-    for (i = 0; i < ServicesSection.EditServicePrt.n_items; i++) {
-        free_item(ServicesSection.EditServicePrt.items[i]);
+    unpost_menu(sersec_ctx.edit_service_port.menu);
+    free_menu(sersec_ctx.edit_service_port.menu);
+    for (i = 0; i < sersec_ctx.edit_service_port.n_items; i++) {
+        free_item(sersec_ctx.edit_service_port.items[i]);
     }
-    free(ServicesSection.EditServicePrt.items);
-    del_panel(ServicesSection.EditServicePrt.panel[0]);
-    destroy_win(ServicesSection.EditServicePrt.win);
-    del_panel(ServicesSection.EditServicePrt.panel_top[0]);
-    destroy_win(ServicesSection.EditServicePrt.win_top);
-    del_panel(ServicesSection.EditServicePrt.panel_bot[0]);
-    destroy_win(ServicesSection.EditServicePrt.win_bot);
-    vrmr_list_cleanup(&ServicesSection.EditServicePrt.item_list);
-    vrmr_list_cleanup(&ServicesSection.EditServicePrt.item_number_list);
+    free(sersec_ctx.edit_service_port.items);
+    del_panel(sersec_ctx.edit_service_port.panel[0]);
+    destroy_win(sersec_ctx.edit_service_port.win);
+    del_panel(sersec_ctx.edit_service_port.panel_top[0]);
+    destroy_win(sersec_ctx.edit_service_port.win_top);
+    del_panel(sersec_ctx.edit_service_port.panel_bot[0]);
+    destroy_win(sersec_ctx.edit_service_port.win_bot);
+    vrmr_list_cleanup(&sersec_ctx.edit_service_port.item_list);
+    vrmr_list_cleanup(&sersec_ctx.edit_service_port.item_number_list);
     update_panels();
     doupdate();
 }
@@ -1451,24 +1449,24 @@ static void edit_serv_portranges(
         }
 
         while (quit == 0 && reload == 0) {
-            if (ServicesSection.EditServicePrt.top != NULL &&
-                    !item_visible(ServicesSection.EditServicePrt.top))
-                show_panel(ServicesSection.EditServicePrt.panel_top[0]);
+            if (sersec_ctx.edit_service_port.top != NULL &&
+                    !item_visible(sersec_ctx.edit_service_port.top))
+                show_panel(sersec_ctx.edit_service_port.panel_top[0]);
             else
-                hide_panel(ServicesSection.EditServicePrt.panel_top[0]);
+                hide_panel(sersec_ctx.edit_service_port.panel_top[0]);
 
-            if (ServicesSection.EditServicePrt.bot != NULL &&
-                    !item_visible(ServicesSection.EditServicePrt.bot))
-                show_panel(ServicesSection.EditServicePrt.panel_bot[0]);
+            if (sersec_ctx.edit_service_port.bot != NULL &&
+                    !item_visible(sersec_ctx.edit_service_port.bot))
+                show_panel(sersec_ctx.edit_service_port.panel_bot[0]);
             else
-                hide_panel(ServicesSection.EditServicePrt.panel_bot[0]);
+                hide_panel(sersec_ctx.edit_service_port.panel_bot[0]);
             update_panels();
             doupdate();
 
             /* restore the cursor */
-            pos_menu_cursor(ServicesSection.EditServicePrt.menu);
+            pos_menu_cursor(sersec_ctx.edit_service_port.menu);
 
-            ch = wgetch(ServicesSection.EditServicePrt.win);
+            ch = wgetch(sersec_ctx.edit_service_port.win);
             switch (ch) {
                 case 27:
                 case 'q':
@@ -1494,7 +1492,7 @@ static void edit_serv_portranges(
                 case KEY_DC:
                 case 'd':
                 case 'D': {
-                    cur = current_item(ServicesSection.EditServicePrt.menu);
+                    cur = current_item(sersec_ctx.edit_service_port.menu);
                     if (cur) {
                         edit_serv_portranges_del(
                                 vctx, atoi((char *)item_name(cur)), ser_ptr);
@@ -1506,7 +1504,7 @@ static void edit_serv_portranges(
                 case 10:
                 case 'e':
                 case 'E': {
-                    cur = current_item(ServicesSection.EditServicePrt.menu);
+                    cur = current_item(sersec_ctx.edit_service_port.menu);
                     if (cur) {
                         edit_serv_portranges_edit(
                                 atoi((char *)item_name(cur)), ser_ptr);
@@ -1520,34 +1518,33 @@ static void edit_serv_portranges(
 
                 case KEY_DOWN:
                     menu_driver(
-                            ServicesSection.EditServicePrt.menu, REQ_DOWN_ITEM);
+                            sersec_ctx.edit_service_port.menu, REQ_DOWN_ITEM);
                     break;
                 case KEY_UP:
-                    menu_driver(
-                            ServicesSection.EditServicePrt.menu, REQ_UP_ITEM);
+                    menu_driver(sersec_ctx.edit_service_port.menu, REQ_UP_ITEM);
                     break;
                 case KEY_NPAGE:
-                    if (menu_driver(ServicesSection.EditServicePrt.menu,
+                    if (menu_driver(sersec_ctx.edit_service_port.menu,
                                 REQ_SCR_DPAGE) != E_OK) {
-                        while (menu_driver(ServicesSection.EditServicePrt.menu,
+                        while (menu_driver(sersec_ctx.edit_service_port.menu,
                                        REQ_DOWN_ITEM) == E_OK)
                             ;
                     }
                     break;
                 case KEY_PPAGE:
-                    if (menu_driver(ServicesSection.EditServicePrt.menu,
+                    if (menu_driver(sersec_ctx.edit_service_port.menu,
                                 REQ_SCR_UPAGE) != E_OK) {
-                        while (menu_driver(ServicesSection.EditServicePrt.menu,
+                        while (menu_driver(sersec_ctx.edit_service_port.menu,
                                        REQ_UP_ITEM) == E_OK)
                             ;
                     }
                     break;
                 case KEY_HOME:
-                    menu_driver(ServicesSection.EditServicePrt.menu,
+                    menu_driver(sersec_ctx.edit_service_port.menu,
                             REQ_FIRST_ITEM); // page up
                     break;
                 case KEY_END:
-                    menu_driver(ServicesSection.EditServicePrt.menu,
+                    menu_driver(sersec_ctx.edit_service_port.menu,
                             REQ_LAST_ITEM); // page down
                     break;
 
@@ -1579,17 +1576,16 @@ static int edit_service_save(
     size_t i = 0;
 
     // check for changed fields
-    for (i = 0; i < ServicesSection.EditService.n_fields; i++) {
-        if (field_status(ServicesSection.EditService.fields[i]) == FALSE)
+    for (i = 0; i < sersec_ctx.edit_service.n_fields; i++) {
+        if (field_status(sersec_ctx.edit_service.fields[i]) == FALSE)
             continue;
 
         /* active */
-        if (ServicesSection.EditService.fields[i] == ServiceSec.activefld) {
+        if (sersec_ctx.edit_service.fields[i] == ServiceSec.activefld) {
             active = ser_ptr->active;
 
             ser_ptr->status = VRMR_ST_CHANGED;
-            if (strncasecmp(
-                        field_buffer(ServicesSection.EditService.fields[i], 0),
+            if (strncasecmp(field_buffer(sersec_ctx.edit_service.fields[i], 0),
                         STR_YES, StrLen(STR_YES)) == 0) {
                 ser_ptr->active = 1;
             } else {
@@ -1613,14 +1609,12 @@ static int edit_service_save(
                     active ? "Yes" : "No");
         }
         /* broadcast */
-        else if (ServicesSection.EditService.fields[i] ==
-                 ServiceSec.broadcastfld) {
+        else if (sersec_ctx.edit_service.fields[i] == ServiceSec.broadcastfld) {
             broadcast = ser_ptr->broadcast;
 
             ser_ptr->status = VRMR_ST_CHANGED;
 
-            if (strncasecmp(
-                        field_buffer(ServicesSection.EditService.fields[i], 0),
+            if (strncasecmp(field_buffer(sersec_ctx.edit_service.fields[i], 0),
                         STR_YES, StrLen(STR_YES)) == 0) {
                 ser_ptr->broadcast = 1;
             } else {
@@ -1645,12 +1639,11 @@ static int edit_service_save(
                     STR_WAS, broadcast ? "Yes" : "No");
         }
         /* helper field */
-        else if (ServicesSection.EditService.fields[i] ==
-                 ServiceSec.helperfld) {
+        else if (sersec_ctx.edit_service.fields[i] == ServiceSec.helperfld) {
             (void)strlcpy(helper, ser_ptr->helper, sizeof(helper));
 
             copy_field2buf(ser_ptr->helper,
-                    field_buffer(ServicesSection.EditService.fields[i], 0),
+                    field_buffer(sersec_ctx.edit_service.fields[i], 0),
                     sizeof(ser_ptr->helper));
 
             if (vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "HELPER",
@@ -1668,12 +1661,11 @@ static int edit_service_save(
                     STR_IS_NOW_SET_TO, ser_ptr->helper, STR_WAS, helper);
         }
         /* comment */
-        else if (ServicesSection.EditService.fields[i] ==
-                 ServiceSec.commentfld) {
-            result = vctx->sf->tell(vctx->serv_backend, ser_ptr->name,
-                    "COMMENT",
-                    field_buffer(ServicesSection.EditService.fields[i], 0), 1,
-                    VRMR_TYPE_SERVICE);
+        else if (sersec_ctx.edit_service.fields[i] == ServiceSec.commentfld) {
+            result =
+                    vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "COMMENT",
+                            field_buffer(sersec_ctx.edit_service.fields[i], 0),
+                            1, VRMR_TYPE_SERVICE);
             if (result < 0) {
                 vrmr_error(-1, VR_ERR,
                         gettext("saving to backend failed (in: %s:%d)."),
@@ -1815,56 +1807,53 @@ static void edit_service_init(
     ServiceSec.portranges_lines = portranges_lines;
 
     /* place on the same y as "edit service" */
-    VrWinGetOffset(-1, -1, height, width, 4, ServicesSection.sl_xre + 1,
-            &starty, &startx);
-    ServicesSection.EditService.se_xre = startx + width;
-    ServicesSection.EditService.se_yle = starty + height;
+    VrWinGetOffset(
+            -1, -1, height, width, 4, sersec_ctx.sl_xre + 1, &starty, &startx);
+    sersec_ctx.edit_service.se_xre = startx + width;
+    sersec_ctx.edit_service.se_yle = starty + height;
 
-    ServicesSection.EditService.n_fields = 10;
-    ServicesSection.EditService.fields = (FIELD **)calloc(
-            ServicesSection.EditService.n_fields + 1, sizeof(FIELD *));
-    vrmr_fatal_alloc("calloc", ServicesSection.EditService.fields);
+    sersec_ctx.edit_service.n_fields = 10;
+    sersec_ctx.edit_service.fields = (FIELD **)calloc(
+            sersec_ctx.edit_service.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_alloc("calloc", sersec_ctx.edit_service.fields);
 
     /* active */
-    ServiceSec.activelabelfld =
-            (ServicesSection.EditService.fields[field_num++] =
-                            new_field(1, 10, 2, 0, 0, 0));
+    ServiceSec.activelabelfld = (sersec_ctx.edit_service.fields[field_num++] =
+                                         new_field(1, 10, 2, 0, 0, 0));
     set_field_buffer_wrap(ServiceSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(ServiceSec.activelabelfld, O_ACTIVE);
 
-    ServiceSec.activefld = (ServicesSection.EditService.fields[field_num++] =
+    ServiceSec.activefld = (sersec_ctx.edit_service.fields[field_num++] =
                                     new_field(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(
             ServiceSec.activefld, 0, ser_ptr->active ? STR_YES : STR_NO);
 
     /* broadcast */
     ServiceSec.broadcastlabelfld =
-            (ServicesSection.EditService.fields[field_num++] =
+            (sersec_ctx.edit_service.fields[field_num++] =
                             new_field(1, 16, 5, 0, 0, 0));
     set_field_buffer_wrap(
             ServiceSec.broadcastlabelfld, 0, gettext("Broadcast"));
     field_opts_off(ServiceSec.broadcastlabelfld, O_ACTIVE);
 
-    ServiceSec.broadcastfld = (ServicesSection.EditService.fields[field_num++] =
+    ServiceSec.broadcastfld = (sersec_ctx.edit_service.fields[field_num++] =
                                        new_field(1, 3, 6, 1, 0, 0));
     set_field_buffer_wrap(
             ServiceSec.broadcastfld, 0, ser_ptr->broadcast ? STR_YES : STR_NO);
 
     /* helper */
-    ServiceSec.helperlabelfld =
-            (ServicesSection.EditService.fields[field_num++] =
-                            new_field(1, 16, 2, 16, 0, 0));
+    ServiceSec.helperlabelfld = (sersec_ctx.edit_service.fields[field_num++] =
+                                         new_field(1, 16, 2, 16, 0, 0));
     set_field_buffer_wrap(
             ServiceSec.helperlabelfld, 0, gettext("Protocol helper"));
     field_opts_off(ServiceSec.helperlabelfld, O_ACTIVE);
 
-    ServiceSec.helperfld = (ServicesSection.EditService.fields[field_num++] =
+    ServiceSec.helperfld = (sersec_ctx.edit_service.fields[field_num++] =
                                     new_field(1, 32, 3, 17, 0, 0));
     set_field_buffer_wrap(ServiceSec.helperfld, 0, ser_ptr->helper);
 
-    ServiceSec.commentlabelfld =
-            (ServicesSection.EditService.fields[field_num++] =
-                            new_field(1, 16, 8, 0, 0, 0));
+    ServiceSec.commentlabelfld = (sersec_ctx.edit_service.fields[field_num++] =
+                                          new_field(1, 16, 8, 0, 0, 0));
     set_field_buffer_wrap(ServiceSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(ServiceSec.commentlabelfld, O_ACTIVE);
 
@@ -1873,17 +1862,17 @@ static void edit_service_init(
     comment_x = 48;
     /* load the comment from the backend */
     if (vctx->sf->ask(vctx->serv_backend, ser_ptr->name, "COMMENT",
-                ServicesSection.comment, sizeof(ServicesSection.comment),
+                sersec_ctx.comment, sizeof(sersec_ctx.comment),
                 VRMR_TYPE_SERVICE, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
     ServiceSec.commentfld =
-            (ServicesSection.EditService.fields[field_num++] =
+            (sersec_ctx.edit_service.fields[field_num++] =
                             new_field(comment_y, comment_x, 9, 1, 0, 0));
-    set_field_buffer_wrap(ServiceSec.commentfld, 0, ServicesSection.comment);
+    set_field_buffer_wrap(ServiceSec.commentfld, 0, sersec_ctx.comment);
 
     ServiceSec.norangewarningfld =
-            (ServicesSection.EditService.fields[field_num++] =
+            (sersec_ctx.edit_service.fields[field_num++] =
                             new_field(1, 48, 14, 1, 0, 0));
     set_field_buffer_wrap(ServiceSec.norangewarningfld, 0,
             gettext("Warning: no port(range)s defined!"));
@@ -1891,23 +1880,21 @@ static void edit_service_init(
     set_field_just(ServiceSec.norangewarningfld, JUSTIFY_CENTER);
 
     ServiceSec.portrangesfld =
-            (ServicesSection.EditService.fields[field_num++] =
+            (sersec_ctx.edit_service.fields[field_num++] =
                             new_field(portranges_lines, 48, 17, 1, 0, 0));
     field_opts_off(ServiceSec.portrangesfld, O_ACTIVE);
     set_field_just(ServiceSec.portrangesfld, JUSTIFY_CENTER);
 
-    vrmr_fatal_if(ServicesSection.EditService.n_fields != field_num);
+    vrmr_fatal_if(sersec_ctx.edit_service.n_fields != field_num);
     /* terminate */
-    ServicesSection.EditService.fields[ServicesSection.EditService.n_fields] =
-            NULL;
+    sersec_ctx.edit_service.fields[sersec_ctx.edit_service.n_fields] = NULL;
 
-    for (i = 0; i < ServicesSection.EditService.n_fields; i++) {
+    for (i = 0; i < sersec_ctx.edit_service.n_fields; i++) {
         // set field options
-        set_field_back(
-                ServicesSection.EditService.fields[i], vccnf.color_win_rev);
-        field_opts_off(ServicesSection.EditService.fields[i], O_AUTOSKIP);
+        set_field_back(sersec_ctx.edit_service.fields[i], vccnf.color_win_rev);
+        field_opts_off(sersec_ctx.edit_service.fields[i], O_AUTOSKIP);
         // set status to false
-        set_field_status(ServicesSection.EditService.fields[i], FALSE);
+        set_field_status(sersec_ctx.edit_service.fields[i], FALSE);
     }
 
     set_field_back(ServiceSec.activelabelfld, vccnf.color_win);
@@ -1920,32 +1907,29 @@ static void edit_service_init(
     set_field_fore(ServiceSec.norangewarningfld, vccnf.color_win_warn | A_BOLD);
 
     /* create window and panel */
-    ServicesSection.EditService.win = create_newwin(height, width, starty,
-            startx, gettext("Edit Service"), vccnf.color_win);
-    keypad(ServicesSection.EditService.win, TRUE);
-    ServicesSection.EditService.panel[0] =
-            new_panel(ServicesSection.EditService.win);
+    sersec_ctx.edit_service.win = create_newwin(height, width, starty, startx,
+            gettext("Edit Service"), vccnf.color_win);
+    keypad(sersec_ctx.edit_service.win, TRUE);
+    sersec_ctx.edit_service.panel[0] = new_panel(sersec_ctx.edit_service.win);
 
     /* create and post form */
-    ServicesSection.EditService.form =
-            new_form(ServicesSection.EditService.fields);
-    scale_form(ServicesSection.EditService.form, &rows, &cols);
-    set_form_win(
-            ServicesSection.EditService.form, ServicesSection.EditService.win);
-    set_form_sub(ServicesSection.EditService.form,
-            derwin(ServicesSection.EditService.win, rows, cols, 1, 2));
-    post_form(ServicesSection.EditService.form);
+    sersec_ctx.edit_service.form = new_form(sersec_ctx.edit_service.fields);
+    scale_form(sersec_ctx.edit_service.form, &rows, &cols);
+    set_form_win(sersec_ctx.edit_service.form, sersec_ctx.edit_service.win);
+    set_form_sub(sersec_ctx.edit_service.form,
+            derwin(sersec_ctx.edit_service.win, rows, cols, 1, 2));
+    post_form(sersec_ctx.edit_service.form);
 
     /* print labels */
-    mvwprintw(ServicesSection.EditService.win, 1, 2, "%s: %s", gettext("Name"),
+    mvwprintw(sersec_ctx.edit_service.win, 1, 2, "%s: %s", gettext("Name"),
             ser_ptr->name);
-    mvwprintw(ServicesSection.EditService.win, 16, 1,
+    mvwprintw(sersec_ctx.edit_service.win, 16, 1,
             gettext("Press <F6> to manage the portranges of this service."));
 
     edit_service_update_portrangesfld(vctx, ser_ptr);
 
     /* position the cursor in the active field */
-    pos_form_cursor(ServicesSection.EditService.form);
+    pos_form_cursor(sersec_ctx.edit_service.form);
 }
 
 static void edit_service_destroy(void)
@@ -1953,19 +1937,19 @@ static void edit_service_destroy(void)
     size_t i;
 
     /* Un post form and free the memory */
-    unpost_form(ServicesSection.EditService.form);
-    free_form(ServicesSection.EditService.form);
+    unpost_form(sersec_ctx.edit_service.form);
+    free_form(sersec_ctx.edit_service.form);
 
-    for (i = 0; i < ServicesSection.EditService.n_fields; i++) {
-        free_field(ServicesSection.EditService.fields[i]);
+    for (i = 0; i < sersec_ctx.edit_service.n_fields; i++) {
+        free_field(sersec_ctx.edit_service.fields[i]);
     }
-    free(ServicesSection.EditService.fields);
+    free(sersec_ctx.edit_service.fields);
 
-    del_panel(ServicesSection.EditService.panel[0]);
-    destroy_win(ServicesSection.EditService.win);
+    del_panel(sersec_ctx.edit_service.panel[0]);
+    destroy_win(sersec_ctx.edit_service.win);
 
     /* clear comment */
-    strlcpy(ServicesSection.comment, "", sizeof(ServicesSection.comment));
+    strlcpy(sersec_ctx.comment, "", sizeof(sersec_ctx.comment));
 
     update_panels();
     doupdate();
@@ -2002,9 +1986,8 @@ static int edit_service(
 
     /* Loop through to get user requests */
     while (quit == 0) {
-        draw_field_active_mark(cur, prev, ServicesSection.EditService.win,
-                ServicesSection.EditService.form,
-                vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, sersec_ctx.edit_service.win,
+                sersec_ctx.edit_service.form, vccnf.color_win_mark | A_BOLD);
 
         /* init */
         edit_service_init(vctx, ser_ptr);
@@ -2014,31 +1997,30 @@ static int edit_service(
             field_opts_on(ServiceSec.norangewarningfld, O_VISIBLE);
         }
 
-        pos_form_cursor(ServicesSection.EditService.form);
-        cur = current_field(ServicesSection.EditService.form);
+        pos_form_cursor(sersec_ctx.edit_service.form);
+        cur = current_field(sersec_ctx.edit_service.form);
 
         draw_top_menu(top_win, gettext("Edit Service"), key_choices_n,
                 key_choices, cmd_choices_n, cmd_choices);
 
-        wrefresh(ServicesSection.EditService.win);
+        wrefresh(sersec_ctx.edit_service.win);
         update_panels();
         doupdate();
 
         while (quit == 0) {
-            ch = wgetch(ServicesSection.EditService.win);
+            ch = wgetch(sersec_ctx.edit_service.win);
 
             not_defined = 0;
 
             if (cur == ServiceSec.commentfld) {
-                if (nav_field_comment(ServicesSection.EditService.form, ch) < 0)
+                if (nav_field_comment(sersec_ctx.edit_service.form, ch) < 0)
                     not_defined = 1;
             } else if (cur == ServiceSec.helperfld) {
-                if (nav_field_simpletext(ServicesSection.EditService.form, ch) <
-                        0)
+                if (nav_field_simpletext(sersec_ctx.edit_service.form, ch) < 0)
                     not_defined = 1;
             } else if (cur == ServiceSec.activefld ||
                        cur == ServiceSec.broadcastfld) {
-                if (nav_field_yesno(ServicesSection.EditService.form, ch) < 0)
+                if (nav_field_yesno(sersec_ctx.edit_service.form, ch) < 0)
                     not_defined = 1;
             } else {
                 not_defined = 1;
@@ -2069,18 +2051,16 @@ static int edit_service(
                     case 10: // enter
                     case 9:  // tab
 
-                        form_driver(ServicesSection.EditService.form,
-                                REQ_NEXT_FIELD);
                         form_driver(
-                                ServicesSection.EditService.form, REQ_END_LINE);
+                                sersec_ctx.edit_service.form, REQ_NEXT_FIELD);
+                        form_driver(sersec_ctx.edit_service.form, REQ_END_LINE);
                         break;
 
                     case KEY_UP:
 
-                        form_driver(ServicesSection.EditService.form,
-                                REQ_PREV_FIELD);
                         form_driver(
-                                ServicesSection.EditService.form, REQ_END_LINE);
+                                sersec_ctx.edit_service.form, REQ_PREV_FIELD);
+                        form_driver(sersec_ctx.edit_service.form, REQ_END_LINE);
                         break;
 
                     case KEY_F(12):
@@ -2093,7 +2073,7 @@ static int edit_service(
             }
 
             prev = cur;
-            cur = current_field(ServicesSection.EditService.form);
+            cur = current_field(sersec_ctx.edit_service.form);
 
             /* print or erase warning about the group being empty. */
             if (ser_ptr->PortrangeList.len == 0) {
@@ -2101,8 +2081,8 @@ static int edit_service(
             } else
                 field_opts_off(ServiceSec.norangewarningfld, O_VISIBLE);
 
-            wrefresh(ServicesSection.EditService.win);
-            pos_form_cursor(ServicesSection.EditService.form);
+            wrefresh(sersec_ctx.edit_service.win);
+            pos_form_cursor(sersec_ctx.edit_service.form);
         }
     }
 
@@ -2200,90 +2180,89 @@ static void vrmr_init_services_section(struct vrmr_services *services,
     struct vrmr_service *ser_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    ServicesSection.list_items = services->list.len;
-    ServicesSection.items =
-            (ITEM **)calloc(ServicesSection.list_items + 1, sizeof(ITEM *));
-    vrmr_fatal_alloc("calloc", ServicesSection.items);
+    sersec_ctx.list_items = services->list.len;
+    sersec_ctx.items =
+            (ITEM **)calloc(sersec_ctx.list_items + 1, sizeof(ITEM *));
+    vrmr_fatal_alloc("calloc", sersec_ctx.items);
 
     for (i = 0, d_node = services->list.top; d_node;
             d_node = d_node->next, i++) {
         vrmr_fatal_if_null(d_node->data);
         ser_ptr = d_node->data;
-        ServicesSection.items[i] = new_item(ser_ptr->name, NULL);
+        sersec_ctx.items[i] = new_item(ser_ptr->name, NULL);
     }
-    ServicesSection.items[ServicesSection.list_items] = (ITEM *)NULL;
+    sersec_ctx.items[sersec_ctx.list_items] = (ITEM *)NULL;
 
-    if (ServicesSection.list_items > 0) {
-        ServicesSection.top = ServicesSection.items[0];
-        ServicesSection.bot =
-                ServicesSection.items[ServicesSection.list_items - 1];
+    if (sersec_ctx.list_items > 0) {
+        sersec_ctx.top = sersec_ctx.items[0];
+        sersec_ctx.bot = sersec_ctx.items[sersec_ctx.list_items - 1];
     } else {
-        ServicesSection.top = NULL;
-        ServicesSection.bot = NULL;
+        sersec_ctx.top = NULL;
+        sersec_ctx.bot = NULL;
     }
 
-    ServicesSection.win = newwin(height, width, starty, startx);
-    wbkgd(ServicesSection.win, vccnf.color_win);
-    keypad(ServicesSection.win, TRUE);
-    ServicesSection.panel[0] = new_panel(ServicesSection.win);
-    ServicesSection.menu = new_menu((ITEM **)ServicesSection.items);
-    set_menu_win(ServicesSection.menu, ServicesSection.win);
-    set_menu_sub(ServicesSection.menu,
-            derwin(ServicesSection.win, height - 7, width - 2, 3, 1));
-    set_menu_format(ServicesSection.menu, height - 8, 1);
-    box(ServicesSection.win, 0, 0);
-    print_in_middle(ServicesSection.win, 1, 0, width, gettext("Services"),
-            vccnf.color_win);
+    sersec_ctx.win = newwin(height, width, starty, startx);
+    wbkgd(sersec_ctx.win, vccnf.color_win);
+    keypad(sersec_ctx.win, TRUE);
+    sersec_ctx.panel[0] = new_panel(sersec_ctx.win);
+    sersec_ctx.menu = new_menu((ITEM **)sersec_ctx.items);
+    set_menu_win(sersec_ctx.menu, sersec_ctx.win);
+    set_menu_sub(sersec_ctx.menu,
+            derwin(sersec_ctx.win, height - 7, width - 2, 3, 1));
+    set_menu_format(sersec_ctx.menu, height - 8, 1);
+    box(sersec_ctx.win, 0, 0);
+    print_in_middle(
+            sersec_ctx.win, 1, 0, width, gettext("Services"), vccnf.color_win);
 
-    mvwaddch(ServicesSection.win, 2, 0, ACS_LTEE);
-    mvwhline(ServicesSection.win, 2, 1, ACS_HLINE, width - 2);
-    mvwaddch(ServicesSection.win, 2, width - 1, ACS_RTEE);
+    mvwaddch(sersec_ctx.win, 2, 0, ACS_LTEE);
+    mvwhline(sersec_ctx.win, 2, 1, ACS_HLINE, width - 2);
+    mvwaddch(sersec_ctx.win, 2, width - 1, ACS_RTEE);
 
-    set_menu_back(ServicesSection.menu, vccnf.color_win);
-    set_menu_fore(ServicesSection.menu, vccnf.color_win_rev);
-    post_menu(ServicesSection.menu);
+    set_menu_back(sersec_ctx.menu, vccnf.color_win);
+    set_menu_fore(sersec_ctx.menu, vccnf.color_win_rev);
+    post_menu(sersec_ctx.menu);
 
-    mvwaddch(ServicesSection.win, height - 5, 0, ACS_LTEE);
-    mvwhline(ServicesSection.win, height - 5, 1, ACS_HLINE, width - 2);
-    mvwaddch(ServicesSection.win, height - 5, width - 1, ACS_RTEE);
+    mvwaddch(sersec_ctx.win, height - 5, 0, ACS_LTEE);
+    mvwhline(sersec_ctx.win, height - 5, 1, ACS_HLINE, width - 2);
+    mvwaddch(sersec_ctx.win, height - 5, width - 1, ACS_RTEE);
 
-    mvwprintw(ServicesSection.win, height - 4, 2, "<RET> %s", STR_EDIT);
-    mvwprintw(ServicesSection.win, height - 3, 2, "<INS> %s", STR_NEW);
-    mvwprintw(ServicesSection.win, height - 2, 2, "<DEL> %s", STR_REMOVE);
+    mvwprintw(sersec_ctx.win, height - 4, 2, "<RET> %s", STR_EDIT);
+    mvwprintw(sersec_ctx.win, height - 3, 2, "<INS> %s", STR_NEW);
+    mvwprintw(sersec_ctx.win, height - 2, 2, "<DEL> %s", STR_REMOVE);
 
     /* create the top and bottom fields */
-    ServicesSection.win_top = newwin(1, 6, 6, 27);
-    vrmr_fatal_if_null(ServicesSection.win_top);
-    wbkgd(ServicesSection.win_top, vccnf.color_win);
-    ServicesSection.panel_top[0] = new_panel(ServicesSection.win_top);
+    sersec_ctx.win_top = newwin(1, 6, 6, 27);
+    vrmr_fatal_if_null(sersec_ctx.win_top);
+    wbkgd(sersec_ctx.win_top, vccnf.color_win);
+    sersec_ctx.panel_top[0] = new_panel(sersec_ctx.win_top);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ServicesSection.win_top, "(%s)", gettext("more"));
-    hide_panel(ServicesSection.panel_top[0]);
+    wprintw(sersec_ctx.win_top, "(%s)", gettext("more"));
+    hide_panel(sersec_ctx.panel_top[0]);
 
-    ServicesSection.win_bot = newwin(1, 6, height - 1, 27);
-    vrmr_fatal_if_null(ServicesSection.win_bot);
-    wbkgd(ServicesSection.win_bot, vccnf.color_win);
-    ServicesSection.panel_bot[0] = new_panel(ServicesSection.win_bot);
+    sersec_ctx.win_bot = newwin(1, 6, height - 1, 27);
+    vrmr_fatal_if_null(sersec_ctx.win_bot);
+    wbkgd(sersec_ctx.win_bot, vccnf.color_win);
+    sersec_ctx.panel_bot[0] = new_panel(sersec_ctx.win_bot);
     /* TRANSLATORS: max 4 chars */
-    wprintw(ServicesSection.win_bot, "(%s)", gettext("more"));
-    hide_panel(ServicesSection.panel_bot[0]);
+    wprintw(sersec_ctx.win_bot, "(%s)", gettext("more"));
+    hide_panel(sersec_ctx.panel_bot[0]);
 }
 
 static void destroy_services_section(void)
 {
     unsigned int i = 0;
 
-    unpost_menu(ServicesSection.menu);
-    free_menu(ServicesSection.menu);
-    for (i = 0; i < ServicesSection.list_items; ++i)
-        free_item(ServicesSection.items[i]);
-    free(ServicesSection.items);
-    del_panel(ServicesSection.panel[0]);
-    destroy_win(ServicesSection.win);
-    del_panel(ServicesSection.panel_top[0]);
-    destroy_win(ServicesSection.win_top);
-    del_panel(ServicesSection.panel_bot[0]);
-    destroy_win(ServicesSection.win_bot);
+    unpost_menu(sersec_ctx.menu);
+    free_menu(sersec_ctx.menu);
+    for (i = 0; i < sersec_ctx.list_items; ++i)
+        free_item(sersec_ctx.items[i]);
+    free(sersec_ctx.items);
+    del_panel(sersec_ctx.panel[0]);
+    destroy_win(sersec_ctx.win);
+    del_panel(sersec_ctx.panel_top[0]);
+    destroy_win(sersec_ctx.win_top);
+    del_panel(sersec_ctx.panel_bot[0]);
+    destroy_win(sersec_ctx.win_bot);
 }
 
 void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
@@ -2310,8 +2289,8 @@ void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
     width = 34;
     /* place on the same y as "edit service" */
     VrWinGetOffset(-1, -1, height, width, 4, 1, &starty, &startx);
-    ServicesSection.sl_xre = startx + width;
-    ServicesSection.sl_yle = starty + height;
+    sersec_ctx.sl_xre = startx + width;
+    sersec_ctx.sl_yle = starty + height;
 
     vrmr_init_services_section(services, height, width, starty, startx);
     draw_top_menu(top_win, gettext("Services"), key_choices_n, key_choices,
@@ -2327,24 +2306,22 @@ void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
         }
 
         while (quit == 0 && reload == 0) {
-            if (ServicesSection.top != NULL &&
-                    !item_visible(ServicesSection.top))
-                show_panel(ServicesSection.panel_top[0]);
+            if (sersec_ctx.top != NULL && !item_visible(sersec_ctx.top))
+                show_panel(sersec_ctx.panel_top[0]);
             else
-                hide_panel(ServicesSection.panel_top[0]);
+                hide_panel(sersec_ctx.panel_top[0]);
 
-            if (ServicesSection.bot != NULL &&
-                    !item_visible(ServicesSection.bot))
-                show_panel(ServicesSection.panel_bot[0]);
+            if (sersec_ctx.bot != NULL && !item_visible(sersec_ctx.bot))
+                show_panel(sersec_ctx.panel_bot[0]);
             else
-                hide_panel(ServicesSection.panel_bot[0]);
+                hide_panel(sersec_ctx.panel_bot[0]);
             update_panels();
             doupdate();
 
             /* restore the cursor */
-            pos_menu_cursor(ServicesSection.menu);
+            pos_menu_cursor(sersec_ctx.menu);
 
-            ch = wgetch(ServicesSection.win);
+            ch = wgetch(sersec_ctx.win);
 
             switch (ch) {
                 case 27:
@@ -2358,7 +2335,7 @@ void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
                 case 'r':
                 case 'R':
 
-                    cur = current_item(ServicesSection.menu);
+                    cur = current_item(sersec_ctx.menu);
                     new_name_ptr = input_box(32, gettext("Rename Service"),
                             STR_PLEASE_ENTER_THE_NAME);
                     if (cur && new_name_ptr != NULL) {
@@ -2427,7 +2404,7 @@ void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
                 case 'd':
                 case 'D':
 
-                    cur = current_item(ServicesSection.menu);
+                    cur = current_item(sersec_ctx.menu);
                     if (cur &&
                             confirm(gettext("Delete"), gettext("Are you sure?"),
                                     vccnf.color_win_note,
@@ -2450,33 +2427,30 @@ void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
                     break;
 
                 case KEY_DOWN:
-                    menu_driver(ServicesSection.menu, REQ_DOWN_ITEM);
+                    menu_driver(sersec_ctx.menu, REQ_DOWN_ITEM);
                     break;
                 case KEY_UP:
-                    menu_driver(ServicesSection.menu, REQ_UP_ITEM);
+                    menu_driver(sersec_ctx.menu, REQ_UP_ITEM);
                     break;
                 case KEY_NPAGE:
-                    if (menu_driver(ServicesSection.menu, REQ_SCR_DPAGE) !=
-                            E_OK) {
-                        while (menu_driver(ServicesSection.menu,
-                                       REQ_DOWN_ITEM) == E_OK)
+                    if (menu_driver(sersec_ctx.menu, REQ_SCR_DPAGE) != E_OK) {
+                        while (menu_driver(sersec_ctx.menu, REQ_DOWN_ITEM) ==
+                                E_OK)
                             ;
                     }
                     break;
                 case KEY_PPAGE:
-                    if (menu_driver(ServicesSection.menu, REQ_SCR_UPAGE) !=
-                            E_OK) {
-                        while (menu_driver(ServicesSection.menu, REQ_UP_ITEM) ==
+                    if (menu_driver(sersec_ctx.menu, REQ_SCR_UPAGE) != E_OK) {
+                        while (menu_driver(sersec_ctx.menu, REQ_UP_ITEM) ==
                                 E_OK)
                             ;
                     }
                     break;
                 case KEY_HOME:
-                    menu_driver(
-                            ServicesSection.menu, REQ_FIRST_ITEM); // page up
+                    menu_driver(sersec_ctx.menu, REQ_FIRST_ITEM); // page up
                     break;
                 case KEY_END:
-                    menu_driver(ServicesSection.menu, REQ_LAST_ITEM); // end
+                    menu_driver(sersec_ctx.menu, REQ_LAST_ITEM); // end
                     break;
 
                 case KEY_RIGHT:
@@ -2484,7 +2458,7 @@ void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
                 case 'e':
                 case 'E':
 
-                    cur = current_item(ServicesSection.menu);
+                    cur = current_item(sersec_ctx.menu);
                     if (cur) {
                         (void)edit_service(
                                 vctx, services, (char *)item_name(cur));

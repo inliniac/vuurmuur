@@ -20,22 +20,22 @@
 
 #include "main.h"
 
-struct TrafVolSection_ {
+struct {
     PANEL *panel[1];
     WINDOW *win;
     FIELD **fields;
     FORM *form;
     size_t n_fields;
-} TrafVolSection;
+} traf_vol_section;
 
-struct TrafVol_ {
+struct traf_vol {
     int year;
     int month;
     int day;
     char total; /* total for this timeunit */
     unsigned int recv_mb;
     unsigned int send_mb;
-} TrafVol;
+} traf_vol;
 
 /*  strip the buf src from the spaces before the text. Leave other
     spaces alone.
@@ -60,9 +60,9 @@ static void strip_buf(char *src, char *dst, size_t dstsize)
 static void bandwidth_store(struct vrmr_list *list, int year, int month,
         int day, char total, unsigned int recv, unsigned int send)
 {
-    struct TrafVol_ *bw_ptr = NULL;
+    struct traf_vol *bw_ptr = NULL;
 
-    bw_ptr = malloc(sizeof(struct TrafVol_));
+    bw_ptr = malloc(sizeof(struct traf_vol));
     vrmr_fatal_alloc("malloc", bw_ptr);
 
     bw_ptr->year = year;
@@ -376,152 +376,163 @@ static void trafvol_section_init(
         this month in, this month out,
         last month in, last month out
     */
-    TrafVolSection.n_fields = 11 * (size_t)ifac_num;
+    traf_vol_section.n_fields = 11 * (size_t)ifac_num;
 
     /* alloc the needed memory */
-    TrafVolSection.fields =
-            (FIELD **)calloc(TrafVolSection.n_fields + 1, sizeof(FIELD *));
-    vrmr_fatal_alloc("calloc", TrafVolSection.fields);
+    traf_vol_section.fields =
+            (FIELD **)calloc(traf_vol_section.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_alloc("calloc", traf_vol_section.fields);
 
     /* create iface stats fields */
     for (ifacs = 0, ifac_fields = 0; ifacs < ifac_num; ifacs++) {
         toprow = (int)(ifac_start + ifacs);
 
         /* interface name */
-        TrafVolSection.fields[ifac_fields] = new_field(1, 15, toprow, 0, 0, 1);
+        traf_vol_section.fields[ifac_fields] =
+                new_field(1, 15, toprow, 0, 0, 1);
         set_field_buffer_wrap(
-                TrafVolSection.fields[ifac_fields], 1, "ifacname");
+                traf_vol_section.fields[ifac_fields], 1, "ifacname");
         ifac_fields++;
 
-        TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 16, 0, 1);
-        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "t-in");
+        traf_vol_section.fields[ifac_fields] =
+                new_field(1, 5, toprow, 16, 0, 1);
+        set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "t-in");
         ifac_fields++;
 
-        TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 22, 0, 1);
-        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "t-ou");
+        traf_vol_section.fields[ifac_fields] =
+                new_field(1, 5, toprow, 22, 0, 1);
+        set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "t-ou");
         ifac_fields++;
 
-        TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 28, 0, 1);
-        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "y-in");
+        traf_vol_section.fields[ifac_fields] =
+                new_field(1, 5, toprow, 28, 0, 1);
+        set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "y-in");
         ifac_fields++;
 
-        TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 34, 0, 1);
-        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "y-ou");
+        traf_vol_section.fields[ifac_fields] =
+                new_field(1, 5, toprow, 34, 0, 1);
+        set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "y-ou");
         ifac_fields++;
 
-        TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 40, 0, 1);
-        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "7-in");
+        traf_vol_section.fields[ifac_fields] =
+                new_field(1, 5, toprow, 40, 0, 1);
+        set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "7-in");
         ifac_fields++;
 
-        TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 46, 0, 1);
-        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "7-ou");
+        traf_vol_section.fields[ifac_fields] =
+                new_field(1, 5, toprow, 46, 0, 1);
+        set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "7-ou");
         ifac_fields++;
 
-        TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 52, 0, 1);
-        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "t-in");
+        traf_vol_section.fields[ifac_fields] =
+                new_field(1, 5, toprow, 52, 0, 1);
+        set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "t-in");
         ifac_fields++;
 
-        TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 58, 0, 1);
-        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "t-ou");
+        traf_vol_section.fields[ifac_fields] =
+                new_field(1, 5, toprow, 58, 0, 1);
+        set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "t-ou");
         ifac_fields++;
 
-        TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 64, 0, 1);
-        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "l-in");
+        traf_vol_section.fields[ifac_fields] =
+                new_field(1, 5, toprow, 64, 0, 1);
+        set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "l-in");
         ifac_fields++;
 
-        TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 70, 0, 1);
-        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "l-ou");
+        traf_vol_section.fields[ifac_fields] =
+                new_field(1, 5, toprow, 70, 0, 1);
+        set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "l-ou");
         ifac_fields++;
     }
 
     /* terminate the field array */
-    TrafVolSection.fields[TrafVolSection.n_fields] = NULL;
+    traf_vol_section.fields[traf_vol_section.n_fields] = NULL;
 
     /* create the window and the panel */
-    TrafVolSection.win = create_newwin(height, width, starty, startx,
+    traf_vol_section.win = create_newwin(height, width, starty, startx,
             gettext("Traffic Volume Section"), vccnf.color_win);
-    vrmr_fatal_if_null(TrafVolSection.win);
+    vrmr_fatal_if_null(traf_vol_section.win);
 
-    TrafVolSection.panel[0] = new_panel(TrafVolSection.win);
-    vrmr_fatal_if_null(TrafVolSection.panel[0]);
+    traf_vol_section.panel[0] = new_panel(traf_vol_section.win);
+    vrmr_fatal_if_null(traf_vol_section.panel[0]);
 
     /* field options */
-    for (i = 0; i < TrafVolSection.n_fields; i++) {
-        set_field_back(TrafVolSection.fields[i], vccnf.color_win);
-        field_opts_off(TrafVolSection.fields[i], O_AUTOSKIP);
-        set_field_status(TrafVolSection.fields[i], FALSE);
+    for (i = 0; i < traf_vol_section.n_fields; i++) {
+        set_field_back(traf_vol_section.fields[i], vccnf.color_win);
+        field_opts_off(traf_vol_section.fields[i], O_AUTOSKIP);
+        set_field_status(traf_vol_section.fields[i], FALSE);
     }
 
     /* Create the form and post it */
-    TrafVolSection.form = new_form(TrafVolSection.fields);
-    vrmr_fatal_if_null(TrafVolSection.form);
+    traf_vol_section.form = new_form(traf_vol_section.fields);
+    vrmr_fatal_if_null(traf_vol_section.form);
     /* Calculate the area required for the form */
-    scale_form(TrafVolSection.form, &rows, &cols);
-    keypad(TrafVolSection.win, TRUE);
+    scale_form(traf_vol_section.form, &rows, &cols);
+    keypad(traf_vol_section.win, TRUE);
     /* Set main window and sub window */
-    set_form_win(TrafVolSection.form, TrafVolSection.win);
-    set_form_sub(
-            TrafVolSection.form, derwin(TrafVolSection.win, rows, cols, 1, 2));
-    vrmr_fatal_if(post_form(TrafVolSection.form) != E_OK);
+    set_form_win(traf_vol_section.form, traf_vol_section.win);
+    set_form_sub(traf_vol_section.form,
+            derwin(traf_vol_section.win, rows, cols, 1, 2));
+    vrmr_fatal_if(post_form(traf_vol_section.form) != E_OK);
 
-    mvwprintw(TrafVolSection.win, 3, 2, gettext("Interface"));
-    mvwprintw(TrafVolSection.win, 2, 18, gettext("Today"));
-    mvwprintw(TrafVolSection.win, 3, 18, gettext("In"));
-    mvwprintw(TrafVolSection.win, 3, 24, gettext("Out"));
-    mvwprintw(TrafVolSection.win, 2, 30, gettext("Yesterday"));
-    mvwprintw(TrafVolSection.win, 3, 30, gettext("In"));
-    mvwprintw(TrafVolSection.win, 3, 36, gettext("Out"));
-    mvwprintw(TrafVolSection.win, 2, 42, gettext("7-days"));
-    mvwprintw(TrafVolSection.win, 3, 42, gettext("In"));
-    mvwprintw(TrafVolSection.win, 3, 48, gettext("Out"));
-    mvwprintw(TrafVolSection.win, 2, 54, gettext("This month"));
-    mvwprintw(TrafVolSection.win, 3, 54, gettext("In"));
-    mvwprintw(TrafVolSection.win, 3, 60, gettext("Out"));
-    mvwprintw(TrafVolSection.win, 2, 66, gettext("Last month"));
-    mvwprintw(TrafVolSection.win, 3, 66, gettext("In"));
-    mvwprintw(TrafVolSection.win, 3, 72, gettext("Out"));
-    mvwhline(TrafVolSection.win, 4, 1, ACS_HLINE, 76);
-    mvwaddch(TrafVolSection.win, 4, 0, ACS_LTEE);
-    mvwaddch(TrafVolSection.win, 4, 77, ACS_RTEE);
+    mvwprintw(traf_vol_section.win, 3, 2, gettext("Interface"));
+    mvwprintw(traf_vol_section.win, 2, 18, gettext("Today"));
+    mvwprintw(traf_vol_section.win, 3, 18, gettext("In"));
+    mvwprintw(traf_vol_section.win, 3, 24, gettext("Out"));
+    mvwprintw(traf_vol_section.win, 2, 30, gettext("Yesterday"));
+    mvwprintw(traf_vol_section.win, 3, 30, gettext("In"));
+    mvwprintw(traf_vol_section.win, 3, 36, gettext("Out"));
+    mvwprintw(traf_vol_section.win, 2, 42, gettext("7-days"));
+    mvwprintw(traf_vol_section.win, 3, 42, gettext("In"));
+    mvwprintw(traf_vol_section.win, 3, 48, gettext("Out"));
+    mvwprintw(traf_vol_section.win, 2, 54, gettext("This month"));
+    mvwprintw(traf_vol_section.win, 3, 54, gettext("In"));
+    mvwprintw(traf_vol_section.win, 3, 60, gettext("Out"));
+    mvwprintw(traf_vol_section.win, 2, 66, gettext("Last month"));
+    mvwprintw(traf_vol_section.win, 3, 66, gettext("In"));
+    mvwprintw(traf_vol_section.win, 3, 72, gettext("Out"));
+    mvwhline(traf_vol_section.win, 4, 1, ACS_HLINE, 76);
+    mvwaddch(traf_vol_section.win, 4, 0, ACS_LTEE);
+    mvwaddch(traf_vol_section.win, 4, 77, ACS_RTEE);
 
-    mvwvline(TrafVolSection.win, 5, 17, ACS_VLINE, num_rows);
-    mvwaddch(TrafVolSection.win, 4, 17, ACS_TTEE);
-    mvwvline(TrafVolSection.win, 5, 23, ACS_VLINE, num_rows);
-    mvwaddch(TrafVolSection.win, 4, 23, ACS_TTEE);
-    mvwvline(TrafVolSection.win, 5, 29, ACS_VLINE, num_rows);
-    mvwaddch(TrafVolSection.win, 4, 29, ACS_TTEE);
-    mvwvline(TrafVolSection.win, 5, 35, ACS_VLINE, num_rows);
-    mvwaddch(TrafVolSection.win, 4, 35, ACS_TTEE);
-    mvwvline(TrafVolSection.win, 5, 41, ACS_VLINE, num_rows);
-    mvwaddch(TrafVolSection.win, 4, 41, ACS_TTEE);
-    mvwvline(TrafVolSection.win, 5, 47, ACS_VLINE, num_rows);
-    mvwaddch(TrafVolSection.win, 4, 47, ACS_TTEE);
-    mvwvline(TrafVolSection.win, 5, 53, ACS_VLINE, num_rows);
-    mvwaddch(TrafVolSection.win, 4, 53, ACS_TTEE);
-    mvwvline(TrafVolSection.win, 5, 59, ACS_VLINE, num_rows);
-    mvwaddch(TrafVolSection.win, 4, 59, ACS_TTEE);
-    mvwvline(TrafVolSection.win, 5, 65, ACS_VLINE, num_rows);
-    mvwaddch(TrafVolSection.win, 4, 65, ACS_TTEE);
-    mvwvline(TrafVolSection.win, 5, 71, ACS_VLINE, num_rows);
-    mvwaddch(TrafVolSection.win, 4, 71, ACS_TTEE);
+    mvwvline(traf_vol_section.win, 5, 17, ACS_VLINE, num_rows);
+    mvwaddch(traf_vol_section.win, 4, 17, ACS_TTEE);
+    mvwvline(traf_vol_section.win, 5, 23, ACS_VLINE, num_rows);
+    mvwaddch(traf_vol_section.win, 4, 23, ACS_TTEE);
+    mvwvline(traf_vol_section.win, 5, 29, ACS_VLINE, num_rows);
+    mvwaddch(traf_vol_section.win, 4, 29, ACS_TTEE);
+    mvwvline(traf_vol_section.win, 5, 35, ACS_VLINE, num_rows);
+    mvwaddch(traf_vol_section.win, 4, 35, ACS_TTEE);
+    mvwvline(traf_vol_section.win, 5, 41, ACS_VLINE, num_rows);
+    mvwaddch(traf_vol_section.win, 4, 41, ACS_TTEE);
+    mvwvline(traf_vol_section.win, 5, 47, ACS_VLINE, num_rows);
+    mvwaddch(traf_vol_section.win, 4, 47, ACS_TTEE);
+    mvwvline(traf_vol_section.win, 5, 53, ACS_VLINE, num_rows);
+    mvwaddch(traf_vol_section.win, 4, 53, ACS_TTEE);
+    mvwvline(traf_vol_section.win, 5, 59, ACS_VLINE, num_rows);
+    mvwaddch(traf_vol_section.win, 4, 59, ACS_TTEE);
+    mvwvline(traf_vol_section.win, 5, 65, ACS_VLINE, num_rows);
+    mvwaddch(traf_vol_section.win, 4, 65, ACS_TTEE);
+    mvwvline(traf_vol_section.win, 5, 71, ACS_VLINE, num_rows);
+    mvwaddch(traf_vol_section.win, 4, 71, ACS_TTEE);
 
     /* don't print this line if it overlaps with the window border */
     if (5 + num_rows + 1 < height) {
-        mvwhline(TrafVolSection.win, 5 + num_rows, 1, ACS_HLINE, 76);
-        mvwaddch(TrafVolSection.win, 5 + num_rows, 0, ACS_LTEE);
-        mvwaddch(TrafVolSection.win, 5 + num_rows, 77, ACS_RTEE);
+        mvwhline(traf_vol_section.win, 5 + num_rows, 1, ACS_HLINE, 76);
+        mvwaddch(traf_vol_section.win, 5 + num_rows, 0, ACS_LTEE);
+        mvwaddch(traf_vol_section.win, 5 + num_rows, 77, ACS_RTEE);
     }
 
-    mvwaddch(TrafVolSection.win, 5 + num_rows, 17, ACS_BTEE);
-    mvwaddch(TrafVolSection.win, 5 + num_rows, 23, ACS_BTEE);
-    mvwaddch(TrafVolSection.win, 5 + num_rows, 29, ACS_BTEE);
-    mvwaddch(TrafVolSection.win, 5 + num_rows, 35, ACS_BTEE);
-    mvwaddch(TrafVolSection.win, 5 + num_rows, 41, ACS_BTEE);
-    mvwaddch(TrafVolSection.win, 5 + num_rows, 47, ACS_BTEE);
-    mvwaddch(TrafVolSection.win, 5 + num_rows, 53, ACS_BTEE);
-    mvwaddch(TrafVolSection.win, 5 + num_rows, 59, ACS_BTEE);
-    mvwaddch(TrafVolSection.win, 5 + num_rows, 65, ACS_BTEE);
-    mvwaddch(TrafVolSection.win, 5 + num_rows, 71, ACS_BTEE);
+    mvwaddch(traf_vol_section.win, 5 + num_rows, 17, ACS_BTEE);
+    mvwaddch(traf_vol_section.win, 5 + num_rows, 23, ACS_BTEE);
+    mvwaddch(traf_vol_section.win, 5 + num_rows, 29, ACS_BTEE);
+    mvwaddch(traf_vol_section.win, 5 + num_rows, 35, ACS_BTEE);
+    mvwaddch(traf_vol_section.win, 5 + num_rows, 41, ACS_BTEE);
+    mvwaddch(traf_vol_section.win, 5 + num_rows, 47, ACS_BTEE);
+    mvwaddch(traf_vol_section.win, 5 + num_rows, 53, ACS_BTEE);
+    mvwaddch(traf_vol_section.win, 5 + num_rows, 59, ACS_BTEE);
+    mvwaddch(traf_vol_section.win, 5 + num_rows, 65, ACS_BTEE);
+    mvwaddch(traf_vol_section.win, 5 + num_rows, 71, ACS_BTEE);
 }
 
 static void trafvol_section_destroy(void)
@@ -529,14 +540,14 @@ static void trafvol_section_destroy(void)
     size_t i = 0;
 
     // Un post form and free the memory
-    unpost_form(TrafVolSection.form);
-    free_form(TrafVolSection.form);
-    for (i = 0; i < TrafVolSection.n_fields; i++) {
-        free_field(TrafVolSection.fields[i]);
+    unpost_form(traf_vol_section.form);
+    free_form(traf_vol_section.form);
+    for (i = 0; i < traf_vol_section.n_fields; i++) {
+        free_field(traf_vol_section.fields[i]);
     }
-    free(TrafVolSection.fields);
-    del_panel(TrafVolSection.panel[0]);
-    destroy_win(TrafVolSection.win);
+    free(traf_vol_section.fields);
+    del_panel(traf_vol_section.panel[0]);
+    destroy_win(traf_vol_section.win);
 }
 
 static void create_bw_string(unsigned int mb, char *str, size_t len)
@@ -585,7 +596,7 @@ int trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones,
     struct vrmr_interface *iface_ptr = NULL;
 
     struct vrmr_list_node *d_node = NULL, *bw_d_node = NULL;
-    struct TrafVol_ *bw_ptr = NULL;
+    struct traf_vol *bw_ptr = NULL;
     struct vrmr_list bw_list;
 
     int year = 0, month = 0;
@@ -639,8 +650,8 @@ int trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones,
     /* init */
     trafvol_section_init(max_height - 8, 78, 4, 1, ifac_num);
     /* make sure wgetch doesn't block */
-    nodelay(TrafVolSection.win, TRUE);
-    keypad(TrafVolSection.win, TRUE);
+    nodelay(traf_vol_section.win, TRUE);
+    keypad(traf_vol_section.win, TRUE);
     draw_top_menu(top_win, gettext("Traffic Volume"), key_choices_n,
             key_choices, cmd_choices_n, cmd_choices);
     update_panels();
@@ -678,7 +689,7 @@ int trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones,
 
                 /* interface name */
                 set_field_buffer_wrap(
-                        TrafVolSection.fields[11 * i], 0, iface_ptr->name);
+                        traf_vol_section.fields[11 * i], 0, iface_ptr->name);
 
                 /* get the bw for today */
                 result = bandwidth_get_iface(conf, iface_ptr->device,
@@ -693,23 +704,25 @@ int trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones,
                         create_bw_string(
                                 bw_ptr->recv_mb, bw_str, sizeof(bw_str));
                         set_field_buffer_wrap(
-                                TrafVolSection.fields[1 + (11 * i)], 0, bw_str);
+                                traf_vol_section.fields[1 + (11 * i)], 0,
+                                bw_str);
 
                         create_bw_string(
                                 bw_ptr->send_mb, bw_str, sizeof(bw_str));
                         set_field_buffer_wrap(
-                                TrafVolSection.fields[2 + (11 * i)], 0, bw_str);
+                                traf_vol_section.fields[2 + (11 * i)], 0,
+                                bw_str);
                     }
                     vrmr_list_cleanup(&bw_list);
                 } else if (result == 0) {
                     set_field_buffer_wrap(
-                            TrafVolSection.fields[1 + (11 * i)], 0, "  -  ");
+                            traf_vol_section.fields[1 + (11 * i)], 0, "  -  ");
                     set_field_buffer_wrap(
-                            TrafVolSection.fields[2 + (11 * i)], 0, "  -  ");
+                            traf_vol_section.fields[2 + (11 * i)], 0, "  -  ");
                 } else {
-                    set_field_buffer_wrap(TrafVolSection.fields[1 + (11 * i)],
+                    set_field_buffer_wrap(traf_vol_section.fields[1 + (11 * i)],
                             0, gettext("error"));
-                    set_field_buffer_wrap(TrafVolSection.fields[2 + (11 * i)],
+                    set_field_buffer_wrap(traf_vol_section.fields[2 + (11 * i)],
                             0, gettext("error"));
                 }
 
@@ -726,23 +739,25 @@ int trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones,
                         create_bw_string(
                                 bw_ptr->recv_mb, bw_str, sizeof(bw_str));
                         set_field_buffer_wrap(
-                                TrafVolSection.fields[3 + (11 * i)], 0, bw_str);
+                                traf_vol_section.fields[3 + (11 * i)], 0,
+                                bw_str);
 
                         create_bw_string(
                                 bw_ptr->send_mb, bw_str, sizeof(bw_str));
                         set_field_buffer_wrap(
-                                TrafVolSection.fields[4 + (11 * i)], 0, bw_str);
+                                traf_vol_section.fields[4 + (11 * i)], 0,
+                                bw_str);
                     }
                     vrmr_list_cleanup(&bw_list);
                 } else if (result == 0) {
                     set_field_buffer_wrap(
-                            TrafVolSection.fields[3 + (11 * i)], 0, "  -  ");
+                            traf_vol_section.fields[3 + (11 * i)], 0, "  -  ");
                     set_field_buffer_wrap(
-                            TrafVolSection.fields[4 + (11 * i)], 0, "  -  ");
+                            traf_vol_section.fields[4 + (11 * i)], 0, "  -  ");
                 } else {
-                    set_field_buffer_wrap(TrafVolSection.fields[3 + (11 * i)],
+                    set_field_buffer_wrap(traf_vol_section.fields[3 + (11 * i)],
                             0, gettext("error"));
-                    set_field_buffer_wrap(TrafVolSection.fields[4 + (11 * i)],
+                    set_field_buffer_wrap(traf_vol_section.fields[4 + (11 * i)],
                             0, gettext("error"));
                 }
 
@@ -759,23 +774,25 @@ int trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones,
                         create_bw_string(
                                 bw_ptr->recv_mb, bw_str, sizeof(bw_str));
                         set_field_buffer_wrap(
-                                TrafVolSection.fields[5 + (11 * i)], 0, bw_str);
+                                traf_vol_section.fields[5 + (11 * i)], 0,
+                                bw_str);
 
                         create_bw_string(
                                 bw_ptr->send_mb, bw_str, sizeof(bw_str));
                         set_field_buffer_wrap(
-                                TrafVolSection.fields[6 + (11 * i)], 0, bw_str);
+                                traf_vol_section.fields[6 + (11 * i)], 0,
+                                bw_str);
                     }
                     vrmr_list_cleanup(&bw_list);
                 } else if (result == 0) {
                     set_field_buffer_wrap(
-                            TrafVolSection.fields[5 + (11 * i)], 0, "  -  ");
+                            traf_vol_section.fields[5 + (11 * i)], 0, "  -  ");
                     set_field_buffer_wrap(
-                            TrafVolSection.fields[6 + (11 * i)], 0, "  -  ");
+                            traf_vol_section.fields[6 + (11 * i)], 0, "  -  ");
                 } else {
-                    set_field_buffer_wrap(TrafVolSection.fields[5 + (11 * i)],
+                    set_field_buffer_wrap(traf_vol_section.fields[5 + (11 * i)],
                             0, gettext("error"));
-                    set_field_buffer_wrap(TrafVolSection.fields[6 + (11 * i)],
+                    set_field_buffer_wrap(traf_vol_section.fields[6 + (11 * i)],
                             0, gettext("error"));
                 }
 
@@ -792,23 +809,25 @@ int trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones,
                         create_bw_string(
                                 bw_ptr->recv_mb, bw_str, sizeof(bw_str));
                         set_field_buffer_wrap(
-                                TrafVolSection.fields[7 + (11 * i)], 0, bw_str);
+                                traf_vol_section.fields[7 + (11 * i)], 0,
+                                bw_str);
 
                         create_bw_string(
                                 bw_ptr->send_mb, bw_str, sizeof(bw_str));
                         set_field_buffer_wrap(
-                                TrafVolSection.fields[8 + (11 * i)], 0, bw_str);
+                                traf_vol_section.fields[8 + (11 * i)], 0,
+                                bw_str);
                     }
                     vrmr_list_cleanup(&bw_list);
                 } else if (result == 0) {
                     set_field_buffer_wrap(
-                            TrafVolSection.fields[7 + (11 * i)], 0, "  -  ");
+                            traf_vol_section.fields[7 + (11 * i)], 0, "  -  ");
                     set_field_buffer_wrap(
-                            TrafVolSection.fields[8 + (11 * i)], 0, "  -  ");
+                            traf_vol_section.fields[8 + (11 * i)], 0, "  -  ");
                 } else {
-                    set_field_buffer_wrap(TrafVolSection.fields[7 + (11 * i)],
+                    set_field_buffer_wrap(traf_vol_section.fields[7 + (11 * i)],
                             0, gettext("error"));
-                    set_field_buffer_wrap(TrafVolSection.fields[8 + (11 * i)],
+                    set_field_buffer_wrap(traf_vol_section.fields[8 + (11 * i)],
                             0, gettext("error"));
                 }
 
@@ -837,29 +856,31 @@ int trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones,
                         create_bw_string(
                                 bw_ptr->recv_mb, bw_str, sizeof(bw_str));
                         set_field_buffer_wrap(
-                                TrafVolSection.fields[9 + (11 * i)], 0, bw_str);
+                                traf_vol_section.fields[9 + (11 * i)], 0,
+                                bw_str);
 
                         create_bw_string(
                                 bw_ptr->send_mb, bw_str, sizeof(bw_str));
                         set_field_buffer_wrap(
-                                TrafVolSection.fields[10 + (11 * i)], 0,
+                                traf_vol_section.fields[10 + (11 * i)], 0,
                                 bw_str);
                     }
                     vrmr_list_cleanup(&bw_list);
                 } else if (result == 0) {
                     set_field_buffer_wrap(
-                            TrafVolSection.fields[9 + (11 * i)], 0, "  -  ");
+                            traf_vol_section.fields[9 + (11 * i)], 0, "  -  ");
                     set_field_buffer_wrap(
-                            TrafVolSection.fields[10 + (11 * i)], 0, "  -  ");
+                            traf_vol_section.fields[10 + (11 * i)], 0, "  -  ");
                 } else {
-                    set_field_buffer_wrap(TrafVolSection.fields[9 + (11 * i)],
+                    set_field_buffer_wrap(traf_vol_section.fields[9 + (11 * i)],
                             0, gettext("error"));
-                    set_field_buffer_wrap(TrafVolSection.fields[10 + (11 * i)],
-                            0, gettext("error"));
+                    set_field_buffer_wrap(
+                            traf_vol_section.fields[10 + (11 * i)], 0,
+                            gettext("error"));
                 }
 
                 /* finally draw the screen */
-                wrefresh(TrafVolSection.win);
+                wrefresh(traf_vol_section.win);
 
                 /* update the line */
                 i++;
@@ -867,10 +888,10 @@ int trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones,
         }
 
         /* finally draw the screen */
-        wrefresh(TrafVolSection.win);
+        wrefresh(traf_vol_section.win);
 
         /* process the keyboard input */
-        ch = wgetch(TrafVolSection.win);
+        ch = wgetch(traf_vol_section.win);
         switch (ch) {
             /* quit */
             case 27:
@@ -897,7 +918,7 @@ int trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones,
     }
 
     /* EXIT: cleanup */
-    nodelay(TrafVolSection.win, FALSE);
+    nodelay(traf_vol_section.win, FALSE);
 
     /* destroy the window and form */
     trafvol_section_destroy();

@@ -22,7 +22,7 @@
 
 /* LogRule moved to main.h */
 
-struct PlainLogRule_ {
+struct plain_log_record {
     int filtered;
     char line[512];
 };
@@ -32,7 +32,7 @@ struct PlainLogRule_ {
     Load a string 'logline' into the 'logrule' struct. We do this for
     pretty printing.
 */
-static void logline2logrule(const char *logline, struct LogRule_ *logrule)
+static void logline2logrule(const char *logline, struct log_record *logrule)
 {
     vrmr_fatal_if_null(logline);
     vrmr_fatal_if_null(logrule);
@@ -86,7 +86,8 @@ static void logline2logrule(const char *logline, struct LogRule_ *logrule)
         logrule->details[details_len - 1] = '\0';
 }
 
-static void logline2plainlogrule(char *logline, struct PlainLogRule_ *logrule)
+static void logline2plainlogrule(
+        char *logline, struct plain_log_record *logrule)
 {
     vrmr_fatal_if_null(logline);
     vrmr_fatal_if_null(logrule);
@@ -101,7 +102,7 @@ static void logline2plainlogrule(char *logline, struct PlainLogRule_ *logrule)
         1: filtered
 */
 static int logrule_filtered(
-        struct LogRule_ *log_record, struct vrmr_filter *filter)
+        struct log_record *log_record, struct vrmr_filter *filter)
 {
     char line[1024];
 
@@ -237,7 +238,7 @@ static int check_search_script(const char *script)
     return (1);
 }
 
-static void print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
+static void print_logrule(WINDOW *log_win, struct log_record *log_record,
         size_t max_logrule_length, size_t cur_logrule_length, char hide_date,
         char hide_action, char hide_service, char hide_from, char hide_to,
         char hide_prefix, char hide_details)
@@ -571,8 +572,8 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             0,
     };
 
-    struct LogRule_ *log_record = NULL;
-    struct PlainLogRule_ *plainlog_record = NULL;
+    struct log_record *log_record = NULL;
+    struct plain_log_record *plainlog_record = NULL;
 
     size_t max_logrule_length = 0, cur_logrule_length = 0;
 
@@ -768,7 +769,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
          */
         if (traffic_log) {
             /* here we can analyse the rule */
-            log_record = malloc(sizeof(struct LogRule_));
+            log_record = malloc(sizeof(struct log_record));
             vrmr_fatal_alloc("malloc", log_record);
 
             /* start not filtered (was filtered) */
@@ -789,7 +790,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 
         } else {
             /* here we can analyse the rule */
-            plainlog_record = malloc(sizeof(struct PlainLogRule_));
+            plainlog_record = malloc(sizeof(struct plain_log_record));
             vrmr_fatal_alloc("malloc", plainlog_record);
 
             /* start not filtered (was filtered) */
@@ -892,7 +893,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             if (line) {
                 if (traffic_log) {
                     /* here we can analyse the rule */
-                    log_record = malloc(sizeof(struct LogRule_));
+                    log_record = malloc(sizeof(struct log_record));
                     vrmr_fatal_alloc("malloc", log_record);
 
                     /* we asume unfiltered (was filtered) */
@@ -921,7 +922,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                     log_record = NULL;
                 } else {
                     /* here we can analyse the rule */
-                    plainlog_record = malloc(sizeof(struct PlainLogRule_));
+                    plainlog_record = malloc(sizeof(struct plain_log_record));
                     vrmr_fatal_alloc("malloc", plainlog_record);
 
                     /* we asume unfiltered (was filtered) */

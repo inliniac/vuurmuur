@@ -20,13 +20,13 @@
 
 #include "main.h"
 
-struct StatusSection_ {
+struct {
     PANEL *panel[1];
     WINDOW *win;
     FIELD **fields;
     FORM *form;
     size_t n_fields;
-} StatusSection;
+} statsec_ctx;
 
 /*  get_sys_load
 
@@ -313,130 +313,129 @@ static int status_section_init(
         ifac_num = (unsigned int)height - 15;
 
     /* set the number of fields */
-    StatusSection.n_fields = (size_t)(16 + (6 * ifac_num));
+    statsec_ctx.n_fields = (size_t)(16 + (6 * ifac_num));
 
     /* alloc the needed memory */
-    if (!(StatusSection.fields = (FIELD **)calloc(
-                  StatusSection.n_fields + 1, sizeof(FIELD *)))) {
+    if (!(statsec_ctx.fields = (FIELD **)calloc(
+                  statsec_ctx.n_fields + 1, sizeof(FIELD *)))) {
         vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
                 strerror(errno), __FUNC__, __LINE__);
         return (-1);
     }
 
     /* create the fields */
-    StatusSection.fields[0] = new_field(1, 5, 4, 13, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[0], 1, "ld_s");
-    StatusSection.fields[1] = new_field(1, 5, 4, 19, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[1], 1, "ld_m");
-    StatusSection.fields[2] = new_field(1, 5, 4, 25, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[2], 1, "ld_l");
+    statsec_ctx.fields[0] = new_field(1, 5, 4, 13, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[0], 1, "ld_s");
+    statsec_ctx.fields[1] = new_field(1, 5, 4, 19, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[1], 1, "ld_m");
+    statsec_ctx.fields[2] = new_field(1, 5, 4, 25, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[2], 1, "ld_l");
 
-    StatusSection.fields[3] = new_field(1, 6, 4, 43, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[3], 1, "mem_t");
-    StatusSection.fields[4] = new_field(1, 6, 4, 51, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[4], 1, "mem_f");
-    StatusSection.fields[5] = new_field(1, 6, 4, 59, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[5], 1, "mem_c");
-    StatusSection.fields[6] = new_field(1, 6, 4, 67, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[6], 1, "mem_b");
+    statsec_ctx.fields[3] = new_field(1, 6, 4, 43, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[3], 1, "mem_t");
+    statsec_ctx.fields[4] = new_field(1, 6, 4, 51, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[4], 1, "mem_f");
+    statsec_ctx.fields[5] = new_field(1, 6, 4, 59, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[5], 1, "mem_c");
+    statsec_ctx.fields[6] = new_field(1, 6, 4, 67, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[6], 1, "mem_b");
 
-    StatusSection.fields[7] = new_field(1, 4, 1, 61, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[7], 1, "up_d");
-    StatusSection.fields[8] = new_field(1, 2, 1, 66, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[8], 1, "uh");
-    StatusSection.fields[9] = new_field(1, 2, 1, 69, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[9], 1, "um");
-    StatusSection.fields[10] = new_field(1, 2, 1, 72, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[10], 1, "us");
+    statsec_ctx.fields[7] = new_field(1, 4, 1, 61, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[7], 1, "up_d");
+    statsec_ctx.fields[8] = new_field(1, 2, 1, 66, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[8], 1, "uh");
+    statsec_ctx.fields[9] = new_field(1, 2, 1, 69, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[9], 1, "um");
+    statsec_ctx.fields[10] = new_field(1, 2, 1, 72, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[10], 1, "us");
 
-    StatusSection.fields[11] = new_field(1, 6, 6, 23, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[11], 1, "con_t");
-    StatusSection.fields[12] = new_field(1, 6, 7, 23, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[12], 1, "con_u");
-    StatusSection.fields[13] = new_field(1, 6, 6, 41, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[13], 1, "con_o");
+    statsec_ctx.fields[11] = new_field(1, 6, 6, 23, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[11], 1, "con_t");
+    statsec_ctx.fields[12] = new_field(1, 6, 7, 23, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[12], 1, "con_u");
+    statsec_ctx.fields[13] = new_field(1, 6, 6, 41, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[13], 1, "con_o");
 
-    StatusSection.fields[14] = new_field(1, 6, 6, 59, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[14], 1, "con_c");
-    StatusSection.fields[15] = new_field(1, 6, 7, 59, 0, 1);
-    set_field_buffer_wrap(StatusSection.fields[15], 1, "con_m");
+    statsec_ctx.fields[14] = new_field(1, 6, 6, 59, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[14], 1, "con_c");
+    statsec_ctx.fields[15] = new_field(1, 6, 7, 59, 0, 1);
+    set_field_buffer_wrap(statsec_ctx.fields[15], 1, "con_m");
 
     /* create iface stats fields */
     for (ifacs = 0, ifac_fields = 16; ifacs < ifac_num; ifacs++) {
-        StatusSection.fields[ifac_fields] =
+        statsec_ctx.fields[ifac_fields] =
                 new_field(1, 8, (int)(ifac_start + ifacs), 13, 0, 1);
-        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "recv_s");
+        set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "recv_s");
         ifac_fields++;
 
-        StatusSection.fields[ifac_fields] =
+        statsec_ctx.fields[ifac_fields] =
                 new_field(1, 8, (int)(ifac_start + ifacs), 22, 0, 1);
-        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "send_s");
+        set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "send_s");
         ifac_fields++;
 
-        StatusSection.fields[ifac_fields] =
+        statsec_ctx.fields[ifac_fields] =
                 new_field(1, 10, (int)(ifac_start + ifacs), 31, 0, 1);
-        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "rcv_ti");
+        set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "rcv_ti");
         ifac_fields++;
 
-        StatusSection.fields[ifac_fields] =
+        statsec_ctx.fields[ifac_fields] =
                 new_field(1, 10, (int)(ifac_start + ifacs), 42, 0, 1);
-        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "snd_to");
+        set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "snd_to");
         ifac_fields++;
 
-        StatusSection.fields[ifac_fields] =
+        statsec_ctx.fields[ifac_fields] =
                 new_field(1, 10, (int)(ifac_start + ifacs), 53, 0, 1);
-        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "rcv_tf");
+        set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "rcv_tf");
         ifac_fields++;
 
-        StatusSection.fields[ifac_fields] =
+        statsec_ctx.fields[ifac_fields] =
                 new_field(1, 10, (int)(ifac_start + ifacs), 64, 0, 1);
-        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "snd_tf");
+        set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "snd_tf");
         ifac_fields++;
     }
 
     /* terminate the field array */
-    StatusSection.fields[StatusSection.n_fields] = NULL;
+    statsec_ctx.fields[statsec_ctx.n_fields] = NULL;
 
     /* create the window and the panel */
-    if (!(StatusSection.win = create_newwin(height, width, starty, startx,
+    if (!(statsec_ctx.win = create_newwin(height, width, starty, startx,
                   gettext("Status Section"), vccnf.color_win))) {
         vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return (-1);
     }
-    if (!(StatusSection.panel[0] = new_panel(StatusSection.win))) {
+    if (!(statsec_ctx.panel[0] = new_panel(statsec_ctx.win))) {
         vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__,
                 __LINE__);
         return (-1);
     }
 
     /* field options */
-    for (i = 0; i < StatusSection.n_fields; i++) {
+    for (i = 0; i < statsec_ctx.n_fields; i++) {
         if (vrmr_debug_level >= LOW)
-            set_field_back(StatusSection.fields[i], vccnf.color_win_rev);
+            set_field_back(statsec_ctx.fields[i], vccnf.color_win_rev);
         else
-            set_field_back(StatusSection.fields[i], vccnf.color_win);
+            set_field_back(statsec_ctx.fields[i], vccnf.color_win);
 
-        field_opts_off(StatusSection.fields[i], O_AUTOSKIP);
+        field_opts_off(statsec_ctx.fields[i], O_AUTOSKIP);
         /* set status to false */
-        set_field_status(StatusSection.fields[i], FALSE);
+        set_field_status(statsec_ctx.fields[i], FALSE);
     }
 
     /* Create the form and post it */
-    if (!(StatusSection.form = new_form(StatusSection.fields))) {
+    if (!(statsec_ctx.form = new_form(statsec_ctx.fields))) {
         vrmr_error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__,
                 __LINE__);
         return (-1);
     }
     /* Calculate the area required for the form */
-    scale_form(StatusSection.form, &rows, &cols);
-    keypad(StatusSection.win, TRUE);
+    scale_form(statsec_ctx.form, &rows, &cols);
+    keypad(statsec_ctx.win, TRUE);
     /* Set main window and sub window */
-    set_form_win(StatusSection.form, StatusSection.win);
-    set_form_sub(
-            StatusSection.form, derwin(StatusSection.win, rows, cols, 1, 2));
+    set_form_win(statsec_ctx.form, statsec_ctx.win);
+    set_form_sub(statsec_ctx.form, derwin(statsec_ctx.win, rows, cols, 1, 2));
 
-    if (post_form(StatusSection.form) != E_OK) {
+    if (post_form(statsec_ctx.form) != E_OK) {
         vrmr_error(-1, VR_INTERR, "post_form() failed (in: %s:%d).", __FUNC__,
                 __LINE__);
         return (-1);
@@ -445,192 +444,192 @@ static int status_section_init(
     /* print the field labels */
 
     /* TRANSLATORS: max 11 chars. */
-    mvwprintw(StatusSection.win, 1, 2, gettext("Hostname"));
-    mvwprintw(StatusSection.win, 2, 2, "Kernel");
+    mvwprintw(statsec_ctx.win, 1, 2, gettext("Hostname"));
+    mvwprintw(statsec_ctx.win, 2, 2, "Kernel");
 
     /* TRANSLATORS: max 3 chars. */
-    mvwprintw(StatusSection.win, 1, 64, gettext("day"));
+    mvwprintw(statsec_ctx.win, 1, 64, gettext("day"));
     /* TRANSLATORS: this must be exactly the same regarding positions. */
-    mvwprintw(StatusSection.win, 1, 68, gettext("h  m  s"));
-    mvwprintw(StatusSection.win, 2, 70, ":");
-    mvwprintw(StatusSection.win, 2, 73, ":");
+    mvwprintw(statsec_ctx.win, 1, 68, gettext("h  m  s"));
+    mvwprintw(statsec_ctx.win, 2, 70, ":");
+    mvwprintw(statsec_ctx.win, 2, 73, ":");
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 2, 55, gettext("Uptime"));
+    mvwprintw(statsec_ctx.win, 2, 55, gettext("Uptime"));
 
-    mvwprintw(StatusSection.win, 4, 15, "1m    5m    15m");
+    mvwprintw(statsec_ctx.win, 4, 15, "1m    5m    15m");
 
     /* TRANSLATORS: max 10 chars. */
-    mvwprintw(StatusSection.win, 5, 2, gettext("Load"));
+    mvwprintw(statsec_ctx.win, 5, 2, gettext("Load"));
     /* TRANSLATORS: max 5 chars. */
-    mvwprintw(StatusSection.win, 4, 46, gettext("Total"));
+    mvwprintw(statsec_ctx.win, 4, 46, gettext("Total"));
     /* TRANSLATORS: max 5 chars. */
-    mvwprintw(StatusSection.win, 4, 54, gettext("Free"));
+    mvwprintw(statsec_ctx.win, 4, 54, gettext("Free"));
     /* TRANSLATORS: max 5 chars. */
-    mvwprintw(StatusSection.win, 4, 62, gettext("Cache"));
+    mvwprintw(statsec_ctx.win, 4, 62, gettext("Cache"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 4, 70, gettext("Buffer"));
+    mvwprintw(statsec_ctx.win, 4, 70, gettext("Buffer"));
     /* TRANSLATORS: max 9 chars. */
-    mvwprintw(StatusSection.win, 5, 34, gettext("Memory(MB)"));
+    mvwprintw(statsec_ctx.win, 5, 34, gettext("Memory(MB)"));
 
     /* TRANSLATORS: max 11 chars. */
-    mvwprintw(StatusSection.win, 8, 2, gettext("Connections"));
+    mvwprintw(statsec_ctx.win, 8, 2, gettext("Connections"));
 
-    mvwprintw(StatusSection.win, 7, 16, "Tcp");
-    mvwprintw(StatusSection.win, 8, 16, "Udp");
+    mvwprintw(statsec_ctx.win, 7, 16, "Tcp");
+    mvwprintw(statsec_ctx.win, 8, 16, "Udp");
 
     /* TRANSLATORS: max 7 chars. */
-    mvwprintw(StatusSection.win, 7, 34, gettext("Other"));
+    mvwprintw(statsec_ctx.win, 7, 34, gettext("Other"));
 
     /* TRANSLATORS: max 7 chars. */
-    mvwprintw(StatusSection.win, 7, 52, gettext("Current"));
+    mvwprintw(statsec_ctx.win, 7, 52, gettext("Current"));
     /* TRANSLATORS: max 7 chars. */
-    mvwprintw(StatusSection.win, 8, 52, gettext("Maximal"));
+    mvwprintw(statsec_ctx.win, 8, 52, gettext("Maximal"));
 
     /* TRANSLATORS: max 11 chars. */
-    mvwprintw(StatusSection.win, 10, 15, gettext("Speed/s"));
+    mvwprintw(statsec_ctx.win, 10, 15, gettext("Speed/s"));
     /* TRANSLATORS: max 11 chars. */
-    mvwprintw(StatusSection.win, 10, 33, gettext("Firewall"));
+    mvwprintw(statsec_ctx.win, 10, 33, gettext("Firewall"));
     /* TRANSLATORS: max 11 chars. */
-    mvwprintw(StatusSection.win, 10, 55, gettext("Forwarded"));
+    mvwprintw(statsec_ctx.win, 10, 55, gettext("Forwarded"));
 
     /* TRANSLATORS: max 11 chars. */
-    mvwprintw(StatusSection.win, 11, 2, gettext("Interfaces"));
+    mvwprintw(statsec_ctx.win, 11, 2, gettext("Interfaces"));
 
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 15, gettext("Down"));
+    mvwprintw(statsec_ctx.win, 11, 15, gettext("Down"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 24, gettext("Up"));
+    mvwprintw(statsec_ctx.win, 11, 24, gettext("Up"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 33, gettext("In"));
+    mvwprintw(statsec_ctx.win, 11, 33, gettext("In"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 44, gettext("Out"));
+    mvwprintw(statsec_ctx.win, 11, 44, gettext("Out"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 55, gettext("Recv"));
+    mvwprintw(statsec_ctx.win, 11, 55, gettext("Recv"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 66, gettext("Send"));
+    mvwprintw(statsec_ctx.win, 11, 66, gettext("Send"));
 
     /*
         DRAW THE LINES
     */
 
     /* kernel and domainname */
-    mvwvline(StatusSection.win, 1, 14, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 1, 53, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 1, 62, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 1, 14, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 1, 53, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 1, 62, ACS_VLINE, 2);
 
     /* T-pieces on top */
-    mvwaddch(StatusSection.win, 0, 14, ACS_TTEE);
-    mvwaddch(StatusSection.win, 0, 53, ACS_TTEE);
-    mvwaddch(StatusSection.win, 0, 62, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 0, 14, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 0, 53, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 0, 62, ACS_TTEE);
 
-    mvwhline(StatusSection.win, 3, 1, ACS_HLINE, 76);
-    mvwaddch(StatusSection.win, 3, 0, ACS_LTEE);
-    mvwaddch(StatusSection.win, 3, 77, ACS_RTEE);
+    mvwhline(statsec_ctx.win, 3, 1, ACS_HLINE, 76);
+    mvwaddch(statsec_ctx.win, 3, 0, ACS_LTEE);
+    mvwaddch(statsec_ctx.win, 3, 77, ACS_RTEE);
 
-    mvwaddch(StatusSection.win, 3, 14, ACS_PLUS);
-    mvwaddch(StatusSection.win, 3, 20, ACS_TTEE);
-    mvwaddch(StatusSection.win, 3, 26, ACS_TTEE);
-    mvwaddch(StatusSection.win, 3, 32, ACS_TTEE);
-    mvwaddch(StatusSection.win, 3, 44, ACS_TTEE);
-    mvwaddch(StatusSection.win, 3, 52, ACS_TTEE);
-    mvwaddch(StatusSection.win, 3, 53, ACS_BTEE);
-    mvwaddch(StatusSection.win, 3, 60, ACS_TTEE);
-    mvwaddch(StatusSection.win, 3, 62, ACS_BTEE);
-    mvwaddch(StatusSection.win, 3, 68, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 3, 14, ACS_PLUS);
+    mvwaddch(statsec_ctx.win, 3, 20, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 3, 26, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 3, 32, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 3, 44, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 3, 52, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 3, 53, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, 3, 60, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 3, 62, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, 3, 68, ACS_TTEE);
 
     /* load fields */
-    mvwvline(StatusSection.win, 4, 14, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 4, 20, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 4, 26, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 4, 32, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 4, 14, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 4, 20, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 4, 26, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 4, 32, ACS_VLINE, 2);
 
     /* memory */
-    mvwvline(StatusSection.win, 4, 44, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 4, 52, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 4, 60, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 4, 68, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 4, 44, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 4, 52, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 4, 60, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 4, 68, ACS_VLINE, 2);
 
-    mvwhline(StatusSection.win, 6, 1, ACS_HLINE, 76);
-    mvwaddch(StatusSection.win, 6, 0, ACS_LTEE);
-    mvwaddch(StatusSection.win, 6, 77, ACS_RTEE);
+    mvwhline(statsec_ctx.win, 6, 1, ACS_HLINE, 76);
+    mvwaddch(statsec_ctx.win, 6, 0, ACS_LTEE);
+    mvwaddch(statsec_ctx.win, 6, 77, ACS_RTEE);
 
-    mvwaddch(StatusSection.win, 6, 14, ACS_PLUS);
+    mvwaddch(statsec_ctx.win, 6, 14, ACS_PLUS);
 
-    mvwaddch(StatusSection.win, 6, 20, ACS_BTEE);
-    mvwaddch(StatusSection.win, 6, 26, ACS_BTEE);
-    mvwaddch(StatusSection.win, 6, 32, ACS_PLUS);
-    mvwaddch(StatusSection.win, 6, 44, ACS_BTEE);
-    mvwaddch(StatusSection.win, 6, 50, ACS_TTEE);
-    mvwaddch(StatusSection.win, 6, 52, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, 6, 20, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, 6, 26, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, 6, 32, ACS_PLUS);
+    mvwaddch(statsec_ctx.win, 6, 44, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, 6, 50, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 6, 52, ACS_BTEE);
 
-    mvwaddch(StatusSection.win, 6, 60, ACS_BTEE);
-    mvwaddch(StatusSection.win, 6, 68, ACS_PLUS);
+    mvwaddch(statsec_ctx.win, 6, 60, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, 6, 68, ACS_PLUS);
 
     /* uptime fields */
-    mvwvline(StatusSection.win, 7, 14, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 7, 32, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 7, 50, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 7, 68, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 7, 14, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 7, 32, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 7, 50, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 7, 68, ACS_VLINE, 2);
 
     /* connection fields */
-    mvwhline(StatusSection.win, 9, 1, ACS_HLINE, 76);
-    mvwaddch(StatusSection.win, 9, 0, ACS_LTEE);
-    mvwaddch(StatusSection.win, 9, 77, ACS_RTEE);
+    mvwhline(statsec_ctx.win, 9, 1, ACS_HLINE, 76);
+    mvwaddch(statsec_ctx.win, 9, 0, ACS_LTEE);
+    mvwaddch(statsec_ctx.win, 9, 77, ACS_RTEE);
 
-    mvwvline(StatusSection.win, 10, 14, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 10, 32, ACS_VLINE, 2);
-    mvwvline(StatusSection.win, 10, 54, ACS_VLINE, 2);
-    // mvwvline(StatusSection.win, 10, 68, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 10, 14, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 10, 32, ACS_VLINE, 2);
+    mvwvline(statsec_ctx.win, 10, 54, ACS_VLINE, 2);
+    // mvwvline(statsec_ctx.win, 10, 68, ACS_VLINE, 2);
 
-    mvwaddch(StatusSection.win, 9, 14, ACS_PLUS);
-    mvwaddch(StatusSection.win, 9, 32, ACS_PLUS);
-    mvwaddch(StatusSection.win, 9, 50, ACS_BTEE);
-    mvwaddch(StatusSection.win, 9, 54, ACS_TTEE);
-    mvwaddch(StatusSection.win, 9, 68, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, 9, 14, ACS_PLUS);
+    mvwaddch(statsec_ctx.win, 9, 32, ACS_PLUS);
+    mvwaddch(statsec_ctx.win, 9, 50, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, 9, 54, ACS_TTEE);
+    mvwaddch(statsec_ctx.win, 9, 68, ACS_BTEE);
 
     /* interface fields */
-    mvwhline(StatusSection.win, (int)ifac_start, 14, ACS_HLINE, 63);
-    mvwaddch(StatusSection.win, (int)ifac_start, 77, ACS_RTEE);
-    mvwhline(StatusSection.win, (int)(ifac_start + ifac_num + 1), 1, ACS_HLINE,
+    mvwhline(statsec_ctx.win, (int)ifac_start, 14, ACS_HLINE, 63);
+    mvwaddch(statsec_ctx.win, (int)ifac_start, 77, ACS_RTEE);
+    mvwhline(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 1, ACS_HLINE,
             76);
-    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 0, ACS_LTEE);
-    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 77, ACS_RTEE);
+    mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 0, ACS_LTEE);
+    mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 77, ACS_RTEE);
 
-    mvwaddch(StatusSection.win, (int)ifac_start, 14, ACS_LTEE);
-    // mvwaddch(StatusSection.win, ifac_start, 68, ACS_RTEE);
+    mvwaddch(statsec_ctx.win, (int)ifac_start, 14, ACS_LTEE);
+    // mvwaddch(statsec_ctx.win, ifac_start, 68, ACS_RTEE);
 
-    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 14, ACS_BTEE);
-    // mvwaddch(StatusSection.win, ifac_start+ifac_num+1, 68, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 14, ACS_BTEE);
+    // mvwaddch(statsec_ctx.win, ifac_start+ifac_num+1, 68, ACS_BTEE);
 
-    mvwvline(StatusSection.win, (int)(ifac_start + 1), 14, ACS_VLINE,
+    mvwvline(statsec_ctx.win, (int)(ifac_start + 1), 14, ACS_VLINE,
             (int)ifac_num);
 
-    mvwaddch(StatusSection.win, (int)ifac_start, 23, ACS_TTEE);
-    mvwvline(StatusSection.win, (int)(ifac_start + 1), 23, ACS_VLINE,
+    mvwaddch(statsec_ctx.win, (int)ifac_start, 23, ACS_TTEE);
+    mvwvline(statsec_ctx.win, (int)(ifac_start + 1), 23, ACS_VLINE,
             (int)ifac_num);
-    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 23, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 23, ACS_BTEE);
 
-    mvwaddch(StatusSection.win, (int)ifac_start, 32, ACS_PLUS);
-    mvwvline(StatusSection.win, (int)(ifac_start + 1), 32, ACS_VLINE,
+    mvwaddch(statsec_ctx.win, (int)ifac_start, 32, ACS_PLUS);
+    mvwvline(statsec_ctx.win, (int)(ifac_start + 1), 32, ACS_VLINE,
             (int)ifac_num);
-    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 32, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 32, ACS_BTEE);
 
-    mvwaddch(StatusSection.win, (int)ifac_start, 43, ACS_TTEE);
-    mvwvline(StatusSection.win, (int)(ifac_start + 1), 43, ACS_VLINE,
+    mvwaddch(statsec_ctx.win, (int)ifac_start, 43, ACS_TTEE);
+    mvwvline(statsec_ctx.win, (int)(ifac_start + 1), 43, ACS_VLINE,
             (int)ifac_num);
-    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 43, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 43, ACS_BTEE);
 
-    mvwaddch(StatusSection.win, (int)ifac_start, 54, ACS_PLUS);
-    mvwvline(StatusSection.win, (int)(ifac_start + 1), 54, ACS_VLINE,
+    mvwaddch(statsec_ctx.win, (int)ifac_start, 54, ACS_PLUS);
+    mvwvline(statsec_ctx.win, (int)(ifac_start + 1), 54, ACS_VLINE,
             (int)ifac_num);
-    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 54, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 54, ACS_BTEE);
 
-    mvwaddch(StatusSection.win, (int)ifac_start, 65, ACS_TTEE);
-    mvwvline(StatusSection.win, (int)(ifac_start + 1), 65, ACS_VLINE,
+    mvwaddch(statsec_ctx.win, (int)ifac_start, 65, ACS_TTEE);
+    mvwvline(statsec_ctx.win, (int)(ifac_start + 1), 65, ACS_VLINE,
             (int)ifac_num);
-    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 65, ACS_BTEE);
+    mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 65, ACS_BTEE);
 
-    // mvwvline(StatusSection.win, ifac_start+1, 68, ACS_VLINE, ifac_num);
+    // mvwvline(statsec_ctx.win, ifac_start+1, 68, ACS_VLINE, ifac_num);
 
     return (0);
 }
@@ -640,16 +639,16 @@ static int status_section_destroy(void)
     size_t i;
 
     // Un post form and free the memory
-    unpost_form(StatusSection.form);
-    free_form(StatusSection.form);
+    unpost_form(statsec_ctx.form);
+    free_form(statsec_ctx.form);
 
-    for (i = 0; i < StatusSection.n_fields; i++) {
-        free_field(StatusSection.fields[i]);
+    for (i = 0; i < statsec_ctx.n_fields; i++) {
+        free_field(statsec_ctx.fields[i]);
     }
-    free(StatusSection.fields);
+    free(statsec_ctx.fields);
 
-    del_panel(StatusSection.panel[0]);
-    destroy_win(StatusSection.win);
+    del_panel(statsec_ctx.panel[0]);
+    destroy_win(statsec_ctx.win);
 
     return (0);
 }
@@ -798,8 +797,8 @@ int status_section(struct vrmr_config *cnf, struct vrmr_zones *zones,
     /*
         make sure wgetch doesn't block
     */
-    nodelay(StatusSection.win, TRUE);
-    keypad(StatusSection.win, TRUE);
+    nodelay(statsec_ctx.win, TRUE);
+    keypad(statsec_ctx.win, TRUE);
 
     /*
         get the hostname of the system, or set to error on failure
@@ -807,7 +806,7 @@ int status_section(struct vrmr_config *cnf, struct vrmr_zones *zones,
     if (gethostname(hostname, sizeof(hostname)) < 0)
         (void)strlcpy(hostname, gettext("error"), sizeof(hostname));
 
-    mvwprintw(StatusSection.win, 1, 15, "%s", hostname);
+    mvwprintw(statsec_ctx.win, 1, 15, "%s", hostname);
 
     /*
         uname - get some system information
@@ -815,7 +814,7 @@ int status_section(struct vrmr_config *cnf, struct vrmr_zones *zones,
     if (uname(&uts_name) < 0)
         vrmr_error(-1, VR_ERR, "uname() failed.");
 
-    mvwprintw(StatusSection.win, 2, 15, "%s %s", uts_name.sysname,
+    mvwprintw(statsec_ctx.win, 2, 15, "%s %s", uts_name.sysname,
             uts_name.release);
 
     /*
@@ -891,8 +890,8 @@ int status_section(struct vrmr_config *cnf, struct vrmr_zones *zones,
             }
 
             /* loop trough the fields and update the information */
-            for (i = 0; i < (unsigned int)StatusSection.n_fields; i++) {
-                cur = StatusSection.fields[i];
+            for (i = 0; i < (unsigned int)statsec_ctx.n_fields; i++) {
+                cur = statsec_ctx.fields[i];
 
                 if (strncmp(field_buffer(cur, 1), "ld_s", 4) == 0) {
                     if (load_s > 2 && load_s < 5)
@@ -1103,8 +1102,8 @@ int status_section(struct vrmr_config *cnf, struct vrmr_zones *zones,
 
                     /* set the fields to the form */
                     for (i = cur_interface;
-                            i < (unsigned int)StatusSection.n_fields; i++) {
-                        cur = StatusSection.fields[i];
+                            i < (unsigned int)statsec_ctx.n_fields; i++) {
+                        cur = statsec_ctx.fields[i];
 
                         if (strncmp(field_buffer(cur, 1), "recv_s", 6) == 0)
                             set_field_buffer_wrap(cur, 0, recv_speed);
@@ -1135,12 +1134,12 @@ int status_section(struct vrmr_config *cnf, struct vrmr_zones *zones,
                             iface_ptr->name);
 
                     if (iface_ptr->up == TRUE)
-                        wattron(StatusSection.win, vccnf.color_win | A_BOLD);
+                        wattron(statsec_ctx.win, vccnf.color_win | A_BOLD);
 
-                    mvwprintw(StatusSection.win, y, 2, "%s", interfacename);
+                    mvwprintw(statsec_ctx.win, y, 2, "%s", interfacename);
 
                     if (iface_ptr->up == TRUE)
-                        wattroff(StatusSection.win, vccnf.color_win | A_BOLD);
+                        wattroff(statsec_ctx.win, vccnf.color_win | A_BOLD);
 
                     /* store the number of bytes */
                     shadow_ptr->prev_recv_bytes = recv_bytes;
@@ -1159,11 +1158,11 @@ int status_section(struct vrmr_config *cnf, struct vrmr_zones *zones,
             /*
                 finally draw the screen
             */
-            wrefresh(StatusSection.win);
+            wrefresh(statsec_ctx.win);
         }
 
         /* process the keyboard input */
-        ch = wgetch(StatusSection.win);
+        ch = wgetch(statsec_ctx.win);
         switch (ch) {
             /* quit */
             case 27:
@@ -1193,7 +1192,7 @@ int status_section(struct vrmr_config *cnf, struct vrmr_zones *zones,
     vrmr_list_cleanup(&shadow_list);
 
     /* EXIT: cleanup */
-    nodelay(StatusSection.win, FALSE);
+    nodelay(statsec_ctx.win, FALSE);
 
     /* destroy the window and form */
     status_section_destroy();

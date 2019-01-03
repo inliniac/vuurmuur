@@ -36,7 +36,7 @@
 struct vrmr_shm_table *shm_table = 0;
 struct vrmr_hash_table zone_htbl;
 struct vrmr_hash_table service_htbl;
-static struct Counters_ Counters = {
+static struct logcounters counters = {
         0,
         0,
         0,
@@ -139,14 +139,14 @@ int process_logrecord(struct vrmr_log_record *log_record)
             exit(EXIT_FAILURE);
             break;
         case 0:
-            Counters.invalid_loglines++;
+            counters.invalid_loglines++;
             break;
         default:
             if (vrmr_log_record_build_line(
                         log_record, line_out, sizeof(line_out)) < 0) {
                 vrmr_debug(NONE, "Could not build output line");
             } else {
-                upd_action_ctrs(log_record->action, &Counters);
+                upd_action_ctrs(log_record->action, &counters);
 
                 fprintf(g_traffic_log, "%s", line_out);
                 fflush(g_traffic_log);
@@ -469,12 +469,12 @@ int main(int argc, char *argv[])
                     } else {
                         if (check_ipt_line(line_in)) {
                             switch (parse_ipt_logline(line_in, line_in_len,
-                                    sscanf_str, &logrule, &Counters)) {
+                                    sscanf_str, &logrule, &counters)) {
                                 case -1:
                                     exit(EXIT_FAILURE);
                                     break;
                                 case 0:
-                                    Counters.invalid_loglines++;
+                                    counters.invalid_loglines++;
                                     break;
                                 default:
                                     result = vrmr_log_record_get_names(&logrule,
@@ -484,7 +484,7 @@ int main(int argc, char *argv[])
                                             exit(EXIT_FAILURE);
                                             break;
                                         case 0:
-                                            Counters.invalid_loglines++;
+                                            counters.invalid_loglines++;
                                             break;
                                         default:
                                             if (vrmr_log_record_build_line(
@@ -501,11 +501,11 @@ int main(int argc, char *argv[])
                                             break;
                                     }
                             }
-                            Counters.totalvuurmuur++;
+                            counters.totalvuurmuur++;
                         } else {
-                            Counters.noipt++;
+                            counters.noipt++;
                         }
-                        Counters.total++;
+                        counters.total++;
                     }
                 }
                 /* no line received or not using syslog */
@@ -755,7 +755,7 @@ int main(int argc, char *argv[])
     vrmr_destroy_interfaceslist(&vctx.interfaces);
 
     if (nodaemon)
-        show_stats(&Counters);
+        show_stats(&counters);
 
     if (vrmr_backends_unload(&vctx.conf, &vctx) < 0) {
         vrmr_error(-1, "Error", "unloading backends failed.");

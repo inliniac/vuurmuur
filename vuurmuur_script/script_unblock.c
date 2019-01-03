@@ -83,7 +83,7 @@ char *remove_leading_part(char *input)
         VRS_ERR_COMMANDLINE: item not found in blocklist
 
  */
-int script_unblock(VuurmuurScript *vr_script)
+int script_unblock(struct vuurmuur_script *vr_script)
 {
     char removed = FALSE;            /* used to track if we really removed the
                                         object */

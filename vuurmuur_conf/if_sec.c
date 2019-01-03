@@ -20,7 +20,7 @@
 
 #include "main.h"
 
-struct InterfacesSection_ {
+struct {
     WINDOW *win;
     PANEL *panel[1];
     MENU *menu;
@@ -38,27 +38,27 @@ struct InterfacesSection_ {
     int i_yle;
     int i_xre;
 
-    struct EditInterface_ {
+    struct {
         WINDOW *win;
         PANEL *panel[1];
         FORM *form;
         FIELD **fields;
         size_t n_fields;
-    } EditInterface;
+    } edit;
 
     char comment[512];
     struct vrmr_list desc_list;
 
-} InterfacesSection;
+} ifsec_ctx;
 
-struct TcpmssIfaceCnf_ {
+struct tcpmss_iface_cnf {
     struct vrmr_interface *iface_ptr;
     char enabled;
     struct vrmr_ctx *vctx;
 };
 
 static void VrTcpmssIfaceSetup(
-        struct TcpmssIfaceCnf_ *c, struct vrmr_interface *iface_ptr)
+        struct tcpmss_iface_cnf *c, struct vrmr_interface *iface_ptr)
 {
     vrmr_fatal_if_null(c);
     vrmr_fatal_if_null(iface_ptr);
@@ -69,7 +69,7 @@ static void VrTcpmssIfaceSetup(
 
 static int VrTcpmssIfaceSave(void *ctx, char *name, char *value)
 {
-    struct TcpmssIfaceCnf_ *c = (struct TcpmssIfaceCnf_ *)ctx;
+    struct tcpmss_iface_cnf *c = (struct tcpmss_iface_cnf *)ctx;
     int result = 0;
 
     if (strcmp(name, "S") == 0) {
@@ -103,10 +103,10 @@ static int VrTcpmssIfaceSave(void *ctx, char *name, char *value)
 static void VrTcpmssIface(
         struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
 {
-    VrWin *win = NULL;
-    VrForm *form = NULL;
+    struct vrmr_gui_win *win = NULL;
+    struct vrmr_gui_form *form = NULL;
     int ch = 0, result = 0;
-    struct TcpmssIfaceCnf_ config;
+    struct tcpmss_iface_cnf config;
     config.vctx = vctx;
 
     VrTcpmssIfaceSetup(&config, iface_ptr);
@@ -170,7 +170,7 @@ static void VrTcpmssIface(
     doupdate();
 }
 
-struct ShapeIfaceCnf_ {
+struct shape_iface_cnf {
     struct vrmr_interface *iface_ptr;
     char in[10], out[10];
     char in_unit[5], out_unit[5];
@@ -179,7 +179,7 @@ struct ShapeIfaceCnf_ {
 };
 
 static void VrShapeIfaceSetup(
-        struct ShapeIfaceCnf_ *c, struct vrmr_interface *iface_ptr)
+        struct shape_iface_cnf *c, struct vrmr_interface *iface_ptr)
 {
     vrmr_fatal_if_null(c);
     vrmr_fatal_if_null(iface_ptr);
@@ -205,7 +205,7 @@ static void VrShapeIfaceSetup(
 
 static int VrShapeIfaceSave(void *ctx, char *name, char *value)
 {
-    struct ShapeIfaceCnf_ *c = (struct ShapeIfaceCnf_ *)ctx;
+    struct shape_iface_cnf *c = (struct shape_iface_cnf *)ctx;
     u_int32_t oldrate = 0;
     int result = 0;
 
@@ -322,10 +322,10 @@ static int VrShapeIfaceSave(void *ctx, char *name, char *value)
 
 void VrShapeIface(struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
 {
-    VrWin *win = NULL;
-    VrForm *form = NULL;
+    struct vrmr_gui_win *win = NULL;
+    struct vrmr_gui_form *form = NULL;
     int ch = 0, result = 0;
-    struct ShapeIfaceCnf_ config;
+    struct shape_iface_cnf config;
     config.vctx = vctx;
 
     VrShapeIfaceSetup(&config, iface_ptr);
@@ -495,50 +495,49 @@ static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
     size_t field_num = 0;
     size_t i = 0;
 
-    InterfacesSection.EditInterface.n_fields = 34;
-    InterfacesSection.EditInterface.fields = (FIELD **)calloc(
-            InterfacesSection.EditInterface.n_fields + 1, sizeof(FIELD *));
-    vrmr_fatal_alloc("calloc", InterfacesSection.EditInterface.fields);
+    ifsec_ctx.edit.n_fields = 34;
+    ifsec_ctx.edit.fields =
+            (FIELD **)calloc(ifsec_ctx.edit.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_alloc("calloc", ifsec_ctx.edit.fields);
 
     /*
         create the fields
     */
 
     /* active */
-    IfSec.activelabelfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                    new_field(1, 16, 2, 0, 0, 0));
+    IfSec.activelabelfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 2, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.activelabelfld, 0, STR_CACTIVE);
     field_opts_off(IfSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.activefld = (InterfacesSection.EditInterface.fields[field_num] =
-                               new_field(1, 3, 3, 1, 0, 0));
+    IfSec.activefld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 3, 1, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             IfSec.activefld, 0, iface_ptr->active ? STR_YES : STR_NO);
 
     /* device */
-    IfSec.devicelabelfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                    new_field(1, 16, 5, 0, 0, 0));
+    IfSec.devicelabelfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 5, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.devicelabelfld, 0, STR_CDEVICE);
     field_opts_off(IfSec.devicelabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.devicefld = (InterfacesSection.EditInterface.fields[field_num] =
-                               new_field(1, 12, 6, 1, 0, 0));
+    IfSec.devicefld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 12, 6, 1, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.devicefld, 0, iface_ptr->device);
 
     /* ipaddress */
     IfSec.ipaddresslabelfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 16, 7, 0, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 7, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.ipaddresslabelfld, 0, STR_IPADDRESS);
     field_opts_off(IfSec.ipaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.ipaddressfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                  new_field(1, 16, 8, 1, 0, 0));
+    IfSec.ipaddressfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 8, 1, 0, 0));
     field_num++;
     set_field_type(IfSec.ipaddressfld, TYPE_IPV4);
     set_field_buffer_wrap(IfSec.ipaddressfld, 0, iface_ptr->ipv4.ipaddress);
@@ -549,16 +548,14 @@ static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
 
     /* ip6address */
     IfSec.ip6addresslabelfld =
-            (InterfacesSection.EditInterface.fields[field_num++] =
-                            new_field(1, 16, 9, 0, 0, 0));
+            (ifsec_ctx.edit.fields[field_num++] = new_field(1, 16, 9, 0, 0, 0));
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(IfSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
 #endif
     field_opts_off(IfSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.ip6addressfld =
-            (InterfacesSection.EditInterface.fields[field_num++] =
-                            new_field(1, VRMR_MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
+    IfSec.ip6addressfld = (ifsec_ctx.edit.fields[field_num++] = new_field(
+                                   1, VRMR_MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
     // set_field_type(IfSec.ip6addressfld, TYPE_IPV6);
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(IfSec.ip6addressfld, 0, iface_ptr->ipv6.ip6);
@@ -566,69 +563,63 @@ static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
 
     /* dynamic ip toggle */
     IfSec.dynamicbracketsfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 3, 6, 20, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 6, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.dynamicbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.dynamicbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.dynamiclabelfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                     new_field(1, 18, 5, 19, 0, 0));
+    IfSec.dynamiclabelfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 18, 5, 19, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.dynamiclabelfld, 0, STR_CDYNAMICIP);
     field_opts_off(IfSec.dynamiclabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.dynamicfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                new_field(1, 1, 6, 21, 0, 0));
+    IfSec.dynamicfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 6, 21, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.dynamicfld, 0, iface_ptr->dynamic ? "X" : " ");
 
     /* is the device virtual */
     IfSec.devicevirtualbracketsfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 3, 8, 20, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 8, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.devicevirtualbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.devicevirtualbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.devicevirtuallabelfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 18, 7, 19, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 18, 7, 19, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.devicevirtuallabelfld, 0, STR_CVIRTUAL);
     field_opts_off(IfSec.devicevirtuallabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.devicevirtualfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 1, 8, 21, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 8, 21, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             IfSec.devicevirtualfld, 0, iface_ptr->device_virtual ? "X" : " ");
 
     /* protect label */
-    IfSec.labelfld = (InterfacesSection.EditInterface.fields[field_num] =
-                              new_field(1, 16, 2, 38, 0, 0));
+    IfSec.labelfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 2, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.labelfld, 0, gettext("Protection"));
     field_opts_off(IfSec.labelfld, O_AUTOSKIP | O_ACTIVE);
 
     /* source routed packets */
     IfSec.srcrtpktsbracketsfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 3, 4, 54, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 4, 54, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.srcrtpktsbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.srcrtpktsbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.srcrtpktslabelfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 14, 4, 38, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 14, 4, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.srcrtpktslabelfld, 0, "Src-rt-pkts");
     field_opts_off(IfSec.srcrtpktslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.srcrtpktsfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                  new_field(1, 1, 4, 55, 0, 0));
+    IfSec.srcrtpktsfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 4, 55, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.srcrtpktsfld, 0,
             protectrule_loaded(&iface_ptr->ProtectList, "protect",
@@ -638,21 +629,19 @@ static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
 
     /* icmp redirects */
     IfSec.icmpredirectbracketsfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 3, 5, 54, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 5, 54, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.icmpredirectbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.icmpredirectbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.icmpredirectlabelfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 14, 5, 38, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 14, 5, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.icmpredirectlabelfld, 0, "Icmp-redirect");
     field_opts_off(IfSec.icmpredirectlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.icmpredirectfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                     new_field(1, 1, 5, 55, 0, 0));
+    IfSec.icmpredirectfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 5, 55, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.icmpredirectfld, 0,
             protectrule_loaded(
@@ -662,21 +651,19 @@ static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
 
     /* send redirect */
     IfSec.sendredirectbracketsfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 3, 6, 54, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 6, 54, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.sendredirectbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.sendredirectbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.sendredirectlabelfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 14, 6, 38, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 14, 6, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.sendredirectlabelfld, 0, "Send-redirect");
     field_opts_off(IfSec.sendredirectlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.sendredirectfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                     new_field(1, 1, 6, 55, 0, 0));
+    IfSec.sendredirectfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 6, 55, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.sendredirectfld, 0,
             protectrule_loaded(
@@ -686,21 +673,19 @@ static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
 
     /* rp filter */
     IfSec.rpfilterbracketsfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 3, 7, 54, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 7, 54, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.rpfilterbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.rpfilterbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.rpfilterlabelfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 14, 7, 38, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 14, 7, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.rpfilterlabelfld, 0, "Rp-filter");
     field_opts_off(IfSec.rpfilterlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.rpfilterfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                 new_field(1, 1, 7, 55, 0, 0));
+    IfSec.rpfilterfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 7, 55, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.rpfilterfld, 0,
             protectrule_loaded(
@@ -710,21 +695,19 @@ static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
 
     /* log martians */
     IfSec.logmartiansbracketsfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 3, 8, 54, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 8, 54, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.logmartiansbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.logmartiansbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.logmartianslabelfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 14, 8, 38, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 14, 8, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.logmartianslabelfld, 0, "Log martians");
     field_opts_off(IfSec.logmartianslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.logmartiansfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                    new_field(1, 1, 8, 55, 0, 0));
+    IfSec.logmartiansfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 8, 55, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.logmartiansfld, 0,
             protectrule_loaded(
@@ -733,8 +716,8 @@ static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
                     : " ");
 
     /* comment */
-    IfSec.commentlabelfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                     new_field(1, 16, 12, 0, 0, 0));
+    IfSec.commentlabelfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 12, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(IfSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
@@ -742,15 +725,15 @@ static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
     comment_y = 5;
     comment_x = 48;
 
-    IfSec.commentfld = (InterfacesSection.EditInterface.fields[field_num] =
+    IfSec.commentfld = (ifsec_ctx.edit.fields[field_num] =
                                 new_field(comment_y, comment_x, 13, 1, 0, 0));
     field_num++;
     if (vctx->af->ask(vctx->ifac_backend, iface_ptr->name, "COMMENT",
-                InterfacesSection.comment, sizeof(InterfacesSection.comment),
+                ifsec_ctx.comment, sizeof(ifsec_ctx.comment),
                 VRMR_TYPE_INTERFACE, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
-    set_field_buffer_wrap(IfSec.commentfld, 0, InterfacesSection.comment);
+    set_field_buffer_wrap(IfSec.commentfld, 0, ifsec_ctx.comment);
 
     /* now check if the interface is currently up */
     if (vrmr_interfaces_iface_up(iface_ptr) == 1)
@@ -760,41 +743,37 @@ static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
 
     /* up? */
     IfSec.interfaceuplabelfld =
-            (InterfacesSection.EditInterface.fields[field_num] =
-                            new_field(1, 18, 2, 19, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 18, 2, 19, 0, 0));
     field_num++;
     /* TRANSLATORS: max 18 chars */
     set_field_buffer_wrap(
             IfSec.interfaceuplabelfld, 0, gettext("Is interface up?"));
     field_opts_off(IfSec.interfaceuplabelfld, O_ACTIVE);
 
-    IfSec.interfaceupfld = (InterfacesSection.EditInterface.fields[field_num] =
-                                    new_field(1, 6, 3, 20, 0, 0));
+    IfSec.interfaceupfld =
+            (ifsec_ctx.edit.fields[field_num] = new_field(1, 6, 3, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             IfSec.interfaceupfld, 0, iface_ptr->up ? STR_YES : STR_NO);
     field_opts_off(IfSec.interfaceupfld, O_ACTIVE);
 
     /* terminate the fields */
-    InterfacesSection.EditInterface
-            .fields[InterfacesSection.EditInterface.n_fields] = NULL;
+    ifsec_ctx.edit.fields[ifsec_ctx.edit.n_fields] = NULL;
 
-    vrmr_fatal_if(InterfacesSection.EditInterface.n_fields != field_num);
+    vrmr_fatal_if(ifsec_ctx.edit.n_fields != field_num);
 
     /* create the window & panel */
     VrWinGetOffset(-1, -1, height, width, starty, startx, &starty, &startx);
 
-    InterfacesSection.EditInterface.win = create_newwin(height, width, starty,
-            startx, gettext("Edit Interface"), vccnf.color_win);
-    InterfacesSection.EditInterface.panel[0] =
-            new_panel(InterfacesSection.EditInterface.win);
-    keypad(InterfacesSection.EditInterface.win, TRUE);
+    ifsec_ctx.edit.win = create_newwin(height, width, starty, startx,
+            gettext("Edit Interface"), vccnf.color_win);
+    ifsec_ctx.edit.panel[0] = new_panel(ifsec_ctx.edit.win);
+    keypad(ifsec_ctx.edit.win, TRUE);
 
-    for (i = 0; i < InterfacesSection.EditInterface.n_fields; i++) {
-        set_field_back(
-                InterfacesSection.EditInterface.fields[i], vccnf.color_win_rev);
-        field_opts_off(InterfacesSection.EditInterface.fields[i], O_AUTOSKIP);
-        set_field_status(InterfacesSection.EditInterface.fields[i], FALSE);
+    for (i = 0; i < ifsec_ctx.edit.n_fields; i++) {
+        set_field_back(ifsec_ctx.edit.fields[i], vccnf.color_win_rev);
+        field_opts_off(ifsec_ctx.edit.fields[i], O_AUTOSKIP);
+        set_field_status(ifsec_ctx.edit.fields[i], FALSE);
     }
 
     /* disable ipv6 if not supported */
@@ -842,19 +821,17 @@ static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
     set_field_back(IfSec.interfaceupfld, vccnf.color_win);
 
     // Create the form and post it
-    InterfacesSection.EditInterface.form =
-            new_form(InterfacesSection.EditInterface.fields);
-    scale_form(InterfacesSection.EditInterface.form, &rows, &cols);
-    set_form_win(InterfacesSection.EditInterface.form,
-            InterfacesSection.EditInterface.win);
-    set_form_sub(InterfacesSection.EditInterface.form,
-            derwin(InterfacesSection.EditInterface.win, rows, cols, 1, 2));
-    post_form(InterfacesSection.EditInterface.form);
+    ifsec_ctx.edit.form = new_form(ifsec_ctx.edit.fields);
+    scale_form(ifsec_ctx.edit.form, &rows, &cols);
+    set_form_win(ifsec_ctx.edit.form, ifsec_ctx.edit.win);
+    set_form_sub(
+            ifsec_ctx.edit.form, derwin(ifsec_ctx.edit.win, rows, cols, 1, 2));
+    post_form(ifsec_ctx.edit.form);
 
-    mvwprintw(InterfacesSection.EditInterface.win, 1, 2, "%s: %s",
-            gettext("Name"), iface_ptr->name);
+    mvwprintw(ifsec_ctx.edit.win, 1, 2, "%s: %s", gettext("Name"),
+            iface_ptr->name);
 
-    wrefresh(InterfacesSection.EditInterface.win);
+    wrefresh(ifsec_ctx.edit.win);
 }
 
 static void edit_interface_destroy(void)
@@ -862,17 +839,17 @@ static void edit_interface_destroy(void)
     size_t i = 0;
 
     // Un post form and free the memory
-    unpost_form(InterfacesSection.EditInterface.form);
-    free_form(InterfacesSection.EditInterface.form);
-    for (i = 0; i < InterfacesSection.EditInterface.n_fields; i++) {
-        free_field(InterfacesSection.EditInterface.fields[i]);
+    unpost_form(ifsec_ctx.edit.form);
+    free_form(ifsec_ctx.edit.form);
+    for (i = 0; i < ifsec_ctx.edit.n_fields; i++) {
+        free_field(ifsec_ctx.edit.fields[i]);
     }
-    free(InterfacesSection.EditInterface.fields);
-    del_panel(InterfacesSection.EditInterface.panel[0]);
-    destroy_win(InterfacesSection.EditInterface.win);
+    free(ifsec_ctx.edit.fields);
+    del_panel(ifsec_ctx.edit.panel[0]);
+    destroy_win(ifsec_ctx.edit.win);
     update_panels();
     doupdate();
-    strlcpy(InterfacesSection.comment, "", sizeof(InterfacesSection.comment));
+    strlcpy(ifsec_ctx.comment, "", sizeof(ifsec_ctx.comment));
 }
 
 static int edit_interface_save_rules(
@@ -961,25 +938,21 @@ static int edit_interface_save(
     *tempiface_ptr = *iface_ptr;
 
     /* check for changed fields */
-    for (i = 0; i < InterfacesSection.EditInterface.n_fields; i++) {
-        if (field_status(InterfacesSection.EditInterface.fields[i]) == FALSE)
+    for (i = 0; i < ifsec_ctx.edit.n_fields; i++) {
+        if (field_status(ifsec_ctx.edit.fields[i]) == FALSE)
             continue;
 
         /* changes! */
         retval = 1;
 
         /* active */
-        if (InterfacesSection.EditInterface.fields[i] == IfSec.activefld) {
+        if (ifsec_ctx.edit.fields[i] == IfSec.activefld) {
             status = VRMR_ST_CHANGED;
 
-            if (strncasecmp(
-                        field_buffer(
-                                InterfacesSection.EditInterface.fields[i], 0),
-                        STR_YES, StrLen(STR_YES)) == 0) {
+            if (strncasecmp(field_buffer(ifsec_ctx.edit.fields[i], 0), STR_YES,
+                        StrLen(STR_YES)) == 0) {
                 tempiface_ptr->active = 1;
-            } else if (strncasecmp(field_buffer(InterfacesSection.EditInterface
-                                                        .fields[i],
-                                           0),
+            } else if (strncasecmp(field_buffer(ifsec_ctx.edit.fields[i], 0),
                                STR_NO, StrLen(STR_NO)) == 0) {
                 tempiface_ptr->active = 0;
             } else {
@@ -1002,13 +975,12 @@ static int edit_interface_save(
                     iface_ptr->name, STR_HAS_BEEN_CHANGED, STR_ACTIVE,
                     STR_IS_NOW_SET_TO, tempiface_ptr->active ? "Yes" : "No",
                     STR_WAS, iface_ptr->active ? "Yes" : "No");
-        } else if (InterfacesSection.EditInterface.fields[i] ==
-                   IfSec.ipaddressfld) {
+        } else if (ifsec_ctx.edit.fields[i] == IfSec.ipaddressfld) {
             // ipaddress
             status = VRMR_ST_CHANGED;
 
             copy_field2buf(tempiface_ptr->ipv4.ipaddress,
-                    field_buffer(InterfacesSection.EditInterface.fields[i], 0),
+                    field_buffer(ifsec_ctx.edit.fields[i], 0),
                     sizeof(tempiface_ptr->ipv4.ipaddress));
 
             result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name,
@@ -1027,14 +999,13 @@ static int edit_interface_save(
                     iface_ptr->name, STR_HAS_BEEN_CHANGED, STR_IPADDRESS,
                     STR_IS_NOW_SET_TO, tempiface_ptr->ipv4.ipaddress, STR_WAS,
                     iface_ptr->ipv4.ipaddress);
-        } else if (InterfacesSection.EditInterface.fields[i] ==
-                   IfSec.ip6addressfld) {
+        } else if (ifsec_ctx.edit.fields[i] == IfSec.ip6addressfld) {
 #ifdef IPV6_ENABLED
             // ipaddress
             status = VRMR_ST_CHANGED;
 
             copy_field2buf(tempiface_ptr->ipv6.ip6,
-                    field_buffer(InterfacesSection.EditInterface.fields[i], 0),
+                    field_buffer(ifsec_ctx.edit.fields[i], 0),
                     sizeof(tempiface_ptr->ipv6.ip6));
 
             result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name,
@@ -1054,15 +1025,12 @@ static int edit_interface_save(
                     STR_IS_NOW_SET_TO, tempiface_ptr->ipv6.ip6, STR_WAS,
                     iface_ptr->ipv6.ip6);
 #endif
-        } else if (InterfacesSection.EditInterface.fields[i] ==
-                   IfSec.dynamicfld) {
+        } else if (ifsec_ctx.edit.fields[i] == IfSec.dynamicfld) {
             // active
             status = VRMR_ST_CHANGED;
 
-            if (strncasecmp(
-                        field_buffer(
-                                InterfacesSection.EditInterface.fields[i], 0),
-                        "X", 1) == 0) {
+            if (strncasecmp(field_buffer(ifsec_ctx.edit.fields[i], 0), "X",
+                        1) == 0) {
                 tempiface_ptr->dynamic = 1;
 
                 result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name,
@@ -1073,9 +1041,7 @@ static int edit_interface_save(
                     free(tempiface_ptr);
                     return (-1);
                 }
-            } else if (strncasecmp(field_buffer(InterfacesSection.EditInterface
-                                                        .fields[i],
-                                           0),
+            } else if (strncasecmp(field_buffer(ifsec_ctx.edit.fields[i], 0),
                                " ", 1) == 0) {
                 tempiface_ptr->dynamic = 0;
 
@@ -1098,12 +1064,11 @@ static int edit_interface_save(
                     iface_ptr->name, STR_HAS_BEEN_CHANGED, STR_DYNAMICIP,
                     STR_IS_NOW_SET_TO, tempiface_ptr->dynamic ? "Yes" : "No",
                     STR_WAS, iface_ptr->dynamic ? "Yes" : "No");
-        } else if (InterfacesSection.EditInterface.fields[i] ==
-                   IfSec.devicefld) {
+        } else if (ifsec_ctx.edit.fields[i] == IfSec.devicefld) {
             status = VRMR_ST_CHANGED;
 
             copy_field2buf(tempiface_ptr->device,
-                    field_buffer(InterfacesSection.EditInterface.fields[i], 0),
+                    field_buffer(ifsec_ctx.edit.fields[i], 0),
                     sizeof(tempiface_ptr->device));
 
             result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name,
@@ -1125,11 +1090,8 @@ static int edit_interface_save(
             /*  if the devicename indicates a virtual
                 interface, set virtual to TRUE. */
             if (vrmr_interface_check_devicename(tempiface_ptr->device) == 0 &&
-                    strncasecmp(
-                            field_buffer(
-                                    InterfacesSection.EditInterface.fields[i],
-                                    0),
-                            "X", 1) != 0) {
+                    strncasecmp(field_buffer(ifsec_ctx.edit.fields[i], 0), "X",
+                            1) != 0) {
                 tempiface_ptr->device_virtual = 1;
 
                 result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name,
@@ -1150,12 +1112,10 @@ static int edit_interface_save(
                         tempiface_ptr->device_virtual ? "Yes" : "No", STR_WAS,
                         iface_ptr->device_virtual ? "Yes" : "No");
             }
-        } else if (InterfacesSection.EditInterface.fields[i] ==
-                   IfSec.commentfld) {
+        } else if (ifsec_ctx.edit.fields[i] == IfSec.commentfld) {
             result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name,
-                    "COMMENT",
-                    field_buffer(InterfacesSection.EditInterface.fields[i], 0),
-                    1, VRMR_TYPE_INTERFACE);
+                    "COMMENT", field_buffer(ifsec_ctx.edit.fields[i], 0), 1,
+                    VRMR_TYPE_INTERFACE);
             if (result < 0) {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                         STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
@@ -1167,14 +1127,11 @@ static int edit_interface_save(
              * changed." */
             vrmr_audit("%s '%s' %s: %s.", STR_INTERFACE, iface_ptr->name,
                     STR_HAS_BEEN_CHANGED, STR_COMMENT_CHANGED);
-        } else if (InterfacesSection.EditInterface.fields[i] ==
-                   IfSec.devicevirtualfld) {
+        } else if (ifsec_ctx.edit.fields[i] == IfSec.devicevirtualfld) {
             status = VRMR_ST_CHANGED;
 
-            if (strncasecmp(
-                        field_buffer(
-                                InterfacesSection.EditInterface.fields[i], 0),
-                        "X", 1) == 0) {
+            if (strncasecmp(field_buffer(ifsec_ctx.edit.fields[i], 0), "X",
+                        1) == 0) {
                 tempiface_ptr->device_virtual = 1;
             } else {
                 tempiface_ptr->device_virtual = 0;
@@ -1201,16 +1158,11 @@ static int edit_interface_save(
         /*
 
          */
-        else if (InterfacesSection.EditInterface.fields[i] ==
-                         IfSec.srcrtpktsfld ||
-                 InterfacesSection.EditInterface.fields[i] ==
-                         IfSec.icmpredirectfld ||
-                 InterfacesSection.EditInterface.fields[i] ==
-                         IfSec.sendredirectfld ||
-                 InterfacesSection.EditInterface.fields[i] ==
-                         IfSec.rpfilterfld ||
-                 InterfacesSection.EditInterface.fields[i] ==
-                         IfSec.logmartiansfld) {
+        else if (ifsec_ctx.edit.fields[i] == IfSec.srcrtpktsfld ||
+                 ifsec_ctx.edit.fields[i] == IfSec.icmpredirectfld ||
+                 ifsec_ctx.edit.fields[i] == IfSec.sendredirectfld ||
+                 ifsec_ctx.edit.fields[i] == IfSec.rpfilterfld ||
+                 ifsec_ctx.edit.fields[i] == IfSec.logmartiansfld) {
             status = VRMR_ST_CHANGED;
 
             if (edit_interface_save_rules(vctx, tempiface_ptr) < 0) {
@@ -1282,8 +1234,8 @@ static int edit_interface(
 
     height = 20;
     width = 62;
-    VrWinGetOffset(-1, -1, height, width, 4, InterfacesSection.i_xre + 1,
-            &starty, &startx);
+    VrWinGetOffset(
+            -1, -1, height, width, 4, ifsec_ctx.i_xre + 1, &starty, &startx);
 
     /* TODO: advanced option */
 
@@ -1292,7 +1244,7 @@ static int edit_interface(
     vrmr_fatal_if_null(iface_ptr);
 
     edit_interface_init(vctx, name, height, width, starty, startx, iface_ptr);
-    cur = current_field(InterfacesSection.EditInterface.form);
+    cur = current_field(ifsec_ctx.edit.form);
 
     draw_top_menu(top_win, gettext("Edit Interface"), key_choices_n,
             key_choices, cmd_choices_n, cmd_choices);
@@ -1360,28 +1312,27 @@ static int edit_interface(
             field_opts_off(IfSec.logmartiansfld, O_VISIBLE);
         }
 
-        draw_field_active_mark(cur, prev, InterfacesSection.EditInterface.win,
-                InterfacesSection.EditInterface.form,
-                vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(cur, prev, ifsec_ctx.edit.win,
+                ifsec_ctx.edit.form, vccnf.color_win_mark | A_BOLD);
 
         not_defined = 0;
 
         // get key
-        ch = wgetch(InterfacesSection.EditInterface.win);
+        ch = wgetch(ifsec_ctx.edit.win);
 
         /* comment */
         if (cur == IfSec.commentfld) {
-            if (nav_field_comment(InterfacesSection.EditInterface.form, ch) < 0)
+            if (nav_field_comment(ifsec_ctx.edit.form, ch) < 0)
                 not_defined = 1;
         }
         /* active */
         else if (cur == IfSec.activefld) {
-            if (nav_field_yesno(InterfacesSection.EditInterface.form, ch) < 0)
+            if (nav_field_yesno(ifsec_ctx.edit.form, ch) < 0)
                 not_defined = 1;
         }
         /* dynamic */
         else if (cur == IfSec.dynamicfld) {
-            if (nav_field_toggleX(InterfacesSection.EditInterface.form, ch) < 0)
+            if (nav_field_toggleX(ifsec_ctx.edit.form, ch) < 0)
                 not_defined = 1;
 
             /* set the ipaddress field to active/inactive */
@@ -1395,12 +1346,11 @@ static int edit_interface(
         else if (cur == IfSec.devicevirtualfld || cur == IfSec.srcrtpktsfld ||
                  cur == IfSec.icmpredirectfld || cur == IfSec.sendredirectfld ||
                  cur == IfSec.rpfilterfld || cur == IfSec.logmartiansfld) {
-            if (nav_field_toggleX(InterfacesSection.EditInterface.form, ch) < 0)
+            if (nav_field_toggleX(ifsec_ctx.edit.form, ch) < 0)
                 not_defined = 1;
         } else if (cur == IfSec.ipaddressfld || cur == IfSec.devicefld ||
                    cur == IfSec.ip6addressfld) {
-            if (nav_field_simpletext(InterfacesSection.EditInterface.form, ch) <
-                    0)
+            if (nav_field_simpletext(ifsec_ctx.edit.form, ch) < 0)
                 not_defined = 1;
         } else {
             not_defined = 1;
@@ -1413,18 +1363,14 @@ static int edit_interface(
                 case KEY_DOWN:
                 case 10: // enter
 
-                    form_driver(InterfacesSection.EditInterface.form,
-                            REQ_NEXT_FIELD);
-                    form_driver(
-                            InterfacesSection.EditInterface.form, REQ_END_LINE);
+                    form_driver(ifsec_ctx.edit.form, REQ_NEXT_FIELD);
+                    form_driver(ifsec_ctx.edit.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
 
-                    form_driver(InterfacesSection.EditInterface.form,
-                            REQ_PREV_FIELD);
-                    form_driver(
-                            InterfacesSection.EditInterface.form, REQ_END_LINE);
+                    form_driver(ifsec_ctx.edit.form, REQ_PREV_FIELD);
+                    form_driver(ifsec_ctx.edit.form, REQ_END_LINE);
                     break;
 
                 case 27:
@@ -1478,10 +1424,10 @@ static int edit_interface(
         }
 
         prev = cur;
-        cur = current_field(InterfacesSection.EditInterface.form);
+        cur = current_field(ifsec_ctx.edit.form);
 
-        wrefresh(InterfacesSection.EditInterface.win);
-        pos_form_cursor(InterfacesSection.EditInterface.form);
+        wrefresh(ifsec_ctx.edit.win);
+        pos_form_cursor(ifsec_ctx.edit.form);
     }
 
     /* update the screen */
@@ -1510,12 +1456,12 @@ static int init_interfaces_section(struct vrmr_interfaces *interfaces)
     startx = 1;
     starty = 4;
 
-    InterfacesSection.list_items = interfaces->list.len;
+    ifsec_ctx.list_items = interfaces->list.len;
 
-    vrmr_list_setup(&InterfacesSection.desc_list, free);
+    vrmr_list_setup(&ifsec_ctx.desc_list, free);
 
-    if (!(InterfacesSection.items = (ITEM **)calloc(
-                  InterfacesSection.list_items + 1, sizeof(ITEM *)))) {
+    if (!(ifsec_ctx.items = (ITEM **)calloc(
+                  ifsec_ctx.list_items + 1, sizeof(ITEM *)))) {
         vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
                 strerror(errno), __FUNC__, __LINE__);
         return (-1);
@@ -1549,100 +1495,97 @@ static int init_interfaces_section(struct vrmr_interfaces *interfaces)
 
         (void)strlcpy(desc_ptr, temp, size);
 
-        if (vrmr_list_append(&InterfacesSection.desc_list, desc_ptr) == NULL) {
+        if (vrmr_list_append(&ifsec_ctx.desc_list, desc_ptr) == NULL) {
             vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return (-1);
         }
 
         /* load all interfaces into memory */
-        if (!(InterfacesSection.items[i] =
-                            new_item(iface_ptr->name, desc_ptr))) {
+        if (!(ifsec_ctx.items[i] = new_item(iface_ptr->name, desc_ptr))) {
             vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return (-1);
         }
     }
-    InterfacesSection.items[InterfacesSection.list_items] = (ITEM *)NULL;
+    ifsec_ctx.items[ifsec_ctx.list_items] = (ITEM *)NULL;
 
-    if (InterfacesSection.list_items > 0) {
-        InterfacesSection.top = InterfacesSection.items[0];
-        InterfacesSection.bot =
-                InterfacesSection.items[InterfacesSection.list_items - 1];
+    if (ifsec_ctx.list_items > 0) {
+        ifsec_ctx.top = ifsec_ctx.items[0];
+        ifsec_ctx.bot = ifsec_ctx.items[ifsec_ctx.list_items - 1];
     } else {
-        InterfacesSection.top = NULL;
-        InterfacesSection.bot = NULL;
+        ifsec_ctx.top = NULL;
+        ifsec_ctx.bot = NULL;
     }
 
     /* set height */
-    height = (int)InterfacesSection.list_items + 8;
+    height = (int)ifsec_ctx.list_items + 8;
     if (height > LINES - 8)
         height = LINES - 8;
 
-    InterfacesSection.i_yle = starty + height;
-    InterfacesSection.i_xre = startx + width;
+    ifsec_ctx.i_yle = starty + height;
+    ifsec_ctx.i_xre = startx + width;
 
     // TODO
-    InterfacesSection.win = newwin(height, width, starty, startx);
-    wbkgd(InterfacesSection.win, vccnf.color_win);
-    keypad(InterfacesSection.win, TRUE);
+    ifsec_ctx.win = newwin(height, width, starty, startx);
+    wbkgd(ifsec_ctx.win, vccnf.color_win);
+    keypad(ifsec_ctx.win, TRUE);
 
     // TODO
-    InterfacesSection.panel[0] = new_panel(InterfacesSection.win);
+    ifsec_ctx.panel[0] = new_panel(ifsec_ctx.win);
 
     // TODO
-    InterfacesSection.menu = new_menu((ITEM **)InterfacesSection.items);
-    set_menu_win(InterfacesSection.menu, InterfacesSection.win);
-    set_menu_sub(InterfacesSection.menu,
-            derwin(InterfacesSection.win, height - 7, width - 2, 3, 1));
+    ifsec_ctx.menu = new_menu((ITEM **)ifsec_ctx.items);
+    set_menu_win(ifsec_ctx.menu, ifsec_ctx.win);
+    set_menu_sub(
+            ifsec_ctx.menu, derwin(ifsec_ctx.win, height - 7, width - 2, 3, 1));
 
     // TODO
-    set_menu_format(InterfacesSection.menu, height - 8, 1);
+    set_menu_format(ifsec_ctx.menu, height - 8, 1);
 
-    box(InterfacesSection.win, 0, 0);
-    print_in_middle(InterfacesSection.win, 1, 0, width, gettext("Interfaces"),
-            vccnf.color_win);
-    mvwaddch(InterfacesSection.win, 2, 0, ACS_LTEE);
-    mvwhline(InterfacesSection.win, 2, 1, ACS_HLINE, width - 2);
-    mvwaddch(InterfacesSection.win, 2, width - 1, ACS_RTEE);
+    box(ifsec_ctx.win, 0, 0);
+    print_in_middle(
+            ifsec_ctx.win, 1, 0, width, gettext("Interfaces"), vccnf.color_win);
+    mvwaddch(ifsec_ctx.win, 2, 0, ACS_LTEE);
+    mvwhline(ifsec_ctx.win, 2, 1, ACS_HLINE, width - 2);
+    mvwaddch(ifsec_ctx.win, 2, width - 1, ACS_RTEE);
 
-    set_menu_back(InterfacesSection.menu, vccnf.color_win);
-    set_menu_fore(InterfacesSection.menu, vccnf.color_win_rev);
+    set_menu_back(ifsec_ctx.menu, vccnf.color_win);
+    set_menu_fore(ifsec_ctx.menu, vccnf.color_win_rev);
 
     // TODO
-    post_menu(InterfacesSection.menu);
+    post_menu(ifsec_ctx.menu);
 
-    mvwaddch(InterfacesSection.win, height - 5, 0, ACS_LTEE);
-    mvwhline(InterfacesSection.win, height - 5, 1, ACS_HLINE, width - 2);
-    mvwaddch(InterfacesSection.win, height - 5, width - 1, ACS_RTEE);
+    mvwaddch(ifsec_ctx.win, height - 5, 0, ACS_LTEE);
+    mvwhline(ifsec_ctx.win, height - 5, 1, ACS_HLINE, width - 2);
+    mvwaddch(ifsec_ctx.win, height - 5, width - 1, ACS_RTEE);
 
-    mvwprintw(InterfacesSection.win, height - 4, 2, "<RET> %s", STR_EDIT);
-    mvwprintw(InterfacesSection.win, height - 3, 2, "<INS> %s", STR_NEW);
-    mvwprintw(InterfacesSection.win, height - 2, 2, "<DEL> %s", STR_REMOVE);
-    mvwprintw(InterfacesSection.win, height - 4, 28, "(*) %s",
+    mvwprintw(ifsec_ctx.win, height - 4, 2, "<RET> %s", STR_EDIT);
+    mvwprintw(ifsec_ctx.win, height - 3, 2, "<INS> %s", STR_NEW);
+    mvwprintw(ifsec_ctx.win, height - 2, 2, "<DEL> %s", STR_REMOVE);
+    mvwprintw(ifsec_ctx.win, height - 4, 28, "(*) %s",
             gettext("interface IP is dynamic"));
 
     /* create the top and bottom fields */
-    if (!(InterfacesSection.win_top = newwin(1, 6, starty + 2, width - 8))) {
+    if (!(ifsec_ctx.win_top = newwin(1, 6, starty + 2, width - 8))) {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return (-1);
     }
-    wbkgd(InterfacesSection.win_top, vccnf.color_win);
-    InterfacesSection.panel_top[0] = new_panel(InterfacesSection.win_top);
+    wbkgd(ifsec_ctx.win_top, vccnf.color_win);
+    ifsec_ctx.panel_top[0] = new_panel(ifsec_ctx.win_top);
     /* TRANSLATORS: max 4 chars */
-    wprintw(InterfacesSection.win_top, "(%s)", gettext("more"));
-    hide_panel(InterfacesSection.panel_top[0]);
+    wprintw(ifsec_ctx.win_top, "(%s)", gettext("more"));
+    hide_panel(ifsec_ctx.panel_top[0]);
 
-    if (!(InterfacesSection.win_bot =
-                        newwin(1, 6, starty + height - 5, width - 8))) {
+    if (!(ifsec_ctx.win_bot = newwin(1, 6, starty + height - 5, width - 8))) {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return (-1);
     }
-    wbkgd(InterfacesSection.win_bot, vccnf.color_win);
-    InterfacesSection.panel_bot[0] = new_panel(InterfacesSection.win_bot);
+    wbkgd(ifsec_ctx.win_bot, vccnf.color_win);
+    ifsec_ctx.panel_bot[0] = new_panel(ifsec_ctx.win_bot);
     /* TRANSLATORS: max 4 chars */
-    wprintw(InterfacesSection.win_bot, "(%s)", gettext("more"));
-    hide_panel(InterfacesSection.panel_bot[0]);
+    wprintw(ifsec_ctx.win_bot, "(%s)", gettext("more"));
+    hide_panel(ifsec_ctx.panel_bot[0]);
 
     update_panels();
     doupdate();
@@ -1655,22 +1598,22 @@ static int destroy_interfaces_section(void)
     int retval = 0;
     size_t i = 0;
 
-    unpost_menu(InterfacesSection.menu);
-    free_menu(InterfacesSection.menu);
-    for (i = 0; i < InterfacesSection.list_items; ++i)
-        free_item(InterfacesSection.items[i]);
+    unpost_menu(ifsec_ctx.menu);
+    free_menu(ifsec_ctx.menu);
+    for (i = 0; i < ifsec_ctx.list_items; ++i)
+        free_item(ifsec_ctx.items[i]);
 
-    free(InterfacesSection.items);
+    free(ifsec_ctx.items);
 
-    del_panel(InterfacesSection.panel[0]);
-    destroy_win(InterfacesSection.win);
+    del_panel(ifsec_ctx.panel[0]);
+    destroy_win(ifsec_ctx.win);
 
-    vrmr_list_cleanup(&InterfacesSection.desc_list);
+    vrmr_list_cleanup(&ifsec_ctx.desc_list);
 
-    del_panel(InterfacesSection.panel_top[0]);
-    destroy_win(InterfacesSection.win_top);
-    del_panel(InterfacesSection.panel_bot[0]);
-    destroy_win(InterfacesSection.win_bot);
+    del_panel(ifsec_ctx.panel_top[0]);
+    destroy_win(ifsec_ctx.win_top);
+    del_panel(ifsec_ctx.panel_bot[0]);
+    destroy_win(ifsec_ctx.win_bot);
 
     return (retval);
 }
@@ -1905,25 +1848,23 @@ void interfaces_section(struct vrmr_ctx *vctx,
         }
 
         while (quit == 0 && reload == 0) {
-            if (InterfacesSection.top != NULL &&
-                    !item_visible(InterfacesSection.top))
-                show_panel(InterfacesSection.panel_top[0]);
+            if (ifsec_ctx.top != NULL && !item_visible(ifsec_ctx.top))
+                show_panel(ifsec_ctx.panel_top[0]);
             else
-                hide_panel(InterfacesSection.panel_top[0]);
+                hide_panel(ifsec_ctx.panel_top[0]);
 
-            if (InterfacesSection.bot != NULL &&
-                    !item_visible(InterfacesSection.bot))
-                show_panel(InterfacesSection.panel_bot[0]);
+            if (ifsec_ctx.bot != NULL && !item_visible(ifsec_ctx.bot))
+                show_panel(ifsec_ctx.panel_bot[0]);
             else
-                hide_panel(InterfacesSection.panel_bot[0]);
+                hide_panel(ifsec_ctx.panel_bot[0]);
 
             update_panels();
             doupdate();
 
             /* restore the cursor */
-            pos_menu_cursor(InterfacesSection.menu);
+            pos_menu_cursor(ifsec_ctx.menu);
 
-            ch = wgetch(InterfacesSection.win);
+            ch = wgetch(ifsec_ctx.win);
             switch (ch) {
                 case 27:
                 case 'q':
@@ -1936,7 +1877,7 @@ void interfaces_section(struct vrmr_ctx *vctx,
                 case 'r':
                 case 'R':
 
-                    cur = current_item(InterfacesSection.menu);
+                    cur = current_item(ifsec_ctx.menu);
                     if (cur) {
                         cur_name_ptr = (char *)item_name(cur);
                         if (cur_name_ptr) {
@@ -2004,7 +1945,7 @@ void interfaces_section(struct vrmr_ctx *vctx,
                 case 'd':
                 case 'D':
 
-                    cur = current_item(InterfacesSection.menu);
+                    cur = current_item(ifsec_ctx.menu);
                     if (cur) {
                         if (confirm(gettext("Delete"), gettext("Are you sure?"),
                                     vccnf.color_win_note,
@@ -2027,32 +1968,29 @@ void interfaces_section(struct vrmr_ctx *vctx,
                     break;
 
                 case KEY_DOWN:
-                    menu_driver(InterfacesSection.menu, REQ_DOWN_ITEM);
+                    menu_driver(ifsec_ctx.menu, REQ_DOWN_ITEM);
                     break;
                 case KEY_UP:
-                    menu_driver(InterfacesSection.menu, REQ_UP_ITEM);
+                    menu_driver(ifsec_ctx.menu, REQ_UP_ITEM);
                     break;
                 case KEY_NPAGE:
-                    if (menu_driver(InterfacesSection.menu, REQ_SCR_DPAGE) !=
-                            E_OK) {
-                        while (menu_driver(InterfacesSection.menu,
-                                       REQ_DOWN_ITEM) == E_OK)
+                    if (menu_driver(ifsec_ctx.menu, REQ_SCR_DPAGE) != E_OK) {
+                        while (menu_driver(ifsec_ctx.menu, REQ_DOWN_ITEM) ==
+                                E_OK)
                             ;
                     }
                     break;
                 case KEY_PPAGE:
-                    if (menu_driver(InterfacesSection.menu, REQ_SCR_UPAGE) !=
-                            E_OK) {
-                        while (menu_driver(InterfacesSection.menu,
-                                       REQ_UP_ITEM) == E_OK)
+                    if (menu_driver(ifsec_ctx.menu, REQ_SCR_UPAGE) != E_OK) {
+                        while (menu_driver(ifsec_ctx.menu, REQ_UP_ITEM) == E_OK)
                             ;
                     }
                     break;
                 case KEY_HOME:
-                    menu_driver(InterfacesSection.menu, REQ_FIRST_ITEM); // home
+                    menu_driver(ifsec_ctx.menu, REQ_FIRST_ITEM); // home
                     break;
                 case KEY_END:
-                    menu_driver(InterfacesSection.menu, REQ_LAST_ITEM); // end
+                    menu_driver(ifsec_ctx.menu, REQ_LAST_ITEM); // end
                     break;
 
                 case 32: // space
@@ -2061,7 +1999,7 @@ void interfaces_section(struct vrmr_ctx *vctx,
                 case 'e':
                 case 'E':
 
-                    cur = current_item(InterfacesSection.menu);
+                    cur = current_item(ifsec_ctx.menu);
                     if (cur) {
                         if (edit_interface(vctx, interfaces,
                                     (char *)item_name(cur)) == 1)

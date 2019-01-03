@@ -20,13 +20,12 @@
 
 #include "main.h"
 
-typedef struct StatEventGen_ {
+struct stat_event_generic {
     int type;
     int filtered;
+};
 
-} StatEventGen;
-
-typedef struct StatEventLog_ {
+struct stat_event_log {
     int type;
     int filtered;
 
@@ -47,9 +46,9 @@ typedef struct StatEventLog_ {
     char action[16];
     char prefix[32];
     char details[128];
-} StatEventLog;
+};
 
-typedef struct StatEventConn_ {
+struct stat_event_conn {
     int type;
     int filtered;
 
@@ -79,25 +78,24 @@ typedef struct StatEventConn_ {
     unsigned long long to_src_bytes;
     unsigned long long to_dst_packets;
     unsigned long long to_dst_bytes;
+};
 
-} StatEventConn;
-
-typedef struct StatEventCtl_ {
+struct stat_event_ctx {
     int type;
 
     void *data;
 
     /* "object" functions */
-    char *(*print2str)(StatEventGen *, size_t);
+    char *(*print2str)(struct stat_event_generic *, size_t);
     void (*remove)(void *data);
 
-    char (*convert)(struct StatEventCtl_ *);
+    char (*convert)(struct stat_event_ctx *);
     /* ptr to interactive menu function */
     void (*menu)(struct vrmr_ctx *, struct vrmr_config *,
-            struct StatEventCtl_ *, Conntrack *,
+            struct stat_event_ctx *, struct conntrack *,
             struct vrmr_conntrack_request *, struct vrmr_zones *,
             struct vrmr_blocklist *, struct vrmr_interfaces *,
-            struct vrmr_services *, StatEventGen *);
+            struct vrmr_services *, struct stat_event_generic *);
     // build menu func?
 
     /* GUI names and texts */
@@ -111,36 +109,35 @@ typedef struct StatEventCtl_ {
 
     /* data storage */
     struct vrmr_list list;
-
-} StatEventCtl;
+};
 
 /*
     functions
 */
 
-static StatEventConn *ATTR_RETURNS_NONNULL statevent_init_conn(void)
+static struct stat_event_conn *ATTR_RETURNS_NONNULL statevent_init_conn(void)
 {
-    StatEventConn *conn = malloc(sizeof(StatEventConn));
+    struct stat_event_conn *conn = malloc(sizeof(struct stat_event_conn));
     vrmr_fatal_alloc("malloc", conn);
-    memset(conn, 0, sizeof(StatEventConn));
+    memset(conn, 0, sizeof(struct stat_event_conn));
 
     conn->type = STATEVENTTYPE_CONN;
     return (conn);
 }
 
-static StatEventLog *ATTR_RETURNS_NONNULL statevent_init_log(void)
+static struct stat_event_log *ATTR_RETURNS_NONNULL statevent_init_log(void)
 {
-    StatEventLog *log = malloc(sizeof(StatEventLog));
+    struct stat_event_log *log = malloc(sizeof(struct stat_event_log));
     vrmr_fatal_alloc("malloc", log);
-    memset(log, 0, sizeof(StatEventLog));
+    memset(log, 0, sizeof(struct stat_event_log));
 
     log->type = STATEVENTTYPE_LOG;
     return (log);
 }
 
-static char *statevent_print2str_log(StatEventGen *evt, size_t len)
+static char *statevent_print2str_log(struct stat_event_generic *evt, size_t len)
 {
-    StatEventLog *log = (StatEventLog *)evt;
+    struct stat_event_log *log = (struct stat_event_log *)evt;
 
     vrmr_fatal_if_null(evt);
     vrmr_fatal_if(evt->type != STATEVENTTYPE_LOG);
@@ -151,9 +148,10 @@ static char *statevent_print2str_log(StatEventGen *evt, size_t len)
     return (str);
 }
 
-static char *statevent_print2str_conn(StatEventGen *evt, size_t len)
+static char *statevent_print2str_conn(
+        struct stat_event_generic *evt, size_t len)
 {
-    StatEventConn *conn = (StatEventConn *)evt;
+    struct stat_event_conn *conn = (struct stat_event_conn *)evt;
     char src[64] = "", dst[64] = "";
     char *str = NULL;
 
@@ -181,16 +179,16 @@ static char *statevent_print2str_conn(StatEventGen *evt, size_t len)
     return (str);
 }
 
-/* convert struct vrmr_conntrack_entry to StatEventConn */
-static char statevent_convert_conn(StatEventCtl *ctl)
+/* convert struct vrmr_conntrack_entry to struct stat_event_conn */
+static char statevent_convert_conn(struct stat_event_ctx *ctl)
 {
-    Conntrack *ct = ctl->data;
+    struct conntrack *ct = ctl->data;
 
     unsigned int x;
     unsigned int array_size = ct->conn_list.len;
     for (x = 0; x < array_size; x++) {
         struct vrmr_conntrack_entry *cd_ptr = ct->conn_array[x];
-        StatEventConn *conn = statevent_init_conn();
+        struct stat_event_conn *conn = statevent_init_conn();
         vrmr_fatal_if_null(conn);
 
         strlcpy(conn->ser, cd_ptr->sername, sizeof(conn->ser));
@@ -243,13 +241,13 @@ static char parse_log_srcdst(const char *str_in, char *ret_ip, size_t ip_size,
     return TRUE;
 }
 
-/* convert struct LogRule to StatEventLog
+/* convert struct LogRule to struct stat_event_log
  */
-static char statevent_convert_log(StatEventCtl *ctl)
+static char statevent_convert_log(struct stat_event_ctx *ctl)
 {
     struct vrmr_list_node *d_node = NULL;
-    LogRule *log_record = NULL;
-    StatEventLog *log = NULL;
+    struct log_record *log_record = NULL;
+    struct stat_event_log *log = NULL;
     struct vrmr_list *loglist = ctl->data;
 
     char *s = NULL;
@@ -389,8 +387,8 @@ static char statevent_convert_log(StatEventCtl *ctl)
 
 /* wrapper around ip and name killing */
 static int kill_connections(struct vrmr_config *cnf,
-        struct vrmr_conntrack_request *connreq, Conntrack *ct,
-        StatEventConn *conn)
+        struct vrmr_conntrack_request *connreq, struct conntrack *ct,
+        struct stat_event_conn *conn)
 {
     if (connreq->unknown_ip_as_net) {
         return (kill_connections_by_name(cnf, ct, conn->src, conn->dst,
@@ -406,13 +404,14 @@ static int kill_connections(struct vrmr_config *cnf,
 
 */
 static void statevent_interactivemenu_conn(struct vrmr_ctx *vctx,
-        struct vrmr_config *cnf, StatEventCtl *ctl, Conntrack *ct,
-        struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones,
-        struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
-        struct vrmr_services *services, StatEventGen *gen_ptr)
+        struct vrmr_config *cnf, struct stat_event_ctx *ctl,
+        struct conntrack *ct, struct vrmr_conntrack_request *connreq,
+        struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
+        struct vrmr_interfaces *interfaces, struct vrmr_services *services,
+        struct stat_event_generic *gen_ptr)
 {
-    VrWin *win = NULL;
-    VrMenu *menu = NULL;
+    struct vrmr_gui_win *win = NULL;
+    struct vrmr_gui_menu *menu = NULL;
     int ch = 0;
     int menu_items = 10;
     char *str = NULL;
@@ -422,8 +421,8 @@ static void statevent_interactivemenu_conn(struct vrmr_ctx *vctx,
     int key_choices_n = 2;
     char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
-    StatEventConn *con = (StatEventConn *)gen_ptr;
-    Conntrack *privct = NULL;
+    struct stat_event_conn *con = (struct stat_event_conn *)gen_ptr;
+    struct conntrack *privct = NULL;
     char ungroup_conns = FALSE;
     char *title = gettext("Manage Connection");
 
@@ -675,13 +674,14 @@ static void statevent_interactivemenu_conn(struct vrmr_ctx *vctx,
 
 */
 static void statevent_interactivemenu_log(struct vrmr_ctx *vctx,
-        struct vrmr_config *cnf, StatEventCtl *ctl, Conntrack *ct,
-        struct vrmr_conntrack_request *connreqnull, struct vrmr_zones *zones,
-        struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
-        struct vrmr_services *services, StatEventGen *gen_ptr)
+        struct vrmr_config *cnf, struct stat_event_ctx *ctl,
+        struct conntrack *ct, struct vrmr_conntrack_request *connreqnull,
+        struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
+        struct vrmr_interfaces *interfaces, struct vrmr_services *services,
+        struct stat_event_generic *gen_ptr)
 {
-    VrWin *win = NULL;
-    VrMenu *menu = NULL;
+    struct vrmr_gui_win *win = NULL;
+    struct vrmr_gui_menu *menu = NULL;
     int ch = 0;
     int menu_items = 10;
     char *str = NULL;
@@ -691,9 +691,9 @@ static void statevent_interactivemenu_log(struct vrmr_ctx *vctx,
     int key_choices_n = 2;
     char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
-    StatEventLog *log = (StatEventLog *)gen_ptr;
+    struct stat_event_log *log = (struct stat_event_log *)gen_ptr;
 
-    Conntrack *ctr = NULL;
+    struct conntrack *ctr = NULL;
     struct vrmr_conntrack_request connreq;
     char *title = gettext("Manage Log");
 
@@ -933,11 +933,11 @@ static void statevent_interactivemenu_log(struct vrmr_ctx *vctx,
     doupdate();
 }
 
-static StatEventCtl *ATTR_RETURNS_NONNULL statevent_init_ctl(int type)
+static struct stat_event_ctx *ATTR_RETURNS_NONNULL statevent_init_ctl(int type)
 {
-    StatEventCtl *ctl = malloc(sizeof(StatEventCtl));
+    struct stat_event_ctx *ctl = malloc(sizeof(struct stat_event_ctx));
     vrmr_fatal_alloc("malloc", ctl);
-    memset(ctl, 0, sizeof(StatEventCtl));
+    memset(ctl, 0, sizeof(struct stat_event_ctx));
 
     ctl->type = type;
 
@@ -967,25 +967,25 @@ static StatEventCtl *ATTR_RETURNS_NONNULL statevent_init_ctl(int type)
     return (ctl);
 }
 
-static void statevent_free_ctl(StatEventCtl **ctl)
+static void statevent_free_ctl(struct stat_event_ctx **ctl)
 {
     vrmr_list_cleanup(&(*ctl)->list);
-    memset(*ctl, 0, sizeof(StatEventCtl));
+    memset(*ctl, 0, sizeof(struct stat_event_ctx));
     free(*ctl);
     *ctl = NULL;
 }
 
 static int statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
-        int type, StatEventCtl *ctl, Conntrack *ct,
+        int type, struct stat_event_ctx *ctl, struct conntrack *ct,
         struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services)
 {
-    VrWin *win = NULL;
-    VrMenu *menu = NULL;
+    struct vrmr_gui_win *win = NULL;
+    struct vrmr_gui_menu *menu = NULL;
     int ch = 0;
     struct vrmr_list_node *d_node = NULL;
-    StatEventGen *gen_ptr = NULL;
+    struct stat_event_generic *gen_ptr = NULL;
 
     /* top menu */
     char *key_choices[] = {"F12", "enter", "F10"};
@@ -1145,7 +1145,7 @@ static int statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 }
 
 void statevent(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
-        struct vrmr_list *list, Conntrack *ct,
+        struct vrmr_list *list, struct conntrack *ct,
         struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services)
@@ -1153,7 +1153,7 @@ void statevent(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
 
     VrBusyWinShow();
 
-    StatEventCtl *ctl = statevent_init_ctl(type);
+    struct stat_event_ctx *ctl = statevent_init_ctl(type);
     vrmr_fatal_if_null(ctl);
     if (ctl->type == STATEVENTTYPE_CONN)
         ctl->data = ct;

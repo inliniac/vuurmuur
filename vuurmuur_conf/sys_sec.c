@@ -20,13 +20,13 @@
 
 #include "main.h"
 
-struct SystemSection_ {
+struct {
     PANEL *panel[1];
     WINDOW *win;
     FIELD **fields;
     FORM *form;
     size_t n_fields;
-} SystemSection;
+} syssec_ctx;
 
 static int edit_sysopt_init(
         struct vrmr_config *conf, int height, int width, int starty, int startx)
@@ -34,55 +34,54 @@ static int edit_sysopt_init(
     int retval = 0, rows, cols;
     size_t i = 0;
 
-    SystemSection.n_fields = 2;
-    SystemSection.fields =
-            (FIELD **)calloc(SystemSection.n_fields + 1, sizeof(FIELD *));
+    syssec_ctx.n_fields = 2;
+    syssec_ctx.fields =
+            (FIELD **)calloc(syssec_ctx.n_fields + 1, sizeof(FIELD *));
 
     // create the fields
-    SystemSection.fields[0] = new_field(1, 1, 1, 2, 0, 1); // syn-flood
-    set_field_buffer_wrap(SystemSection.fields[0], 1, "s");
+    syssec_ctx.fields[0] = new_field(1, 1, 1, 2, 0, 1); // syn-flood
+    set_field_buffer_wrap(syssec_ctx.fields[0], 1, "s");
     set_field_buffer_wrap(
-            SystemSection.fields[0], 0, conf->protect_syncookie ? "X" : " ");
+            syssec_ctx.fields[0], 0, conf->protect_syncookie ? "X" : " ");
 
-    SystemSection.fields[1] = new_field(1, 1, 3, 2, 0, 1); // echo-broadcast
-    set_field_buffer_wrap(SystemSection.fields[1], 1, "e");
-    set_field_buffer_wrap(SystemSection.fields[1], 0,
-            conf->protect_echobroadcast ? "X" : " ");
+    syssec_ctx.fields[1] = new_field(1, 1, 3, 2, 0, 1); // echo-broadcast
+    set_field_buffer_wrap(syssec_ctx.fields[1], 1, "e");
+    set_field_buffer_wrap(
+            syssec_ctx.fields[1], 0, conf->protect_echobroadcast ? "X" : " ");
 
-    SystemSection.fields[2] = NULL;
+    syssec_ctx.fields[2] = NULL;
 
-    SystemSection.win = create_newwin(height, width, starty, startx,
+    syssec_ctx.win = create_newwin(height, width, starty, startx,
             gettext("System Protection"), vccnf.color_win);
-    SystemSection.panel[0] = new_panel(SystemSection.win);
+    syssec_ctx.panel[0] = new_panel(syssec_ctx.win);
 
-    for (i = 0; i < SystemSection.n_fields; i++) {
+    for (i = 0; i < syssec_ctx.n_fields; i++) {
         // set field options
-        set_field_back(SystemSection.fields[i], vccnf.color_win);
-        field_opts_off(SystemSection.fields[i], O_AUTOSKIP);
+        set_field_back(syssec_ctx.fields[i], vccnf.color_win);
+        field_opts_off(syssec_ctx.fields[i], O_AUTOSKIP);
         // set status to false
-        set_field_status(SystemSection.fields[i], FALSE);
+        set_field_status(syssec_ctx.fields[i], FALSE);
     }
 
     // Create the form and post it
-    SystemSection.form = new_form(SystemSection.fields);
+    syssec_ctx.form = new_form(syssec_ctx.fields);
     // Calculate the area required for the form
-    scale_form(SystemSection.form, &rows, &cols);
-    keypad(SystemSection.win, TRUE);
+    scale_form(syssec_ctx.form, &rows, &cols);
+    keypad(syssec_ctx.win, TRUE);
     // Set main window and sub window
-    set_form_win(SystemSection.form, SystemSection.win);
-    set_form_sub(
-            SystemSection.form, derwin(SystemSection.win, rows, cols, 1, 2));
+    set_form_win(syssec_ctx.form, syssec_ctx.win);
+    set_form_sub(syssec_ctx.form, derwin(syssec_ctx.win, rows, cols, 1, 2));
 
-    post_form(SystemSection.form);
+    post_form(syssec_ctx.form);
 
     // print labels
-    mvwprintw(SystemSection.win, 2, 3, "[");
-    mvwprintw(SystemSection.win, 2, 5, "]");
-    mvwprintw(SystemSection.win, 2, 8, gettext("Syn-flood protection"));
+    mvwprintw(syssec_ctx.win, 2, 3, "[");
+    mvwprintw(syssec_ctx.win, 2, 5, "]");
+    mvwprintw(syssec_ctx.win, 2, 8, gettext("Syn-flood protection"));
 
-    mvwprintw(SystemSection.win, 4, 3, "[");
-    mvwprintw(SystemSection.win, 4, 5, "]");
-    mvwprintw(SystemSection.win, 4, 8, gettext("Echo-broadcast protect"));
+    mvwprintw(syssec_ctx.win, 4, 3, "[");
+    mvwprintw(syssec_ctx.win, 4, 5, "]");
+    mvwprintw(syssec_ctx.win, 4, 8, gettext("Echo-broadcast protect"));
 
     return (retval);
 }
@@ -99,18 +98,16 @@ static int edit_sysopt_save(struct vrmr_config *conf)
     size_t i = 0;
 
     /* check for changed fields */
-    for (i = 0; i < SystemSection.n_fields; i++) {
+    for (i = 0; i < syssec_ctx.n_fields; i++) {
         // we only act if a field is changed
-        if (field_status(SystemSection.fields[i]) == TRUE) {
+        if (field_status(syssec_ctx.fields[i]) == TRUE) {
             vrmr_debug(HIGH, "field[%d] was changed.", (int)i);
 
             /*
                 handle only 's' (syn-flood) and 'e' (echo-broadcast) fields
             */
-            if (strncmp(field_buffer(SystemSection.fields[i], 1), "s", 1) ==
-                    0) {
-                if (strncmp(field_buffer(SystemSection.fields[i], 0), "X", 1) ==
-                        0)
+            if (strncmp(field_buffer(syssec_ctx.fields[i], 1), "s", 1) == 0) {
+                if (strncmp(field_buffer(syssec_ctx.fields[i], 0), "X", 1) == 0)
                     conf->protect_syncookie = 1;
                 else
                     conf->protect_syncookie = 0;
@@ -120,10 +117,9 @@ static int edit_sysopt_save(struct vrmr_config *conf)
                         conf->protect_syncookie ? STR_YES : STR_NO);
 
                 retval = 1;
-            } else if (strncmp(field_buffer(SystemSection.fields[i], 1), "e",
-                               1) == 0) {
-                if (strncmp(field_buffer(SystemSection.fields[i], 0), "X", 1) ==
-                        0)
+            } else if (strncmp(field_buffer(syssec_ctx.fields[i], 1), "e", 1) ==
+                       0) {
+                if (strncmp(field_buffer(syssec_ctx.fields[i], 0), "X", 1) == 0)
                     conf->protect_echobroadcast = 1;
                 else
                     conf->protect_echobroadcast = 0;
@@ -145,15 +141,15 @@ static int edit_sysopt_destroy(void)
     size_t i = 0;
 
     // Un post form and free the memory
-    unpost_form(SystemSection.form);
-    free_form(SystemSection.form);
-    for (i = 0; i < SystemSection.n_fields; i++) {
-        free_field(SystemSection.fields[i]);
+    unpost_form(syssec_ctx.form);
+    free_form(syssec_ctx.form);
+    for (i = 0; i < syssec_ctx.n_fields; i++) {
+        free_field(syssec_ctx.fields[i]);
     }
-    free(SystemSection.fields);
+    free(syssec_ctx.fields);
 
-    del_panel(SystemSection.panel[0]);
-    destroy_win(SystemSection.win);
+    del_panel(syssec_ctx.panel[0]);
+    destroy_win(syssec_ctx.win);
 
     return (0);
 }
@@ -175,16 +171,16 @@ int edit_sysopt(struct vrmr_config *conf)
     curs_set(0);
 
     edit_sysopt_init(conf, height, width, starty, startx);
-    cur = current_field(SystemSection.form);
+    cur = current_field(syssec_ctx.form);
     update_panels();
     doupdate();
 
     // Loop through to get user requests
     while (quit == 0) {
-        draw_field_active_mark(cur, prev, SystemSection.win, SystemSection.form,
+        draw_field_active_mark(cur, prev, syssec_ctx.win, syssec_ctx.form,
                 vccnf.color_win_mark | A_BOLD);
 
-        ch = wgetch(SystemSection.win);
+        ch = wgetch(syssec_ctx.win);
 
         switch (ch) {
             case 27:
@@ -198,29 +194,29 @@ int edit_sysopt(struct vrmr_config *conf)
             case 10: // enter
             case 9:  // tab
                 // Go to next field
-                form_driver(SystemSection.form, REQ_NEXT_FIELD);
+                form_driver(syssec_ctx.form, REQ_NEXT_FIELD);
                 // Go to the end of the present buffer
                 // Leaves nicely at the last character
-                form_driver(SystemSection.form, REQ_END_LINE);
+                form_driver(syssec_ctx.form, REQ_END_LINE);
                 break;
 
             case KEY_UP:
                 // Go to previous field
-                form_driver(SystemSection.form, REQ_PREV_FIELD);
-                form_driver(SystemSection.form, REQ_END_LINE);
+                form_driver(syssec_ctx.form, REQ_PREV_FIELD);
+                form_driver(syssec_ctx.form, REQ_END_LINE);
                 break;
 
             case 127:
             case KEY_BACKSPACE:
-                form_driver(SystemSection.form, REQ_PREV_CHAR);
-                form_driver(SystemSection.form, REQ_DEL_CHAR);
-                form_driver(SystemSection.form, REQ_END_LINE);
+                form_driver(syssec_ctx.form, REQ_PREV_CHAR);
+                form_driver(syssec_ctx.form, REQ_DEL_CHAR);
+                form_driver(syssec_ctx.form, REQ_END_LINE);
                 break;
 
             case KEY_DC:
-                form_driver(SystemSection.form, REQ_PREV_CHAR);
-                form_driver(SystemSection.form, REQ_DEL_CHAR);
-                form_driver(SystemSection.form, REQ_END_LINE);
+                form_driver(syssec_ctx.form, REQ_PREV_CHAR);
+                form_driver(syssec_ctx.form, REQ_DEL_CHAR);
+                form_driver(syssec_ctx.form, REQ_END_LINE);
                 break;
 
             case 32: {
@@ -232,7 +228,7 @@ int edit_sysopt(struct vrmr_config *conf)
                         set_field_buffer_wrap(cur, 0, "X");
                     }
                 } else {
-                    form_driver(SystemSection.form, ch);
+                    form_driver(syssec_ctx.form, ch);
                 }
                 break;
             }
@@ -246,7 +242,7 @@ int edit_sysopt(struct vrmr_config *conf)
         }
 
         prev = cur;
-        cur = current_field(SystemSection.form);
+        cur = current_field(syssec_ctx.form);
     }
 
     // save the field to the conf struct

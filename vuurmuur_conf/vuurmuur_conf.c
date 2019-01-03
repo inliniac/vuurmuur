@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
                    &vctx.services, &vctx.blocklist, &vctx.reg) == 1)
         ;
     /* clean up the status list */
-    vrmr_list_cleanup(&VuurmuurStatus.StatusList);
+    vrmr_list_cleanup(&vuurmuur_status.StatusList);
 
     /* detach from shared memory, if we were attached */
     if (vuurmuur_shmp != NULL && vuurmuur_shmp != (char *)(-1) &&

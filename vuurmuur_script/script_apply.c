@@ -20,7 +20,7 @@
 
 #include "vuurmuur_script.h"
 
-int script_apply(VuurmuurScript *vr_script)
+int script_apply(struct vuurmuur_script *vr_script)
 {
     /* vuurmuur */
     int vuurmuur_shmid = 0;

@@ -32,7 +32,7 @@ int tell_textdir(void *backend, char *name, char *question, char *answer,
     int i = 0, found = 0, skip = 0;
     int delta = 'a' - 'A';
     FILE *fp = NULL;
-    struct TextdirBackend_ *tb = NULL;
+    struct textdir_backend *tb = NULL;
     struct vrmr_list storelist;
     struct vrmr_list_node *d_node = NULL;
 
@@ -49,7 +49,7 @@ int tell_textdir(void *backend, char *name, char *question, char *answer,
             "question: %s, answer: %s, name: %s, overwrite: %d, type: %d",
             question, answer, name, overwrite, type);
 
-    tb = (struct TextdirBackend_ *)backend;
+    tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
         vrmr_error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
         return (-1);

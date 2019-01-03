@@ -720,9 +720,9 @@ int main(int argc, char *argv[])
                                 shm_table->reload_progress = 0;
                                 vrmr_unlock(sem_id);
                             } else {
-                                vrmr_info(
-                                        "Info", "Hmmmm, failed to set to "
-                                                "ready. Did the client crash?");
+                                vrmr_info("Info",
+                                        "Hmmmm, failed to set to "
+                                        "ready. Did the client crash?");
                             }
                         }
                     }
