@@ -629,20 +629,16 @@ int main(int argc, char *argv[])
                         vr_script.vctx.reg.zonename, VRMR_VERBOSE) != 0) {
                 if (vr_script.type == VRMR_TYPE_ZONE)
                     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                            "invalid zone name '%s' (in: %s:%d).",
-                            vr_script.name, __FUNC__, __LINE__);
+                            "invalid zone name '%s'", vr_script.name);
                 else if (vr_script.type == VRMR_TYPE_NETWORK)
                     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                            "invalid network name '%s' (in: %s:%d).",
-                            vr_script.name, __FUNC__, __LINE__);
+                            "invalid network name '%s'", vr_script.name);
                 else if (vr_script.type == VRMR_TYPE_HOST)
                     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                            "invalid host name '%s' (in: %s:%d).",
-                            vr_script.name, __FUNC__, __LINE__);
+                            "invalid host name '%s'", vr_script.name);
                 else if (vr_script.type == VRMR_TYPE_GROUP)
                     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                            "invalid group name '%s' (in: %s:%d).",
-                            vr_script.name, __FUNC__, __LINE__);
+                            "invalid group name '%s'", vr_script.name);
 
                 exit(VRS_ERR_COMMANDLINE);
             }
@@ -654,16 +650,14 @@ int main(int argc, char *argv[])
             if (vrmr_validate_servicename(
                         vr_script.name, vr_script.vctx.reg.servicename) != 0) {
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                        "invalid service name '%s' (in: %s:%d).",
-                        vr_script.name, __FUNC__, __LINE__);
+                        "invalid service name '%s'", vr_script.name);
                 exit(VRS_ERR_COMMANDLINE);
             }
         } else if (vr_script.type == VRMR_TYPE_INTERFACE) {
             if (vrmr_validate_interfacename(vr_script.name,
                         vr_script.vctx.reg.interfacename) != 0) {
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                        "invalid interface name '%s' (in: %s:%d).",
-                        vr_script.name, __FUNC__, __LINE__);
+                        "invalid interface name '%s'", vr_script.name);
                 exit(VRS_ERR_COMMANDLINE);
             }
         } else if (vr_script.type == VRMR_TYPE_RULE) {
@@ -673,8 +667,7 @@ int main(int argc, char *argv[])
             } else {
                 /* error */
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                        "invalid ruleset name '%s' (in: %s:%d).",
-                        vr_script.name, __FUNC__, __LINE__);
+                        "invalid ruleset name '%s'", vr_script.name);
                 exit(VRS_ERR_COMMANDLINE);
             }
         } else {

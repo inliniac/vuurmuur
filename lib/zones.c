@@ -44,24 +44,14 @@ static int zones_split_zonename(
     char zonename[VRMR_MAX_ZONE] = "", netname[VRMR_MAX_NETWORK] = "",
          hostname[VRMR_MAX_HOST] = "";
 
-    /* safety */
-    if (zone_ptr == NULL || zones == NULL || reg_ex == NULL) {
-        vrmr_error(-1, "Interal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zone_ptr && zones && reg_ex);
 
     vrmr_debug(LOW, "start: zone_ptr->name = '%s'", zone_ptr->name);
 
     /* validate and split up */
     if (vrmr_validate_zonename(zone_ptr->name, 0, zonename, netname, hostname,
                 reg_ex, VRMR_VERBOSE) != 0) {
-        vrmr_error(-1, "Internal Error",
-                "name '%s' not "
-                "valid (in: %s:%d).",
-                zone_ptr->name, __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "name '%s' not valid", zone_ptr->name);
         return (-1);
     }
 
@@ -79,10 +69,7 @@ static int zones_split_zonename(
         if (strlcpy(zone_ptr->zone_name, zonename,
                     sizeof(zone_ptr->zone_name)) >=
                 sizeof(zone_ptr->zone_name)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
     }
@@ -92,28 +79,20 @@ static int zones_split_zonename(
         if (strlcpy(zone_ptr->network_name, netname,
                     sizeof(zone_ptr->network_name)) >=
                 sizeof(zone_ptr->network_name)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
         if (strlcpy(zone_ptr->zone_name, zonename,
                     sizeof(zone_ptr->zone_name)) >=
                 sizeof(zone_ptr->zone_name)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
 
         zone_ptr->zone_parent =
                 vrmr_search_zonedata(zones, zone_ptr->zone_name);
         if (zone_ptr->zone_parent == NULL) {
-            vrmr_error(-1, "Error",
-                    "unable to find the "
-                    "zone '%s' in memory.",
+            vrmr_error(-1, "Error", "unable to find zone '%s'",
                     zone_ptr->zone_name);
             return (-1);
         }
@@ -124,37 +103,26 @@ static int zones_split_zonename(
         if (strlcpy(zone_ptr->host_name, hostname,
                     sizeof(zone_ptr->host_name)) >=
                 sizeof(zone_ptr->host_name)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
         if (strlcpy(zone_ptr->network_name, netname,
                     sizeof(zone_ptr->network_name)) >=
                 sizeof(zone_ptr->network_name)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
         if (strlcpy(zone_ptr->zone_name, zonename,
                     sizeof(zone_ptr->zone_name)) >=
                 sizeof(zone_ptr->zone_name)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
 
         zone_ptr->zone_parent =
                 vrmr_search_zonedata(zones, zone_ptr->zone_name);
         if (zone_ptr->zone_parent == NULL) {
-            vrmr_error(-1, "Error",
-                    "unable to find the "
-                    "zone '%s' in memory.",
+            vrmr_error(-1, "Error", "unable to find zone '%s'",
                     zone_ptr->zone_name);
             return (-1);
         }
@@ -164,10 +132,7 @@ static int zones_split_zonename(
 
         zone_ptr->network_parent = vrmr_search_zonedata(zones, check_str);
         if (zone_ptr->network_parent == NULL) {
-            vrmr_error(-1, "Error",
-                    "Unable to find the "
-                    "network '%s' in memory.",
-                    check_str);
+            vrmr_error(-1, "Error", "Unable to find network '%s'", check_str);
             return (-1);
         }
     }
@@ -197,14 +162,7 @@ int vrmr_insert_zonedata_list(
     int insert_here = 0, in_the_right_scope = 0;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety first */
-    if (zones == NULL || zone_ptr == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zones && zone_ptr);
 
     /* if the list is empty, just insert */
     if (zones->list.len == 0)
@@ -214,14 +172,11 @@ int vrmr_insert_zonedata_list(
         for (d_node = zones->list.top; d_node && !insert_here;
                 d_node = d_node->next) {
             if (!(check_zone_ptr = d_node->data)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
-            vrmr_debug(HIGH,
-                    "check_zone_ptr: "
-                    "name: %s, type: %d.",
+            vrmr_debug(HIGH, "check_zone_ptr: name: %s, type: %d.",
                     check_zone_ptr->name, check_zone_ptr->type);
 
             /* store the last zone and network so we can determine the scope */
@@ -248,15 +203,12 @@ int vrmr_insert_zonedata_list(
                             cur_network &&
                             strcmp(cur_network->network_name,
                                     zone_ptr->network_name) == 0)) {
-                vrmr_debug(HIGH,
-                        "in the "
-                        "right scope %s",
-                        zone_ptr->name);
+                vrmr_debug(HIGH, "in the right scope %s", zone_ptr->name);
 
                 /* we are in the right scope */
                 in_the_right_scope = 1;
 
-                /* only compare with our own type (racists! ;) */
+                /* only compare with our own type */
                 if (zone_ptr->type == check_zone_ptr->type) {
                     vrmr_debug(HIGH, "same type %s", zone_ptr->name);
 
@@ -290,9 +242,7 @@ int vrmr_insert_zonedata_list(
         vrmr_debug(HIGH, "prepend %s", zone_ptr->name);
 
         if (vrmr_list_prepend(&zones->list, zone_ptr) == NULL) {
-            vrmr_error(-1, "Internal Error",
-                    "vrmr_list_prepend() failed (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, "Internal Error", "vrmr_list_prepend() failed");
             return (-1);
         }
     } else if (insert_here && d_node) {
@@ -300,9 +250,8 @@ int vrmr_insert_zonedata_list(
         vrmr_debug(HIGH, "insert %s", zone_ptr->name);
 
         if (vrmr_list_insert_before(&zones->list, d_node, zone_ptr) == NULL) {
-            vrmr_error(-1, "Internal Error",
-                    "vrmr_list_insert_before() failed (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "vrmr_list_insert_before() failed");
             return (-1);
         }
     } else {
@@ -310,9 +259,7 @@ int vrmr_insert_zonedata_list(
         vrmr_debug(HIGH, "append %s", zone_ptr->name);
 
         if (vrmr_list_append(&zones->list, zone_ptr) == NULL) {
-            vrmr_error(-1, "Internal Error",
-                    "vrmr_list_append() failed (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, "Internal Error", "vrmr_list_append() failed");
             return (-1);
         }
     }
@@ -321,14 +268,10 @@ int vrmr_insert_zonedata_list(
     if (vrmr_debug_level >= HIGH) {
         for (d_node = zones->list.top; d_node; d_node = d_node->next) {
             if (!(check_zone_ptr = d_node->data)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
-
-            vrmr_debug(HIGH,
-                    "list: check_zone_ptr: "
-                    "name: %s, type: %d.",
+            vrmr_debug(HIGH, "list: check_zone_ptr: name: %s, type: %d.",
                     check_zone_ptr->name, check_zone_ptr->type);
         }
     }
@@ -345,47 +288,31 @@ int vrmr_insert_zonedata_list(
          0: succes
 */
 int vrmr_insert_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
-        struct vrmr_interfaces *interfaces, char *name, int type,
+        struct vrmr_interfaces *interfaces, const char *name, int type,
         struct vrmr_regex *reg)
 {
     struct vrmr_zone *zone_ptr = NULL;
 
-    /* please put on your safetybelt */
-    if (zones == NULL || name == NULL || reg == NULL || interfaces == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zones && name && reg && interfaces);
 
     /* claiming the memory we need, in case of error
-       vrmr_zone_malloc will tell the user
-    */
+       vrmr_zone_malloc will tell the user */
     if (!(zone_ptr = vrmr_zone_malloc()))
         return (-1);
 
-    /*
-        read the data for this zone
-    */
+    /* read the data for this zone */
     if (vrmr_read_zonedata(vctx, zones, interfaces, name, type, zone_ptr, reg) <
             0) {
         free(zone_ptr);
         return (-1);
     }
 
-    /*
-        now insert into the list
-    */
     if (vrmr_insert_zonedata_list(zones, zone_ptr) < 0) {
-        vrmr_error(-1, "Internal Error",
-                "vrmr_insert_zonedata_list() failed (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Internal Error", "vrmr_insert_zonedata_list() failed");
         return (-1);
     }
 
     zone_ptr->status = VRMR_ST_ADDED;
-
     return (0);
 }
 
@@ -398,46 +325,23 @@ int vrmr_insert_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         -1: error
 */
 int vrmr_read_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
-        struct vrmr_interfaces *interfaces, char *name, int type,
+        struct vrmr_interfaces *interfaces, const char *name, int type,
         struct vrmr_zone *zone_ptr, struct vrmr_regex *reg)
 {
-    int result = 0;
-
-    /* safety */
-    if (name == NULL || zone_ptr == NULL || zones == NULL || reg == NULL ||
-            interfaces == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-
-    if (type != VRMR_TYPE_ZONE && type != VRMR_TYPE_NETWORK &&
-            type != VRMR_TYPE_HOST && type != VRMR_TYPE_GROUP) {
-        vrmr_error(-1, "Interal Error",
-                "wrong zonetype %d "
-                "(in: %s:%d).",
-                type, __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(name && zone_ptr && zones && reg && interfaces);
+    assert(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK ||
+            type == VRMR_TYPE_HOST || type == VRMR_TYPE_GROUP);
 
     if (vrmr_validate_zonename(
                 name, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) != 0) {
-        vrmr_error(-1, "Internal Error",
-                "invalid zonename "
-                "'%s' (in: %s:%d).",
-                name, __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "invalid zonename '%s'", name);
         return (-1);
     }
 
     /* copy the name to the structure */
     if (strlcpy(zone_ptr->name, name, sizeof(zone_ptr->name)) >=
             sizeof(zone_ptr->name)) {
-        vrmr_error(-1, "Internal Error",
-                "buffer overflow "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "buffer overflow");
         return (-1);
     }
 
@@ -445,13 +349,10 @@ int vrmr_read_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     zone_ptr->type = type;
 
     /* split and check */
-    result = zones_split_zonename(zones, zone_ptr, reg->zonename);
+    int result = zones_split_zonename(zones, zone_ptr, reg->zonename);
     if (result < 0) {
         /* error */
-        vrmr_error(-1, "Internal Error",
-                "zones_split_zonename() "
-                "failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "zones_split_zonename() failed");
         return (-1);
     }
 
@@ -462,10 +363,7 @@ int vrmr_read_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         zone_ptr->active = FALSE;
 
         /* error */
-        vrmr_error(-1, "Internal Error",
-                "vrmr_check_active() "
-                "failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "vrmr_check_active() failed");
         return (-1);
     } else if (result == 1)
         zone_ptr->active = TRUE;
@@ -478,41 +376,29 @@ int vrmr_read_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                     vctx, zone_ptr, interfaces);
             if (result < 0) {
                 vrmr_error(-1, "Internal Error",
-                        "vrmr_zones_network_get_interfaces() "
-                        "failed (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                        "vrmr_zones_network_get_interfaces() failed");
                 return (-1);
             }
 
             result = vrmr_zones_network_get_protectrules(vctx, zone_ptr);
             if (result < 0) {
                 vrmr_error(-1, "Internal Error",
-                        "vrmr_zones_network_get_protectrules() "
-                        "failed (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                        "vrmr_zones_network_get_protectrules() failed");
                 return (-1);
             }
         }
 
-        /*
-            get ip and mask
-        */
+        /* get ip and mask */
         result = vrmr_get_ip_info(vctx, name, zone_ptr, reg);
         if (result != 0) {
-            vrmr_error(-1, "Internal Error",
-                    "get_ip_info() "
-                    "failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "get_ip_info() failed");
             return (-1);
         }
     } else if (zone_ptr->type == VRMR_TYPE_GROUP) {
         /* get group info */
         result = vrmr_get_group_info(vctx, zones, name, zone_ptr);
         if (result != 0) {
-            vrmr_error(-1, "Internal Error",
-                    "vrmr_get_group_info() "
-                    "failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "vrmr_get_group_info() failed");
             return (-1);
         }
     }
@@ -531,22 +417,12 @@ void *vrmr_search_zonedata(const struct vrmr_zones *zones, const char *name)
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_zone *zonedata_ptr = NULL;
 
-    /* safety */
-    if (name == NULL || zones == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(name && zones);
 
     /* now search */
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         if (!(zonedata_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (NULL);
         }
 
@@ -592,15 +468,10 @@ void vrmr_zonedata_print_list(const struct vrmr_zones *zones)
 int vrmr_init_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
-    int retval = 0, result = 0, zonetype = 0;
+    int zonetype = 0;
     char zonename[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
 
-    /* safety */
-    if (zones == NULL || interfaces == NULL || reg == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zones && interfaces && reg);
 
     /* init */
     memset(zones, 0, sizeof(*zones));
@@ -611,31 +482,23 @@ int vrmr_init_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     /* get the info from the backend */
     while (vctx->zf->list(vctx->zone_backend, zonename, &zonetype,
                    VRMR_BT_ZONES) != NULL) {
-        vrmr_debug(MEDIUM,
-                "loading zone: '%s', "
-                "type: %d",
-                zonename, zonetype);
+        vrmr_debug(MEDIUM, "loading zone: '%s', type: %d", zonename, zonetype);
 
         if (vrmr_validate_zonename(zonename, 1, NULL, NULL, NULL, reg->zonename,
                     VRMR_VERBOSE) == 0) {
-            result = vrmr_insert_zonedata(
+            int result = vrmr_insert_zonedata(
                     vctx, zones, interfaces, zonename, zonetype, reg);
             if (result < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "vrmr_insert_zonedata() failed (in: %s:%d).", __FUNC__,
-                        __LINE__);
+                vrmr_error(
+                        -1, "Internal Error", "vrmr_insert_zonedata() failed");
                 return (-1);
             } else {
-                vrmr_debug(LOW,
-                        "loading "
-                        "zone succes: '%s' (type %d).",
+                vrmr_debug(LOW, "loading zone succes: '%s' (type %d).",
                         zonename, zonetype);
             }
         }
     }
-
-    vrmr_debug(HIGH, "** end **, retval=%d", retval);
-    return (retval);
+    return (0);
 }
 
 void vrmr_destroy_zonedatalist(struct vrmr_zones *zones)
@@ -648,10 +511,7 @@ void vrmr_destroy_zonedatalist(struct vrmr_zones *zones)
 
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         if (!(zone_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL "
-                    "pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return;
         }
 
@@ -662,71 +522,47 @@ void vrmr_destroy_zonedatalist(struct vrmr_zones *zones)
 }
 
 int vrmr_delete_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
-        char *zonename, int zonetype)
+        const char *zonename, int type)
 {
     struct vrmr_zone *zone_ptr = NULL, *zone_list_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
     char name[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
     struct vrmr_interface *iface_ptr = NULL;
 
-    /* safety */
-    if (zonename == NULL || zones == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zonename && zones);
+    assert(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK ||
+            type == VRMR_TYPE_HOST || type == VRMR_TYPE_GROUP);
 
     /* copy the name to an array so we can display the name after
        the deletion is complete */
     if (strlcpy(name, zonename, sizeof(name)) >= sizeof(name)) {
-        vrmr_error(-1, "Internal Error",
-                "string "
-                "overflow (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-
-    /* check zonetype */
-    if (zonetype != VRMR_TYPE_ZONE && zonetype != VRMR_TYPE_NETWORK &&
-            zonetype != VRMR_TYPE_HOST && zonetype != VRMR_TYPE_GROUP) {
-        vrmr_error(-1, "Internal Error",
-                "expected a zone, "
-                "network, host or group, but got a %d (in: %s:%d).",
-                zonetype, __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "string overflow");
         return (-1);
     }
 
     /* search the zone */
     if (!(zone_ptr = vrmr_search_zonedata(zones, zonename))) {
-        vrmr_error(-1, "Internal Error",
-                "zone '%s' not found "
-                "in memory (in: %s:%d).",
-                zonename, __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "zone '%s' not found", zonename);
         return (-1);
     }
 
     /* check the refernce counters */
     if (zone_ptr->type == VRMR_TYPE_HOST && zone_ptr->refcnt_group > 0) {
         vrmr_error(-1, "Internal Error",
-                "host '%s' is still "
-                "a member of %u group(s) (in: %s:%d).",
-                zone_ptr->name, zone_ptr->refcnt_group, __FUNC__, __LINE__);
+                "host '%s' is still a member of %u group(s)", zone_ptr->name,
+                zone_ptr->refcnt_group);
         return (-1);
     }
     if (zone_ptr->type == VRMR_TYPE_HOST && zone_ptr->refcnt_blocklist > 0) {
         vrmr_error(-1, "Internal Error",
-                "host '%s' is still "
-                "in the blocklist (%u times) (in: %s:%d).",
-                zone_ptr->name, zone_ptr->refcnt_blocklist, __FUNC__, __LINE__);
+                "host '%s' is still in the blocklist (%u times)",
+                zone_ptr->name, zone_ptr->refcnt_blocklist);
         return (-1);
     }
     if (zone_ptr->type == VRMR_TYPE_GROUP && zone_ptr->refcnt_blocklist > 0) {
         vrmr_error(-1, "Internal Error",
-                "group '%s' is still "
-                "in the blocklist (%u times) (in: %s:%d).",
-                zone_ptr->name, zone_ptr->refcnt_blocklist, __FUNC__, __LINE__);
+                "group '%s' is still in the blocklist (%u times)",
+                zone_ptr->name, zone_ptr->refcnt_blocklist);
         return (-1);
     }
 
@@ -735,8 +571,7 @@ int vrmr_delete_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     if (zone_ptr->type == VRMR_TYPE_GROUP) {
         for (d_node = zone_ptr->GroupList.top; d_node; d_node = d_node->next) {
             if (!(zone_list_ptr = d_node->data)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
@@ -744,12 +579,11 @@ int vrmr_delete_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         }
     }
     /* or if we are a network, so the same for interfaces */
-    if (zone_ptr->type == VRMR_TYPE_NETWORK) {
+    else if (zone_ptr->type == VRMR_TYPE_NETWORK) {
         for (d_node = zone_ptr->InterfaceList.top; d_node;
                 d_node = d_node->next) {
             if (!(iface_ptr = d_node->data)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
@@ -758,29 +592,23 @@ int vrmr_delete_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     }
 
     /* delete the zone from the backend */
-    if (vctx->zf->del(vctx->zone_backend, zonename, zonetype, 1) < 0) {
-        vrmr_error(-1, "Internal Error",
-                "zone '%s' could not "
-                "be deleted (in: %s:%d).",
-                zonename, __FUNC__, __LINE__);
+    if (vctx->zf->del(vctx->zone_backend, zonename, type, 1) < 0) {
+        vrmr_error(-1, "Internal Error", "zone '%s' could not be deleted",
+                zonename);
         return (-1);
     }
 
     /* find its position in the list */
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         if (!(zone_list_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
         if (strcmp(zonename, zone_list_ptr->name) == 0) {
             /* remove from list */
             if (vrmr_list_remove_node(&zones->list, d_node) < 0) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
@@ -792,11 +620,7 @@ int vrmr_delete_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     }
 
     /* we should never get here */
-    vrmr_error(-1, "Internal Error",
-            "zone not found in memory "
-            "(in: %s:%d).",
-            __FUNC__, __LINE__);
-    return (-1);
+    abort();
 }
 
 /*  vrmr_new_zone
@@ -810,26 +634,20 @@ int vrmr_new_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     size_t dotcount = 0, i = 0, x = 0;
     char parent_str[VRMR_MAX_NET_ZONE] = "";
 
-    /* safety */
-    if (!zonename || !zones) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(zonename && zones);
 
     for (i = 0, dotcount = 0; i < strlen(zonename); i++) {
         if (zonename[i] == '.')
             dotcount++;
     }
     if (dotcount > 2) {
-        vrmr_error(-1, "Error", "Invalid name '%s' (in: vrmr_new_zone).",
-                zonename);
+        vrmr_error(-1, "Error", "Invalid name '%s'", zonename);
         return (-1);
     }
 
     /* allocated memory for the new zone */
     if (!(zone_ptr = vrmr_zone_malloc())) {
-        vrmr_error(-1, "Error", "malloc failed (in: vrmr_new_zone).");
+        vrmr_error(-1, "Error", "malloc failed");
         return (-1);
     }
 
@@ -877,9 +695,7 @@ int vrmr_new_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
 
     /* check if the zone already exists */
     if (vrmr_search_zonedata(zones, zonename) != NULL) {
-        vrmr_error(-1, "Error",
-                "zonename '%s' already exists (in: vrmr_new_zone).", zonename);
-
+        vrmr_error(-1, "Error", "zonename '%s' already exists", zonename);
         vrmr_zone_free(zone_ptr);
         return (-1);
     }
@@ -895,8 +711,7 @@ int vrmr_new_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         if (!(zone_ptr->network_parent =
                             vrmr_search_zonedata(zones, parent_str))) {
             vrmr_error(-1, "Internal Error",
-                    "can't find the network-parent in the list (in: "
-                    "vrmr_new_zone).");
+                    "can't find the network-parent in the list");
             vrmr_zone_free(zone_ptr);
             return (-1);
         }
@@ -906,8 +721,7 @@ int vrmr_new_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         if (!(zone_ptr->zone_parent =
                             vrmr_search_zonedata(zones, zone_ptr->zone_name))) {
             vrmr_error(-1, "Internal Error",
-                    "can't find the zone-parent in the list (in: "
-                    "vrmr_new_zone).");
+                    "can't find the zone-parent in the list");
             vrmr_zone_free(zone_ptr);
             return (-1);
         }
@@ -916,21 +730,21 @@ int vrmr_new_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     /* insert into the list */
     if (vrmr_insert_zonedata_list(zones, zone_ptr) < 0) {
         vrmr_error(-1, "Internal Error",
-                "unable to insert new zone into the list (in: %s).", __FUNC__);
+                "unable to insert new zone into the list");
         vrmr_zone_free(zone_ptr);
         return (-1);
     }
 
     /* add the zone to the backend */
     if (vctx->zf->add(vctx->zone_backend, zonename, zonetype) < 0) {
-        vrmr_error(-1, "Error", "Add to backend failed (in: vrmr_new_zone).");
+        vrmr_error(-1, "Error", "Add to backend failed");
         return (-1);
     }
 
     /* set active */
     if (vctx->zf->tell(vctx->zone_backend, zonename, "ACTIVE",
                 zone_ptr->active ? "Yes" : "No", 1, zonetype) < 0) {
-        vrmr_error(-1, "Error", "Tell backend failed (in: vrmr_new_zone).");
+        vrmr_error(-1, "Error", "Tell backend failed");
         return (-1);
     }
 
@@ -949,33 +763,35 @@ int vrmr_count_zones(struct vrmr_zones *zones, int type, char *filter_network,
     int count = 0;
     struct vrmr_list_node *d_node = NULL;
 
+    assert(zones);
+    assert(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK ||
+            type == VRMR_TYPE_HOST || type == VRMR_TYPE_GROUP);
+
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         if (!(zone_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
-        if (zone_ptr->type == type) {
-            if (filter_zone != NULL) {
-                if (strcmp(filter_zone, zone_ptr->zone_name) == 0) {
-                    if (filter_network != NULL) {
-                        if (strcmp(filter_network, zone_ptr->network_name) ==
-                                0) {
-                            count++;
-                        }
-                    } else {
-                        count++;
-                    }
-                }
-            } else {
+        if (zone_ptr->type != type)
+            continue;
+
+        if (filter_zone == NULL) {
+            count++;
+            continue;
+        }
+
+        if (strcmp(filter_zone, zone_ptr->zone_name) == 0) {
+            if (filter_network == NULL) {
+                count++;
+                continue;
+            }
+
+            if (strcmp(filter_network, zone_ptr->network_name) == 0) {
                 count++;
             }
         }
     }
-
     return (count);
 }
 
@@ -995,27 +811,18 @@ int vrmr_zonelist_to_networklist(
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_zone *zone_ptr = NULL;
 
-    /*
-        safety
-    */
-    if (!zones || !network_list) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem (in: vrmr_zonelist_to_networklist).");
-        return (-1);
-    }
+    assert(zones && network_list);
 
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         if (!(zone_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "zone_ptr == NULL! (in: vrmr_zonelist_to_networklist).");
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
         if (zone_ptr->type == VRMR_TYPE_NETWORK) {
             if (vrmr_list_append(network_list, zone_ptr) == NULL) {
-                vrmr_error(-1, "Internal Error",
-                        "appending to the list failed (in: "
-                        "vrmr_zonelist_to_networklist).");
+                vrmr_error(
+                        -1, "Internal Error", "appending to the list failed");
                 return (-1);
             }
         }
@@ -1041,20 +848,11 @@ int vrmr_add_broadcasts_zonelist(struct vrmr_zones *zones)
     struct vrmr_zone *zone_ptr = NULL, *broadcast_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (!zones) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zones);
 
-    /*
-        now run through the list
-    */
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         if (!(zone_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -1071,11 +869,8 @@ int vrmr_add_broadcasts_zonelist(struct vrmr_zones *zones)
                 */
                 if (snprintf(broadcast_ptr->name, VRMR_VRMR_MAX_HOST_NET_ZONE,
                             "%s(broadcast)",
-                            zone_ptr->name) == VRMR_VRMR_MAX_HOST_NET_ZONE) {
-                    vrmr_error(-1, "Internal Error",
-                            "string "
-                            "overflow (in: %s:%d).",
-                            __FUNC__, __LINE__);
+                            zone_ptr->name) >= VRMR_VRMR_MAX_HOST_NET_ZONE) {
+                    vrmr_error(-1, "Internal Error", "string overflow");
                     vrmr_zone_free(broadcast_ptr);
                     return (-1);
                 }
@@ -1084,10 +879,7 @@ int vrmr_add_broadcasts_zonelist(struct vrmr_zones *zones)
                             zone_ptr->ipv4.broadcast,
                             sizeof(broadcast_ptr->ipv4.ipaddress)) >=
                         sizeof(broadcast_ptr->ipv4.ipaddress)) {
-                    vrmr_error(-1, "Internal Error",
-                            "string "
-                            "overflow (in: %s:%d).",
-                            __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "string overflow");
                     vrmr_zone_free(broadcast_ptr);
                     return (-1);
                 }
@@ -1100,26 +892,20 @@ int vrmr_add_broadcasts_zonelist(struct vrmr_zones *zones)
                 /* insert into the list */
                 if (vrmr_list_append(&zones->list, broadcast_ptr) == NULL) {
                     vrmr_error(-1, "Internal Error",
-                            "appending to the list failed (in: %s:%d).",
-                            __FUNC__, __LINE__);
+                            "appending to the list failed");
                     vrmr_zone_free(broadcast_ptr);
                     return (-1);
                 }
             }
         }
     }
-
     return (0);
 }
 
 /*
-    NOTE: THIS FUCNTION REQUIRES THE ZONE, NETWORK AND HOST VARIABLES TO BE OF
+   NOTE: THIS FUCNTION REQUIRES THE ZONE, NETWORK AND HOST VARIABLES TO BE OF
    THE SIZES: VRMR_MAX_ZONE, VRMR_MAX_NETWORK, VRMR_MAX_HOST!!! This is for
    bufferoverflow prevention.
-
-    'int what' can be VAL_ZONE_TOTAL, VAL_ZONE_ZONE, VAL_ZONE_NETWORK,
-   VAL_ZONE_HOST
-
 */
 int vrmr_validate_zonename(const char *zonename, int onlyvalidate, char *zone,
         char *network, char *host, regex_t *reg_ex, char quiet)
@@ -1129,6 +915,8 @@ int vrmr_validate_zonename(const char *zonename, int onlyvalidate, char *zone,
     /* this initalization pleases splint */
     regmatch_t reg_match[8] = {
             {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
+
+    assert(zonename);
 
     vrmr_debug(MEDIUM, "checking: %s, onlyvalidate: %s.", zonename,
             onlyvalidate ? "Yes" : "No");
@@ -1217,49 +1005,30 @@ int vrmr_zones_group_save_members(
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_zone *member_ptr = NULL;
 
-    /* safety */
-    if (!group_ptr) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(group_ptr);
 
     /* write to backend */
     if (group_ptr->GroupList.len == 0) {
         /* clear */
         if (vctx->zf->tell(vctx->zone_backend, group_ptr->name, "MEMBER", "", 1,
                     VRMR_TYPE_GROUP) < 0) {
-            vrmr_error(-1, "Error", "saving to backend failed (in: %s).",
-                    __FUNC__);
+            vrmr_error(-1, "Error", "saving to backend failed");
             return (-1);
         }
     } else {
         /* write to backend */
         for (d_node = group_ptr->GroupList.top; d_node; d_node = d_node->next) {
             if (!(member_ptr = d_node->data)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s).",
-                        __FUNC__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
-            if (d_node == group_ptr->GroupList.top) {
-                /* save to backend */
-                if (vctx->zf->tell(vctx->zone_backend, group_ptr->name,
-                            "MEMBER", member_ptr->host_name, 1,
-                            VRMR_TYPE_GROUP) < 0) {
-                    vrmr_error(-1, "Error",
-                            "saving to backend failed (in: %s).", __FUNC__);
-                    return (-1);
-                }
-            } else {
-                /* save to backend */
-                if (vctx->zf->tell(vctx->zone_backend, group_ptr->name,
-                            "MEMBER", member_ptr->host_name, 0,
-                            VRMR_TYPE_GROUP) < 0) {
-                    vrmr_error(-1, "Error",
-                            "saving to backend failed (in: %s).", __FUNC__);
-                    return (-1);
-                }
+            const int first = d_node == group_ptr->GroupList.top;
+            /* save to backend */
+            if (vctx->zf->tell(vctx->zone_backend, group_ptr->name, "MEMBER",
+                        member_ptr->host_name, first, VRMR_TYPE_GROUP) < 0) {
+                vrmr_error(-1, "Error", "saving to backend failed");
+                return (-1);
             }
         }
     }
@@ -1273,38 +1042,22 @@ int vrmr_zones_group_rem_member(
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_zone *member_ptr = NULL;
 
-    /* safety */
-    if (!group_ptr || !hostname) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-    /* this should not happen, but it cant hurt checking right? */
-    if (group_ptr->type != VRMR_TYPE_GROUP) {
-        vrmr_error(-1, "Internal Error",
-                "Expected a GROUP (%d), but got a %d! (in: %s)",
-                VRMR_TYPE_GROUP, group_ptr->type, __FUNC__);
-        return (-1);
-    }
+    assert(group_ptr && hostname);
+    assert(group_ptr->type == VRMR_TYPE_GROUP);
 
-    /* search the member */
     for (d_node = group_ptr->GroupList.top; d_node; d_node = d_node->next) {
         if (!(member_ptr = d_node->data)) {
-            vrmr_error(
-                    -1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
-        /* here is is */
         if (strcmp(hostname, member_ptr->host_name) == 0) {
             /* decrease refcnt */
             member_ptr->refcnt_group--;
 
-            /* okay, lets remove the hugeassmotherf*cker */
             if (vrmr_list_remove_node(&group_ptr->GroupList, d_node) < 0) {
                 vrmr_error(-1, "Internal Error",
-                        "unable to remove member from the list (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                        "unable to remove member from the list");
                 return (-1);
             } else
                 break;
@@ -1313,9 +1066,8 @@ int vrmr_zones_group_rem_member(
 
     /* save the new group list */
     if (vrmr_zones_group_save_members(vctx, group_ptr) < 0) {
-        vrmr_error(-1, "Error",
-                "saveing the new grouplist to the backend failed (in: %s).",
-                __FUNC__);
+        vrmr_error(
+                -1, "Error", "saveing the new grouplist to the backend failed");
         return (-1);
     }
 
@@ -1329,22 +1081,15 @@ int vrmr_zones_group_rem_member(
 int vrmr_zones_group_add_member(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         struct vrmr_zone *group_ptr, char *hostname)
 {
-    struct vrmr_zone *new_member_ptr = NULL, *list_member_ptr = NULL;
+    struct vrmr_zone *list_member_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (!group_ptr || !zones || !hostname) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(group_ptr && zones && hostname);
 
-    /* now search the host in memory */
-    new_member_ptr = vrmr_search_zonedata(zones, hostname);
+    struct vrmr_zone *new_member_ptr = vrmr_search_zonedata(zones, hostname);
     if (!new_member_ptr) {
         vrmr_error(-1, "Internal Error",
-                "member '%s' is invalid, it was not found in memory.",
-                hostname);
+                "member '%s' is invalid, it was not found in memory", hostname);
         return (-1);
     }
 
@@ -1358,14 +1103,13 @@ int vrmr_zones_group_add_member(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     /* let's see if the host is already a member */
     for (d_node = group_ptr->GroupList.top; d_node; d_node = d_node->next) {
         if (!(list_member_ptr = d_node->data)) {
-            vrmr_error(
-                    -1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
         if (strcmp(list_member_ptr->name, hostname) == 0) {
             vrmr_error(-1, "Error",
-                    "host '%s' is already a member of group '%s'.", hostname,
+                    "host '%s' is already a member of group '%s'", hostname,
                     group_ptr->name);
             return (-1);
         }
@@ -1376,17 +1120,15 @@ int vrmr_zones_group_add_member(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
 
     /* now append the new at the tail of the list */
     if (vrmr_list_append(&group_ptr->GroupList, new_member_ptr) == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "unable to append member to groupslist (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(
+                -1, "Internal Error", "unable to append member to groupslist");
         return (-1);
     }
 
     /* save the new group list */
     if (vrmr_zones_group_save_members(vctx, group_ptr) < 0) {
-        vrmr_error(-1, "Error",
-                "saveing the new grouplist to the backend failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(
+                -1, "Error", "saveing the new grouplist to the backend failed");
         return (-1);
     }
 
@@ -1408,19 +1150,13 @@ int vrmr_zones_network_add_iface(struct vrmr_interfaces *interfaces,
     struct vrmr_interface *iface_ptr = NULL, *list_iface_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (!interfaces || !network_ptr || !interfacename) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(interfaces && network_ptr && interfacename);
 
     /* let's see if the interface is already in the list */
     for (d_node = network_ptr->InterfaceList.top; d_node;
             d_node = d_node->next) {
         if (!(list_iface_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -1442,9 +1178,7 @@ int vrmr_zones_network_add_iface(struct vrmr_interfaces *interfaces,
 
     /* append to the list */
     if (!(vrmr_list_append(&network_ptr->InterfaceList, iface_ptr))) {
-        vrmr_error(-1, "Internal Error",
-                "appending to the list failed (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Internal Error", "appending to the list failed");
         return (-1);
     }
 
@@ -1455,7 +1189,6 @@ int vrmr_zones_network_add_iface(struct vrmr_interfaces *interfaces,
 
     /* increase the reference counter of the interface */
     iface_ptr->refcnt_network++;
-
     return (0);
 }
 
@@ -1465,27 +1198,13 @@ int vrmr_zones_network_rem_iface(struct vrmr_ctx *vctx,
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
 
-    /* safety */
-    if (!interfacename || !network_ptr) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(interfacename && network_ptr);
+    assert(network_ptr->type == VRMR_TYPE_NETWORK);
 
-    /* safety: we expect a network */
-    if (network_ptr->type != VRMR_TYPE_NETWORK) {
-        vrmr_error(-1, "Internal Error",
-                "expected a NETWORK (%d), but got a %d! (in: %s)",
-                VRMR_TYPE_NETWORK, network_ptr->type, __FUNC__);
-        return (-1);
-    }
-
-    /* search the interface, we start searching at the top of the list */
     for (d_node = network_ptr->InterfaceList.top; d_node;
             d_node = d_node->next) {
         if (!(iface_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -1494,8 +1213,7 @@ int vrmr_zones_network_rem_iface(struct vrmr_ctx *vctx,
             if (vrmr_list_remove_node(&network_ptr->InterfaceList, d_node) <
                     0) {
                 vrmr_error(-1, "Internal Error",
-                        "unable to remove interface from the list (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                        "unable to remove interface from the list");
                 return (-1);
             }
 
@@ -1507,9 +1225,7 @@ int vrmr_zones_network_rem_iface(struct vrmr_ctx *vctx,
     /* save the new interface list */
     if (vrmr_zones_network_save_interfaces(vctx, network_ptr) < 0) {
         vrmr_error(-1, "Error",
-                "saving the new interfaceslist to the backend failed (in: "
-                "%s:%d).",
-                __FUNC__, __LINE__);
+                "saving the new interfaceslist to the backend failed");
         return (-1);
     }
 
@@ -1527,20 +1243,8 @@ int vrmr_zones_network_get_interfaces(struct vrmr_ctx *vctx,
 {
     char cur_ifac[VRMR_MAX_INTERFACE] = "";
 
-    /* safety */
-    if (zone_ptr == NULL || interfaces == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-
-    /* check if the zone is a network */
-    if (zone_ptr->type != VRMR_TYPE_NETWORK) {
-        vrmr_error(-1, "Internal Error",
-                "zone '%s' is not a network, but a '%d'", zone_ptr->name,
-                zone_ptr->type);
-        return (-1);
-    }
+    assert(zone_ptr && interfaces);
+    assert(zone_ptr->type == VRMR_TYPE_NETWORK);
 
     /* reset active interfaces */
     zone_ptr->active_interfaces = 0;
@@ -1550,8 +1254,7 @@ int vrmr_zones_network_get_interfaces(struct vrmr_ctx *vctx,
                    cur_ifac, sizeof(cur_ifac), VRMR_TYPE_NETWORK, 1)) == 1) {
         if (vrmr_zones_network_add_iface(interfaces, zone_ptr, cur_ifac) < 0) {
             vrmr_error(-1, "Internal Error",
-                    "vrmr_zones_network_add_iface() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+                    "vrmr_zones_network_add_iface() failed");
             return (-1);
         }
     }
@@ -1566,31 +1269,18 @@ int vrmr_zones_network_save_interfaces(
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
 
-    /* safety */
-    if (!network_ptr) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(network_ptr);
+    assert(network_ptr->type == VRMR_TYPE_NETWORK);
 
     vrmr_debug(HIGH, "network: %s, interfaces: %d", network_ptr->name,
             network_ptr->InterfaceList.len);
-
-    /* check if the zone is a network */
-    if (network_ptr->type != VRMR_TYPE_NETWORK) {
-        vrmr_error(-1, "Internal Error",
-                "zone '%s' is not a network, but a '%d'", network_ptr->name,
-                network_ptr->type);
-        return (-1);
-    }
 
     /* write the new list to the backend */
     if (network_ptr->InterfaceList.len == 0) {
         /* clear by writing "" in overwrite mode */
         if (vctx->zf->tell(vctx->zone_backend, network_ptr->name, "INTERFACE",
                     "", 1, VRMR_TYPE_NETWORK) < 0) {
-            vrmr_error(-1, "Error", "writing to backend failed (in: %s).",
-                    __FUNC__);
+            vrmr_error(-1, "Error", "writing to backend failed");
             return (-1);
         }
     } else {
@@ -1600,29 +1290,16 @@ int vrmr_zones_network_save_interfaces(
         for (d_node = network_ptr->InterfaceList.top; d_node;
                 d_node = d_node->next) {
             if (!(iface_ptr = d_node->data)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s).",
-                        __FUNC__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
-            if (d_node == network_ptr->InterfaceList.top) {
-                /* the first one is in overwrite mode */
-                if (vctx->zf->tell(vctx->zone_backend, network_ptr->name,
-                            "INTERFACE", iface_ptr->name, 1,
-                            VRMR_TYPE_NETWORK) < 0) {
-                    vrmr_error(-1, "Error",
-                            "writing to backend failed (in: %s).", __FUNC__);
-                    return (-1);
-                }
-            } else {
-                /* no overwriting, just appending */
-                if (vctx->zf->tell(vctx->zone_backend, network_ptr->name,
-                            "INTERFACE", iface_ptr->name, 0,
-                            VRMR_TYPE_NETWORK) < 0) {
-                    vrmr_error(-1, "Error",
-                            "writing to backend failed (in: %s).", __FUNC__);
-                    return (-1);
-                }
+            const int first = d_node == network_ptr->InterfaceList.top;
+            if (vctx->zf->tell(vctx->zone_backend, network_ptr->name,
+                        "INTERFACE", iface_ptr->name, first,
+                        VRMR_TYPE_NETWORK) < 0) {
+                vrmr_error(-1, "Error", "writing to backend failed");
+                return (-1);
             }
         }
     }
@@ -1630,9 +1307,7 @@ int vrmr_zones_network_save_interfaces(
     return (0);
 }
 
-/*  rules_analyse_rule
-
-    Function for gathering the info for creation of the rule
+/*  Function for gathering the info for creation of the rule
     and for sanity checking the rule.
 
     Returncodes:
@@ -1645,18 +1320,12 @@ int vrmr_zones_network_analyze_rule(struct vrmr_rule *rule_ptr,
 {
     int result = 0;
 
-    /* safety */
-    if (rule_ptr == NULL || create == NULL || zones == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule_ptr && create && zones);
 
     /* if were on bash mode, alloc mem for the description */
     if (cnf->bash_out == TRUE) {
         if (!(create->description = malloc(VRMR_MAX_BASH_DESC))) {
-            vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
             return (-1);
         }
     } else {
@@ -1684,16 +1353,15 @@ int vrmr_zones_network_analyze_rule(struct vrmr_rule *rule_ptr,
 
                 if (!(create->who = vrmr_search_zonedata(
                               zones, rule_ptr->who))) {
-                    vrmr_error(-1, "Error", "zone '%s' not found (in: %s).",
-                            rule_ptr->who, __FUNC__);
+                    vrmr_error(
+                            -1, "Error", "zone '%s' not found", rule_ptr->who);
                     return (-1);
                 }
             } else {
                 create->who = NULL;
                 vrmr_error(-1, "Error",
-                        "don't know what to do with '%s' for rule type '%d' "
-                        "(in: %s).",
-                        rule_ptr->who, rule_ptr->type, __FUNC__);
+                        "don't know what to do with '%s' for rule type '%d'",
+                        rule_ptr->who, rule_ptr->type);
                 return (-1);
             }
         }
@@ -1705,16 +1373,15 @@ int vrmr_zones_network_analyze_rule(struct vrmr_rule *rule_ptr,
         if (result == 0) {
             vrmr_debug(HIGH, "vrmr_get_danger_info successfull.");
         } else {
-            vrmr_error(-1, "Error", "getting danger '%s' failed (in: %s).",
-                    rule_ptr->danger, __FUNC__);
+            vrmr_error(-1, "Error", "getting danger '%s' failed",
+                    rule_ptr->danger);
             return (-1);
         }
 
         /* set the action */
         if (strlcpy(create->action, "protect", sizeof(create->action)) >
                 sizeof(create->action)) {
-            vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow");
             return (-1);
         }
     }
@@ -1735,8 +1402,7 @@ int vrmr_zones_network_analyze_rule(struct vrmr_rule *rule_ptr,
             create->who_int = NULL;
 
             if (!(create->who = vrmr_search_zonedata(zones, rule_ptr->who))) {
-                vrmr_error(-1, "Error", "zone '%s' not found (in: %s).",
-                        rule_ptr->who, __FUNC__);
+                vrmr_error(-1, "Error", "zone '%s' not found", rule_ptr->who);
                 return (-1);
             }
         }
@@ -1746,9 +1412,8 @@ int vrmr_zones_network_analyze_rule(struct vrmr_rule *rule_ptr,
             /* not much here */
             vrmr_debug(MEDIUM, "network rule service '%s'", rule_ptr->service);
         } else {
-            vrmr_error(-1, "Error",
-                    "unknown service '%s' in network rule (in: %s:%d).",
-                    rule_ptr->service, __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "unknown service '%s' in network rule",
+                    rule_ptr->service);
             return (-1);
         }
     }
@@ -1770,19 +1435,8 @@ int vrmr_zones_network_rule_parse_line(
     char against_keyw[32] = "";
     char action_str[32] = "";
 
-    /* safety first */
-    if (line == NULL || rule_ptr == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-
-    /* this should not happen, but it can't hurt to check, right? */
-    if (strlen(line) > VRMR_MAX_RULE_LENGTH) {
-        vrmr_error(
-                -1, "Internal Error", "rule is too long (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(line && rule_ptr);
+    assert(strlen(line) <= VRMR_MAX_RULE_LENGTH);
 
     /* get the action */
     for (; line_pos < sizeof(action_str) - 1 && line[line_pos] != ' ' &&
@@ -1810,9 +1464,8 @@ int vrmr_zones_network_rule_parse_line(
 
         /* check for the against keyword */
         if (strcasecmp(against_keyw, "against") != 0) {
-            vrmr_error(-1, "Error",
-                    "expected keyword 'against', got '%s' (in: %s:%d).",
-                    against_keyw, __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "expected keyword 'against', got '%s'",
+                    against_keyw);
             return (-1);
         }
 
@@ -1830,9 +1483,8 @@ int vrmr_zones_network_rule_parse_line(
 
         /* now determine if the danger is 'spoofing' */
         if (strcasecmp(rule_ptr->danger, "spoofing") != 0) {
-            vrmr_error(-1, "Error",
-                    "expected danger 'spoofing', got '%s' (in: %s:%d).",
-                    rule_ptr->danger, __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "expected danger 'spoofing', got '%s'",
+                    rule_ptr->danger);
             return (-1);
         }
 
@@ -1851,8 +1503,7 @@ int vrmr_zones_network_rule_parse_line(
          * & kicking */
         if (strcasecmp(rule_ptr->source, "from") != 0) {
             vrmr_error(-1, "Error",
-                    "bad rule syntax, keyword 'from' is missing: %s (in: %s).",
-                    line, __FUNC__);
+                    "bad rule syntax, keyword 'from' is missing: %s", line);
             return (-1);
         }
 
@@ -1902,20 +1553,8 @@ int vrmr_zones_network_get_protectrules(
     struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (network_ptr == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-
-    /* check if the zone is a network */
-    if (network_ptr->type != VRMR_TYPE_NETWORK) {
-        vrmr_error(-1, "Internal Error",
-                "zone '%s' is not a network, but a '%d' (in: %s).",
-                network_ptr->name, network_ptr->type, __FUNC__);
-        return (-1);
-    }
+    assert(network_ptr);
+    assert(network_ptr->type == VRMR_TYPE_NETWORK);
 
     /* get all rules from the backend */
     while ((vctx->zf->ask(vctx->zone_backend, network_ptr->name, "RULE",
@@ -1927,18 +1566,14 @@ int vrmr_zones_network_get_protectrules(
         /* copy name */
         if (strlcpy(rule_ptr->who, network_ptr->name, sizeof(rule_ptr->who)) >=
                 sizeof(rule_ptr->who)) {
-            vrmr_error(-1, "Internal Error", "buffer too small (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "buffer too small");
             free(rule_ptr);
             return (-1);
         }
-
         vrmr_debug(HIGH, "currule: '%s'.", currule);
 
         if (vrmr_zones_network_rule_parse_line(currule, rule_ptr) < 0) {
-            vrmr_error(-1, "Internal Error",
-                    "parsing network rule failed (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, "Internal Error", "parsing network rule failed");
             free(rule_ptr);
             return (-1);
         }
@@ -1946,8 +1581,7 @@ int vrmr_zones_network_get_protectrules(
         /* append to list */
         if (vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL) {
             vrmr_error(-1, "Internal Error",
-                    "appending protect rule to list failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+                    "appending protect rule to list failed");
             free(rule_ptr);
             return (-1);
         }
@@ -1974,17 +1608,12 @@ int vrmr_zones_network_get_protectrules(
 */
 int vrmr_zones_active(struct vrmr_zone *zone_ptr)
 {
-    /* safety first */
-    if (zone_ptr == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zone_ptr);
+
     /* safety checks */
     if (zone_ptr->type == VRMR_TYPE_HOST || zone_ptr->type == VRMR_TYPE_GROUP) {
         if (zone_ptr->zone_parent == NULL || zone_ptr->network_parent == NULL) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -1993,8 +1622,7 @@ int vrmr_zones_active(struct vrmr_zone *zone_ptr)
             return (0);
     } else if (zone_ptr->type == VRMR_TYPE_NETWORK) {
         if (zone_ptr->zone_parent == NULL) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -2015,12 +1643,7 @@ int vrmr_zones_check_network(struct vrmr_zone *zone_ptr)
 {
     int retval = 1, result = 0;
 
-    /* safety first */
-    if (zone_ptr == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zone_ptr);
 
     if (zone_ptr->InterfaceList.len == 0) {
         vrmr_warning("Warning",
@@ -2094,12 +1717,7 @@ int vrmr_zones_check_host(struct vrmr_zone *zone_ptr)
 {
     int retval = 1, result = 0;
 
-    /* safety first */
-    if (zone_ptr == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zone_ptr);
 
     /* check the ip */
     if (zone_ptr->ipv4.ipaddress[0] == '\0') {
@@ -2146,14 +1764,9 @@ int vrmr_zones_check_host(struct vrmr_zone *zone_ptr)
 */
 int vrmr_zones_check_group(struct vrmr_zone *zone_ptr)
 {
-    int retval = 1, result = 0;
+    int retval = 1;
 
-    /* safety first */
-    if (zone_ptr == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zone_ptr);
 
     if (zone_ptr->GroupList.len == 0) {
         /* a parent is active */
@@ -2162,7 +1775,7 @@ int vrmr_zones_check_group(struct vrmr_zone *zone_ptr)
         retval = 0;
     }
 
-    result = vrmr_zones_active(zone_ptr);
+    int result = vrmr_zones_active(zone_ptr);
     if (result != 1) {
         /* a parent is active */
         vrmr_info("Info",
@@ -2194,7 +1807,7 @@ int vrmr_zones_load(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     /* load the interfaces into memory */
     result = vrmr_init_zonedata(vctx, zones, interfaces, reg);
     if (result == -1) {
-        vrmr_error(-1, "Error", "Loading zones failed.");
+        vrmr_error(-1, "Error", "Loading zones failed");
         return (-1);
     }
 
@@ -2202,8 +1815,7 @@ int vrmr_zones_load(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         zone_ptr = d_node->data;
         if (zone_ptr == NULL) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 

@@ -61,8 +61,7 @@ static int filtered_connection(
 {
     char line[512] = "";
 
-    if (cd_ptr == NULL || filter == NULL)
-        return (0);
+    assert(cd_ptr && filter);
 
     snprintf(line, sizeof(line), "%d %s %s %s %d %d %d %s %s", cd_ptr->cnt,
             cd_ptr->sername, cd_ptr->fromname, cd_ptr->toname, cd_ptr->src_port,
@@ -93,8 +92,7 @@ void vrmr_conn_print_dlist(const struct vrmr_list *dlist)
     char status[16] = "";
     char direction[16] = "";
 
-    if (!dlist)
-        return;
+    assert(dlist);
 
     for (d_node = dlist->top; d_node; d_node = d_node->next) {
         cd_ptr = d_node->data;
@@ -144,20 +142,10 @@ static int conn_line_to_data(struct vrmr_conntrack_line *connline_ptr,
 {
     char service_name[VRMR_MAX_SERVICE] = "", *zone_name_ptr = NULL;
 
-    /* safety */
-    if (connline_ptr == NULL || conndata_ptr == NULL || serhash == NULL ||
-            zonehash == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(connline_ptr && conndata_ptr && serhash && zonehash && req);
+
     if (req->unknown_ip_as_net && zonelist == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem");
         return (-1);
     }
 
@@ -184,10 +172,7 @@ static int conn_line_to_data(struct vrmr_conntrack_line *connline_ptr,
                         connline_ptr->protocol);
 
             if (!(conndata_ptr->sername = strdup(service_name))) {
-                vrmr_error(-1, "Error",
-                        "strdup() failed: %s "
-                        "(in: %s:%d).",
-                        strerror(errno), __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "strdup() failed: %s", strerror(errno));
                 return (-1);
             }
         } else {
@@ -213,10 +198,7 @@ static int conn_line_to_data(struct vrmr_conntrack_line *connline_ptr,
     /* src ip */
     if (strlcpy(conndata_ptr->src_ip, connline_ptr->src_ip,
                 sizeof(conndata_ptr->src_ip)) >= sizeof(conndata_ptr->src_ip)) {
-        vrmr_error(-1, "Internal Error",
-                "string overflow "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "string overflow");
         return (-1);
     }
 
@@ -231,23 +213,21 @@ static int conn_line_to_data(struct vrmr_conntrack_line *connline_ptr,
             if (!(conndata_ptr->fromname = strdup(connline_ptr->src_ip))) {
                 vrmr_error(-1, "Error",
                         "strdup() "
-                        "failed: %s (in: %s:%d).",
-                        strerror(errno), __FUNC__, __LINE__);
+                        "failed: %s",
+                        strerror(errno));
                 return (-1);
             }
         } else {
             if (!(zone_name_ptr = vrmr_get_network_for_ipv4(
                           connline_ptr->src_ip, zonelist))) {
                 if (!(conndata_ptr->fromname = strdup(connline_ptr->src_ip))) {
-                    vrmr_error(-1, "Internal Error",
-                            "malloc failed: %s (in: conntrack_line_to_data).",
+                    vrmr_error(-1, "Internal Error", "malloc failed: %s",
                             strerror(errno));
                     return (-1);
                 }
             } else {
                 if (!(conndata_ptr->fromname = strdup(zone_name_ptr))) {
-                    vrmr_error(-1, "Internal Error",
-                            "strdup failed: %s (in: conntrack_line_to_data).",
+                    vrmr_error(-1, "Internal Error", "strdup failed: %s",
                             strerror(errno));
                     free(zone_name_ptr);
                     return (-1);
@@ -273,8 +253,7 @@ static int conn_line_to_data(struct vrmr_conntrack_line *connline_ptr,
     if (conndata_ptr->to == NULL) {
         if (req->unknown_ip_as_net == FALSE) {
             if (!(conndata_ptr->toname = strdup(connline_ptr->dst_ip))) {
-                vrmr_error(-1, "Internal Error",
-                        "strdup failed: %s (in: conntrack_line_to_data).",
+                vrmr_error(-1, "Internal Error", "strdup failed: %s",
                         strerror(errno));
                 return (-1);
             }
@@ -282,15 +261,13 @@ static int conn_line_to_data(struct vrmr_conntrack_line *connline_ptr,
             if (!(zone_name_ptr = vrmr_get_network_for_ipv4(
                           connline_ptr->dst_ip, zonelist))) {
                 if (!(conndata_ptr->toname = strdup(connline_ptr->dst_ip))) {
-                    vrmr_error(-1, "Internal Error",
-                            "strdup failed: %s (in: conntrack_line_to_data).",
+                    vrmr_error(-1, "Internal Error", "strdup failed: %s",
                             strerror(errno));
                     return (-1);
                 }
             } else {
                 if (!(conndata_ptr->toname = strdup(zone_name_ptr))) {
-                    vrmr_error(-1, "Internal Error",
-                            "strdup failed: %s (in: conntrack_line_to_data).",
+                    vrmr_error(-1, "Internal Error", "strdup failed: %s",
                             strerror(errno));
 
                     free(zone_name_ptr);
@@ -1102,16 +1079,14 @@ static int conn_process_one_conntrack_line_ipv6(
         if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
                     sizeof(connline_ptr->orig_dst_ip)) >=
                 sizeof(connline_ptr->orig_dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
         if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
                     sizeof(connline_ptr->dst_ip)) >=
                 sizeof(connline_ptr->dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
     } else if (strcmp(connline_ptr->src_ip, connline_ptr->alt_src_ip) != 0 &&
@@ -1120,16 +1095,14 @@ static int conn_process_one_conntrack_line_ipv6(
         if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
                     sizeof(connline_ptr->orig_dst_ip)) >=
                 sizeof(connline_ptr->orig_dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
         if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
                     sizeof(connline_ptr->dst_ip)) >=
                 sizeof(connline_ptr->dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
     }
@@ -1155,16 +1128,14 @@ static int conn_process_one_conntrack_line_ipv6(
         if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
                     sizeof(connline_ptr->orig_dst_ip)) >=
                 sizeof(connline_ptr->orig_dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
         if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
                     sizeof(connline_ptr->dst_ip)) >=
                 sizeof(connline_ptr->dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
     }
@@ -1291,16 +1262,14 @@ static int conn_process_one_conntrack_line(
         if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
                     sizeof(connline_ptr->orig_dst_ip)) >=
                 sizeof(connline_ptr->orig_dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
         if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
                     sizeof(connline_ptr->dst_ip)) >=
                 sizeof(connline_ptr->dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
     } else if (strcmp(connline_ptr->src_ip, connline_ptr->alt_src_ip) != 0 &&
@@ -1309,16 +1278,14 @@ static int conn_process_one_conntrack_line(
         if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
                     sizeof(connline_ptr->orig_dst_ip)) >=
                 sizeof(connline_ptr->orig_dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
         if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
                     sizeof(connline_ptr->dst_ip)) >=
                 sizeof(connline_ptr->dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
     }
@@ -1344,16 +1311,14 @@ static int conn_process_one_conntrack_line(
         if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
                     sizeof(connline_ptr->orig_dst_ip)) >=
                 sizeof(connline_ptr->orig_dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
         if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
                     sizeof(connline_ptr->dst_ip)) >=
                 sizeof(connline_ptr->dst_ip)) {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
     }
@@ -1405,16 +1370,13 @@ static int conn_process_one_conntrack_line(
 */
 unsigned int vrmr_conn_hash_name(const void *key)
 {
-    size_t len = 0;
     unsigned int hash = 0;
-    char *name = NULL;
 
-    if (!key)
-        return (1);
+    assert(key);
 
-    name = (char *)key;
+    char *name = (char *)key;
 
-    len = strlen(name);
+    size_t len = strlen(name);
     while (len) {
         hash = hash + name[len];
         len--;
@@ -1426,8 +1388,7 @@ unsigned int vrmr_conn_hash_name(const void *key)
 // TODO silly names
 int vrmr_conn_match_name(const void *ser1, const void *ser2)
 {
-    if (!ser1 || !ser2)
-        return (0);
+    assert(ser1 && ser2);
 
     if (strcmp((char *)ser1, (char *)ser2) == 0)
         return 1;
@@ -1463,21 +1424,16 @@ void vrmr_conn_list_print(const struct vrmr_list *conn_list)
 */
 static unsigned int conn_hash_conntrackdata(const void *key)
 {
-    unsigned int retval = 0;
-    struct vrmr_conntrack_entry *cd_ptr = NULL;
+    assert(key);
 
-    if (!key)
-        return (1);
-
-    cd_ptr = (struct vrmr_conntrack_entry *)key;
+    struct vrmr_conntrack_entry *cd_ptr = (struct vrmr_conntrack_entry *)key;
 
     /*  from and to have different weight, so firewall -> internet
         is not the same as internet -> firewall
     */
-    retval = retval + vrmr_conn_hash_name(cd_ptr->sername);
+    unsigned int retval = vrmr_conn_hash_name(cd_ptr->sername);
     retval = retval + vrmr_conn_hash_name(cd_ptr->fromname) / 2;
     retval = retval + vrmr_conn_hash_name(cd_ptr->toname) / 3;
-
     return (retval);
 }
 
@@ -1486,14 +1442,11 @@ static unsigned int conn_hash_conntrackdata(const void *key)
 */
 static int conn_match_conntrackdata(const void *check, const void *hash)
 {
-    struct vrmr_conntrack_entry *check_cd = NULL, *hash_cd = NULL;
+    assert(check && hash);
 
-    /* safety */
-    if (!check || !hash)
-        return (0);
-
-    check_cd = (struct vrmr_conntrack_entry *)check;
-    hash_cd = (struct vrmr_conntrack_entry *)hash;
+    struct vrmr_conntrack_entry *check_cd =
+            (struct vrmr_conntrack_entry *)check;
+    struct vrmr_conntrack_entry *hash_cd = (struct vrmr_conntrack_entry *)hash;
 
     if (strncmp(check_cd->sername, hash_cd->sername, VRMR_MAX_SERVICE) == 0) {
         // service matches
@@ -1578,14 +1531,7 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
     char tmpfile[] = "/tmp/vuurmuur-conntrack-XXXXXX";
     int conntrack_cmd = 0;
 
-    /* safety */
-    if (serv_hash == NULL || zone_hash == NULL || cnf == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(serv_hash && zone_hash && cnf);
 
     /* if the prev_conn_cnt supplied by the user is bigger than 0,
        use it. */
@@ -1595,10 +1541,7 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
     /* initialize the hash */
     if (vrmr_hash_setup(&conn_hash, hashtbl_size, conn_hash_conntrackdata,
                 conn_match_conntrackdata) != 0) {
-        vrmr_error(-1, "Internal Error",
-                "vrmr_hash_setup() failed "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "vrmr_hash_setup() failed");
         return (-1);
     }
 
@@ -1620,8 +1563,8 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
             if (result == -1) {
                 vrmr_error(-1, "Error",
                         "unable to execute "
-                        "conntrack: %s (in: %s:%d).",
-                        strerror(errno), __FUNC__, __LINE__);
+                        "conntrack: %s",
+                        strerror(errno));
                 return (-1);
             }
         } else {
@@ -1631,8 +1574,8 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
             if (result == -1) {
                 vrmr_error(-1, "Error",
                         "unable to execute "
-                        "conntrack: %s (in: %s:%d).",
-                        strerror(errno), __FUNC__, __LINE__);
+                        "conntrack: %s",
+                        strerror(errno));
                 return (-1);
             }
         }
@@ -1641,8 +1584,8 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
         if (fp == NULL) {
             vrmr_error(-1, "Error",
                     "unable to open proc "
-                    "conntrack: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+                    "conntrack: %s",
+                    strerror(errno));
             return (-1);
         }
     }
@@ -1665,8 +1608,8 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
     if (fp == NULL) {
         vrmr_error(-1, "Error",
                 "unable to open proc "
-                "conntrack: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+                "conntrack: %s",
+                strerror(errno));
         return (-1);
     }
 
@@ -1696,9 +1639,7 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
             r = conn_process_one_conntrack_line_ipv6(line, &cl);
         if (r < 0) {
             vrmr_error(-1, "Internal Error",
-                    "conn_process_one_conntrack_line() failed "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+                    "conn_process_one_conntrack_line() failed");
             retval = -1;
             goto end;
         } else if (r == 0) {
@@ -1709,10 +1650,7 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
         /* allocate memory for the data */
         if (!(cd_ptr = (struct vrmr_conntrack_entry *)malloc(
                       sizeof(struct vrmr_conntrack_entry)))) {
-            vrmr_error(-1, "Error",
-                    "malloc() failed: %s "
-                    "(in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "malloc() failed: %s", strerror(errno));
             retval = -1;
             goto end;
         }
@@ -1722,10 +1660,7 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
         /* analyse it */
         if (conn_line_to_data(
                     &cl, cd_ptr, serv_hash, zone_hash, zone_list, req) < 0) {
-            vrmr_error(-1, "Error",
-                    "conn_line_to_data() "
-                    "failed: (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "conn_line_to_data() failed");
             free(cd_ptr);
             retval = -1;
             goto end;
@@ -1826,23 +1761,20 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
                 /* append the new cd to the list */
                 cd_ptr->d_node = vrmr_list_append(conn_dlist, cd_ptr);
                 if (!cd_ptr->d_node) {
-                    vrmr_error(-1, "Internal Error",
-                            "unable to append into list (in: "
-                            "vrmr_conn_get_connections).");
+                    vrmr_error(
+                            -1, "Internal Error", "unable to append into list");
                     retval = -1;
                     goto end;
                 }
 
                 /* and insert it into the hash */
                 if (vrmr_hash_insert(&conn_hash, cd_ptr) != 0) {
-                    vrmr_error(-1, "Internal Error",
-                            "unable to insert into hash (in: "
-                            "vrmr_conn_get_connections).");
+                    vrmr_error(
+                            -1, "Internal Error", "unable to insert into hash");
                     retval = -1;
                     goto end;
                 }
 
-                /* set cnt to 1 */
                 cd_ptr->cnt = 1;
             }
         }
@@ -1856,9 +1788,8 @@ end:
     if (conntrack_cmd) {
         /* remove the file */
         if (unlink(tmpfile) == -1) {
-            vrmr_error(-1, "Error",
-                    "removing '%s' failed (unlink): %s (in: %s:%d).", tmpfile,
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "removing '%s' failed (unlink): %s",
+                    tmpfile, strerror(errno));
             retval = -1;
         }
     }
@@ -1924,14 +1855,7 @@ int vrmr_conn_get_connections(struct vrmr_config *cnf,
 
 void vrmr_connreq_setup(struct vrmr_conntrack_request *connreq)
 {
-    /* safety */
-    if (connreq == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return;
-    }
+    assert(connreq);
 
     vrmr_filter_setup(&connreq->filter);
 
@@ -1940,14 +1864,7 @@ void vrmr_connreq_setup(struct vrmr_conntrack_request *connreq)
 
 void vrmr_connreq_cleanup(struct vrmr_conntrack_request *connreq)
 {
-    /* safety */
-    if (connreq == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return;
-    }
+    assert(connreq);
 
     vrmr_filter_cleanup(&connreq->filter);
 

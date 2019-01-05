@@ -193,27 +193,18 @@ int reload_services(struct vrmr_ctx *vctx, struct vrmr_services *services,
     int zonetype;
     struct vrmr_list_node *d_node = NULL;
 
-    vrmr_debug(LOW, "** start **");
-
-    /* safety */
-    if (!services || !servicename_regex) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(services && servicename_regex);
 
     /* check if we have a backend */
     if (!vctx->sf) {
-        vrmr_error(-1, "Internal Error", "backend not open (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "backend not open");
         return (-1);
     }
 
     /* first reset all statusses */
     for (d_node = services->list.top; d_node; d_node = d_node->next) {
         if (!(ser_ptr = d_node->data)) {
-            vrmr_error(-1, "Error", "NULL pointer (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, "Error", "NULL pointer");
             return (-1);
         }
 
@@ -234,18 +225,14 @@ int reload_services(struct vrmr_ctx *vctx, struct vrmr_services *services,
                 result = vrmr_insert_service(vctx, services, name);
                 if (result != 0) {
                     vrmr_error(-1, "Internal Error",
-                            "inserting data for '%s' into the list failed (in: "
-                            "reload_services).",
+                            "inserting data for '%s' into the list failed",
                             name);
                     return (-1);
                 }
 
                 ser_ptr = vrmr_search_service(services, name);
-                if (ser_ptr == NULL) /* not found */
-                {
-                    vrmr_error(-1, "Internal Error",
-                            "service not found (in: %s:%d).", __FUNC__,
-                            __LINE__);
+                if (ser_ptr == NULL) { /* not found */
+                    vrmr_error(-1, "Internal Error", "service not found");
                     return (-1);
                 }
 
@@ -272,20 +259,17 @@ int reload_services(struct vrmr_ctx *vctx, struct vrmr_services *services,
     for (d_node = services->list.top; d_node; d_node = d_node->next) {
         /* get the service */
         if (!(ser_ptr = d_node->data)) {
-            vrmr_error(
-                    -1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
         /* if status is UNTOUCHED, mark REMOVED */
         if (ser_ptr->status == VRMR_ST_UNTOUCHED) {
             ser_ptr->status = VRMR_ST_REMOVED;
-
             vrmr_info("Info", "Service '%s' is removed.", ser_ptr->name);
         }
     }
 
-    vrmr_debug(HIGH, "** end **, result = %d", retval);
     return (retval);
 }
 
@@ -308,18 +292,12 @@ int reload_vrmr_services_check(
     struct vrmr_list_node *list_node = NULL, *temp_node = NULL;
     struct vrmr_portdata *list_port = NULL, *temp_port = NULL;
 
-    /* safety */
-    if (ser_ptr == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(ser_ptr);
 
     /* alloc the temp mem */
     if (!(new_ser_ptr = vrmr_service_malloc())) {
-        vrmr_error(-1, "Internal Error",
-                "vrmr_service_malloc() failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "vrmr_service_malloc() failed: %s",
+                strerror(errno));
         return (-1);
     }
     vrmr_list_setup(&new_ser_ptr->PortrangeList, free);
@@ -328,9 +306,7 @@ int reload_vrmr_services_check(
     result = vrmr_read_service(vctx, ser_ptr->name, new_ser_ptr);
     if (result != 0) {
         /* error! memory is freed at the end of this function */
-        vrmr_error(-1, "Error",
-                "getting info for service '%s' failed (in: "
-                "reload_vrmr_services_check).",
+        vrmr_error(-1, "Error", "getting info for service '%s' failed",
                 ser_ptr->name);
         status = VRMR_ST_REMOVED;
     } else {
@@ -476,31 +452,23 @@ int reload_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     int retval = 0, result = 0;
-    int check_result = 0;
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_zone *zone_ptr = NULL;
     char name[VRMR_VRMR_MAX_HOST_NET_ZONE];
     int zonetype;
 
-    /* safety */
-    if (interfaces == NULL || zones == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(interfaces && zones);
 
     /* check if we have a backend */
     if (!vctx->zf) {
-        vrmr_error(-1, "Internal Error", "backend not open (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "backend not open");
         return (-1);
     }
 
     /* first reset all statusses */
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         if (!(zone_ptr = d_node->data)) {
-            vrmr_error(
-                    -1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -517,9 +485,7 @@ int reload_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                     vctx, zones, interfaces, name, zonetype, reg);
             if (result != 0) {
                 vrmr_error(-1, "Internal Error",
-                        "inserting data for '%s' into the list failed "
-                        "(reload_zonedata).",
-                        name);
+                        "inserting data for '%s' into the list failed", name);
                 return (-1);
             }
 
@@ -535,14 +501,13 @@ int reload_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
 
             zone_ptr = vrmr_search_zonedata(zones, name);
             if (zone_ptr == NULL) {
-                vrmr_error(-1, "Internal Error", "zone not found (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "zone not found");
                 return (-1);
             }
 
             if (zone_ptr->type == VRMR_TYPE_HOST) {
                 /* check */
-                check_result = vrmr_zones_check_host(zone_ptr);
+                int check_result = vrmr_zones_check_host(zone_ptr);
                 if (check_result != 1) {
                     vrmr_info("Info",
                             "Host '%s' has been deactivated because of errors "
@@ -552,7 +517,7 @@ int reload_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                 }
             } else if (zone_ptr->type == VRMR_TYPE_NETWORK) {
                 /* check */
-                check_result = vrmr_zones_check_network(zone_ptr);
+                int check_result = vrmr_zones_check_network(zone_ptr);
                 if (check_result != 1) {
                     vrmr_info("Info",
                             "Network '%s' has been deactivated because of "
@@ -577,8 +542,7 @@ int reload_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     /* untouched means to be removed */
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         if (!(zone_ptr = d_node->data)) {
-            vrmr_error(
-                    -1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -599,8 +563,6 @@ int reload_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     }
 
     // vrmr_zonedata_print_list(&ZonedataList);
-
-    vrmr_debug(HIGH, "** end **, retval=%d", retval);
     return (retval);
 }
 
@@ -628,12 +590,7 @@ int reload_zonedata_check(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     struct vrmr_rule *org_rule_ptr = NULL, *new_rule_ptr = NULL;
     int status = -1;
 
-    /* safety */
-    if (!zones || !zone_ptr || !reg) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem (in: reload_zonedata_check).");
-        return (-1);
-    }
+    assert(zones && zone_ptr && reg);
 
     vrmr_debug(MEDIUM, "zone: %s, type: %d", zone_ptr->name, zone_ptr->type);
 
@@ -652,9 +609,7 @@ int reload_zonedata_check(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                     VRMR_TYPE_ZONE, vrmr_new_zone_ptr, reg);
             if (result != 0) {
                 /* error! memory is freed at the end of this function */
-                vrmr_error(-1, "Error",
-                        "getting info for zone '%s' failed (in: "
-                        "reload_zonedata_check).",
+                vrmr_error(-1, "Error", "getting info for zone '%s' failed",
                         zone_ptr->name);
                 status = VRMR_ST_REMOVED;
             }
@@ -684,9 +639,7 @@ int reload_zonedata_check(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                     VRMR_TYPE_NETWORK, vrmr_new_zone_ptr, reg);
             if (result != 0) {
                 /* error! memory is freed at the end of this function */
-                vrmr_error(-1, "Error",
-                        "getting info for network '%s' failed (in: "
-                        "reload_zonedata_check).",
+                vrmr_error(-1, "Error", "getting info for network '%s' failed",
                         zone_ptr->name);
                 status = VRMR_ST_REMOVED;
             } else {
@@ -746,14 +699,12 @@ int reload_zonedata_check(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                                         d_node_orig = d_node_orig->next) {
                                     if (!(iface_ptr_new = d_node_new->data)) {
                                         vrmr_error(-1, "Internal Error",
-                                                "NULL pointer (in: %s:%d).",
-                                                __FUNC__, __LINE__);
+                                                "NULL pointer");
                                         return (-1);
                                     }
                                     if (!(iface_ptr_orig = d_node_orig->data)) {
                                         vrmr_error(-1, "Internal Error",
-                                                "NULL pointer (in: %s:%d).",
-                                                __FUNC__, __LINE__);
+                                                "NULL pointer");
                                         return (-1);
                                     }
 
@@ -824,15 +775,13 @@ int reload_zonedata_check(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                                     if (!(new_rule_ptr = protect_d_node_new
                                                                  ->data)) {
                                         vrmr_error(-1, "Internal Error",
-                                                "NULL pointer (in: %s:%d).",
-                                                __FUNC__, __LINE__);
+                                                "NULL pointer");
                                         return (-1);
                                     }
                                     if (!(org_rule_ptr = protect_d_node_orig
                                                                  ->data)) {
                                         vrmr_error(-1, "Internal Error",
-                                                "NULL pointer (in: %s:%d).",
-                                                __FUNC__, __LINE__);
+                                                "NULL pointer");
                                         return (-1);
                                     }
 
@@ -913,9 +862,7 @@ int reload_zonedata_check(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                     VRMR_TYPE_HOST, vrmr_new_zone_ptr, reg);
             if (result != 0) {
                 /* error! memory is freed at the end of this function */
-                vrmr_error(-1, "Error",
-                        "getting info for host '%s' failed (in: "
-                        "reload_zonedata_check).",
+                vrmr_error(-1, "Error", "getting info for host '%s' failed",
                         zone_ptr->name);
                 status = VRMR_ST_REMOVED;
             } else {
@@ -1009,9 +956,7 @@ int reload_zonedata_check(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                     VRMR_TYPE_GROUP, vrmr_new_zone_ptr, reg);
             if (result != 0) {
                 /* error! memory is freed at the end of this function */
-                vrmr_error(-1, "Error",
-                        "getting info for group '%s' failed (in: "
-                        "reload_zonedata_check).",
+                vrmr_error(-1, "Error", "getting info for group '%s' failed",
                         zone_ptr->name);
 
                 status = VRMR_ST_REMOVED;
@@ -1112,9 +1057,8 @@ int reload_zonedata_check(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
 
         default:
 
-            vrmr_error(-1, "Error",
-                    "unknown zone type: %d for zone %s (in: %s).",
-                    zone_ptr->type, zone_ptr->name, __FUNC__);
+            vrmr_error(-1, "Error", "unknown zone type: %d for zone %s",
+                    zone_ptr->type, zone_ptr->name);
 
             retval = -1;
             break;
@@ -1176,25 +1120,18 @@ int reload_interfaces(struct vrmr_ctx *vctx, struct vrmr_interfaces *interfaces)
     char name[VRMR_MAX_INTERFACE] = "";
     int zonetype = 0;
 
-    /* safety first */
-    if (!interfaces) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(interfaces);
 
     /* check if we have a backend */
     if (!vctx->af) {
-        vrmr_error(-1, "Internal Error", "backend not open (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "backend not open");
         return (-1);
     }
 
     /* first reset all statusses */
     for (d_node = interfaces->list.top; d_node; d_node = d_node->next) {
         if (!(iface_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -1215,16 +1152,13 @@ int reload_interfaces(struct vrmr_ctx *vctx, struct vrmr_interfaces *interfaces)
             /* this is a new interface */
             result = vrmr_insert_interface(vctx, interfaces, name);
             if (result != 0) {
-                vrmr_error(-1, "Internal Error",
-                        "insert_interface() failed (in: %s:%d).", __FUNC__,
-                        __LINE__);
+                vrmr_error(-1, "Internal Error", "insert_interface() failed");
                 return (-1);
             }
 
             iface_ptr = vrmr_search_interface(interfaces, name);
             if (iface_ptr == NULL) {
-                vrmr_error(-1, "Internal Error",
-                        "interface not found (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "interface not found");
                 return (-1);
             }
 
@@ -1259,20 +1193,17 @@ int reload_interfaces(struct vrmr_ctx *vctx, struct vrmr_interfaces *interfaces)
     /* tag untouched interfaces as (to be) 'removed' */
     for (d_node = interfaces->list.top; d_node; d_node = d_node->next) {
         if (!(iface_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
         if (iface_ptr->status == VRMR_ST_UNTOUCHED) {
             vrmr_info("Info", "Interface '%s' is removed.", iface_ptr->name);
             iface_ptr->status = VRMR_ST_REMOVED;
-
             retval = 1;
         }
     }
 
-    vrmr_debug(HIGH, "** end **, result = %d", retval);
     return (retval);
 }
 
@@ -1296,18 +1227,12 @@ int reload_vrmr_interfaces_check(
                           *protect_d_node_new = NULL;
     struct vrmr_rule *org_rule_ptr = NULL, *new_rule_ptr = NULL;
 
-    /* safety */
-    if (!iface_ptr) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(iface_ptr);
 
     /* alloc mem for a temporary interface */
     if (!(new_iface_ptr = vrmr_interface_malloc())) {
-        vrmr_error(-1, "Internal Error",
-                "vrmr_interface_malloc() failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "vrmr_interface_malloc() failed: %s",
+                strerror(errno));
         return (-1);
     }
 
@@ -1321,17 +1246,12 @@ int reload_vrmr_interfaces_check(
 
     /* get the info from the backend */
     if (vrmr_read_interface_info(vctx, new_iface_ptr) != 0) {
-        vrmr_error(-1, "Error",
-                "getting interface information for '%s' failed (in: %s).",
-                iface_ptr->name, __FUNC__);
+        vrmr_error(-1, "Error", "getting interface information for '%s' failed",
+                iface_ptr->name);
         status = VRMR_ST_REMOVED;
     } else {
         /* check the interface */
         check_result = vrmr_interfaces_check(new_iface_ptr);
-
-        /*
-            NOW CHECK for changes
-        */
 
         /* active. If check_result is not 1 we are going to set the active to
            false, so we dont care about this check. */
@@ -1536,16 +1456,10 @@ int reload_blocklist(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
     struct vrmr_list_node *new_node = NULL, *old_node = NULL;
     char *new_ip = NULL, *org_ip = NULL;
 
-    /* safety */
-    if (blocklist == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(blocklist);
 
     if (!(new_blocklist = malloc(sizeof(struct vrmr_blocklist)))) {
-        vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (-1);
     }
 
@@ -1553,9 +1467,7 @@ int reload_blocklist(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
         we don't care about the refcnt now */
     if (vrmr_blocklist_init_list(vctx, cfg, zones, new_blocklist,
                 /*load_ips*/ TRUE, /*no_refcnt*/ TRUE) < 0) {
-        vrmr_error(-1, "Error", "reading the blocklist failed (in: %s:%d).",
-                __FUNC__, __LINE__);
-
+        vrmr_error(-1, "Error", "reading the blocklist failed");
         free(new_blocklist);
         return (-1);
     }
@@ -1637,8 +1549,7 @@ int reload_rules(struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     struct vrmr_rule_cache *rulecache = NULL;
 
     if (!(new_rules = malloc(sizeof(*new_rules)))) {
-        vrmr_error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno),
-                __FUNC__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (-1);
     }
 
@@ -1647,7 +1558,6 @@ int reload_rules(struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     /* re-initialize the rules_list */
     if (vrmr_rules_init_list(vctx, &vctx->conf, new_rules, reg) < 0) {
         vrmr_error(-1, "Error", "rules_init_list() failed.");
-
         free(new_rules);
         return (-1);
     }
@@ -1655,11 +1565,8 @@ int reload_rules(struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     /* analyzing the new rules */
     if (analyze_all_rules(vctx, new_rules) != 0) {
         vrmr_error(-1, "Error", "analizing the new rules failed.");
-
-        /* cleanups */
         vrmr_rules_cleanup_list(new_rules);
         free(new_rules);
-
         return (-1);
     }
 
@@ -1818,20 +1725,13 @@ int check_for_changed_networks(struct vrmr_zones *zones)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_zone *zone_ptr = NULL;
-    char status = 0;
+    int status = 0;
 
-    /* safety */
-    if (!zones) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(zones);
 
-    /* loop */
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         if (!(zone_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -1861,18 +1761,11 @@ int check_for_changed_dynamic_ips(struct vrmr_interfaces *interfaces)
     char ipaddress[16] = "";
     int result = 0, retval = 0;
 
-    /* safety */
-    if (!interfaces) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(interfaces);
 
-    /* loop through interfaces */
     for (d_node = interfaces->list.top; d_node; d_node = d_node->next) {
         if (!(iface_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -1880,9 +1773,7 @@ int check_for_changed_dynamic_ips(struct vrmr_interfaces *interfaces)
             result = vrmr_get_dynamic_ip(
                     iface_ptr->device, ipaddress, sizeof(ipaddress));
             if (result == -1) {
-                vrmr_error(-1, "Error",
-                        "getting the ipaddress failed (in: %s:%d).", __FUNC__,
-                        __LINE__);
+                vrmr_error(-1, "Error", "getting the ipaddress failed");
                 return (-1);
             } else if (result == 1) {
                 /* we got a valid answer, this means the interface is 'up'.
@@ -1914,9 +1805,8 @@ int check_for_changed_dynamic_ips(struct vrmr_interfaces *interfaces)
                 }
             } else {
                 vrmr_error(-1, "Internal Error",
-                        "unknown errorcode '%d' for vrmr_get_dynamic_ip() (in: "
-                        "%s:%d).",
-                        result, __FUNC__, __LINE__);
+                        "unknown errorcode '%d' for vrmr_get_dynamic_ip()",
+                        result);
                 return (-1);
             }
         }

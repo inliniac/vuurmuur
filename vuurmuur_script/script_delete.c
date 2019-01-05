@@ -106,8 +106,8 @@ int script_delete(struct vuurmuur_script *vr_script)
     if (vr_script->type == VRMR_TYPE_ZONE) {
         if (vr_script->vctx.zf->del(vr_script->vctx.zone_backend,
                     vr_script->name, VRMR_TYPE_ZONE, 0) < 0) {
-            vrmr_error(-1, VR_ERR, "removing zone '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, VR_ERR, "removing zone '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -115,8 +115,8 @@ int script_delete(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_NETWORK) {
         if (vr_script->vctx.zf->del(vr_script->vctx.zone_backend,
                     vr_script->name, VRMR_TYPE_NETWORK, 0) < 0) {
-            vrmr_error(-1, VR_ERR, "removing network '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "removing network '%s' failed",
+                    vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -124,8 +124,8 @@ int script_delete(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_HOST) {
         if (vr_script->vctx.zf->del(vr_script->vctx.zone_backend,
                     vr_script->name, VRMR_TYPE_HOST, 0) < 0) {
-            vrmr_error(-1, VR_ERR, "removing host '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, VR_ERR, "removing host '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -133,8 +133,8 @@ int script_delete(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_GROUP) {
         if (vr_script->vctx.zf->del(vr_script->vctx.zone_backend,
                     vr_script->name, VRMR_TYPE_GROUP, 0) < 0) {
-            vrmr_error(-1, VR_ERR, "removing group '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, VR_ERR, "removing group '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -142,8 +142,8 @@ int script_delete(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_SERVICE) {
         if (vr_script->vctx.sf->del(vr_script->vctx.serv_backend,
                     vr_script->name, VRMR_TYPE_SERVICE, 0) < 0) {
-            vrmr_error(-1, VR_ERR, "removing service '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "removing service '%s' failed",
+                    vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -151,9 +151,8 @@ int script_delete(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_INTERFACE) {
         if (vr_script->vctx.af->del(vr_script->vctx.ifac_backend,
                     vr_script->name, VRMR_TYPE_INTERFACE, 0) < 0) {
-            vrmr_error(-1, VR_ERR,
-                    "removing interface '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "removing interface '%s' failed",
+                    vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -161,8 +160,8 @@ int script_delete(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_RULE) {
         if (vr_script->vctx.rf->del(vr_script->vctx.rule_backend,
                     vr_script->name, VRMR_TYPE_RULE, 0) < 0) {
-            vrmr_error(-1, VR_ERR, "removing ruleset '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "removing ruleset '%s' failed",
+                    vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 

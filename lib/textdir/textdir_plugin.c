@@ -29,19 +29,17 @@
 
     The caller needs to free the memory.
 */
-char *get_filelocation(void *backend, char *name, const int type)
+char *get_filelocation(
+        void *backend, const char *name, const enum vrmr_objecttypes type)
 {
     char hostname[VRMR_MAX_HOST] = "", networkname[VRMR_MAX_NETWORK] = "",
          zonename[VRMR_MAX_ZONE] = "";
     char file_location[512] = "", *fileloc_ptr = NULL;
-    struct textdir_backend *tb = NULL;
 
-    /* better safe than sorry */
-    if (!backend || !name) {
-        vrmr_error(-1, "Internal Error", "parameter problem");
-        return (NULL);
-    }
-    tb = (struct textdir_backend *)backend;
+    assert(backend && name);
+    assert(type >= VRMR_TYPE_HOST && type <= VRMR_TYPE_RULE);
+
+    struct textdir_backend *tb = (struct textdir_backend *)backend;
 
     /* check if backend is open */
     if (!tb->backend_open) {
@@ -49,187 +47,164 @@ char *get_filelocation(void *backend, char *name, const int type)
         return (NULL);
     }
 
-    /*
-        first zones
-    */
-    if (type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK ||
-            type == VRMR_TYPE_GROUP || type == VRMR_TYPE_HOST) {
-        vrmr_debug(HIGH, "looking up data from zones.");
+    switch (type) {
+        case VRMR_TYPE_ZONE:
+        case VRMR_TYPE_NETWORK:
+        case VRMR_TYPE_GROUP:
+        case VRMR_TYPE_HOST:
+            /* validate the name */
+            if (vrmr_validate_zonename(name, 0, zonename, networkname, hostname,
+                        tb->zonename_reg, VRMR_VERBOSE) != 0) {
+                vrmr_error(-1, "Error", "zonename '%s' is not valid", name);
+                return (NULL);
+            }
+            break;
+        case VRMR_TYPE_SERVICE:
+        case VRMR_VRMR_TYPE_SERVICEGRP:
+            /* validate the name */
+            if (vrmr_validate_servicename(name, tb->servicename_reg) != 0) {
+                vrmr_error(-1, "Error", "servicename '%s' is not valid.", name);
+                return (NULL);
+            }
+            break;
+        case VRMR_TYPE_INTERFACE:
+            /* validate the name */
+            if (vrmr_validate_interfacename(name, tb->interfacename_reg) != 0) {
+                vrmr_error(
+                        -1, "Error", "interfacename '%s' is not valid.", name);
+                return (NULL);
+            }
+            break;
+        default:
+            break;
+    }
 
-        /* validate the name */
-        if (vrmr_validate_zonename(name, 0, zonename, networkname, hostname,
-                    tb->zonename_reg, VRMR_VERBOSE) != 0) {
-            vrmr_error(-1, "Error", "zonename '%s' is not valid", name);
-            return (NULL);
-        }
+    switch (type) {
+        /* host */
+        case VRMR_TYPE_HOST:
 
-        /*
-            first we determine the zonetype
-        */
-        switch (type) {
-            /* host */
-            case VRMR_TYPE_HOST:
+            vrmr_debug(HIGH, "%s is a host.", name);
+            vrmr_debug(HIGH, "arguments: %s, %s and %s", hostname, networkname,
+                    zonename);
 
-                vrmr_debug(HIGH, "%s is a host.", name);
-                vrmr_debug(HIGH, "arguments: %s, %s and %s", hostname,
-                        networkname, zonename);
-
-                /* assemble the filestring, and make sure we dont overflow */
-                if (snprintf(file_location, sizeof(file_location),
-                            "%s/zones/%s/networks/%s/hosts/%s.host",
-                            tb->textdirlocation, zonename, networkname,
-                            hostname) >= (int)sizeof(file_location)) {
-                    vrmr_error(-1, "Error", "buffer overflow");
-                    return (NULL);
-                }
-
-                vrmr_debug(HIGH, "file_location: %s.", file_location);
-
-                break;
+            /* assemble the filestring, and make sure we dont overflow */
+            if (snprintf(file_location, sizeof(file_location),
+                        "%s/zones/%s/networks/%s/hosts/%s.host",
+                        tb->textdirlocation, zonename, networkname,
+                        hostname) >= (int)sizeof(file_location)) {
+                vrmr_error(-1, "Error", "buffer overflow");
+                return (NULL);
+            }
+            break;
 
             /* group */
-            case VRMR_TYPE_GROUP:
+        case VRMR_TYPE_GROUP:
 
-                vrmr_debug(HIGH, "%s is a group.", name);
-                vrmr_debug(HIGH, "arguments: %s, %s and %s", hostname,
-                        networkname, zonename);
+            vrmr_debug(HIGH, "%s is a group.", name);
+            vrmr_debug(HIGH, "arguments: %s, %s and %s", hostname, networkname,
+                    zonename);
 
-                /* assemble the filestring, and make sure we dont overflow */
-                if (snprintf(file_location, sizeof(file_location),
-                            "%s/zones/%s/networks/%s/groups/%s.group",
-                            tb->textdirlocation, zonename, networkname,
-                            hostname) >= (int)sizeof(file_location)) {
-                    vrmr_error(-1, "Error", "buffer overflow");
-                    return (NULL);
-                }
-
-                vrmr_debug(HIGH, "file_location: %s.", file_location);
-
-                break;
+            /* assemble the filestring, and make sure we dont overflow */
+            if (snprintf(file_location, sizeof(file_location),
+                        "%s/zones/%s/networks/%s/groups/%s.group",
+                        tb->textdirlocation, zonename, networkname,
+                        hostname) >= (int)sizeof(file_location)) {
+                vrmr_error(-1, "Error", "buffer overflow");
+                return (NULL);
+            }
+            break;
 
             /* network */
-            case VRMR_TYPE_NETWORK:
+        case VRMR_TYPE_NETWORK:
 
-                vrmr_debug(HIGH, "%s is a network.", name);
-                vrmr_debug(
-                        HIGH, "arguments: %s and %s.", networkname, zonename);
+            vrmr_debug(HIGH, "%s is a network.", name);
+            vrmr_debug(HIGH, "arguments: %s and %s.", networkname, zonename);
 
-                /* assemble the filestring, and make sure we dont overflow */
-                if (snprintf(file_location, sizeof(file_location),
-                            "%s/zones/%s/networks/%s/network.config",
-                            tb->textdirlocation, zonename,
-                            networkname) >= (int)sizeof(file_location)) {
-                    vrmr_error(-1, "Error", "buffer overflow");
-                    return (NULL);
-                }
-
-                vrmr_debug(HIGH, "file_location: %s.", file_location);
-
-                break;
+            /* assemble the filestring, and make sure we dont overflow */
+            if (snprintf(file_location, sizeof(file_location),
+                        "%s/zones/%s/networks/%s/network.config",
+                        tb->textdirlocation, zonename,
+                        networkname) >= (int)sizeof(file_location)) {
+                vrmr_error(-1, "Error", "buffer overflow");
+                return (NULL);
+            }
+            break;
 
             /* zone */
-            case VRMR_TYPE_ZONE:
+        case VRMR_TYPE_ZONE:
 
-                vrmr_debug(HIGH, "%s is a zone.", name);
-                vrmr_debug(HIGH, "arguments: %s.", zonename);
+            vrmr_debug(HIGH, "%s is a zone.", name);
+            vrmr_debug(HIGH, "arguments: %s.", zonename);
 
-                /* assemble the filestring, and make sure we dont overflow */
-                if (snprintf(file_location, sizeof(file_location),
-                            "%s/zones/%s/zone.config", tb->textdirlocation,
-                            zonename) >= (int)sizeof(file_location)) {
-                    vrmr_error(-1, "Error", "buffer overflow");
-                    return (NULL);
-                }
+            /* assemble the filestring, and make sure we dont overflow */
+            if (snprintf(file_location, sizeof(file_location),
+                        "%s/zones/%s/zone.config", tb->textdirlocation,
+                        zonename) >= (int)sizeof(file_location)) {
+                vrmr_error(-1, "Error", "buffer overflow");
+                return (NULL);
+            }
+            break;
 
-                vrmr_debug(HIGH, "file_location: %s.", file_location);
+        case VRMR_TYPE_SERVICE:
+        case VRMR_VRMR_TYPE_SERVICEGRP:
+            vrmr_debug(
+                    HIGH, "looking up data from services, service: %s.", name);
 
-                break;
-        }
+            /* assemble the filestring, and make sure we dont overflow */
+            if (snprintf(file_location, sizeof(file_location), "%s/services/%s",
+                        tb->textdirlocation,
+                        name) >= (int)sizeof(file_location)) {
+                vrmr_error(-1, "Error", "buffer overflow");
+                return (NULL);
+            }
+            break;
+
+        case VRMR_TYPE_INTERFACE:
+            vrmr_debug(HIGH, "looking up data from interfaces, interface: %s.",
+                    name);
+
+            /* assemble the filestring, and make sure we dont overflow */
+            if (snprintf(file_location, sizeof(file_location),
+                        "%s/interfaces/%s.conf", tb->textdirlocation,
+                        name) >= (int)sizeof(file_location)) {
+                vrmr_error(-1, "Error", "buffer overflow");
+                return (NULL);
+            }
+            break;
+
+        case VRMR_TYPE_RULE:
+            /* assemble the filestring, and make sure we dont overflow */
+            if (snprintf(file_location, sizeof(file_location),
+                        "%s/rules/%s.conf", tb->textdirlocation,
+                        name) >= (int)sizeof(file_location)) {
+                vrmr_error(-1, "Error", "buffer overflow");
+                return (NULL);
+            }
+            break;
+
+        default:
+            break;
     }
 
-    /*
-        services are next
-    */
-    else if (type == VRMR_TYPE_SERVICE || type == VRMR_VRMR_TYPE_SERVICEGRP) {
-        /* validate the name */
-        if (vrmr_validate_servicename(name, tb->servicename_reg) != 0) {
-            vrmr_error(-1, "Error", "servicename '%s' is not valid.", name);
-            return (NULL);
-        }
-
-        vrmr_debug(HIGH, "looking up data from services, service: %s.", name);
-
-        /* assemble the filestring, and make sure we dont overflow */
-        if (snprintf(file_location, sizeof(file_location), "%s/services/%s",
-                    tb->textdirlocation, name) >= (int)sizeof(file_location)) {
-            vrmr_error(-1, "Error", "buffer overflow");
-            return (NULL);
-        }
-
-        vrmr_debug(HIGH, "file_location: %s.", file_location);
-    }
-
-    /*
-        interfaces are next
-    */
-    else if (type == VRMR_TYPE_INTERFACE) {
-        /* validate the name */
-        if (vrmr_validate_interfacename(name, tb->interfacename_reg) != 0) {
-            vrmr_error(-1, "Error", "interfacename '%s' is not valid.", name);
-            return (NULL);
-        }
-
-        vrmr_debug(
-                HIGH, "looking up data from interfaces, interface: %s.", name);
-
-        /* assemble the filestring, and make sure we dont overflow */
-        if (snprintf(file_location, sizeof(file_location),
-                    "%s/interfaces/%s.conf", tb->textdirlocation,
-                    name) >= (int)sizeof(file_location)) {
-            vrmr_error(-1, "Error", "buffer overflow");
-            return (NULL);
-        }
-
-        vrmr_debug(HIGH, "file_location: %s.", file_location);
-    } else if (type == VRMR_TYPE_RULE) {
-        /* assemble the filestring, and make sure we dont overflow */
-        if (snprintf(file_location, sizeof(file_location), "%s/rules/%s.conf",
-                    tb->textdirlocation, name) >= (int)sizeof(file_location)) {
-            vrmr_error(-1, "Error", "buffer overflow");
-            return (NULL);
-        }
-
-        vrmr_debug(HIGH, "file_location: %s.", file_location);
-    }
-
-    /* well, this should not happen, right? */
-    else {
-        vrmr_error(-1, "Internal Error", "unknown type of question '%d'", type);
-        return (NULL);
-    }
-
+    vrmr_debug(HIGH, "file_location: %s.", file_location);
     /* now allocate some memory */
     if (!(fileloc_ptr = strdup(file_location))) {
         vrmr_error(-1, "Error", "strdup failed: %s", strerror(errno));
         return (NULL);
     }
-
-    /* return it! */
     return (fileloc_ptr);
 }
 
 /*
     opening the backend
 */
-int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
+int open_textdir(
+        void *backend, int mode ATTR_UNUSED, enum vrmr_backend_types type)
 {
     char dir_location[PATH_MAX] = "";
     DIR *dir_p = NULL;
 
-    if (backend == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem");
-        return (-1);
-    }
+    assert(backend);
 
     struct textdir_backend *tb = (struct textdir_backend *)backend;
 
@@ -374,18 +349,14 @@ int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
     return (0);
 }
 
-int close_textdir(void *backend, int type)
+int close_textdir(void *backend, enum vrmr_backend_types type)
 {
-    if (backend == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem");
-        return (-1);
-    }
+    assert(backend);
 
     struct textdir_backend *tb = (struct textdir_backend *)backend;
-    if (tb->backend_open == 1) {
-        vrmr_debug(HIGH, "closing: setting backend_open to 0");
-
-        tb->backend_open = 0;
+    if (tb->backend_open) {
+        vrmr_debug(HIGH, "closing: setting backend_open to close");
+        tb->backend_open = false;
     }
 
     /* cleanup regex */
@@ -418,7 +389,8 @@ int close_textdir(void *backend, int type)
 }
 
 /* setting up the backend for first use */
-int init_textdir(void *backend ATTR_UNUSED, int type ATTR_UNUSED)
+int init_textdir(
+        void *backend ATTR_UNUSED, enum vrmr_backend_types type ATTR_UNUSED)
 {
     // TODO
     return (0);
@@ -441,23 +413,18 @@ static int create_dir_if_missing(const char *dir_location)
 /*  add item to the backend
 
 */
-int add_textdir(void *backend, char *name, int type)
+int add_textdir(void *backend, const char *name, enum vrmr_objecttypes type)
 {
     FILE *fp = NULL;
-    struct textdir_backend *tb = NULL;
     char *file_location = NULL, dir_location[PATH_MAX] = "",
          hostname[VRMR_MAX_HOST] = "", networkname[VRMR_MAX_NETWORK] = "",
          zonename[VRMR_MAX_ZONE] = "";
     int fd = 0;
 
-    /* safety */
-    if (!backend || !name) {
-        vrmr_error(-1, "Internal Error", "parameter problem");
-        return (-1);
-    }
+    assert(backend && name);
 
     /* check if the backend is open */
-    tb = (struct textdir_backend *)backend;
+    struct textdir_backend *tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
         vrmr_error(-1, "Error", "Backend not opened yet");
         return (-1);
@@ -580,6 +547,8 @@ int add_textdir(void *backend, char *name, int type)
                     file_location = NULL;
                     return (-1);
                 }
+                break;
+            default:
                 break;
         }
     }
@@ -722,21 +691,17 @@ error:
         0: ok
         -1: error
 */
-int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
+int del_textdir(void *backend, const char *name, enum vrmr_objecttypes type,
+        int recurs ATTR_UNUSED)
 {
     char *file_location = NULL, dir_location[512] = "",
          hostname[VRMR_MAX_HOST] = "", networkname[VRMR_MAX_NETWORK] = "",
          zonename[VRMR_MAX_ZONE] = "";
-    struct textdir_backend *tb = NULL;
 
-    /* safety */
-    if (!backend || !name) {
-        vrmr_error(-1, "Error", "parameter problem");
-        return (-1);
-    }
+    assert(backend && name);
 
     /* check if the backend was properly openend */
-    tb = (struct textdir_backend *)backend;
+    struct textdir_backend *tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
         vrmr_error(-1, "Error", "backend not opened yet");
         return (-1);
@@ -962,7 +927,8 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
         -1: error
          0: ok
 */
-int rename_textdir(void *backend, char *name, char *newname, int type)
+int rename_textdir(void *backend, const char *name, const char *newname,
+        enum vrmr_objecttypes type)
 {
     int result = 0;
     char *oldpath = NULL, *newpath = NULL;
@@ -972,11 +938,7 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
          old_host_name[VRMR_MAX_HOST] = "";
     char new_file_location[256] = "", old_file_location[256] = "";
 
-    /* safety */
-    if (!backend || !name || !newname) {
-        vrmr_error(-1, "Error", "parameter problem");
-        return (-1);
-    }
+    assert(backend && name && newname);
 
     struct textdir_backend *tb = (struct textdir_backend *)backend;
     /* check if the backend was properly openend */
@@ -1130,16 +1092,11 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
 */
 int conf_textdir(void *backend)
 {
-    int retval = 0, result = 0;
     char configfile_location[512] = "";
-    struct textdir_backend *tb = NULL;
 
-    /* safety first */
-    if (!backend) {
-        vrmr_error(-1, "Internal Error", "parameter problem");
-        return (-1);
-    }
-    tb = (struct textdir_backend *)backend;
+    assert(backend);
+
+    struct textdir_backend *tb = (struct textdir_backend *)backend;
 
     /* assemble config location */
     if (snprintf(configfile_location, sizeof(configfile_location),
@@ -1152,25 +1109,24 @@ int conf_textdir(void *backend)
     }
 
     /* now get the backend location from the configfile */
-    result = vrmr_ask_configfile(tb->cfg, "LOCATION", tb->textdirlocation,
+    int result = vrmr_ask_configfile(tb->cfg, "LOCATION", tb->textdirlocation,
             configfile_location, sizeof(tb->textdirlocation));
     if (result < 0) {
         vrmr_error(-1, "Error",
                 "failed to get the textdir-root from: %s. Please make sure "
                 "LOCATION is set",
                 configfile_location);
-        retval = -1;
+        return -1;
     } else if (result == 0) {
         vrmr_error(-1, "Error",
                 "no information about the location of the backend in '%s'",
                 configfile_location);
-        retval = -1;
+        return -1;
     } else {
         vrmr_debug(MEDIUM, "textdir location: LOCATION = %s.",
                 tb->textdirlocation);
+        return 0;
     }
-
-    return (retval);
 }
 
 int setup_textdir(const struct vrmr_config *cfg, void **backend)

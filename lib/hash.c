@@ -21,22 +21,14 @@
 #include "config.h"
 #include "vuurmuur.h"
 
-int vrmr_hash_setup(                        /* debug level */
-        struct vrmr_hash_table *hash_table, /* the hash table ;-) */
+int vrmr_hash_setup(struct vrmr_hash_table *hash_table, /* the hash table ;-) */
         unsigned int rows, /* the number of rows in the table */
         unsigned int (*hash_func)(const void *data), /* the hash function */
         int (*compare_func)(const void *table_data,
                 const void *search_data) /* the compare function */
 )
 {
-    unsigned int cur_row = 0;
-
-    /* safety */
-    if (!hash_table || !hash_func || !compare_func) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(hash_table != NULL && hash_func && compare_func);
 
     /* safety, 0 rows is not sane of course */
     if (rows == 0) {
@@ -48,8 +40,7 @@ int vrmr_hash_setup(                        /* debug level */
     /* Allocate space for the hash table. */
     if (!(hash_table->table = (struct vrmr_list *)malloc(
                   rows * sizeof(struct vrmr_list)))) {
-        vrmr_error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno),
-                __FUNC__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (-1);
     }
 
@@ -68,8 +59,8 @@ int vrmr_hash_setup(                        /* debug level */
         the hash table is not supposed to contain any data, only pointers. So we
         setup the list without a cleanup function.
     */
-    for (cur_row = 0; cur_row < hash_table->rows; cur_row++) {
-        vrmr_list_setup(&hash_table->table[cur_row], NULL);
+    for (unsigned int row = 0; row < hash_table->rows; row++) {
+        vrmr_list_setup(&hash_table->table[row], NULL);
     }
 
     return (0);
@@ -88,21 +79,12 @@ int vrmr_hash_setup(                        /* debug level */
 */
 int vrmr_hash_cleanup(struct vrmr_hash_table *hash_table)
 {
-    unsigned int cur_row = 0;
-
-    /* safety */
-    if (!hash_table) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem (in: vrmr_hash_cleanup).");
-        return (-1);
-    }
+    assert(hash_table);
 
     /* clear all rows */
-    for (cur_row = 0; cur_row < hash_table->rows; cur_row++) {
-        if (vrmr_list_cleanup(&hash_table->table[cur_row]) < 0) {
-            vrmr_error(-1, "Internal Error",
-                    "cleaning up row %d failed (in: vrmr_hash_cleanup).",
-                    cur_row);
+    for (unsigned int row = 0; row < hash_table->rows; row++) {
+        if (vrmr_list_cleanup(&hash_table->table[row]) < 0) {
+            vrmr_error(-1, "Internal Error", "cleaning up row %d failed", row);
             return (-1);
         }
     }
@@ -118,33 +100,22 @@ int vrmr_hash_cleanup(struct vrmr_hash_table *hash_table)
     Returncodes:
          0: ok
         -1: error
-
-    TODO: do a search first, so we can make sure data isn't inserted twice???
 */
 int vrmr_hash_insert(struct vrmr_hash_table *hash_table, const void *data)
 {
-    unsigned int row = 0;
-
-    /* safety */
-    if (!hash_table || !data) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem (in: vrmr_hash_insert).");
-        return (-1);
-    }
+    assert(hash_table != NULL && data != NULL);
 
     /* determine the row */
-    row = hash_table->hash_func(data) % hash_table->rows;
+    unsigned int row = hash_table->hash_func(data) % hash_table->rows;
 
     /* insert the data into the row */
     if (!(vrmr_list_append(&hash_table->table[row], data))) {
-        vrmr_error(-1, "Internal Error",
-                "appending to the list failed (in: vrmr_hash_insert).");
+        vrmr_error(-1, "Internal Error", "appending to the list failed");
         return (-1);
     }
 
     /* update the number of cells */
     hash_table->cells++;
-
     return (0);
 }
 
@@ -159,24 +130,17 @@ int vrmr_hash_insert(struct vrmr_hash_table *hash_table, const void *data)
 int vrmr_hash_remove(struct vrmr_hash_table *hash_table, void *data)
 {
     struct vrmr_list_node *d_node = NULL;
-    unsigned int row = 0;
     void *table_data = NULL;
 
-    /* safety */
-    if (!hash_table || !data) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem (in: vrmr_hash_remove).");
-        return (-1);
-    }
+    assert(hash_table != NULL && data != NULL);
 
     /* hash the key with the hash function */
-    row = hash_table->hash_func(data) % hash_table->rows;
+    unsigned int row = hash_table->hash_func(data) % hash_table->rows;
 
     /* run trough the list at the row */
     for (d_node = hash_table->table[row].top; d_node; d_node = d_node->next) {
         if (!(table_data = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer (in: vrmr_hash_remove).");
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -186,9 +150,8 @@ int vrmr_hash_remove(struct vrmr_hash_table *hash_table, void *data)
         if (hash_table->compare_func(table_data, data)) {
             /* remove the data from the row/list. */
             if (vrmr_list_remove_node(&hash_table->table[row], d_node) < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "removing from the list failed (in: "
-                        "vrmr_hash_remove).");
+                vrmr_error(
+                        -1, "Internal Error", "removing from the list failed");
                 return (-1);
             }
 
@@ -210,25 +173,18 @@ int vrmr_hash_remove(struct vrmr_hash_table *hash_table, void *data)
 */
 void *vrmr_hash_search(const struct vrmr_hash_table *hash_table, void *data)
 {
-    unsigned int row = 0;
     void *table_data = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (!hash_table || !data) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem (in: vrmr_hash_search).");
-        return (NULL);
-    }
+    assert(hash_table != NULL && data != NULL);
 
     /* determine the row by calling the hash function */
-    row = hash_table->hash_func(data) % hash_table->rows;
+    unsigned int row = hash_table->hash_func(data) % hash_table->rows;
 
     /* look for the data in the row */
     for (d_node = hash_table->table[row].top; d_node; d_node = d_node->next) {
         if (!(table_data = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer (in: vrmr_hash_search).");
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (NULL);
         }
 
@@ -248,31 +204,23 @@ void *vrmr_hash_search(const struct vrmr_hash_table *hash_table, void *data)
 */
 int vrmr_compare_ports(const void *serv_hash, const void *serv_req)
 {
-    struct vrmr_service *sertable = NULL, *sersearch = NULL;
     struct vrmr_portdata *table_port_ptr = NULL, *search_port_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (!serv_hash || !serv_req) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (0);
-    }
+    assert(serv_hash != NULL && serv_req != NULL);
 
     /* cast */
-    sertable = (struct vrmr_service *)serv_hash;
-    sersearch = (struct vrmr_service *)serv_req;
+    struct vrmr_service *sertable = (struct vrmr_service *)serv_hash;
+    struct vrmr_service *sersearch = (struct vrmr_service *)serv_req;
 
     /* here we just take the top node, because thats the only one we use for a
      * request */
     if (!(d_node = sersearch->PortrangeList.top)) {
-        vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Internal Error", "NULL pointer");
         return (0);
     }
     if (!(search_port_ptr = d_node->data)) {
-        vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Internal Error", "NULL pointer");
         return (0);
     }
     d_node = NULL;
@@ -287,57 +235,55 @@ int vrmr_compare_ports(const void *serv_hash, const void *serv_req)
     /* now run trough the portrangelist */
     for (; d_node; d_node = d_node->next) {
         if (!(table_port_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (0);
         }
 
-        if (table_port_ptr->protocol == search_port_ptr->protocol) {
-            /* icmp uses type and code */
-            if (table_port_ptr->protocol == 1 &&
-                    table_port_ptr->dst_low == search_port_ptr->dst_low &&
-                    table_port_ptr->dst_high == search_port_ptr->dst_high) {
-                return (1);
-            }
-            /* now compare the tcp/udp ports
+        if (table_port_ptr->protocol != search_port_ptr->protocol)
+            continue;
 
-                First compare the dst port (most likely to match) after that the
-               src port.
-                - search_port_ptr->dst_low is the destination we are looking for
-                - search_port_ptr->src_low is the source we are looking for
+        /* icmp uses type and code */
+        if (table_port_ptr->protocol == 1 &&
+                table_port_ptr->dst_low == search_port_ptr->dst_low &&
+                table_port_ptr->dst_high == search_port_ptr->dst_high) {
+            return (1);
+        }
+        /* now compare the tcp/udp ports
 
-                both can be in a range or an exact match.
-            */
-            else if (table_port_ptr->protocol == 6 ||
-                     table_port_ptr->protocol == 17) {
-                if ((table_port_ptr->dst_high == 0 &&
-                            table_port_ptr->dst_low ==
+            First compare the dst port (most likely to match) after that the
+           src port.
+            - search_port_ptr->dst_low is the destination we are looking for
+            - search_port_ptr->src_low is the source we are looking for
+
+            both can be in a range or an exact match.
+        */
+        else if (table_port_ptr->protocol == 6 ||
+                 table_port_ptr->protocol == 17) {
+            if ((table_port_ptr->dst_high == 0 &&
+                        table_port_ptr->dst_low ==
+                                search_port_ptr->dst_low) || /* not a range */
+                    (table_port_ptr->dst_high != 0 &&        /* range */
+                            (search_port_ptr->dst_low >=
+                                            table_port_ptr->dst_low &&
+                                    search_port_ptr->dst_low <=
+                                            table_port_ptr->dst_high))) {
+                if ((table_port_ptr->src_high == 0 &&
+                            table_port_ptr->src_low ==
                                     search_port_ptr
-                                            ->dst_low) || /* not a range */
-                        (table_port_ptr->dst_high != 0 && /* range */
-                                (search_port_ptr->dst_low >=
-                                                table_port_ptr->dst_low &&
-                                        search_port_ptr->dst_low <=
-                                                table_port_ptr->dst_high))) {
-                    if ((table_port_ptr->src_high == 0 &&
-                                table_port_ptr->src_low ==
-                                        search_port_ptr
-                                                ->src_low) || /* not a range */
-                            (table_port_ptr->src_high != 0 && /* range */
-                                    (search_port_ptr->src_low >=
-                                                    table_port_ptr->src_low &&
-                                            search_port_ptr->src_low <=
-                                                    table_port_ptr
-                                                            ->src_high))) {
-                        /* match! */
-                        return (1);
-                    }
+                                            ->src_low) || /* not a range */
+                        (table_port_ptr->src_high != 0 && /* range */
+                                (search_port_ptr->src_low >=
+                                                table_port_ptr->src_low &&
+                                        search_port_ptr->src_low <=
+                                                table_port_ptr->src_high))) {
+                    /* match! */
+                    return (1);
                 }
-                /* all other protos use no ports, so a proto match is a full
-                 * match */
-            } else {
-                return (1);
             }
+            /* all other protos use no ports, so a proto match is a full
+             * match */
+        } else {
+            return (1);
         }
     }
 
@@ -347,18 +293,11 @@ int vrmr_compare_ports(const void *serv_hash, const void *serv_req)
 
 int vrmr_compare_ipaddress(const void *string1, const void *string2)
 {
-    struct vrmr_zone *zone1, *zone2;
-
-    /* safety */
-    if (!string1 || !string2) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (0);
-    }
+    assert(string1 != NULL && string2 != NULL);
 
     /* cast to zonedata */
-    zone1 = (struct vrmr_zone *)string1;
-    zone2 = (struct vrmr_zone *)string2;
+    struct vrmr_zone *zone1 = (struct vrmr_zone *)string1;
+    struct vrmr_zone *zone2 = (struct vrmr_zone *)string2;
 
     /* Compare two strings */
     if (strcmp(zone1->ipv4.ipaddress, zone2->ipv4.ipaddress) == 0)
@@ -371,12 +310,9 @@ int vrmr_compare_ipaddress(const void *string1, const void *string2)
 // TODO: check hash > 0 && <= 65535
 unsigned int vrmr_hash_port(const void *key)
 {
-    struct vrmr_service *ser_ptr;
+    assert(key);
 
-    if (!key)
-        return (1);
-
-    ser_ptr = (struct vrmr_service *)key;
+    struct vrmr_service *ser_ptr = (struct vrmr_service *)key;
 
     return ((unsigned int)ser_ptr->vrmr_hash_port);
 }
@@ -384,61 +320,46 @@ unsigned int vrmr_hash_port(const void *key)
 /* vrmr_hash_ipaddress */
 unsigned int vrmr_hash_ipaddress(const void *key)
 {
-    struct vrmr_zone *zone_ptr;
     struct in_addr ip;
-    uint32_t ip_i = 0;
-    unsigned int retval = 0;
-    int result = 0;
 
-    if (!key)
-        return (1);
+    assert(key);
 
-    zone_ptr = (struct vrmr_zone *)key;
+    struct vrmr_zone *zone_ptr = (struct vrmr_zone *)key;
 
     /* if inet_aton failes, return 1 (BUG fix) */
     if (inet_aton(zone_ptr->ipv4.ipaddress, &ip) == 0)
         return (1);
 
-    ip_i = ntohl(ip.s_addr);
+    uint32_t ip_i = ntohl(ip.s_addr);
 
-    result = (int)((ip.s_addr - ip_i) / 100000);
+    int result = (int)((ip.s_addr - ip_i) / 100000);
     /* convert to possive number if needed */
     if (result < 0)
         result = result * -1;
 
-    retval = (unsigned int)result;
-    return (retval);
+    return (unsigned int)result;
 }
 
 unsigned int vrmr_hash_string(const void *key)
 {
-    unsigned int retval = 0;
-    int result = 0;
-    char *string_ptr = NULL;
+    assert(key);
 
-    if (!key)
-        return (1);
+    char *string_ptr = (char *)key;
 
-    string_ptr = (char *)key;
-
-    result = string_ptr[0] - 96;
+    int result = string_ptr[0] - 96;
     /* convert to possive number if needed */
     if (result < 0)
         result = result * -1;
 
-    retval = (unsigned int)result;
-    return (retval);
+    return (unsigned int)result;
 }
 
 int vrmr_compare_string(const void *string1, const void *string2)
 {
-    char *str1_ptr, *str2_ptr;
+    assert(string1 != NULL && string2 != NULL);
 
-    if (!string1 || !string2)
-        return (0);
-
-    str1_ptr = (char *)string1;
-    str2_ptr = (char *)string2;
+    char *str1_ptr = (char *)string1;
+    char *str2_ptr = (char *)string2;
 
     if (strcmp(str1_ptr, str2_ptr) == 0)
         return (1);
@@ -487,26 +408,18 @@ int vrmr_init_services_hashtable(unsigned int n_rows,
 
     vrmr_debug(LOW, "services hashtable size will be %d rows.", n_rows);
 
-    /* safety */
-    if (!services_list) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(services_list);
 
     /* init the hashtable for services */
     if (vrmr_hash_setup(hash_table, n_rows, hash_func, compare_func) != 0) {
-        vrmr_error(-1, "Internal Error",
-                "hash table initializing failed (in: "
-                "vrmr_init_services_hashtable).");
+        vrmr_error(-1, "Internal Error", "hash table initializing failed");
         return (-1);
     }
 
     for (d_node_serlist = services_list->top; d_node_serlist;
             d_node_serlist = d_node_serlist->next) {
         if (!(ser_ptr = d_node_serlist->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -524,8 +437,7 @@ int vrmr_init_services_hashtable(unsigned int n_rows,
 
                 portrange_ptr = d_node->data;
                 if (portrange_ptr == NULL) {
-                    vrmr_error(-1, "Internal Error",
-                            "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer");
                     return (-1);
                 }
 
@@ -567,8 +479,7 @@ int vrmr_init_services_hashtable(unsigned int n_rows,
 
                         if (vrmr_hash_insert(hash_table, ser_ptr) != 0) {
                             vrmr_error(-1, "Internal Error",
-                                    "inserting into hashtable failed (in: "
-                                    "vrmr_init_services_hash).");
+                                    "inserting into hashtable failed");
                             return (1);
                         }
                     }
@@ -579,8 +490,7 @@ int vrmr_init_services_hashtable(unsigned int n_rows,
 
                         if (vrmr_hash_insert(hash_table, ser_ptr) != 0) {
                             vrmr_error(-1, "Internal Error",
-                                    "inserting into hashtable failed (in: "
-                                    "vrmr_init_services_hash).");
+                                    "inserting into hashtable failed");
                             return (1);
                         }
                     }
@@ -608,26 +518,18 @@ int vrmr_init_zonedata_hashtable(unsigned int n_rows,
     struct vrmr_zone *zone_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (!zones_list) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zones_list);
 
     /* setup the hash table */
     if (vrmr_hash_setup(hash_table, n_rows, hash_func, compare_func) != 0) {
-        vrmr_error(-1, "Internal Error",
-                "hash table initializing failed (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Internal Error", "hash table initializing failed");
         return (-1);
     }
 
     /* go through the list and insert into the hash-table */
     for (d_node = zones_list->top; d_node; d_node = d_node->next) {
         if (!(zone_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -637,8 +539,7 @@ int vrmr_init_zonedata_hashtable(unsigned int n_rows,
             if (strcmp(zone_ptr->ipv4.ipaddress, "") != 0) {
                 if (vrmr_hash_insert(hash_table, zone_ptr) != 0) {
                     vrmr_error(-1, "Internal Error",
-                            "inserting hashtable failed for %s (in: "
-                            "vrmr_init_zonedata_hashtable).",
+                            "inserting hashtable failed for %s",
                             zone_ptr->name);
                     return (-1);
                 } else {
@@ -662,12 +563,7 @@ void *vrmr_search_service_in_hash(const int src, const int dst,
     struct vrmr_portdata *portrange_ptr = NULL;
     int vrmr_hash_port = 0, src_port = 0, dst_port = 0;
 
-    /* safety */
-    if (!serhash) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(serhash);
 
     vrmr_debug(HIGH, "src: %d, dst: %d, protocol: %d.", src, dst, protocol);
 
@@ -688,18 +584,14 @@ void *vrmr_search_service_in_hash(const int src, const int dst,
 
     /* alloc the temp service */
     if (!(ser_search_ptr = vrmr_service_malloc())) {
-        vrmr_error(-1, "Error",
-                "malloc failed: %s (in: vrmr_search_service_in_hash).",
-                strerror(errno));
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (NULL);
     }
     vrmr_list_setup(&ser_search_ptr->PortrangeList, free);
 
     /* alloc the portrange */
     if (!(portrange_ptr = malloc(sizeof(struct vrmr_portdata)))) {
-        vrmr_error(-1, "Error",
-                "malloc failed: %s (in: vrmr_search_service_in_hash).",
-                strerror(errno));
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
 
         free(ser_search_ptr);
         return (NULL);
@@ -721,9 +613,8 @@ void *vrmr_search_service_in_hash(const int src, const int dst,
     if (vrmr_list_append(&ser_search_ptr->PortrangeList, portrange_ptr) ==
             NULL) {
         vrmr_error(-1, "Error",
-                "insert into list failed for src: %d, dst: %d, prot: %d (in: "
-                "vrmr_search_service_in_hash).",
-                src, dst, protocol);
+                "insert into list failed for src: %d, dst: %d, prot: %d", src,
+                dst, protocol);
         free(portrange_ptr);
         free(ser_search_ptr);
         return (NULL);
@@ -752,25 +643,18 @@ void *vrmr_search_zone_in_hash_with_ipv4(
 {
     struct vrmr_zone *search_ptr = NULL, *return_ptr = NULL;
 
-    /* safety */
-    if (!ipaddress || !zonehash) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(ipaddress && zonehash);
 
     /* search zone ptr */
     if (!(search_ptr = malloc(sizeof(struct vrmr_zone)))) {
-        vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (NULL);
     }
 
     if (strlcpy(search_ptr->ipv4.ipaddress, ipaddress,
                 sizeof(search_ptr->ipv4.ipaddress)) >=
             sizeof(search_ptr->ipv4.ipaddress)) {
-        vrmr_error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "buffer overflow");
 
         free(search_ptr);
         return (NULL);

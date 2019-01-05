@@ -219,9 +219,7 @@ static int edit_serv_portranges_new_validate(struct vrmr_ctx *vctx,
 
         /* save the portranges */
         if (vrmr_services_save_portranges(vctx, ser_ptr) < 0) {
-            vrmr_error(-1, VR_ERR,
-                    gettext("saving the portranges failed (in: %s:%d)."),
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("saving the portranges failed"));
             return (-1);
         }
     }
@@ -1188,9 +1186,7 @@ static int edit_serv_portranges_del(
 
         /* save */
         if (vrmr_services_save_portranges(vctx, ser_ptr) < 0) {
-            vrmr_error(-1, VR_ERR,
-                    gettext("saving the portranges failed (in: %s:%d)."),
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("saving the portranges failed"));
             return (-1);
         }
 
@@ -1495,7 +1491,7 @@ static void edit_serv_portranges(
                     cur = current_item(sersec_ctx.edit_service_port.menu);
                     if (cur) {
                         edit_serv_portranges_del(
-                                vctx, atoi((char *)item_name(cur)), ser_ptr);
+                                vctx, atoi(item_name(cur)), ser_ptr);
                         reload = 1;
                     }
                     break;
@@ -1507,7 +1503,7 @@ static void edit_serv_portranges(
                     cur = current_item(sersec_ctx.edit_service_port.menu);
                     if (cur) {
                         edit_serv_portranges_edit(
-                                atoi((char *)item_name(cur)), ser_ptr);
+                                atoi(item_name(cur)), ser_ptr);
                         reload = 1;
                         draw_top_menu(top_win, gettext("Edit Portrange"),
                                 key_choices_n, key_choices, cmd_choices_n,
@@ -1595,9 +1591,7 @@ static int edit_service_save(
             result = vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "ACTIVE",
                     ser_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 retval = -1;
             }
 
@@ -1625,9 +1619,7 @@ static int edit_service_save(
                     "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1,
                     VRMR_TYPE_SERVICE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 retval = -1;
             }
 
@@ -1648,9 +1640,7 @@ static int edit_service_save(
 
             if (vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "HELPER",
                         ser_ptr->helper, 1, VRMR_TYPE_SERVICE) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 return (-1);
             }
 
@@ -1667,9 +1657,7 @@ static int edit_service_save(
                             field_buffer(sersec_ctx.edit_service.fields[i], 0),
                             1, VRMR_TYPE_SERVICE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 retval = -1;
             }
 
@@ -1968,18 +1956,12 @@ static int edit_service(
             gettext("help"), gettext("portranges"), gettext("back")};
     int cmd_choices_n = 3;
 
-    /* safety */
-    if (name == NULL || services == NULL) {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__,
-                __LINE__);
-        return (-1);
-    }
+    vrmr_fatal_if_null(name);
+    vrmr_fatal_if_null(services);
 
     /* search the service */
-    if (!(ser_ptr = vrmr_search_service(services, (char *)name))) {
-        vrmr_error(-1, VR_INTERR,
-                "service '%s' was not found in memory (in: %s:%d).", name,
-                __FUNC__, __LINE__);
+    if (!(ser_ptr = vrmr_search_service(services, name))) {
+        vrmr_error(-1, VR_INTERR, "service '%s' was not found", name);
         return (-1);
     }
 
@@ -2089,15 +2071,13 @@ static int edit_service(
 
     /* save the service */
     if (edit_service_save(vctx, ser_ptr) < 0) {
-        vrmr_error(
-                -1, "Error", "saving the service failed (in: %s).", __FUNC__);
+        vrmr_error(-1, "Error", "saving the service failed");
         retval = -1;
     }
 
     /* save the portranges */
     if (vrmr_services_save_portranges(vctx, ser_ptr) < 0) {
-        vrmr_error(-1, "Error", "saving the portranges failed (in: %s).",
-                __FUNC__);
+        vrmr_error(-1, "Error", "saving the portranges failed");
         retval = -1;
     }
 
@@ -2413,7 +2393,7 @@ void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
                                 sizeof(save_ser_name));
 
                         result = vrmr_delete_service(vctx, services,
-                                (char *)item_name(cur), VRMR_TYPE_SERVICE);
+                                item_name(cur), VRMR_TYPE_SERVICE);
                         if (result < 0) {
                             vrmr_error(-1, VR_ERR, "%s.", STR_DELETE_FAILED);
                         } else {
@@ -2459,8 +2439,7 @@ void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
 
                     cur = current_item(sersec_ctx.menu);
                     if (cur) {
-                        (void)edit_service(
-                                vctx, services, (char *)item_name(cur));
+                        (void)edit_service(vctx, services, item_name(cur));
 
                         draw_top_menu(top_win, gettext("Services"),
                                 key_choices_n, key_choices, cmd_choices_n,

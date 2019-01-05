@@ -112,37 +112,31 @@ int script_rename(struct vuurmuur_script *vr_script)
                     vr_script->vctx.reg.zonename, VRMR_VERBOSE) != 0) {
             if (vr_script->type == VRMR_TYPE_ZONE)
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                        "invalid zone name '%s' (in: %s:%d).", vr_script->set,
-                        __FUNC__, __LINE__);
+                        "invalid zone name '%s'", vr_script->set);
             else if (vr_script->type == VRMR_TYPE_NETWORK)
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                        "invalid network name '%s' (in: %s:%d).",
-                        vr_script->set, __FUNC__, __LINE__);
+                        "invalid network name '%s'", vr_script->set);
             else if (vr_script->type == VRMR_TYPE_HOST)
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                        "invalid host name '%s' (in: %s:%d).", vr_script->set,
-                        __FUNC__, __LINE__);
+                        "invalid host name '%s'", vr_script->set);
             else if (vr_script->type == VRMR_TYPE_GROUP)
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                        "invalid group name '%s' (in: %s:%d).", vr_script->set,
-                        __FUNC__, __LINE__);
+                        "invalid group name '%s'", vr_script->set);
 
             return (VRS_ERR_COMMANDLINE);
         }
     } else if (vr_script->type == VRMR_TYPE_SERVICE) {
         if (vrmr_validate_servicename(
                     vr_script->set, vr_script->vctx.reg.servicename) != 0) {
-            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                    "invalid service name '%s' (in: %s:%d).", vr_script->set,
-                    __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid service name '%s'",
+                    vr_script->set);
             return (VRS_ERR_COMMANDLINE);
         }
     } else if (vr_script->type == VRMR_TYPE_INTERFACE) {
         if (vrmr_validate_interfacename(
                     vr_script->set, vr_script->vctx.reg.interfacename) != 0) {
             vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                    "invalid interface name '%s' (in: %s:%d).", vr_script->set,
-                    __FUNC__, __LINE__);
+                    "invalid interface name '%s'", vr_script->set);
             return (VRS_ERR_COMMANDLINE);
         }
     } else if (vr_script->type == VRMR_TYPE_RULE) {
@@ -151,9 +145,8 @@ int script_rename(struct vuurmuur_script *vr_script)
             /* ok */
         } else {
             /* error */
-            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                    "invalid ruleset name '%s' (in: %s:%d).", vr_script->set,
-                    __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid ruleset name '%s'",
+                    vr_script->set);
             return (VRS_ERR_COMMANDLINE);
         }
     }
@@ -239,8 +232,7 @@ int script_rename(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.zf->rename(vr_script->vctx.zone_backend,
                     vr_script->name, vr_script->set, VRMR_TYPE_ZONE) < 0) {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
-                    "renaming zone '%s' failed (in: %s:%d).", vr_script->name,
-                    __FUNC__, __LINE__);
+                    "renaming zone '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -250,8 +242,7 @@ int script_rename(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.zf->rename(vr_script->vctx.zone_backend,
                     vr_script->name, vr_script->set, VRMR_TYPE_NETWORK) < 0) {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
-                    "renaming network '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+                    "renaming network '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -261,8 +252,7 @@ int script_rename(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.zf->rename(vr_script->vctx.zone_backend,
                     vr_script->name, vr_script->set, VRMR_TYPE_HOST) < 0) {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
-                    "renaming host '%s' failed (in: %s:%d).", vr_script->name,
-                    __FUNC__, __LINE__);
+                    "renaming host '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -272,8 +262,7 @@ int script_rename(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.zf->rename(vr_script->vctx.zone_backend,
                     vr_script->name, vr_script->set, VRMR_TYPE_GROUP) < 0) {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
-                    "renaming group '%s' failed (in: %s:%d).", vr_script->name,
-                    __FUNC__, __LINE__);
+                    "renaming group '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -283,8 +272,7 @@ int script_rename(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.sf->rename(vr_script->vctx.serv_backend,
                     vr_script->name, vr_script->set, VRMR_TYPE_SERVICE) < 0) {
             vrmr_error(-VRS_ERR_COMMAND_FAILED, VR_ERR,
-                    "renaming service '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+                    "renaming service '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -294,8 +282,7 @@ int script_rename(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.af->rename(vr_script->vctx.ifac_backend,
                     vr_script->name, vr_script->set, VRMR_TYPE_INTERFACE) < 0) {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
-                    "renaming interface '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+                    "renaming interface '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -305,16 +292,15 @@ int script_rename(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.rf->rename(vr_script->vctx.rule_backend,
                     vr_script->name, vr_script->set, VRMR_TYPE_RULE) < 0) {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
-                    "renaming ruleset '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+                    "renaming ruleset '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
         logchange(vr_script, "ruleset '%s' renamed to '%s'.", vr_script->name,
                 vr_script->set);
     } else {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d (in: %s:%d).",
-                vr_script->type, __FUNC__, __LINE__);
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d",
+                vr_script->type);
         return (VRS_ERR_INTERNAL);
     }
 

@@ -83,8 +83,7 @@ static int VrTcpmssIfaceSave(void *ctx, char *name, char *value)
                     c->iface_ptr->name, "TCPMSS", enabled ? "Yes" : "No", 1,
                     VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 return (-1);
             }
 
@@ -209,8 +208,6 @@ static int VrShapeIfaceSave(void *ctx, char *name, char *value)
     uint32_t oldrate = 0;
     int result = 0;
 
-    // vrmr_debug(__FUNC__, "%s:%s", name, value);
-
     if (strcmp(name, "in") == 0) {
         oldrate = c->iface_ptr->bw_in;
         c->iface_ptr->bw_in = atoi(value);
@@ -219,8 +216,7 @@ static int VrShapeIfaceSave(void *ctx, char *name, char *value)
             result = c->vctx->af->tell(c->vctx->ifac_backend,
                     c->iface_ptr->name, "BW_IN", value, 1, VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 return (-1);
             }
 
@@ -239,8 +235,7 @@ static int VrShapeIfaceSave(void *ctx, char *name, char *value)
                     c->vctx->af->tell(c->vctx->ifac_backend, c->iface_ptr->name,
                             "BW_OUT", value, 1, VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 return (-1);
             }
 
@@ -256,8 +251,7 @@ static int VrShapeIfaceSave(void *ctx, char *name, char *value)
                     c->vctx->af->tell(c->vctx->ifac_backend, c->iface_ptr->name,
                             "BW_IN_UNIT", value, 1, VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 return (-1);
             }
 
@@ -276,8 +270,7 @@ static int VrShapeIfaceSave(void *ctx, char *name, char *value)
                     c->vctx->af->tell(c->vctx->ifac_backend, c->iface_ptr->name,
                             "BW_OUT_UNIT", value, 1, VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 return (-1);
             }
 
@@ -302,8 +295,7 @@ static int VrShapeIfaceSave(void *ctx, char *name, char *value)
                     c->iface_ptr->name, "SHAPE", enabled ? "Yes" : "No", 1,
                     VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 return (-1);
             }
 
@@ -904,8 +896,7 @@ static int edit_interface_save_rules(
 
     /* now let try to write this to the backend */
     if (vrmr_interfaces_save_rules(vctx, iface_ptr) < 0) {
-        vrmr_error(-1, VR_ERR, "%s (in: %s:%d).", STR_SAVING_TO_BACKEND_FAILED,
-                __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
         return (-1);
     }
 
@@ -963,8 +954,7 @@ static int edit_interface_save(
                     "ACTIVE", tempiface_ptr->active ? "Yes" : "No", 1,
                     VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 free(tempiface_ptr);
                 return (-1);
             }
@@ -987,8 +977,7 @@ static int edit_interface_save(
                     "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1,
                     VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 free(tempiface_ptr);
                 return (-1);
             }
@@ -1012,8 +1001,7 @@ static int edit_interface_save(
                     "IPV6ADDRESS", tempiface_ptr->ipv6.ip6, 1,
                     VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 free(tempiface_ptr);
                 return (-1);
             }
@@ -1036,8 +1024,7 @@ static int edit_interface_save(
                 result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name,
                         "IPADDRESS", "dynamic", 1, VRMR_TYPE_INTERFACE);
                 if (result < 0) {
-                    vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                            STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                     free(tempiface_ptr);
                     return (-1);
                 }
@@ -1049,8 +1036,7 @@ static int edit_interface_save(
                         "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1,
                         VRMR_TYPE_INTERFACE);
                 if (result < 0) {
-                    vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                            STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                     free(tempiface_ptr);
                     return (-1);
                 }
@@ -1074,8 +1060,7 @@ static int edit_interface_save(
             result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name,
                     "DEVICE", tempiface_ptr->device, 1, VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 free(tempiface_ptr);
                 return (-1);
             }
@@ -1098,8 +1083,7 @@ static int edit_interface_save(
                         "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No",
                         1, VRMR_TYPE_INTERFACE);
                 if (result < 0) {
-                    vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                            STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                     free(tempiface_ptr);
                     return (-1);
                 }
@@ -1117,8 +1101,7 @@ static int edit_interface_save(
                     "COMMENT", field_buffer(ifsec_ctx.edit.fields[i], 0), 1,
                     VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 free(tempiface_ptr);
                 return (-1);
             }
@@ -1141,8 +1124,7 @@ static int edit_interface_save(
                     "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1,
                     VRMR_TYPE_INTERFACE);
             if (result < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 free(tempiface_ptr);
                 return (-1);
             }
@@ -1166,8 +1148,7 @@ static int edit_interface_save(
             status = VRMR_ST_CHANGED;
 
             if (edit_interface_save_rules(vctx, tempiface_ptr) < 0) {
-                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                        STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, "%s", STR_SAVING_TO_BACKEND_FAILED);
                 free(tempiface_ptr);
                 return (-1);
             }
@@ -1462,15 +1443,13 @@ static int init_interfaces_section(struct vrmr_interfaces *interfaces)
 
     if (!(ifsec_ctx.items = (ITEM **)calloc(
                   ifsec_ctx.list_items + 1, sizeof(ITEM *)))) {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s"), strerror(errno));
         return (-1);
     }
 
     for (d_node = interfaces->list.top; d_node; d_node = d_node->next, i++) {
         if (!(iface_ptr = d_node->data)) {
-            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer");
             return (-1);
         }
 
@@ -1488,23 +1467,21 @@ static int init_interfaces_section(struct vrmr_interfaces *interfaces)
         size = StrMemLen(temp) + 1;
 
         if (!(desc_ptr = malloc(size))) {
-            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."),
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, VR_ERR, gettext("malloc failed: %s"), strerror(errno));
             return (-1);
         }
 
         (void)strlcpy(desc_ptr, temp, size);
 
         if (vrmr_list_append(&ifsec_ctx.desc_list, desc_ptr) == NULL) {
-            vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed");
             return (-1);
         }
 
         /* load all interfaces into memory */
         if (!(ifsec_ctx.items[i] = new_item(iface_ptr->name, desc_ptr))) {
-            vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "new_item() failed");
             return (-1);
         }
     }
@@ -1631,24 +1608,17 @@ static int rename_interface(struct vrmr_ctx *vctx,
     struct vrmr_list_node *d_node = NULL;
     char rules_changed = 0;
 
-    /* safety */
-    if (!cur_name_ptr || !new_name_ptr || !interfaces || !zones) {
-        vrmr_error(-1, VR_INTERR,
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    vrmr_fatal_if_null(cur_name_ptr);
+    vrmr_fatal_if_null(new_name_ptr);
+    vrmr_fatal_if_null(interfaces);
+    vrmr_fatal_if_null(zones);
 
     /* for audit log */
     (void)strlcpy(save_name, cur_name_ptr, sizeof(save_name));
 
     /* get the int from the list */
     if (!(iface_ptr = vrmr_search_interface(interfaces, cur_name_ptr))) {
-        vrmr_error(-1, VR_INTERR,
-                "interface not found in "
-                "the list (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "interface not found");
         return (-1);
     }
 
@@ -1662,8 +1632,7 @@ static int rename_interface(struct vrmr_ctx *vctx,
 
     if (strlcpy(iface_ptr->name, new_name_ptr, sizeof(iface_ptr->name)) >=
             sizeof(iface_ptr->name)) {
-        vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, VR_INTERR, "buffer overflow");
         return (-1);
     }
     iface_ptr = NULL;
@@ -1672,8 +1641,7 @@ static int rename_interface(struct vrmr_ctx *vctx,
     for (zone_d_node = zones->list.top; zone_d_node;
             zone_d_node = zone_d_node->next) {
         if (!(zone_ptr = zone_d_node->data)) {
-            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer");
             return (-1);
         }
 
@@ -1681,8 +1649,7 @@ static int rename_interface(struct vrmr_ctx *vctx,
             for (iface_d_node = zone_ptr->InterfaceList.top; iface_d_node;
                     iface_d_node = iface_d_node->next) {
                 if (!(iface_ptr = iface_d_node->data)) {
-                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
-                            __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "NULL pointer");
                     return (-1);
                 }
 
@@ -1693,9 +1660,7 @@ static int rename_interface(struct vrmr_ctx *vctx,
                     if (vrmr_zones_network_save_interfaces(vctx, zone_ptr) <
                             0) {
                         vrmr_error(-1, VR_ERR,
-                                gettext("saving to backend failed (in: "
-                                        "%s:%d)."),
-                                __FUNC__, __LINE__);
+                                gettext("saving to backend failed"));
                         return (-1);
                     }
 
@@ -1709,10 +1674,7 @@ static int rename_interface(struct vrmr_ctx *vctx,
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         rule_ptr = d_node->data;
         if (rule_ptr == NULL) {
-            vrmr_error(-1, VR_INTERR,
-                    "NULL pointer "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer");
             return (-1);
         }
         if (rule_ptr->opt != NULL) {
@@ -1771,19 +1733,14 @@ static int interfaces_section_vrmr_delete_interface(struct vrmr_ctx *vctx,
     struct vrmr_interface *iface_ptr = NULL;
     char save_name[VRMR_MAX_INTERFACE] = "";
 
-    /* safety */
-    if (!cur_name_ptr || !interfaces) {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__,
-                __LINE__);
-        return (-1);
-    }
+    vrmr_fatal_if_null(cur_name_ptr);
+    vrmr_fatal_if_null(interfaces);
 
     /* for audit log */
     (void)strlcpy(save_name, cur_name_ptr, sizeof(save_name));
 
     if (!(iface_ptr = vrmr_search_interface(interfaces, cur_name_ptr))) {
-        vrmr_error(-1, VR_INTERR, "search_interface() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "search_interface() failed");
         return (-1);
     }
 

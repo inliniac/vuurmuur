@@ -27,14 +27,7 @@ int vrmr_get_icmp_name_short(
 {
     int i = 0, k = 0;
 
-    /* safety */
-    if (name == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(name);
 
     /* type validation */
     if (type < 0 || type > 255) {

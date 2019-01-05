@@ -29,9 +29,9 @@
 
     Returns a pointer to the name, or NULL when done.
 */
-char *list_textdir(void *backend, char *name, int *zonetype, int type)
+char *list_textdir(
+        void *backend, char *name, int *zonetype, enum vrmr_backend_types type)
 {
-    struct textdir_backend *tb = NULL;
     char dir_location[PATH_MAX] = "", netdir_location[PATH_MAX] = "",
          hostdir_location[PATH_MAX] = "", groupdir_location[PATH_MAX] = "",
          *file_location = NULL;
@@ -39,18 +39,12 @@ char *list_textdir(void *backend, char *name, int *zonetype, int type)
     struct dirent *dir_entry_p = NULL;
     int done = 0;
 
-    /* safety */
-    if (!backend || !name || !zonetype) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(backend && name && zonetype);
 
     /* check if the backend is opened */
-    tb = (struct textdir_backend *)backend;
+    struct textdir_backend *tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
-        vrmr_error(-1, "Internal Error", "backend not opened yet (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "backend not opened yet");
         return (NULL);
     }
 

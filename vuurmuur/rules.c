@@ -30,23 +30,16 @@
 void create_loglevel_string(
         struct vrmr_config *cnf, char *resultstr, size_t size)
 {
-    /* safety */
-    if (resultstr == NULL || cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return;
-    }
-    /* clear */
+    assert(resultstr && cnf);
+
     memset(resultstr, 0, size);
 
-    /* do it man */
     if (cnf->rule_nflog == 0) {
         if (strcmp(cnf->loglevel, "") != 0) {
             /* create the loglevel string */
             if (snprintf(resultstr, size, "--log-level %s", cnf->loglevel) >=
                     (int)size) {
-                vrmr_error(-1, "Error", "buffer overrun (in: %s:%d).", __FUNC__,
-                        __LINE__);
+                vrmr_error(-1, "Error", "buffer overrun");
                 return;
             }
         }
@@ -58,21 +51,14 @@ void create_loglevel_string(
 void create_logtcpoptions_string(
         struct vrmr_config *cnf, char *resultstr, size_t size)
 {
-    /* safety */
-    if (resultstr == NULL || cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return;
-    }
-    /* clear */
+    assert(resultstr && cnf);
+
     memset(resultstr, 0, size);
 
-    /* do it man */
     if (cnf->log_tcp_options == 1) {
         /* create the loglevel string */
         if (snprintf(resultstr, size, "--log-tcp-options") >= (int)size) {
-            vrmr_error(-1, "Error", "buffer overrun (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, "Error", "buffer overrun");
             return;
         }
     }
@@ -86,12 +72,8 @@ void create_logprefix_string(struct vrmr_config *conf, char *resultstr,
     char str[33] = "", tmp_str[33] = "";
     va_list ap;
 
-    /* safety */
-    if (resultstr == NULL || action == NULL || userprefix == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return;
-    }
+    assert(resultstr && action && userprefix);
+
     /* clear */
     memset(resultstr, 0, size);
 
@@ -148,26 +130,19 @@ int oldrules_create_custom_chains(
     struct vrmr_list_node *d_node = NULL;
     char cmd[256] = "";
 
-    /* safety */
-    if (rules == NULL || cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rules && cnf);
 
     /* get the current chains */
     (void)vrmr_rules_get_system_chains(rules, cnf, VRMR_IPV4);
     /* get the custom chains we have to create */
     if (vrmr_rules_get_custom_chains(rules) < 0) {
-        vrmr_error(-1, "Internal Error",
-                "rules_get_chains() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "rules_get_chains() failed");
         return (-1);
     }
 
     for (d_node = rules->custom_chain_list.top; d_node; d_node = d_node->next) {
         if (!(chainname = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -198,27 +173,19 @@ int analyze_interface_rules(struct vrmr_config *conf, struct vrmr_rules *rules,
     struct vrmr_list_node *d_node = NULL, *if_d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
 
-    /* safety */
-    if (rules == NULL || zones == NULL || services == NULL ||
-            interfaces == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rules && zones && services && interfaces);
 
     /* first analyze the protectrules in the interfaces */
     for (d_node = interfaces->list.top; d_node; d_node = d_node->next) {
         if (!(iface_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
         for (if_d_node = iface_ptr->ProtectList.top; if_d_node;
                 if_d_node = if_d_node->next) {
             if (!(rule_ptr = if_d_node->data)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
@@ -244,18 +211,12 @@ int analyze_network_protect_rules(struct vrmr_config *conf,
     struct vrmr_list_node *d_node = NULL, *net_d_node = NULL;
     struct vrmr_zone *zone_ptr = NULL;
 
-    /* safety */
-    if (!rules || !zones || !services || !interfaces) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rules && zones && services && interfaces);
 
     /* first analyze the protectrules in the network */
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         if (!(zone_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -263,8 +224,7 @@ int analyze_network_protect_rules(struct vrmr_config *conf,
             for (net_d_node = zone_ptr->ProtectList.top; net_d_node;
                     net_d_node = net_d_node->next) {
                 if (!(rule_ptr = net_d_node->data)) {
-                    vrmr_error(-1, "Internal Error",
-                            "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer");
                     return (-1);
                 }
 
@@ -291,34 +251,15 @@ int analyze_normal_rules(struct vrmr_config *conf, struct vrmr_rules *rules,
 {
     struct vrmr_rule *rule_ptr = NULL;
     unsigned int rulescount = 0, rulesfailedcount = 0;
-    struct vrmr_list_node *d_node = NULL, *next_d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (!rules || !zones || !services || !interfaces) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rules && zones && services && interfaces);
 
-    /* check if the list is not empty. If it is, d_node will be NULL. */
-    if (rules->list.len > 0) {
-        /*  Get the top of the list. This should never fail because
-            we already checked the listsize.
-        */
-        if (!(d_node = rules->list.top)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return (-1);
-        }
-    }
-
-    /* if we have a node, continue */
-    for (; d_node;) {
+    for (d_node = rules->list.top; d_node;) {
         rulescount++;
 
         if (!(rule_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -334,13 +275,12 @@ int analyze_normal_rules(struct vrmr_config *conf, struct vrmr_rules *rules,
             rulesfailedcount++;
 
             /* update node before removing */
-            next_d_node = d_node->next;
+            struct vrmr_list_node *next_d_node = d_node->next;
 
             /* remove the failed rule from the list */
             if (vrmr_list_remove_node(&rules->list, d_node) < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "vrmr_list_remove_node() failed (in: %s:%d).", __FUNC__,
-                        __LINE__);
+                vrmr_error(
+                        -1, "Internal Error", "vrmr_list_remove_node() failed");
                 return (-1);
             }
 
@@ -565,12 +505,7 @@ static int create_rule_set_ports(
 static int create_rule_set_proto(
         struct rule_scratch *rule, struct vrmr_rule_cache *create)
 {
-    /* safety */
-    if (rule == NULL || create == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create);
 
     if (rule->portrange_ptr != NULL) {
         /* tcp */
@@ -615,8 +550,7 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
     /* normal input rules */
     if (create->ruletype == VRMR_RT_INPUT) {
         if (create_rule_input(conf, rule, create, iptcap) < 0) {
-            vrmr_error(-1, "Error", "creating input rule failed (in: %s).",
-                    __FUNC__);
+            vrmr_error(-1, "Error", "creating input rule failed");
             retval = -1;
         }
     }
@@ -624,19 +558,16 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
     else if (create->ruletype == VRMR_RT_OUTPUT) {
         if (create->to_broadcast) {
             if (create_rule_output_broadcast(conf, rule, create, iptcap) < 0) {
-                vrmr_error(-1, "Error", "creating output rule failed (in: %s).",
-                        __FUNC__);
+                vrmr_error(-1, "Error", "creating output rule failed");
                 retval = -1;
             }
             if (create_rule_input_broadcast(conf, rule, create, iptcap) < 0) {
-                vrmr_error(-1, "Error",
-                        "creating forward rule failed (in: %s).", __FUNC__);
+                vrmr_error(-1, "Error", "creating forward rule failed");
                 retval = -1;
             }
         } else {
             if (create_rule_output(conf, rule, create, iptcap) < 0) {
-                vrmr_error(-1, "Error", "creating output rule failed (in: %s).",
-                        __FUNC__);
+                vrmr_error(-1, "Error", "creating output rule failed");
                 retval = -1;
             }
         }
@@ -645,14 +576,12 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
     else if (create->ruletype == VRMR_RT_FORWARD) {
         if (create->to_broadcast) {
             if (create_rule_input_broadcast(conf, rule, create, iptcap) < 0) {
-                vrmr_error(-1, "Error",
-                        "creating forward rule failed (in: %s).", __FUNC__);
+                vrmr_error(-1, "Error", "creating forward rule failed");
                 retval = -1;
             }
         } else {
             if (create_rule_forward(conf, rule, create, iptcap) < 0) {
-                vrmr_error(-1, "Error",
-                        "creating forward rule failed (in: %s).", __FUNC__);
+                vrmr_error(-1, "Error", "creating forward rule failed");
                 retval = -1;
             }
             /*  a bit of a hack: if from is any we need output as well
@@ -660,8 +589,7 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
              */
             if (create->from_any == TRUE) {
                 if (create_rule_output(conf, rule, create, iptcap) < 0) {
-                    vrmr_error(-1, "Error",
-                            "creating output rule failed (in: %s).", __FUNC__);
+                    vrmr_error(-1, "Error", "creating output rule failed");
                     retval = -1;
                 }
             }
@@ -670,8 +598,7 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
              */
             if (create->to_any == TRUE) {
                 if (create_rule_input(conf, rule, create, iptcap) < 0) {
-                    vrmr_error(-1, "Error",
-                            "creating input rule failed (in: %s).", __FUNC__);
+                    vrmr_error(-1, "Error", "creating input rule failed");
                     retval = -1;
                 }
             }
@@ -692,8 +619,7 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
         }
 
         if (create_rule_masq(conf, rule, create, iptcap) < 0) {
-            vrmr_error(-1, "Error", "creating masq rule failed (in: %s).",
-                    __FUNC__);
+            vrmr_error(-1, "Error", "creating masq rule failed");
             retval = -1;
         }
     }
@@ -703,8 +629,7 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
             /* copy the ipaddress of the to-interface to rule->serverip so snat
              * can use it */
             if (rule->to_if_ptr == NULL) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
             snprintf(rule->serverip, sizeof(rule->serverip), "%s",
@@ -726,8 +651,7 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
         }
 
         if (create_rule_snat(conf, rule, create, iptcap) < 0) {
-            vrmr_error(-1, "Error", "creating snat rule failed (in: %s).",
-                    __FUNC__);
+            vrmr_error(-1, "Error", "creating snat rule failed");
             retval = -1;
         }
     }
@@ -737,8 +661,7 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
             /* copy the ipaddress of the from-interface to rule->serverip so
              * portfw can use it */
             if (rule->from_if_ptr == NULL) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
             snprintf(rule->serverip, sizeof(rule->serverip), "%s",
@@ -760,14 +683,12 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
         }
 
         if (create_rule_portfw(conf, rule, create, iptcap) < 0) {
-            vrmr_error(-1, "Error", "creating portfw rule failed (in: %s).",
-                    __FUNC__);
+            vrmr_error(-1, "Error", "creating portfw rule failed");
             retval = -1;
         }
     } else if (create->ruletype == VRMR_RT_REDIRECT) {
         if (create_rule_redirect(conf, rule, create, iptcap) < 0) {
-            vrmr_error(-1, "Error", "creating redirect rule failed (in: %s).",
-                    __FUNC__);
+            vrmr_error(-1, "Error", "creating redirect rule failed");
             retval = -1;
         }
     } else if (create->ruletype == VRMR_RT_DNAT) {
@@ -775,8 +696,7 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
             /* copy the ipaddress of the from-interface to rule->serverip so
              * portfw can use it */
             if (rule->from_if_ptr == NULL) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
             snprintf(rule->serverip, sizeof(rule->serverip), "%s",
@@ -798,8 +718,7 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
         }
 
         if (create_rule_dnat(conf, rule, create, iptcap) < 0) {
-            vrmr_error(-1, "Error", "creating dnat rule failed (in: %s).",
-                    __FUNC__);
+            vrmr_error(-1, "Error", "creating dnat rule failed");
             retval = -1;
         }
     } else if (create->ruletype == VRMR_RT_BOUNCE) {
@@ -807,8 +726,7 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
             /* copy the ipaddress of the from-interface to rule->serverip so
              * portfw can use it */
             if (rule->from_if_ptr == NULL) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
             snprintf(rule->serverip, sizeof(rule->serverip), "%s",
@@ -830,13 +748,12 @@ static int rulecreate_call_create_funcs(struct vrmr_config *conf,
         }
 
         if (create_rule_bounce(conf, rule, create, iptcap) < 0) {
-            vrmr_error(-1, "Error", "creating bounce rule failed (in: %s).",
-                    __FUNC__);
+            vrmr_error(-1, "Error", "creating bounce rule failed");
             retval = -1;
         }
     } else {
-        vrmr_error(-1, "Internal Error", "unknown ruletype '%d' (in: %s:%d).",
-                create->ruletype, __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "unknown ruletype '%d'",
+                create->ruletype);
         return (-1);
     }
 
@@ -854,12 +771,7 @@ static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
     char *unit = NULL;
     int retval = 0;
 
-    /* safety */
-    if (rule == NULL || create == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create);
 
     /*  clear rule->limit because we only use it with log rules and if loglimit
        > 0 and if iptables has the capability
@@ -947,7 +859,7 @@ static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
 
         retval = rulecreate_call_create_funcs(conf, rule, create, iptcap);
         if (retval < 0) {
-            vrmr_error(retval, "Error", "creating log rule failed.");
+            vrmr_error(retval, "Error", "creating log rule failed");
             return (retval);
         }
 
@@ -1566,10 +1478,7 @@ static int rulecreate_service_loop(struct vrmr_config *conf,
 
         /* set protocol */
         if (create_rule_set_proto(rule, create) < 0) {
-            vrmr_error(-1, "Internal Error",
-                    "create_rule_set_proto() failed "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "create_rule_set_proto() failed");
             return (-1);
         }
 
@@ -1603,8 +1512,7 @@ static int rulecreate_service_loop(struct vrmr_config *conf,
             port_d_node = port_d_node->next) {
         /* get the current portrange */
         if (!(rule->portrange_ptr = port_d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -1637,16 +1545,13 @@ static int rulecreate_service_loop(struct vrmr_config *conf,
 
         /* now load the ports to the rule struct */
         if (create_rule_set_ports(rule, rule->portrange_ptr) < 0) {
-            vrmr_error(-1, "Internal Error",
-                    "setting up the ports failed (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "setting up the ports failed");
             return (-1);
         }
 
         /* set protocol */
         if (create_rule_set_proto(rule, create) < 0) {
-            vrmr_error(-1, "Internal Error",
-                    "create_rule_set_proto() failed (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, "Internal Error", "create_rule_set_proto() failed");
             return (-1);
         }
 
@@ -1693,8 +1598,8 @@ static int rulecreate_dst_iface_loop(struct vrmr_ctx *vctx,
             rule->to_if_ptr = vrmr_search_interface(
                     &vctx->interfaces, create->option.in_int);
             if (rule->to_if_ptr == NULL) {
-                vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
-                        create->option.out_int, __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "interface '%s' not found",
+                        create->option.out_int);
                 return (-1);
             }
 
@@ -1763,8 +1668,8 @@ static int rulecreate_dst_iface_loop(struct vrmr_ctx *vctx,
             rule->to_if_ptr = vrmr_search_interface(
                     &vctx->interfaces, create->option.out_int);
             if (rule->to_if_ptr == NULL) {
-                vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
-                        create->option.out_int, __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "interface '%s' not found",
+                        create->option.out_int);
                 return (-1);
             }
 
@@ -1867,8 +1772,7 @@ static int rulecreate_dst_iface_loop(struct vrmr_ctx *vctx,
         for (; d_node != NULL; d_node = d_node->next) {
             /* get the interface */
             if (!(rule->to_if_ptr = d_node->data)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
@@ -1999,8 +1903,8 @@ static int rulecreate_src_iface_loop(struct vrmr_ctx *vctx,
             rule->from_if_ptr = vrmr_search_interface(
                     &vctx->interfaces, create->option.out_int);
             if (rule->from_if_ptr == NULL) {
-                vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
-                        create->option.in_int, __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "interface '%s' not found",
+                        create->option.in_int);
                 return (-1);
             }
 
@@ -2048,8 +1952,8 @@ static int rulecreate_src_iface_loop(struct vrmr_ctx *vctx,
             rule->from_if_ptr = vrmr_search_interface(
                     &vctx->interfaces, create->option.in_int);
             if (rule->from_if_ptr == NULL) {
-                vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
-                        create->option.in_int, __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "interface '%s' not found",
+                        create->option.in_int);
                 return (-1);
             }
 
@@ -2131,8 +2035,7 @@ static int rulecreate_src_iface_loop(struct vrmr_ctx *vctx,
         for (; d_node != NULL; d_node = d_node->next) {
             /* get the interface */
             if (!(rule->from_if_ptr = d_node->data)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
@@ -2289,10 +2192,7 @@ int create_rule(struct vrmr_ctx *vctx,
 
     /* alloc the temp rule data */
     if (!(rule = malloc(sizeof(struct rule_scratch)))) {
-        vrmr_error(-1, "Error",
-                "malloc failed: %s "
-                "(in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (-1);
     }
     /* init */
@@ -2391,14 +2291,7 @@ int remove_rule(
 
 int create_system_protectrules(struct vrmr_config *conf)
 {
-    int result = 0;
-
-    /* safety */
-    if (!conf) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(conf);
 
     vrmr_debug(HIGH, "protect proc systemwide... ");
 
@@ -2406,12 +2299,11 @@ int create_system_protectrules(struct vrmr_config *conf)
     vrmr_debug(MEDIUM, "Setting '%d' to '%s'... ", conf->protect_syncookie,
             "/proc/sys/net/ipv4/tcp_syncookies");
 
-    result = vrmr_set_proc_entry(conf, "/proc/sys/net/ipv4/tcp_syncookies",
+    int result = vrmr_set_proc_entry(conf, "/proc/sys/net/ipv4/tcp_syncookies",
             conf->protect_syncookie, NULL);
     if (result != 0) {
         /* if it fails, we dont really care, its not fatal */
-        vrmr_error(-1, "Error",
-                "vrmr_set_proc_entry failed (in: create_rule, prot_proc_sys).");
+        vrmr_error(-1, "Error", "vrmr_set_proc_entry failed");
     }
 
     /* echo broadcasts */
@@ -2423,8 +2315,7 @@ int create_system_protectrules(struct vrmr_config *conf)
             conf->protect_echobroadcast, NULL);
     if (result != 0) {
         /* if it fails, we dont really care, its not fatal */
-        vrmr_error(-1, "Error",
-                "vrmr_set_proc_entry failed (in: create_rule, prot_proc_sys).");
+        vrmr_error(-1, "Error", "vrmr_set_proc_entry failed");
     }
 
     return (0);
@@ -2441,10 +2332,7 @@ int create_normal_rules(struct vrmr_ctx *vctx,
     /* walk trough the ruleslist and create the rules */
     for (d_node = vctx->rules.list.top; d_node; d_node = d_node->next) {
         if (!(rule_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -2527,14 +2415,7 @@ static int clear_vuurmuur_iptables_rules_ipv4(struct vrmr_config *conf)
     char PRE_VRMR_CHAINS_PREFIX[] = "PRE-VRMR-";
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
-    /* safety */
-    if (conf == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(conf);
 
     /* get the current chains */
     (void)vrmr_rules_get_system_chains(&rules, conf, VRMR_IPV4);
@@ -2547,10 +2428,7 @@ static int clear_vuurmuur_iptables_rules_ipv4(struct vrmr_config *conf)
     for (table = 0; table < 3; table++) {
         for (d_node = chains[table]; d_node; d_node = d_node->next) {
             if (!(chainname = d_node->data)) {
-                vrmr_error(-1, "Internal Error",
-                        "NULL pointer "
-                        "(in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
@@ -2620,14 +2498,7 @@ static int clear_vuurmuur_iptables_rules_ipv6(struct vrmr_config *conf)
     char PRE_VRMR_CHAINS_PREFIX[] = "PRE-VRMR-";
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
-    /* safety */
-    if (conf == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(conf);
 
     /* get the current chains */
     (void)vrmr_rules_get_system_chains(&rules, conf, VRMR_IPV6);
@@ -2639,10 +2510,7 @@ static int clear_vuurmuur_iptables_rules_ipv6(struct vrmr_config *conf)
     for (table = 0; table < 2; table++) {
         for (d_node = chains[table]; d_node; d_node = d_node->next) {
             if (!(chainname = d_node->data)) {
-                vrmr_error(-1, "Internal Error",
-                        "NULL pointer "
-                        "(in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
@@ -2843,13 +2711,13 @@ int clear_all_iptables_rules(struct vrmr_config *conf)
     int retval = 0;
 
     if (clear_all_iptables_rules_ipv4(conf) < 0) {
-        vrmr_error(-1, "Error", "clearing IPv4 rules failed.");
+        vrmr_error(-1, "Error", "clearing IPv4 rules failed");
         retval = -1;
     }
 
 #ifdef IPV6_ENABLED
     if (clear_all_iptables_rules_ipv6(conf) < 0) {
-        vrmr_error(-1, "Error", "clearing IPv4 rules failed.");
+        vrmr_error(-1, "Error", "clearing IPv4 rules failed");
         retval = -1;
     }
 #endif

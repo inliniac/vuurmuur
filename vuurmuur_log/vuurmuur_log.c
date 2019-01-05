@@ -413,7 +413,7 @@ int main(int argc, char *argv[])
      * 'firewall', so this appears in to log as 'firewall(interface)' */
     if (vrmr_ins_iface_into_zonelist(&vctx.interfaces.list, &vctx.zones.list) <
             0) {
-        vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
+        vrmr_error(-1, "Error", "iface_into_zonelist failed");
         exit(EXIT_FAILURE);
     }
 
@@ -646,8 +646,7 @@ int main(int argc, char *argv[])
              */
             if (vrmr_ins_iface_into_zonelist(
                         &vctx.interfaces.list, &vctx.zones.list) < 0) {
-                vrmr_error(
-                        -1, "Error", "iface_into_zonelist failed (in: main).");
+                vrmr_error(-1, "Error", "iface_into_zonelist failed");
                 exit(EXIT_FAILURE);
             }
 

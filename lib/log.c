@@ -377,26 +377,17 @@ int vrmr_log_record_get_names(struct vrmr_log_record *log_record,
     struct vrmr_zone *zone = NULL;
     struct vrmr_service *service = NULL;
 
-    vrmr_debug(HIGH, "start");
-
-    /* safety */
-    if (!log_record || !zone_hash || !service_hash) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(log_record && zone_hash && service_hash);
 
     /* no support in looking up hosts, services, etc yet */
     if (log_record->ipv6 == 1) {
         if (strlcpy(log_record->from_name, log_record->src_ip,
                     sizeof(log_record->from_name)) >=
                 sizeof(log_record->from_name))
-            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow attempt");
         if (strlcpy(log_record->to_name, log_record->dst_ip,
                     sizeof(log_record->to_name)) >= sizeof(log_record->to_name))
-            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow attempt");
     } else {
         /* search in the hash with the ipaddress */
         if (!(zone = vrmr_search_zone_in_hash_with_ipv4(
@@ -405,15 +396,13 @@ int vrmr_log_record_get_names(struct vrmr_log_record *log_record,
             if (strlcpy(log_record->from_name, log_record->src_ip,
                         sizeof(log_record->from_name)) >=
                     sizeof(log_record->from_name))
-                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "buffer overflow attempt");
         } else {
             /* found in the hash */
             if (strlcpy(log_record->from_name, zone->name,
                         sizeof(log_record->from_name)) >=
                     sizeof(log_record->from_name))
-                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "buffer overflow attempt");
 
             if (zone->type == VRMR_TYPE_NETWORK)
                 strlcpy(log_record->from_name, "firewall",
@@ -428,15 +417,13 @@ int vrmr_log_record_get_names(struct vrmr_log_record *log_record,
             if (strlcpy(log_record->to_name, log_record->dst_ip,
                         sizeof(log_record->to_name)) >=
                     sizeof(log_record->to_name))
-                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "buffer overflow attempt");
         } else {
             /* found in the hash */
             if (strlcpy(log_record->to_name, zone->name,
                         sizeof(log_record->to_name)) >=
                     sizeof(log_record->to_name))
-                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "buffer overflow attempt");
 
             if (zone->type == VRMR_TYPE_NETWORK)
                 strlcpy(log_record->to_name, "firewall",
@@ -466,8 +453,7 @@ int vrmr_log_record_get_names(struct vrmr_log_record *log_record,
                         log_record->icmp_code, log_record->ser_name,
                         sizeof(log_record->ser_name), 0) < 0) {
                 vrmr_error(-1, "Internal Error",
-                        "vrmr_get_icmp_name_short failed (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                        "vrmr_get_icmp_name_short failed");
                 return (-1);
             }
         } else {
@@ -475,8 +461,7 @@ int vrmr_log_record_get_names(struct vrmr_log_record *log_record,
             if (strlcpy(log_record->ser_name, service->name,
                         sizeof(log_record->ser_name)) >=
                     sizeof(log_record->ser_name))
-                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "buffer overflow attempt");
         }
     } else {
         /*  here we handle the rest */
@@ -508,9 +493,7 @@ int vrmr_log_record_get_names(struct vrmr_log_record *log_record,
                     if (strlcpy(log_record->ser_name, service->name,
                                 sizeof(log_record->ser_name)) >=
                             sizeof(log_record->ser_name))
-                        vrmr_error(-1, "Error",
-                                "buffer overflow attempt (in: %s:%d).",
-                                __FUNC__, __LINE__);
+                        vrmr_error(-1, "Error", "buffer overflow attempt");
                 }
             } else {
                 if (log_record->dst_port == 0 && log_record->src_port == 0)
@@ -526,8 +509,7 @@ int vrmr_log_record_get_names(struct vrmr_log_record *log_record,
             if (strlcpy(log_record->ser_name, service->name,
                         sizeof(log_record->ser_name)) >=
                     sizeof(log_record->ser_name))
-                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "buffer overflow attempt");
         }
     }
 

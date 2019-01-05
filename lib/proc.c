@@ -40,8 +40,8 @@ int vrmr_read_proc_entry(char *proc_entry, int *value)
         if (proc_entry[i] != '*') {
             j++;
         } else {
-            vrmr_error(-1, "Error", "Opening '%s' failed: %s (in: %s).",
-                    proc_entry, strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "Opening '%s' failed: %s", proc_entry,
+                    strerror(errno));
             return (-1);
         }
     }
@@ -49,8 +49,8 @@ int vrmr_read_proc_entry(char *proc_entry, int *value)
     if (retval >= 0) {
         fp = fopen(proc_entry, "r");
         if (!fp) {
-            vrmr_error(-1, "Error", "Opening '%s' failed: %s (in: %s).",
-                    proc_entry, strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "Opening '%s' failed: %s", proc_entry,
+                    strerror(errno));
             return (-1);
         } else {
             /* just read the first character */
@@ -77,14 +77,7 @@ int vrmr_set_proc_entry(
             total_entry[VRMR_MAX_PROC_ENTRY_LENGHT * 2];
     int proc_int = 0;
 
-    vrmr_debug(HIGH, "** start **");
-
-    /* safety */
-    if (!cnf) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cnf);
 
     /* first check if we have an '*' in the proc_entry */
     entry_length = strlen(proc_entry);
@@ -111,7 +104,7 @@ int vrmr_set_proc_entry(
 
     if (proc_int == 1) {
         if (who == NULL) {
-            vrmr_error(-1, "Error", "No 'who' supplied (vrmr_set_proc_entry).");
+            vrmr_error(-1, "Error", "No 'who' supplied");
             return (-1);
         }
 
@@ -120,9 +113,7 @@ int vrmr_set_proc_entry(
         if (!cnf->bash_out) {
             fp = fopen(total_entry, "w");
             if (!fp) {
-                vrmr_error(-1, "Error",
-                        "opening proc entry '%s' failed: %s (in: "
-                        "vrmr_set_proc_entry).",
+                vrmr_error(-1, "Error", "opening proc entry '%s' failed: %s",
                         total_entry, strerror(errno));
                 retval = -1;
             } else {
@@ -142,9 +133,7 @@ int vrmr_set_proc_entry(
     } else {
         if (!cnf->bash_out) {
             if (!(fp = fopen(proc_entry, "w"))) {
-                vrmr_error(-1, "Error",
-                        "Opening proc entry '%s' failed: %s (in: "
-                        "vrmr_set_proc_entry).",
+                vrmr_error(-1, "Error", "Opening proc entry '%s' failed: %s",
                         proc_entry, strerror(errno));
                 retval = -1;
             } else {

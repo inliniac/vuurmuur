@@ -21,17 +21,12 @@
 #include "config.h"
 #include "vuurmuur.h"
 
-int vrmr_get_ip_info(struct vrmr_ctx *vctx, char *name,
+int vrmr_get_ip_info(struct vrmr_ctx *vctx, const char *name,
         struct vrmr_zone *answer_ptr, struct vrmr_regex *reg)
 {
     int retval = 0, result = 0;
 
-    /* safety */
-    if (name == NULL || answer_ptr == NULL || reg == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(name && answer_ptr && reg);
 
     vrmr_debug(MEDIUM, "determining info for '%s'.", name);
 
@@ -43,8 +38,7 @@ int vrmr_get_ip_info(struct vrmr_ctx *vctx, char *name,
                     answer_ptr->ipv4.ipaddress,
                     sizeof(answer_ptr->ipv4.ipaddress), VRMR_TYPE_HOST, 0);
             if (result < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "zf->ask() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "zf->ask() failed");
                 return (-1);
             }
 
@@ -63,8 +57,7 @@ int vrmr_get_ip_info(struct vrmr_ctx *vctx, char *name,
                     answer_ptr->ipv6.ip6, sizeof(answer_ptr->ipv6.ip6),
                     VRMR_TYPE_HOST, 0);
             if (result < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "zf->ask() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "zf->ask() failed");
                 return (-1);
             }
 
@@ -88,8 +81,7 @@ int vrmr_get_ip_info(struct vrmr_ctx *vctx, char *name,
                     answer_ptr->ipv4.network, sizeof(answer_ptr->ipv4.network),
                     VRMR_TYPE_NETWORK, 0);
             if (result < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "zf->ask() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "zf->ask() failed");
                 return (-1);
             }
 
@@ -100,8 +92,7 @@ int vrmr_get_ip_info(struct vrmr_ctx *vctx, char *name,
                     answer_ptr->ipv4.netmask, sizeof(answer_ptr->ipv4.netmask),
                     VRMR_TYPE_NETWORK, 0);
             if (result < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "zf->ask() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "zf->ask() failed");
                 return (-1);
             }
 
@@ -123,8 +114,7 @@ int vrmr_get_ip_info(struct vrmr_ctx *vctx, char *name,
                     answer_ptr->ipv6.net6, sizeof(answer_ptr->ipv6.net6),
                     VRMR_TYPE_NETWORK, 0);
             if (result < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "zf->ask() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "zf->ask() failed");
                 return (-1);
             }
 
@@ -132,8 +122,7 @@ int vrmr_get_ip_info(struct vrmr_ctx *vctx, char *name,
             result = vctx->zf->ask(vctx->zone_backend, name, "IPV6CIDR",
                     cidrstr, sizeof(cidrstr), VRMR_TYPE_NETWORK, 0);
             if (result < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "zf->ask() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "zf->ask() failed");
                 return (-1);
             }
 
@@ -151,8 +140,7 @@ int vrmr_get_ip_info(struct vrmr_ctx *vctx, char *name,
 
         default:
             vrmr_error(-1, "Internal Error",
-                    "expected a host or a network, got a %d (in: %s:%d).",
-                    answer_ptr->type, __FUNC__, __LINE__);
+                    "expected a host or a network, got a %d", answer_ptr->type);
             retval = -1;
             break;
     }
@@ -184,9 +172,7 @@ int vrmr_create_broadcast_ip(
     vrmr_debug(MEDIUM, "network: %s, netmask: %s", network, netmask);
 
     if (inet_aton(netmask, &mask) == 0) {
-        vrmr_error(-1, "Error",
-                "Invalid netmask: '%s' (in: vrmr_create_broadcast_ip).",
-                netmask);
+        vrmr_error(-1, "Error", "invalid netmask: '%s'", netmask);
         return (-1);
     } else {
         netmaskvalue = ntohl(mask.s_addr);
@@ -195,9 +181,7 @@ int vrmr_create_broadcast_ip(
     }
 
     if (inet_aton(network, &net) == 0) {
-        vrmr_error(-1, "Error",
-                "Invalid network: '%s' (in: vrmr_create_broadcast_ip).",
-                network);
+        vrmr_error(-1, "Error", "Invalid network: '%s'", network);
         return (-1);
     } else {
         // networkvalue=ntohl(net.s_addr);
@@ -209,10 +193,7 @@ int vrmr_create_broadcast_ip(
     broad.s_addr |= ~ntohl(netmaskvalue);
 
     if (strlcpy(broadcast_ip, inet_ntoa(broad), size) >= size) {
-        vrmr_error(-1, "Internal Error",
-                "string overflow "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "string overflow");
         return (-1);
     }
 
@@ -231,25 +212,15 @@ int vrmr_create_broadcast_ip(
         -1: error
  */
 int vrmr_get_group_info(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
-        char *groupname, struct vrmr_zone *answer_ptr)
+        const char *groupname, struct vrmr_zone *answer_ptr)
 {
     int result = 0;
     char total_zone[VRMR_VRMR_MAX_HOST_NET_ZONE] = "",
          cur_mem[VRMR_MAX_HOST] = "";
     struct vrmr_zone *zone_ptr = NULL;
 
-    /* safety */
-    if (groupname == NULL || answer_ptr == NULL || zones == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-    if (answer_ptr->type != VRMR_TYPE_GROUP) {
-        vrmr_error(-1, "Internal Error",
-                "expected a group, but got a %d (in: %s:%d).", answer_ptr->type,
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(groupname && answer_ptr && zones);
+    assert(answer_ptr->type == VRMR_TYPE_GROUP);
 
     /* setup the list (allready done in vrmr_zone_malloc?) */
     vrmr_list_setup(&answer_ptr->GroupList, NULL);
@@ -286,9 +257,8 @@ int vrmr_get_group_info(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
 
                 if (vrmr_list_append(&answer_ptr->GroupList, zone_ptr) ==
                         NULL) {
-                    vrmr_error(-1, "Internal Error",
-                            "vrmr_list_append() failed (in: %s:%d).", __FUNC__,
-                            __LINE__);
+                    vrmr_error(
+                            -1, "Internal Error", "vrmr_list_append() failed");
                     return (-1);
                 }
 
@@ -298,8 +268,7 @@ int vrmr_get_group_info(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         }
     }
     if (result == -1) {
-        vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "zf->ask() failed");
         return (-1);
     }
 
@@ -334,8 +303,7 @@ char *vrmr_list_to_portopts(
             snprintf(oneport, sizeof(oneport), "%d,", portrange_ptr->dst_low);
 
             if (strlcat(options, oneport, sizeof(options)) >= sizeof(options)) {
-                vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
         }
@@ -345,8 +313,7 @@ char *vrmr_list_to_portopts(
                     portrange_ptr->dst_high);
 
             if (strlcat(options, oneport, sizeof(options)) >= sizeof(options)) {
-                vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
         }
@@ -360,15 +327,11 @@ char *vrmr_list_to_portopts(
     }
 
     if (!(return_ptr = strdup(options))) {
-        vrmr_error(-1, "Error",
-                "malloc failed: %s "
-                "(in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (NULL);
     }
 
     vrmr_debug(MEDIUM, "options: '%s'.", return_ptr);
-
     return (return_ptr);
 }
 
@@ -408,8 +371,8 @@ int vrmr_portopts_to_list(const char *opt, struct vrmr_list *dlist)
                 vrmr_debug(HIGH, "now trying to insert: %s", option_string);
 
                 if (!(portrange_ptr = malloc(sizeof(struct vrmr_portdata)))) {
-                    vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
-                            strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(
+                            -1, "Error", "malloc failed: %s", strerror(errno));
                     return (-1);
                 }
                 portrange_ptr->protocol = -1;
@@ -446,10 +409,8 @@ int vrmr_portopts_to_list(const char *opt, struct vrmr_list *dlist)
 
                 /* append to the list */
                 if (vrmr_list_append(dlist, portrange_ptr) == NULL) {
-                    vrmr_error(-1, "Internal Error",
-                            "appending to list failed (in: %s:%d).", __FUNC__,
-                            __LINE__);
-
+                    vrmr_error(
+                            -1, "Internal Error", "appending to list failed");
                     free(portrange_ptr);
                     return (-1);
                 }
@@ -476,20 +437,10 @@ int vrmr_check_active(struct vrmr_ctx *vctx, char *name, int type)
     int result = 0;
     char active[4] = "";
 
-    /* safety */
-    if (name == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(name);
+    assert(type < VRMR_TYPE_TOO_BIG);
 
     vrmr_debug(MEDIUM, "type: %d, name = '%s'.", type, name);
-
-    if (type >= VRMR_TYPE_TOO_BIG) {
-        vrmr_error(-1, "Internal Error", "type is out of range (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
 
     /* fw active */
     if (strcasecmp(name, "firewall") == 0 ||
@@ -514,9 +465,7 @@ int vrmr_check_active(struct vrmr_ctx *vctx, char *name, int type)
         result = vctx->zf->ask(vctx->zone_backend, name, "ACTIVE", active,
                 sizeof(active), type, 0);
     } else {
-        vrmr_error(-1, "Internal Error",
-                "type '%d' is unsupported (in: %s:%d).", type, __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Internal Error", "type '%d' is unsupported", type);
         return (-1);
     }
 
@@ -536,8 +485,7 @@ int vrmr_check_active(struct vrmr_ctx *vctx, char *name, int type)
                 name);
         return (0);
     } else {
-        vrmr_error(-1, "Error", "ask_backend returned error (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "ask_backend returned error");
         return (-1);
     }
 }
@@ -563,18 +511,13 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
     struct sockaddr *sa = NULL;
     struct sockaddr_in *sin = NULL;
 
-    /* safety */
-    if (!device || !answer_ptr || size == 0) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(size);
+    assert(device && answer_ptr);
 
     /* open a socket for ioctl */
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd == -1) {
-        vrmr_error(-1, "Error", "couldn't open socket: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "couldn't open socket: %s", strerror(errno));
         return (-1);
     }
 
@@ -584,8 +527,7 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
         ifc.ifc_len = (int)(sizeof(struct ifreq) * numreqs);
         /* get some mem */
         if (!(ifc.ifc_buf = realloc(ifc.ifc_buf, (size_t)ifc.ifc_len))) {
-            vrmr_error(-1, "Error", "realloc failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "realloc failed: %s", strerror(errno));
             (void)close(sockfd);
 
             return (-1);
@@ -593,9 +535,8 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
 
         /* get the interfaces from the system */
         if (ioctl(sockfd, SIOCGIFCONF, &ifc) < 0) {
-            vrmr_error(-1, "Error",
-                    "ioctl(SIOCGIFCONF) failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "ioctl(SIOCGIFCONF) failed: %s",
+                    strerror(errno));
             free(ifc.ifc_buf);
             (void)close(sockfd);
 
@@ -617,8 +558,7 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
             if (strlcpy(ifr_struct.ifr_name, ifr_ptr->ifr_name,
                         sizeof(ifr_struct.ifr_name)) >=
                     sizeof(ifr_struct.ifr_name)) {
-                vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "buffer overflow");
                 (void)close(sockfd);
                 free(ifc.ifc_buf);
                 return (-1);
@@ -636,9 +576,8 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
                 if (inet_ntop(AF_INET, &sin->sin_addr, ipaddress,
                             (socklen_t)sizeof(ipaddress)) == NULL) {
                     vrmr_error(-1, "Error",
-                            "getting ipaddress for device '%s' failed: %s (in: "
-                            "%s:%d).",
-                            device, strerror(errno), __FUNC__, __LINE__);
+                            "getting ipaddress for device '%s' failed: %s",
+                            device, strerror(errno));
                     (void)close(sockfd);
                     free(ifc.ifc_buf);
 
@@ -652,8 +591,8 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
                 if (strlcpy(answer_ptr, ipaddress, size) >= size) {
                     vrmr_error(-1, "Error",
                             "copying ipaddress for device '%s' failed: "
-                            "destination buffer too small (in: %s:%d).",
-                            device, __FUNC__, __LINE__);
+                            "destination buffer too small",
+                            device);
                     (void)close(sockfd);
                     free(ifc.ifc_buf);
 
@@ -710,17 +649,12 @@ int vrmr_check_ipv4address(const char *network, const char *netmask,
     unsigned long int current;
 
     /* safety */
-    if (!ipaddress) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(ipaddress);
 
     /* first check if the ipaddress itself is valid */
     if (inet_aton(ipaddress, &ip) == 0) {
         if (!quiet) {
-            vrmr_error(-1, "Error", "invalid ipaddress: '%s' (in: %s).",
-                    ipaddress, __FUNC__);
+            vrmr_error(-1, "Error", "invalid ipaddress: '%s'", ipaddress);
         }
 
         return (-1);
@@ -734,16 +668,14 @@ int vrmr_check_ipv4address(const char *network, const char *netmask,
 
     /* check if the networkadress is valid */
     if (inet_aton(network, &net) == 0) {
-        vrmr_error(-1, "Error", "invalid network: '%s' (in: %s).", network,
-                __FUNC__);
+        vrmr_error(-1, "Error", "invalid network: '%s'", network);
         return (-1);
     }
     vrmr_debug(HIGH, "network = %s", inet_ntoa(net));
 
     /* check if the netmask is valid */
     if (inet_aton(netmask, &mask) == 0) {
-        vrmr_error(-1, "Error", "invalid netmask: '%s' (in: %s).", netmask,
-                __FUNC__);
+        vrmr_error(-1, "Error", "invalid netmask: '%s'", netmask);
         return (-1);
     }
     netmaskvalue = ntohl(mask.s_addr);
@@ -778,17 +710,12 @@ int vrmr_check_ipv4address(const char *network, const char *netmask,
          0: ok
         -1: error
 */
-int vrmr_get_mac_address(struct vrmr_ctx *vctx, char *hostname,
+int vrmr_get_mac_address(struct vrmr_ctx *vctx, const char *hostname,
         char *answer_ptr, size_t size, regex_t *mac_rgx)
 {
     int retval = 0, result = 0;
 
-    /* safety */
-    if (hostname == NULL || mac_rgx == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(hostname && mac_rgx);
 
     /* ask the backend */
     result = vctx->zf->ask(vctx->zone_backend, hostname, "MAC", answer_ptr,
@@ -811,9 +738,7 @@ int vrmr_get_mac_address(struct vrmr_ctx *vctx, char *hostname,
     } else if (result == 0) {
         vrmr_debug(HIGH, "not found");
     } else {
-        vrmr_error(-1, "Error",
-                "getting macaddress for %s failed (in: vrmr_get_mac_address).",
-                hostname);
+        vrmr_error(-1, "Error", "getting macaddress for %s failed", hostname);
         retval = -1;
     }
 
@@ -826,37 +751,24 @@ int vrmr_get_mac_address(struct vrmr_ctx *vctx, char *hostname,
          0: ok
         -1: error
 */
-int vrmr_get_danger_info(
-        char *danger, char *source, struct vrmr_danger_info *danger_struct)
+int vrmr_get_danger_info(const char *danger, const char *source,
+        struct vrmr_danger_info *danger_struct)
 {
-    /* safety */
-    if (danger == NULL || source == NULL || danger_struct == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(danger && source && danger_struct);
 
     /* spoofing dangers */
     if (strcasecmp(danger, "spoofing") == 0) {
         if (strlcpy(danger_struct->type, "spoof",
                     sizeof(danger_struct->type)) >=
                 sizeof(danger_struct->type)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
 
         if (strlcpy(danger_struct->source, source,
                     sizeof(danger_struct->source)) >=
                 sizeof(danger_struct->source)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (-1);
         }
 
@@ -905,15 +817,10 @@ int vrmr_get_danger_info(
             strcpy(danger_struct->source_ip.ipaddress, "255.255.255.255");
             strcpy(danger_struct->source_ip.netmask, "255.255.255.255");
         } else {
-            vrmr_error(-1, "Internal Error",
-                    "unknown "
-                    "source: '%s' (in: %s:%d).",
-                    source, __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "unknown source");
             return (-1);
         }
-
     }
-
     /* system dangers */
     else if (strcasecmp(danger, "syn-flood") == 0) {
         danger_struct->solution = VRMR_PROT_PROC_SYS;
@@ -930,7 +837,6 @@ int vrmr_get_danger_info(
         danger_struct->proc_set_on = 1;
         danger_struct->proc_set_off = 0;
     }
-
     /* interface dangers */
     else if (strcasecmp(danger, "source-routed-packets") == 0) {
         danger_struct->solution = VRMR_PROT_PROC_INT;
@@ -968,13 +874,9 @@ int vrmr_get_danger_info(
         danger_struct->proc_set_on = 1;
         danger_struct->proc_set_off = 0;
     }
-
     /* default case */
     else {
-        vrmr_error(-1, "Internal Error",
-                "unknown danger: "
-                "'%s' (in: %s:%d).",
-                source, __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "unknown danger: '%s'", danger);
         return (-1);
     }
 
@@ -1016,14 +918,7 @@ char *vrmr_get_network_for_ipv4(
     char *result_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /*
-        safety
-    */
-    if (!ipaddress || !zonelist) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(ipaddress && zonelist);
 
     /* we don't want the local loopback */
     if (strncmp(ipaddress, "127.", 4) == 0)
@@ -1043,8 +938,7 @@ char *vrmr_get_network_for_ipv4(
     */
     for (d_node = zonelist->top; d_node; d_node = d_node->next) {
         if (!(zone_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (NULL);
         }
 
@@ -1083,8 +977,7 @@ char *vrmr_get_network_for_ipv4(
 
     if (best_so_far_ptr != NULL) {
         if (!(result_ptr = (char *)strdup(best_so_far_ptr->name))) {
-            vrmr_error(-1, "Error", "strdup failed: %s (in: %s).",
-                    strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "strdup failed: %s", strerror(errno));
             return (NULL);
         }
     }
@@ -1105,14 +998,7 @@ int vrmr_user_get_info(struct vrmr_user *user)
     struct stat stat_buf;
     struct passwd *pwd = NULL;
 
-    /* safety */
-    if (user == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(user);
 
     /* clear the memory */
     memset(user, 0, sizeof(*user));

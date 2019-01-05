@@ -45,7 +45,7 @@
 #endif /* IPV6_ENABLED */
 
 static int fd = -1;
-static struct nflog_handle *h;
+static struct nflog_handle *h = NULL;
 
 union ipv4_adress {
     uint8_t a[4];
@@ -327,33 +327,28 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
 int subscribe_nflog(
         const struct vrmr_config *conf, struct vrmr_log_record *log_record)
 {
-    struct nflog_g_handle *qh;
-
     h = nflog_open();
     if (!h) {
-        vrmr_error(-1, "Internal Error", "nflog_open error (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "nflog_open error");
         return (-1);
     }
 
     if (nflog_bind_pf(h, AF_INET) < 0) {
-        vrmr_error(-1, "Internal Error", "nflog_bind_pf error (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "nflog_bind_pf error");
         return (-1);
     }
 
-    qh = nflog_bind_group(h, conf->nfgrp);
+    struct nflog_g_handle *qh = nflog_bind_group(h, conf->nfgrp);
     if (!qh) {
         vrmr_error(-1, "Internal Error",
-                "nflog_bind_group(%p, %d) error, other process attached? %s "
-                "(in: %s:%d).",
-                h, conf->nfgrp, strerror(errno), __FUNC__, __LINE__);
+                "nflog_bind_group(%p, %d) error, other process attached? %s", h,
+                conf->nfgrp, strerror(errno));
         return (-1);
     }
 
     if (nflog_set_mode(qh, NFULNL_COPY_PACKET, 0xffff) < 0) {
-        vrmr_error(-1, "Internal Error", "nflog_set_mode error %s (in; %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "nflog_set_mode error %s",
+                strerror(errno));
         return (-1);
     }
 
@@ -376,24 +371,18 @@ int readnflog(void)
         } else if (errno == ENOBUFS) {
             vrmr_error(-1, "Error",
                     "ENOBUFS on recv, may need to "
-                    "increase netlink_socket_buffer_size (in; %s:%d)",
-                    __FUNC__, __LINE__);
+                    "increase netlink_socket_buffer_size");
             return -1;
         } else {
-            vrmr_error(-1, "Internal Error",
-                    "cannot recv: "
-                    "%s (in; %s:%d)",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "cannot recv: %s", strerror(errno));
             return -1;
         }
     }
 
     rv = nflog_handle_packet(h, buf, rv);
     if (rv != 0) {
-        vrmr_debug(NONE,
-                "nflog_handle_packet() "
-                "returned %d",
-                rv);
+        vrmr_debug(NONE, "nflog_handle_packet() returned %d", rv);
         return (2); /* invalid record */
     }
     return (1);

@@ -348,20 +348,16 @@ int conntrack_subscribe(struct vrmr_log_record *lr)
     timev.tv_usec = 1000;
 
     if (mnl_socket_setsockopt(nl, SO_RCVTIMEO, &timev, sizeof(timev)) == -1) {
-        vrmr_warning(__FUNC__,
-                "can't set mnl socket "
-                "timeout: %s",
-                strerror(errno));
+        vrmr_warning(
+                "Warning", "can't set mnl socket timeout: %s", strerror(errno));
     }
 
     /* set timeout on the socket itself as well. W/o it it would still
      * block on reads. */
     int fd = mnl_socket_get_fd(nl);
     if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timev, sizeof(timev)) == -1) {
-        vrmr_warning(__FUNC__,
-                "can't set raw socket "
-                "timeout: %s",
-                strerror(errno));
+        vrmr_warning(
+                "Warning", "can't set raw socket timeout: %s", strerror(errno));
     }
     return 0;
 }
@@ -377,8 +373,6 @@ int conntrack_read(struct vrmr_log_record *lr)
 {
     assert(nl);
     assert(lr);
-
-    // vrmr_debug(__FUNC__, "calling mnl_socket_recvfrom()");
 
     errno = 0;
     char buf[MNL_SOCKET_BUFFER_SIZE];

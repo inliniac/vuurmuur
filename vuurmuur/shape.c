@@ -58,13 +58,7 @@ struct shape_rule {
 /*  compare two shaping rules and return 1 if they match, 0 otherwise */
 static int shaping_rulecmp(struct shape_rule *r1, struct shape_rule *r2)
 {
-    if (r1 == NULL || r2 == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(r1 && r2);
 
     if (r1->handle == r2->handle && r1->class == r2->class &&
             strcmp(r1->device, r2->device) == 0) {
@@ -82,13 +76,7 @@ static int shaping_ruleinsert(
     struct vrmr_list_node *d_node = NULL;
     struct shape_rule *listrule = NULL;
 
-    if (shape_rule == NULL || rule == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(shape_rule && rule);
 
     for (d_node = rule->shaperulelist.top; d_node; d_node = d_node->next) {
         listrule = d_node->data;
@@ -100,10 +88,7 @@ static int shaping_ruleinsert(
     }
 
     if (vrmr_list_append(&rule->shaperulelist, shape_rule) == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "vrmr_list_append() "
-                "failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "vrmr_list_append() failed");
         return (-1);
     }
 
@@ -120,23 +105,11 @@ static int shaping_ruleinsert(
 static int shaping_queue_rule(struct rule_scratch *rule, uint16_t handle,
         uint16_t class, char *device, char *cmd)
 {
-    struct shape_rule *shape_rule = NULL;
+    assert(cmd && rule);
 
-    /* safety */
-    if (cmd == NULL || rule == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-
-    shape_rule = malloc(sizeof(struct shape_rule));
+    struct shape_rule *shape_rule = malloc(sizeof(struct shape_rule));
     if (shape_rule == NULL) {
-        vrmr_error(-1, "Error",
-                "malloc failed: %s "
-                "(in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (-1);
     }
 
@@ -153,20 +126,17 @@ static int shaping_queue_rule(struct rule_scratch *rule, uint16_t handle,
 static int shaping_process_rule(
         struct vrmr_config *cnf, /*@null@*/ struct rule_set *ruleset, char *cmd)
 {
-    char *buf = NULL;
+    assert(cmd);
 
     if (ruleset != NULL) {
-        buf = strdup(cmd);
+        char *buf = strdup(cmd);
         if (buf == NULL) {
-            vrmr_error(-1, "Error", "strdup failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "strdup failed: %s", strerror(errno));
             return (-1);
         }
 
         if (vrmr_list_append(&ruleset->tc_rules, buf) == NULL) {
-            vrmr_error(-1, "Internal Error",
-                    "appending rule to list failed (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, "Internal Error", "appending rule to list failed");
             free(buf);
             return (-1);
         }
@@ -185,18 +155,11 @@ int shaping_process_queued_rules(struct vrmr_config *cnf,
         /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule)
 {
     struct vrmr_list_node *d_node = NULL;
-    struct shape_rule *r = NULL;
 
-    if (rule == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule);
 
     for (d_node = rule->shaperulelist.top; d_node; d_node = d_node->next) {
-        r = d_node->data;
+        struct shape_rule *r = d_node->data;
 
         if (shaping_process_rule(cnf, ruleset, r->cmd) < 0) {
             return (-1);

@@ -115,7 +115,6 @@ int search_in_ipt_line(char *line, size_t search_start, char *keyword,
 int parse_ipt_logline(char *logline, size_t logline_len, char *sscanf_str,
         struct vrmr_log_record *log_record, struct logcounters *counter_ptr)
 {
-    int result = 0;
     size_t hostname_len = 0, pre_prefix_len = 0, str_begin = 0, str_end = 0,
            vrmr_start = 0;
     char from_mac[18] = "", to_mac[18] = "";
@@ -123,25 +122,15 @@ int parse_ipt_logline(char *logline, size_t logline_len, char *sscanf_str,
     char protocol[5] = "";
     char port[6] = "";
 
-    vrmr_debug(HIGH, "parse_ipt_logline: start");
-
-    /* safety first */
-    if (logline == NULL || log_record == NULL || sscanf_str == NULL ||
-            counter_ptr == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(logline && log_record && sscanf_str && counter_ptr);
 
     memset(log_record, 0, sizeof(struct vrmr_log_record));
     vrmr_debug(HIGH, "sscanf_str: %s", sscanf_str);
 
     /* get date, time, hostname */
-    result = sscanf(logline, sscanf_str, log_record->month, &log_record->day,
-            &log_record->hour, &log_record->minute, &log_record->second,
-            log_record->hostname);
+    int result = sscanf(logline, sscanf_str, log_record->month,
+            &log_record->day, &log_record->hour, &log_record->minute,
+            &log_record->second, log_record->hostname);
     if (result < 6) {
         vrmr_debug(
                 HIGH, "logline is invalid because sscanf reported an error.");
@@ -319,15 +308,13 @@ int parse_ipt_logline(char *logline, size_t logline_len, char *sscanf_str,
 
             if (snprintf(log_record->src_mac, sizeof(log_record->src_mac),
                         "(%s)", from_mac) >= (int)sizeof(log_record->src_mac)) {
-                vrmr_error(-1, "Error", "overflow in src_mac string (in: %s).",
-                        __FUNC__);
+                vrmr_error(-1, "Error", "overflow in src_mac string");
                 return (0);
             }
 
             if (snprintf(log_record->dst_mac, sizeof(log_record->dst_mac),
                         "(%s)", to_mac) >= (int)sizeof(log_record->dst_mac)) {
-                vrmr_error(-1, "Error", "overflow in dst_mac string (in: %s).",
-                        __FUNC__);
+                vrmr_error(-1, "Error", "overflow in dst_mac string");
                 return (0);
             }
         }
@@ -738,15 +725,11 @@ int parse_ipt_logline(char *logline, size_t logline_len, char *sscanf_str,
 
 static int stat_logfile(const char *path, struct stat *logstat)
 {
-    if (path == NULL) {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__,
-                __LINE__);
-        return (-1);
-    }
+    assert(path);
 
     if (lstat(path, logstat) == -1) {
-        vrmr_error(-1, VR_ERR, "lstat() on %s failed: %s (in: %s:%d).", path,
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(
+                -1, VR_ERR, "lstat() on %s failed: %s", path, strerror(errno));
         return (-1);
     }
 
@@ -756,11 +739,7 @@ static int stat_logfile(const char *path, struct stat *logstat)
 
 static int compare_logfile_stats(struct file_mon *filemon)
 {
-    if (filemon == NULL) {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__,
-                __LINE__);
-        return (-1);
-    }
+    assert(filemon);
 
     if (filemon->old_file.st_size != filemon->new_file.st_size) {
         if (filemon->new_file.st_size == 0) {
@@ -829,26 +808,20 @@ FILE *open_logfile(
 {
     FILE *fp = NULL;
 
-    /* safety */
-    if (path == NULL || mode == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(path && mode);
 
     /* open the logfile */
     if (!(fp = vuurmuur_fopen(cnf, path, mode))) {
-        vrmr_error(-1, "Error",
-                "the logfile '%s' could not be opened: %s (in: %s:%d).", path,
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "the logfile '%s' could not be opened: %s",
+                path, strerror(errno));
         return (NULL);
     }
 
     /* listen at the end of the file */
     if (fseek(fp, (off_t)0, SEEK_END) == -1) {
         vrmr_error(-1, "Error",
-                "attaching to the end of the logfile failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+                "attaching to the end of the logfile failed: %s",
+                strerror(errno));
         fclose(fp);
         return (NULL);
     }
@@ -860,17 +833,16 @@ int open_syslog(const struct vrmr_config *cnf, FILE **system_log)
 {
     /* open the system log */
     if (!(*system_log = fopen(cnf->systemlog_location, "r"))) {
-        vrmr_error(-1, "Error",
-                "the systemlog '%s' could not be opened: %s (in: %s:%d).",
-                cnf->systemlog_location, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "the systemlog '%s' could not be opened: %s",
+                cnf->systemlog_location, strerror(errno));
         return (-1);
     }
 
     /* listen at the end of the file */
     if (fseek(*system_log, (off_t)0, SEEK_END) == -1) {
         vrmr_error(-1, "Error",
-                "attaching to the end of the logfile failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+                "attaching to the end of the logfile failed: %s",
+                strerror(errno));
 
         /* close the systemlog again */
         (void)fclose(*system_log);
@@ -885,9 +857,8 @@ int open_vuurmuurlog(const struct vrmr_config *cnf, FILE **vuurmuur_log)
 {
     /* open the vuurmuur logfile */
     if (!(*vuurmuur_log = open_logfile(cnf, cnf->trafficlog_location, "a"))) {
-        vrmr_error(-1, "Error",
-                "opening traffic log file '%s' failed: %s (in: %s:%d).",
-                cnf->trafficlog_location, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "opening traffic log file '%s' failed: %s",
+                cnf->trafficlog_location, strerror(errno));
         return (-1);
     }
     return (0);
@@ -898,7 +869,6 @@ int reopen_syslog(const struct vrmr_config *cnf, FILE **system_log)
     int waiting = 0;
     char done = 0;
     struct file_mon filemon;
-    int result = 0;
 
     /* clear */
     memset(&filemon, 0, sizeof(filemon));
@@ -939,11 +909,11 @@ int reopen_syslog(const struct vrmr_config *cnf, FILE **system_log)
     }
 
     /* listen at the end of the file */
-    result = fseek(*system_log, (off_t)filemon.windback * -1, SEEK_END);
+    int result = fseek(*system_log, (off_t)filemon.windback * -1, SEEK_END);
     if (result == -1) {
         vrmr_error(-1, "Error",
-                "attaching to the end of the logfile failed: %s (in: %s).",
-                strerror(errno), __FUNC__);
+                "attaching to the end of the logfile failed: %s",
+                strerror(errno));
 
         /* close the log */
         if (fclose(*system_log) < 0)
@@ -968,9 +938,7 @@ int reopen_vuurmuurlog(const struct vrmr_config *cnf, FILE **vuurmuur_log)
 
     /* re-open the vuurmuur logfile */
     if (!(*vuurmuur_log = open_logfile(cnf, cnf->trafficlog_location, "a"))) {
-        vrmr_error(-1, "Error",
-                "Re-opening traffic log file '%s'"
-                "failed: %s.",
+        vrmr_error(-1, "Error", "Re-opening traffic log file '%s' failed: %s.",
                 cnf->trafficlog_location, strerror(errno));
         return (-1);
     }

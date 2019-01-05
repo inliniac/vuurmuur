@@ -1082,9 +1082,6 @@ int connections_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
         if (control.sleep == 1) {
             usleep(10000);
             slept_so_far = slept_so_far + 10000;
-
-            // vrmr_debug(__FUNC__, "just slept: slept_so_far '%d'.",
-            // slept_so_far);
         } else {
             slept_so_far = update_interval;
 
@@ -1320,20 +1317,14 @@ int block_and_kill(struct vrmr_ctx *vctx, struct conntrack *ct,
     /* add to list */
     if (vrmr_blocklist_add_one(zones, blocklist, /*load_ips*/ FALSE,
                 /*no_refcnt*/ FALSE, ip) < 0) {
-        vrmr_error(-1, VR_INTERR,
-                "blocklist_add_one() "
-                "failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "blocklist_add_one() failed");
         VrBusyWinHide();
         return (-1);
     }
 
     /* save the list */
     if (vrmr_blocklist_save_list(vctx, &vctx->conf, blocklist) < 0) {
-        vrmr_error(-1, VR_INTERR,
-                "blocklist_save_list() "
-                "failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "blocklist_save_list() failed");
         VrBusyWinHide();
         return (-1);
     }

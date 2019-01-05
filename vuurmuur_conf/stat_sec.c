@@ -221,8 +221,8 @@ static int get_meminfo(
 
     // open the proc entry
     if (!(fp = fopen(proc_meminfo, "r"))) {
-        vrmr_error(-1, VR_ERR, gettext("opening '%s' failed: %s (in: %s:%d)."),
-                proc_meminfo, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("opening '%s' failed: %s"), proc_meminfo,
+                strerror(errno));
         return (-1);
     }
 
@@ -318,8 +318,7 @@ static int status_section_init(
     /* alloc the needed memory */
     if (!(statsec_ctx.fields = (FIELD **)calloc(
                   statsec_ctx.n_fields + 1, sizeof(FIELD *)))) {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s"), strerror(errno));
         return (-1);
     }
 
@@ -400,13 +399,11 @@ static int status_section_init(
     /* create the window and the panel */
     if (!(statsec_ctx.win = create_newwin(height, width, starty, startx,
                   gettext("Status Section"), vccnf.color_win))) {
-        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed");
         return (-1);
     }
     if (!(statsec_ctx.panel[0] = new_panel(statsec_ctx.win))) {
-        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed");
         return (-1);
     }
 
@@ -424,8 +421,7 @@ static int status_section_init(
 
     /* Create the form and post it */
     if (!(statsec_ctx.form = new_form(statsec_ctx.fields))) {
-        vrmr_error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_form() failed");
         return (-1);
     }
     /* Calculate the area required for the form */
@@ -436,8 +432,7 @@ static int status_section_init(
     set_form_sub(statsec_ctx.form, derwin(statsec_ctx.win, rows, cols, 1, 2));
 
     if (post_form(statsec_ctx.form) != E_OK) {
-        vrmr_error(-1, VR_INTERR, "post_form() failed (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, VR_INTERR, "post_form() failed");
         return (-1);
     }
 
@@ -843,23 +838,19 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
 
             /*  update the information */
             if (get_sys_load(&load_s, &load_m, &load_l) < 0) {
-                vrmr_error(-1, VR_INTERR, "get_sys_load() failed (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "get_sys_load() failed");
                 return (-1);
             }
 
             if (get_meminfo(&mem_total, &mem_free, &mem_cached, &mem_bufferd) <
                     0) {
-                vrmr_error(-1, VR_INTERR, "get_meminfo() failed (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "get_meminfo() failed");
                 return (-1);
             }
 
             if (get_system_uptime(upt_day, upt_hour, upt_minute, upt_second) <
                     0) {
-                vrmr_error(-1, VR_INTERR,
-                        "get_system_uptime() failed (in: %s:%d).", __FUNC__,
-                        __LINE__);
+                vrmr_error(-1, VR_INTERR, "get_system_uptime() failed");
                 return (-1);
             }
 

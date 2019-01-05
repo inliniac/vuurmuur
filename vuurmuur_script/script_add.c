@@ -106,8 +106,7 @@ int script_add(struct vuurmuur_script *vr_script)
     if (vr_script->type == VRMR_TYPE_ZONE) {
         if (vr_script->vctx.zf->add(vr_script->vctx.zone_backend,
                     vr_script->name, VRMR_TYPE_ZONE) < 0) {
-            vrmr_error(-1, VR_ERR, "adding zone '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "adding zone '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -115,8 +114,8 @@ int script_add(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_NETWORK) {
         if (vr_script->vctx.zf->add(vr_script->vctx.zone_backend,
                     vr_script->name, VRMR_TYPE_NETWORK) < 0) {
-            vrmr_error(-1, VR_ERR, "adding network '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, VR_ERR, "adding network '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -124,8 +123,7 @@ int script_add(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_HOST) {
         if (vr_script->vctx.zf->add(vr_script->vctx.zone_backend,
                     vr_script->name, VRMR_TYPE_HOST) < 0) {
-            vrmr_error(-1, VR_ERR, "adding host '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "adding host '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -133,8 +131,7 @@ int script_add(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_GROUP) {
         if (vr_script->vctx.zf->add(vr_script->vctx.zone_backend,
                     vr_script->name, VRMR_TYPE_GROUP) < 0) {
-            vrmr_error(-1, VR_ERR, "adding group '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "adding group '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -142,8 +139,8 @@ int script_add(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_SERVICE) {
         if (vr_script->vctx.sf->add(vr_script->vctx.serv_backend,
                     vr_script->name, VRMR_TYPE_SERVICE) < 0) {
-            vrmr_error(-1, VR_ERR, "adding service '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, VR_ERR, "adding service '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -151,8 +148,8 @@ int script_add(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_INTERFACE) {
         if (vr_script->vctx.af->add(vr_script->vctx.ifac_backend,
                     vr_script->name, VRMR_TYPE_INTERFACE) < 0) {
-            vrmr_error(-1, VR_ERR, "adding interface '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "adding interface '%s' failed",
+                    vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -160,8 +157,8 @@ int script_add(struct vuurmuur_script *vr_script)
     } else if (vr_script->type == VRMR_TYPE_RULE) {
         if (vr_script->vctx.rf->add(vr_script->vctx.rule_backend,
                     vr_script->name, VRMR_TYPE_RULE) < 0) {
-            vrmr_error(-1, VR_ERR, "adding ruleset '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, VR_ERR, "adding ruleset '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 

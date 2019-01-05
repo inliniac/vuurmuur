@@ -50,20 +50,14 @@ void vrmr_list_setup(struct vrmr_list *list, void (*remove)(void *data))
 */
 int vrmr_list_remove_node(struct vrmr_list *list, struct vrmr_list_node *d_node)
 {
-    /* safety first */
-    if (!list || !d_node) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(list != NULL && d_node != NULL);
 
     /* we cannot remove from an empty list */
     if (list->len == 0) {
         assert(list->top == NULL);
         assert(list->bot == NULL);
 
-        vrmr_error(-1, "Internal Error",
-                "cannot remove from an empty list (in: %s).", __FUNC__);
+        vrmr_error(-1, "Internal Error", "cannot remove from an empty list");
         return (-1);
     }
 
@@ -154,34 +148,17 @@ struct vrmr_list_node *vrmr_list_append(
     struct vrmr_list_node *new_node = NULL;
     struct vrmr_list_node *prev_node = NULL;
 
+    assert(list);
+
     vrmr_debug(HIGH, "start.");
 
-    /*
-        safety first
-    */
-    if (!list) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
-
-    /*
-        alloc the new node
-    */
     if (!(new_node = malloc(sizeof(struct vrmr_list_node)))) {
-        vrmr_error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "malloc failed: %s", strerror(errno));
         return (NULL);
     }
 
-    /*
-        attach the data
-    */
     new_node->data = (void *)data;
 
-    /*
-        update the prev_node
-    */
     prev_node = list->bot;
     if (prev_node) {
         prev_node->next = new_node;
@@ -189,33 +166,14 @@ struct vrmr_list_node *vrmr_list_append(
         vrmr_debug(HIGH, "appended in an empty list (%d).", list->len);
     }
 
-    /*
-        set the prev node
-    */
     new_node->prev = prev_node;
-
-    /*
-        the next node must be NULL since its the end of the list
-    */
     new_node->next = NULL;
 
-    /*
-        and that also why we have to set list->bot
-    */
     list->bot = new_node;
-
-    /*
-        if the top is NULL, we inserted into an empty list
-        so we also have set the top to the new_node
-    */
     if (!list->top)
         list->top = new_node;
 
-    /*
-        update the list size
-    */
     list->len++;
-
     return (new_node);
 }
 
@@ -225,32 +183,15 @@ struct vrmr_list_node *vrmr_list_prepend(
     struct vrmr_list_node *new_node = NULL;
     struct vrmr_list_node *next_node = NULL;
 
-    /*
-        safety first
-    */
-    if (!list) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(list);
 
-    /*
-        alloc the new node
-    */
     if (!(new_node = malloc(sizeof(struct vrmr_list_node)))) {
-        vrmr_error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "malloc failed: %s", strerror(errno));
         return (NULL);
     }
 
-    /*
-        append the data
-    */
     new_node->data = (void *)data;
 
-    /*
-        update the next_node
-    */
     next_node = list->top;
     if (next_node) {
         next_node->prev = new_node;
@@ -258,30 +199,14 @@ struct vrmr_list_node *vrmr_list_prepend(
         vrmr_debug(HIGH, "prepended in an empty list (%d).", list->len);
     }
 
-    /*
-        the prev node must be NULL since its the start of the list
-    */
     new_node->prev = NULL;
-
     new_node->next = next_node;
 
-    /*
-        and that also why we have to set list->top
-    */
     list->top = new_node;
-
-    /*
-        if the bot is NULL, we inserted into an empty list
-        so we also have set the bot to the new_node
-    */
     if (!list->bot)
         list->bot = new_node;
 
-    /*
-        update the list size
-    */
     list->len++;
-
     return (new_node);
 }
 
@@ -290,47 +215,21 @@ struct vrmr_list_node *vrmr_list_insert_after(
 {
     struct vrmr_list_node *new_node = NULL;
 
-    vrmr_debug(HIGH, "start.");
+    assert(list);
 
-    /*
-        safety first
-    */
-    if (!list) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
-
-    /*
-        if d_node is NULL we pass over to the vrmr_list_append fuction
-    */
     if (d_node == NULL) {
         vrmr_debug(HIGH, "d_node == NULL, calling vrmr_list_append.");
         return (vrmr_list_append(list, data));
     }
 
-    /*
-        alloc the new node
-    */
     if (!(new_node = malloc(sizeof(struct vrmr_list_node)))) {
-        vrmr_error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "malloc failed: %s", strerror(errno));
         return (NULL);
     }
 
-    /*
-        set the data
-    */
     new_node->data = (void *)data;
 
-    /*
-        set the next node
-    */
     new_node->next = d_node->next;
-
-    /*
-        bot of the list
-    */
     if (new_node->next == NULL) {
         vrmr_debug(HIGH, "new node is the list bot.");
 
@@ -341,17 +240,10 @@ struct vrmr_list_node *vrmr_list_insert_after(
         new_node->next->prev = new_node;
     }
 
-    /*
-        set the prev node
-    */
     new_node->prev = d_node;
     d_node->next = new_node;
 
-    /*
-        update the list size
-    */
     list->len++;
-
     return (new_node);
 }
 
@@ -360,12 +252,7 @@ struct vrmr_list_node *vrmr_list_insert_before(
 {
     struct vrmr_list_node *new_node = NULL;
 
-    /* safety first */
-    if (!list) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(list);
 
     /* if d_node is NULL we pass over to the vrmr_list_prepend fuction */
     if (d_node == NULL) {
@@ -376,8 +263,7 @@ struct vrmr_list_node *vrmr_list_insert_before(
 
     /* alloc the new node */
     if (!(new_node = malloc(sizeof(struct vrmr_list_node)))) {
-        vrmr_error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "malloc failed: %s", strerror(errno));
         return (NULL);
     }
 
@@ -411,12 +297,7 @@ struct vrmr_list_node *vrmr_list_insert_before(
 
 int vrmr_list_node_is_top(struct vrmr_list_node *d_node)
 {
-    /* safety */
-    if (!d_node) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(d_node);
 
     /* see if we have a prev-node */
     if (d_node->prev == NULL)
@@ -427,12 +308,7 @@ int vrmr_list_node_is_top(struct vrmr_list_node *d_node)
 
 int vrmr_list_node_is_bot(struct vrmr_list_node *d_node)
 {
-    /* safety */
-    if (!d_node) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(d_node);
 
     /* see if we have a next-node */
     if (d_node->next == NULL)
@@ -443,18 +319,12 @@ int vrmr_list_node_is_bot(struct vrmr_list_node *d_node)
 
 int vrmr_list_cleanup(struct vrmr_list *list)
 {
-    /* safety */
-    if (!list) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(list);
 
     /* remove the top while list len > 0 */
     for (; list->len;) {
         if (vrmr_list_remove_top(list) < 0) {
-            vrmr_error(-1, "Error", "could not remove node (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "could not remove node");
             return (-1);
         }
     }

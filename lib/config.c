@@ -25,28 +25,23 @@ static int check_logfile(const char *logloc)
 {
     int fd;
 
-    /* safetly */
-    if (logloc == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(logloc);
 
     if ((fd = open(logloc, O_RDONLY)) == -1) {
         /* logfile does not yet exist, try to create it. */
         if ((fd = open(logloc, O_WRONLY | O_CREAT | O_EXCL, 0600)) == -1) {
-            vrmr_error(-1, "Error", "creating of logfile '%s' failed: %s.",
+            vrmr_error(-1, "Error", "creating of logfile '%s' failed: %s",
                     logloc, strerror(errno));
             return (-1);
         }
         if (close(fd) == -1) {
-            vrmr_error(-1, "Error", "closing of logfile '%s' failed: %s.",
+            vrmr_error(-1, "Error", "closing of logfile '%s' failed: %s",
                     logloc, strerror(errno));
             return (-1);
         }
     } else {
         if (close(fd) == -1) {
-            vrmr_error(-1, "Error", "closing of logfile '%s' failed: %s.",
+            vrmr_error(-1, "Error", "closing of logfile '%s' failed: %s",
                     logloc, strerror(errno));
             return (-1);
         }
@@ -70,11 +65,7 @@ int vrmr_config_check_logdir(const char *logdir)
     DIR *dir_p = NULL;
 
     /* safetly */
-    if (logdir == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(logdir);
 
     /* try to open */
     if (!(dir_p = opendir(logdir))) {
@@ -113,12 +104,7 @@ int vrmr_config_check_vuurmuurdir(
 {
     DIR *dir_p = NULL;
 
-    /* safetly */
-    if (logdir == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(logdir);
 
     /* this isn't the right approach _at all_ but I don't really know how to do
      * it better */
@@ -156,7 +142,6 @@ int vrmr_config_check_vuurmuurdir(
     }
 
     vrmr_debug(MEDIUM, "logdir '%s' ok.", logdir);
-
     return (0);
 }
 
@@ -165,19 +150,13 @@ int vrmr_config_check_vuurmuurdir(
 int vrmr_check_iptables_command(
         struct vrmr_config *cnf, char *iptables_location, char quiet)
 {
-    /* safety */
-    if (cnf == NULL || iptables_location == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cnf && iptables_location);
 
     /* first check if there even is a value */
     if (strcmp(iptables_location, "") == 0) {
         if (quiet == VRMR_IPTCHK_VERBOSE)
             vrmr_error(0, "Error",
                     "The path to the 'iptables'-command was not set");
-
         return (0);
     } else {
         /* now check the command */
@@ -189,11 +168,9 @@ int vrmr_check_iptables_command(
                         "The path '%s' to the 'iptables'-command seems to be "
                         "wrong.",
                         iptables_location);
-
             return (0);
         }
     }
-
     return (1);
 }
 
@@ -202,12 +179,7 @@ int vrmr_check_iptables_command(
 int vrmr_check_iptablesrestore_command(
         struct vrmr_config *cnf, char *iptablesrestore_location, char quiet)
 {
-    /* safety */
-    if (cnf == NULL || iptablesrestore_location == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cnf && iptablesrestore_location);
 
     /* first check if there even is a value */
     if (strcmp(iptablesrestore_location, "") == 0) {
@@ -226,11 +198,9 @@ int vrmr_check_iptablesrestore_command(
                         "The path '%s' to the 'iptables-restore'-command seems "
                         "to be wrong.",
                         iptablesrestore_location);
-
             return (0);
         }
     }
-
     return (1);
 }
 
@@ -246,19 +216,13 @@ int vrmr_check_iptablesrestore_command(
 int vrmr_check_ip6tables_command(
         struct vrmr_config *cnf, char *ip6tables_location, char quiet)
 {
-    /* safety */
-    if (cnf == NULL || ip6tables_location == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cnf && ip6tables_location);
 
     /* first check if there even is a value */
     if (strcmp(ip6tables_location, "") == 0) {
         if (quiet == FALSE)
             vrmr_error(0, "Error",
                     "The path to the 'ip6tables'-command was not set");
-
         return (0);
     } else {
         /* now check the command */
@@ -270,30 +234,22 @@ int vrmr_check_ip6tables_command(
                         "The path '%s' to the 'ip6tables'-command seems to be "
                         "wrong",
                         ip6tables_location);
-
             return (0);
         }
     }
-
     return (1);
 }
 
 int vrmr_check_ip6tablesrestore_command(
         struct vrmr_config *cnf, char *ip6tablesrestore_location, char quiet)
 {
-    /* safety */
-    if (cnf == NULL || ip6tablesrestore_location == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cnf && ip6tablesrestore_location);
 
     /* first check if there even is a value */
     if (strcmp(ip6tablesrestore_location, "") == 0) {
         if (quiet == FALSE)
             vrmr_error(0, "Error",
                     "The path to the 'ip6tables-restore'-command was not set");
-
         return (0);
     } else {
         /* now check the command */
@@ -306,11 +262,9 @@ int vrmr_check_ip6tablesrestore_command(
                         "The path '%s' to the 'ip6tables-restore'-command "
                         "seems to be wrong.",
                         ip6tablesrestore_location);
-
             return (0);
         }
     }
-
     return (1);
 }
 
@@ -319,18 +273,12 @@ int vrmr_check_ip6tablesrestore_command(
 int vrmr_check_tc_command(
         struct vrmr_config *cnf, char *tc_location, char quiet)
 {
-    /* safety */
-    if (cnf == NULL || tc_location == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cnf && tc_location);
 
     /* first check if there even is a value */
     if (strcmp(tc_location, "") == 0) {
         if (quiet == VRMR_IPTCHK_VERBOSE)
             vrmr_error(0, "Error", "The path to the 'tc'-command was not set");
-
         return (0);
     } else {
         char *args[] = {tc_location, "-V", NULL};
@@ -340,11 +288,9 @@ int vrmr_check_tc_command(
                 vrmr_error(0, "Error",
                         "The path '%s' to the 'tc'-command seems to be wrong.",
                         tc_location);
-
             return (0);
         }
     }
-
     return (1);
 }
 
@@ -354,19 +300,12 @@ int vrmr_config_set_log_names(struct vrmr_config *cnf)
 {
     int retval = 0;
 
-    /* safety */
-    if (cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cnf);
 
     if (snprintf(cnf->vuurmuurlog_location, sizeof(cnf->vuurmuurlog_location),
                 "%s/vuurmuur.log", cnf->vuurmuur_logdir_location) >=
             (int)sizeof(cnf->vuurmuurlog_location)) {
-        vrmr_error(-1, "Error",
-                "vuurmuur.log location was truncated (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Error", "vuurmuur.log location was truncated");
         retval = -1;
     }
     strlcpy(vrprint.infolog, cnf->vuurmuurlog_location,
@@ -375,35 +314,28 @@ int vrmr_config_set_log_names(struct vrmr_config *cnf)
     if (snprintf(cnf->trafficlog_location, sizeof(cnf->trafficlog_location),
                 "%s/traffic.log", cnf->vuurmuur_logdir_location) >=
             (int)sizeof(cnf->trafficlog_location)) {
-        vrmr_error(-1, "Error",
-                "traffic.log location was truncated (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Error", "traffic.log location was truncated");
         retval = -1;
     }
 
     if (snprintf(cnf->connnewlog_location, sizeof(cnf->connnewlog_location),
                 "%s/connnew.log", cnf->vuurmuur_logdir_location) >=
             (int)sizeof(cnf->connnewlog_location)) {
-        vrmr_error(-1, "Error",
-                "connnew.log location was truncated (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Error", "connnew.log location was truncated");
         retval = -1;
     }
 
     if (snprintf(cnf->connlog_location, sizeof(cnf->connlog_location),
                 "%s/connections.log", cnf->vuurmuur_logdir_location) >=
             (int)sizeof(cnf->connlog_location)) {
-        vrmr_error(-1, "Error",
-                "connections.log location was truncated (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Error", "connections.log location was truncated");
         retval = -1;
     }
 
     if (snprintf(cnf->debuglog_location, sizeof(cnf->debuglog_location),
                 "%s/debug.log", cnf->vuurmuur_logdir_location) >=
             (int)sizeof(cnf->debuglog_location)) {
-        vrmr_error(-1, "Error", "debug.log location was truncated (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "debug.log location was truncated");
         retval = -1;
     }
     strlcpy(vrprint.debuglog, cnf->debuglog_location, sizeof(vrprint.debuglog));
@@ -411,8 +343,7 @@ int vrmr_config_set_log_names(struct vrmr_config *cnf)
     if (snprintf(cnf->errorlog_location, sizeof(cnf->errorlog_location),
                 "%s/error.log", cnf->vuurmuur_logdir_location) >=
             (int)sizeof(cnf->errorlog_location)) {
-        vrmr_error(-1, "Error", "error.log location was truncated (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "error.log location was truncated");
         retval = -1;
     }
     strlcpy(vrprint.errorlog, cnf->errorlog_location, sizeof(vrprint.errorlog));
@@ -420,8 +351,7 @@ int vrmr_config_set_log_names(struct vrmr_config *cnf)
     if (snprintf(cnf->auditlog_location, sizeof(cnf->auditlog_location),
                 "%s/audit.log", cnf->vuurmuur_logdir_location) >=
             (int)sizeof(cnf->auditlog_location)) {
-        vrmr_error(-1, "Error", "audit.log location was truncated (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "audit.log location was truncated");
         retval = -1;
     }
     strlcpy(vrprint.auditlog, cnf->auditlog_location, sizeof(vrprint.auditlog));
@@ -445,9 +375,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
     char tmpbuf[512] = "";
     int debug_level = 0;
 
-    /* safety first */
-    if (cnf == NULL)
-        return (VRMR_CNF_E_PARAMETER);
+    assert(cnf);
 
     /* only print debug if we are in verbose mode, since at this moment debug
        still goes to the stdout, because we have yet to initialize our logs */
@@ -458,8 +386,8 @@ int vrmr_init_config(struct vrmr_config *cnf)
 
     /* check the file */
     if (!(fp = fopen(cnf->configfile, "r"))) {
-        vrmr_error(-1, "Error", "could not open configfile '%s': %s (in: %s).",
-                cnf->configfile, strerror(errno), __FUNC__);
+        vrmr_error(-1, "Error", "could not open configfile '%s': %s",
+                cnf->configfile, strerror(errno));
         if (errno == ENOENT)
             return (VRMR_CNF_E_FILE_MISSING);
         else if (errno == EACCES)
@@ -517,9 +445,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->serv_backend_name)) >=
                 sizeof(cnf->serv_backend_name)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
 
@@ -542,9 +468,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->zone_backend_name)) >=
                 sizeof(cnf->zone_backend_name)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
 
@@ -567,9 +491,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->ifac_backend_name)) >=
                 sizeof(cnf->ifac_backend_name)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
 
@@ -592,9 +514,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->rule_backend_name)) >=
                 sizeof(cnf->rule_backend_name)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
 
@@ -616,7 +536,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                         sizeof(cnf->rules_location)) >=
                     sizeof(cnf->rules_location)) {
                 vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                        "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                        "string overflow");
                 return (VRMR_CNF_E_UNKNOWN_ERR);
             }
         } else if (cnf->rules_location[0] != '/') {
@@ -628,7 +548,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                         sizeof(cnf->rules_location)) >=
                     sizeof(cnf->rules_location)) {
                 vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                        "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                        "string overflow");
                 return (VRMR_CNF_E_UNKNOWN_ERR);
             }
         }
@@ -639,7 +559,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
         if (strlcpy(cnf->rules_location, tmpbuf, sizeof(cnf->rules_location)) >=
                 sizeof(cnf->rules_location)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
     } else
@@ -660,7 +580,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                         sizeof(cnf->blocklist_location)) >=
                     sizeof(cnf->blocklist_location)) {
                 vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                        "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                        "string overflow");
                 return (VRMR_CNF_E_UNKNOWN_ERR);
             }
         } else if (strlen(cnf->blocklist_location) > 0 &&
@@ -673,7 +593,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                         sizeof(cnf->blocklist_location)) >=
                     sizeof(cnf->blocklist_location)) {
                 vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                        "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                        "string overflow");
                 return (VRMR_CNF_E_UNKNOWN_ERR);
             }
         }
@@ -686,7 +606,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->blocklist_location)) >=
                 sizeof(cnf->blocklist_location)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
     } else
@@ -1263,7 +1183,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->sysctl_location)) >=
                 sizeof(cnf->sysctl_location)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
 
@@ -1285,7 +1205,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->iptables_location)) >=
                 sizeof(cnf->iptables_location)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
 
@@ -1310,7 +1230,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->iptablesrestore_location)) >=
                 sizeof(cnf->iptablesrestore_location)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
 
@@ -1333,7 +1253,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->ip6tables_location)) >=
                 sizeof(cnf->ip6tables_location)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
 
@@ -1359,7 +1279,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->ip6tablesrestore_location)) >=
                 sizeof(cnf->ip6tablesrestore_location)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
 
@@ -1375,18 +1295,8 @@ int vrmr_init_config(struct vrmr_config *cnf)
     if (result == 1) {
         /* ok */
     } else if (result == 0) {
-        /*  VJ 06/05/03: don't set a default because most systems
-            won't have this tool. Keeping it empty allows us to
-            check for it not beeing set and present a warning */
-
-        // if(strlcpy(cnf->conntrack_location, VRMR_DEFAULT_CONNTRACK_LOCATION,
-        // sizeof(cnf->conntrack_location)) >= sizeof(cnf->conntrack_location))
-        //{
-        //    vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-        //            "string overflow (in: %s:%d).",
-        //            __FUNC__, __LINE__);
-        //    return(VRMR_CNF_E_UNKNOWN_ERR);
-        //}
+        /*  don't set a default because most systems
+            won't have this tool by default */
     } else
         return (VRMR_CNF_E_UNKNOWN_ERR);
 
@@ -1398,18 +1308,8 @@ int vrmr_init_config(struct vrmr_config *cnf)
     if (result == 1) {
         /* ok */
     } else if (result == 0) {
-        /*  VJ 06/05/03: don't set a default because most systems
-            won't have this tool. Keeping it empty allows us to
-            check for it not beeing set and present a warning */
-
-        // if(strlcpy(cnf->conntrack_location, VRMR_DEFAULT_TC_LOCATION,
-        // sizeof(cnf->tc_location)) >= sizeof(cnf->tc_location))
-        //{
-        //    vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-        //            "string overflow (in: %s:%d).",
-        //            __FUNC__, __LINE__);
-        //    return(VRMR_CNF_E_UNKNOWN_ERR);
-        //}
+        /*  don't set a default because most systems
+            won't have this tool by default */
     } else
         return (VRMR_CNF_E_UNKNOWN_ERR);
 
@@ -1424,7 +1324,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->modprobe_location)) >=
                 sizeof(cnf->modprobe_location)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
     } else
@@ -1509,7 +1409,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->systemlog_location)) >=
                 sizeof(cnf->systemlog_location)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
 
@@ -1536,7 +1436,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
                     sizeof(cnf->vuurmuur_logdir_location)) >=
                 sizeof(cnf->vuurmuur_logdir_location)) {
             vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    "string overflow");
             return (VRMR_CNF_E_UNKNOWN_ERR);
         }
 
@@ -1614,12 +1514,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
 
 static int vrmr_pre_init_config(struct vrmr_config *cnf)
 {
-    /* safety */
-    if (cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cnf);
 
     /* init the struct */
     memset(cnf, 0, sizeof(struct vrmr_config));
@@ -1628,9 +1523,7 @@ static int vrmr_pre_init_config(struct vrmr_config *cnf)
     if (strlcpy(cnf->etcdir, xstr(SYSCONFDIR), sizeof(cnf->etcdir)) >=
             sizeof(cnf->etcdir)) {
         vrmr_error(-1, "Error",
-                "buffer too small for config-dir supplied at compile-time (in: "
-                "%s:%d).",
-                __FUNC__, __LINE__);
+                "buffer too small for config-dir supplied at compile-time");
         return (-1);
     }
     // printf("cnf->etcdir %s\n", cnf->etcdir);
@@ -1639,9 +1532,7 @@ static int vrmr_pre_init_config(struct vrmr_config *cnf)
                 "%s/vuurmuur/config.conf",
                 cnf->etcdir) >= (int)sizeof(cnf->configfile)) {
         vrmr_error(-1, "Error",
-                "buffer too small for configfile supplied at compile-time (in: "
-                "%s:%d).",
-                __FUNC__, __LINE__);
+                "buffer too small for configfile supplied at compile-time");
         return (-1);
     }
     // printf("cnf->configfile %s\n", cnf->configfile);
@@ -1650,9 +1541,7 @@ static int vrmr_pre_init_config(struct vrmr_config *cnf)
     if (strlcpy(cnf->plugdir, xstr(PLUGINDIR), sizeof(cnf->plugdir)) >=
             sizeof(cnf->plugdir)) {
         vrmr_error(-1, "Error",
-                "buffer too small for plugdir supplied at compile-time (in: "
-                "%s:%d).",
-                __FUNC__, __LINE__);
+                "buffer too small for plugdir supplied at compile-time");
         return (-1);
     }
     // printf("cnf->libdir %s\n", cnf->libdir);
@@ -1661,9 +1550,7 @@ static int vrmr_pre_init_config(struct vrmr_config *cnf)
     if (strlcpy(cnf->datadir, xstr(DATADIR), sizeof(cnf->datadir)) >=
             sizeof(cnf->datadir)) {
         vrmr_error(-1, "Error",
-                "buffer too small for sysconfdir supplied at compile-time (in: "
-                "%s:%d).",
-                __FUNC__, __LINE__);
+                "buffer too small for sysconfdir supplied at compile-time");
         return (-1);
     }
 
@@ -1681,14 +1568,7 @@ int vrmr_reload_config(struct vrmr_config *old_cnf)
     struct vrmr_config new_cnf;
     int retval = VRMR_CNF_OK;
 
-    /* safety */
-    if (!old_cnf) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (VRMR_CNF_E_PARAMETER);
-    }
+    assert(old_cnf);
 
     /* some initilization */
     if (vrmr_pre_init_config(&new_cnf) < 0)
@@ -1708,10 +1588,7 @@ int vrmr_reload_config(struct vrmr_config *old_cnf)
      * vrmr_init_config */
     if (strlcpy(new_cnf.configfile, old_cnf->configfile,
                 sizeof(new_cnf.configfile)) >= sizeof(new_cnf.configfile)) {
-        vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                "string overflow "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error", "string overflow");
         return (VRMR_CNF_E_UNKNOWN_ERR);
     }
 
@@ -1726,9 +1603,7 @@ int vrmr_reload_config(struct vrmr_config *old_cnf)
             if (strlcpy(new_cnf.loglevel, old_cnf->loglevel,
                         sizeof(new_cnf.loglevel)) >= sizeof(new_cnf.loglevel)) {
                 vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                        "string overflow "
-                        "(in: %s:%d).",
-                        __FUNC__, __LINE__);
+                        "string overflow");
                 return (VRMR_CNF_E_UNKNOWN_ERR);
             }
             new_cnf.log_tcp_options = old_cnf->log_tcp_options;
@@ -1757,12 +1632,10 @@ int vrmr_ask_configfile(const struct vrmr_config *cnf, char *question,
     FILE *fp = NULL;
     char line[512] = "", variable[128] = "", value[256] = "";
 
-    if (!question || !file_location || size == 0)
-        return (-1);
+    assert(question && file_location && size > 0);
 
     if (!(fp = vuurmuur_fopen(cnf, file_location, "r"))) {
-        vrmr_error(-1, "Error",
-                "unable to open configfile '%s': %s (in: vrmr_ask_configfile).",
+        vrmr_error(-1, "Error", "unable to open configfile '%s': %s",
                 file_location, strerror(errno));
         return (-1);
     }
@@ -1815,9 +1688,8 @@ int vrmr_ask_configfile(const struct vrmr_config *cnf, char *question,
                         value);
 
                 if (strlcpy(answer_ptr, value, size) >= size) {
-                    vrmr_error(-1, "Error",
-                            "value for question '%s' too big (in: %s:%d).",
-                            question, __FUNC__, __LINE__);
+                    vrmr_error(-1, "Error", "value for question '%s' too big",
+                            question);
                     retval = -1;
                 } else {
                     retval = 1;
@@ -1845,18 +1717,13 @@ int vrmr_write_configfile(char *file_location, struct vrmr_config *cfg)
 {
     FILE *fp = NULL;
 
-    /* safety */
-    if (file_location == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(file_location);
 
     /* open for over-writing */
     if (!(fp = fopen(file_location, "w+"))) {
         vrmr_error(-1, "Error",
-                "unable to open configfile '%s' for writing: %s (in: %s:%d).",
-                file_location, strerror(errno), __FUNC__, __LINE__);
+                "unable to open configfile '%s' for writing: %s", file_location,
+                strerror(errno));
         return (-1);
     }
 
@@ -1998,7 +1865,7 @@ int vrmr_write_configfile(char *file_location, struct vrmr_config *cfg)
     return (0);
 }
 
-int vrmr_init(struct vrmr_ctx *ctx, char *toolname)
+int vrmr_init(struct vrmr_ctx *ctx, const char *toolname)
 {
     vrmr_debug_level = 0;
 
@@ -2100,27 +1967,27 @@ int vrmr_create_log_hash(struct vrmr_ctx *vctx,
      * 'firewall', so this appears in to log as 'firewall(interface)' */
     if (vrmr_ins_iface_into_zonelist(
                 &vctx->interfaces.list, &vctx->zones.list) < 0) {
-        vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
+        vrmr_error(-1, "Error", "iface_into_zonelist failed");
         return (-1);
     }
 
     /* these are removed by: vrmr_rem_iface_from_zonelist() (see below) */
     if (vrmr_add_broadcasts_zonelist(&vctx->zones) < 0) {
-        vrmr_error(-1, "Error", "unable to add broadcasts to list.");
+        vrmr_error(-1, "Error", "unable to add broadcasts to list");
         return (-1);
     }
 
     if (vrmr_init_zonedata_hashtable(vctx->zones.list.len * 3,
                 &vctx->zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress,
                 zone_hash) < 0) {
-        vrmr_error(-1, "Error", "vrmr_init_zonedata_hashtable failed.");
+        vrmr_error(-1, "Error", "vrmr_init_zonedata_hashtable failed");
         return (-1);
     }
 
     if (vrmr_init_services_hashtable(vctx->services.list.len * 500,
                 &vctx->services.list, vrmr_hash_port, vrmr_compare_ports,
                 service_hash) < 0) {
-        vrmr_error(-1, "Error", "vrmr_init_services_hashtable failed.");
+        vrmr_error(-1, "Error", "vrmr_init_services_hashtable failed");
         return (-1);
     }
     return (0);

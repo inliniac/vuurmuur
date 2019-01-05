@@ -45,10 +45,7 @@ static int create_network_ip(
     //    unsigned long int networkvalue=0;
 
     if (inet_aton(netmask, &mask) == 0) {
-        vrmr_error(-1, "Error",
-                "invalid netmask: '%s' "
-                "(in: %s:%d).",
-                netmask, __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "invalid netmask: '%s'", netmask);
         return (-1);
     }
 
@@ -56,10 +53,7 @@ static int create_network_ip(
     vrmr_debug(HIGH, "netmask = %s", inet_ntoa(mask));
 
     if (inet_aton(ipaddress, &ip) == 0) {
-        vrmr_error(-1, "Error",
-                "invalid ipaddress: '%s' "
-                "(in: %s:%d).",
-                netmask, __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "invalid ipaddress: '%s'", netmask);
         return (-1);
     }
     vrmr_debug(HIGH, "ipaddress = %s", inet_ntoa(ip));
@@ -69,10 +63,7 @@ static int create_network_ip(
     vrmr_debug(HIGH, "network = %s", inet_ntoa(net));
 
     if (strlcpy(network_ip, inet_ntoa(net), size) >= size) {
-        vrmr_error(-1, "Internal Error",
-                "string overflow "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "string overflow");
         return (-1);
     }
 
@@ -94,20 +85,15 @@ int script_list_devices(void)
     int numreqs = 30;
     struct ifconf ifc;
     struct ifreq *ifr_ptr = NULL, ifr_struct;
-    int n;
-    int sockfd = 0;
     char ipaddress[16] = "", netmask[16] = "", broadcast[16] = "",
          network[16] = "";
     struct sockaddr *sa = NULL;
     struct sockaddr_in *sin = NULL;
 
     /* open a socket for ioctl */
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd == -1) {
-        vrmr_error(-1, "Error",
-                "couldn't open socket: %s "
-                "(in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "couldn't open socket: %s", strerror(errno));
         return (-1);
     }
 
@@ -117,24 +103,17 @@ int script_list_devices(void)
         ifc.ifc_len = (int)(sizeof(struct ifreq) * numreqs);
         /* get some mem */
         if (!(ifc.ifc_buf = realloc(ifc.ifc_buf, (size_t)ifc.ifc_len))) {
-            vrmr_error(-1, "Error",
-                    "realloc failed: %s "
-                    "(in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "realloc failed: %s", strerror(errno));
             (void)close(sockfd);
-
             return (-1);
         }
 
         /* get the interfaces from the system */
         if (ioctl(sockfd, SIOCGIFCONF, &ifc) < 0) {
-            vrmr_error(-1, "Error",
-                    "ioctl(SIOCGIFCONF) "
-                    "failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "ioctl(SIOCGIFCONF) failed: %s",
+                    strerror(errno));
             free(ifc.ifc_buf);
             (void)close(sockfd);
-
             return (-1);
         }
         if (ifc.ifc_len == (int)(sizeof(struct ifreq) * numreqs)) {
@@ -146,16 +125,13 @@ int script_list_devices(void)
     }
 
     ifr_ptr = ifc.ifc_req;
-    for (n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq)) {
+    for (int n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq)) {
         vrmr_debug(HIGH, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
 
         if (strlcpy(ifr_struct.ifr_name, ifr_ptr->ifr_name,
                     sizeof(ifr_struct.ifr_name)) >=
                 sizeof(ifr_struct.ifr_name)) {
-            vrmr_error(-1, "Error",
-                    "buffer overflow "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow");
             (void)close(sockfd);
             free(ifc.ifc_buf);
             return (-1);
@@ -177,14 +153,10 @@ int script_list_devices(void)
             if (inet_ntop(AF_INET, &sin->sin_addr, ipaddress,
                         (socklen_t)sizeof(ipaddress)) == NULL) {
                 vrmr_error(-1, "Error",
-                        "getting "
-                        "ipaddress for device '%s' failed: %s "
-                        "(in: %s:%d).",
-                        ifr_ptr->ifr_name, strerror(errno), __FUNC__, __LINE__);
-
+                        "getting ipaddress for device '%s' failed: %s",
+                        ifr_ptr->ifr_name, strerror(errno));
                 (void)close(sockfd);
                 free(ifc.ifc_buf);
-
                 return (-1);
             }
 
@@ -203,14 +175,10 @@ int script_list_devices(void)
             if (inet_ntop(AF_INET, &sin->sin_addr, netmask,
                         (socklen_t)sizeof(ipaddress)) == NULL) {
                 vrmr_error(-1, "Error",
-                        "getting "
-                        "ipaddress for device '%s' failed: %s "
-                        "(in: %s:%d).",
-                        ifr_ptr->ifr_name, strerror(errno), __FUNC__, __LINE__);
-
+                        "getting ipaddress for device '%s' failed: %s",
+                        ifr_ptr->ifr_name, strerror(errno));
                 (void)close(sockfd);
                 free(ifc.ifc_buf);
-
                 return (-1);
             }
 
@@ -239,14 +207,10 @@ int script_list_devices(void)
             if (inet_ntop(AF_INET, &sin->sin_addr, broadcast,
                         (socklen_t)sizeof(ipaddress)) == NULL) {
                 vrmr_error(-1, "Error",
-                        "getting "
-                        "broadcast for device '%s' failed: %s "
-                        "(in: %s:%d).",
-                        ifr_ptr->ifr_name, strerror(errno), __FUNC__, __LINE__);
-
+                        "getting broadcast for device '%s' failed: %s",
+                        ifr_ptr->ifr_name, strerror(errno));
                 (void)close(sockfd);
                 free(ifc.ifc_buf);
-
                 return (-1);
             }
 

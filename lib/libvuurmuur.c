@@ -187,8 +187,8 @@ int range_strcpy(char *dest, const char *src, const size_t start,
 {
     size_t s = 0, d = 0, src_len = 0;
 
-    if (!dest || !src)
-        return (-1);
+    assert(dest);
+    assert(src);
 
     src_len = strlen(src);
 
@@ -221,174 +221,109 @@ int range_strcpy(char *dest, const char *src, const size_t start,
 */
 int vrmr_regex_setup(int action, struct vrmr_regex *reg)
 {
-    if (!reg)
-        return (-1);
-
-    if (action < 0 || action > 1 || reg == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(reg);
+    assert(action >= 0 && action <= 1);
 
     if (action == 1) {
         /* regex setup */
         if (!(reg->zonename = malloc(sizeof(regex_t)))) {
-            vrmr_error(-1, "Internal Error",
-                    "malloc "
-                    "failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "malloc failed: %s", strerror(errno));
             return (-1);
         }
 
         if (regcomp(reg->zonename, VRMR_ZONE_REGEX, REG_EXTENDED) != 0) {
-            vrmr_error(-1, "Internal Error",
-                    "regcomp() "
-                    "failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "regcomp() failed");
             return (-1);
         }
 
         /* regex setup */
         if (!(reg->zone_part = malloc(sizeof(regex_t)))) {
-            vrmr_error(-1, "Internal Error",
-                    "malloc "
-                    "failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "malloc failed: %s", strerror(errno));
             return (-1);
         }
 
         if (regcomp(reg->zone_part, VRMR_VRMR_ZONE_REGEX_ZONEPART,
                     REG_EXTENDED) != 0) {
-            vrmr_error(-1, "Internal Error",
-                    "regcomp() "
-                    "failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "regcomp() failed");
             return (-1);
         }
 
         /* regex setup */
         if (!(reg->network_part = malloc(sizeof(regex_t)))) {
-            vrmr_error(-1, "Internal Error",
-                    "malloc "
-                    "failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "malloc failed: %s", strerror(errno));
             return (-1);
         }
 
         if (regcomp(reg->network_part, VRMR_VRMR_ZONE_REGEX_NETWORKPART,
                     REG_EXTENDED) != 0) {
-            vrmr_error(-1, "Internal Error",
-                    "regcomp() "
-                    "failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "regcomp() failed");
             return (-1);
         }
 
         /* regex setup */
         if (!(reg->host_part = malloc(sizeof(regex_t)))) {
-            vrmr_error(-1, "Internal Error",
-                    "malloc "
-                    "failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "malloc failed: %s", strerror(errno));
             return (-1);
         }
 
         if (regcomp(reg->host_part, VRMR_VRMR_ZONE_REGEX_HOSTPART,
                     REG_EXTENDED) != 0) {
-            vrmr_error(-1, "Internal Error",
-                    "regcomp() "
-                    "failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "regcomp() failed");
             return (-1);
         }
 
         /* regex setup */
         if (!(reg->servicename = malloc(sizeof(regex_t)))) {
-            vrmr_error(-1, "Internal Error",
-                    "malloc "
-                    "failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "malloc failed: %s", strerror(errno));
             return (-1);
         }
 
         if (regcomp(reg->servicename, VRMR_SERV_REGEX, REG_EXTENDED) != 0) {
-            vrmr_error(-1, "Internal Error",
-                    "regcomp() "
-                    "failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "regcomp() failed");
             return (-1);
         }
 
         /* regex setup */
         if (!(reg->interfacename = malloc(sizeof(regex_t)))) {
-            vrmr_error(-1, "Internal Error",
-                    "malloc "
-                    "failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "malloc failed: %s", strerror(errno));
             return (-1);
         }
 
         if (regcomp(reg->interfacename, VRMR_IFAC_REGEX, REG_EXTENDED) != 0) {
-            vrmr_error(-1, "Internal Error",
-                    "regcomp() "
-                    "failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "regcomp() failed");
             return (-1);
         }
 
         /* regex setup */
         if (!(reg->macaddr = malloc(sizeof(regex_t)))) {
-            vrmr_error(-1, "Internal Error",
-                    "malloc "
-                    "failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "malloc failed: %s", strerror(errno));
             return (-1);
         }
 
         if (regcomp(reg->macaddr, VRMR_MAC_REGEX, REG_EXTENDED) != 0) {
-            vrmr_error(-1, "Internal Error",
-                    "regcomp() "
-                    "failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "regcomp() failed");
             return (-1);
         }
 
         /* regex setup */
         if (!(reg->configline = malloc(sizeof(regex_t)))) {
-            vrmr_error(-1, "Internal Error",
-                    "malloc "
-                    "failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "malloc failed: %s", strerror(errno));
             return (-1);
         }
 
         if (regcomp(reg->configline, VRMR_CONFIG_REGEX, REG_EXTENDED) != 0) {
-            vrmr_error(-1, "Internal Error",
-                    "regcomp() "
-                    "failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "regcomp() failed");
             return (-1);
         }
 
-        /* regex setup */
-        /*        if(!(reg->comment = malloc(sizeof(regex_t))))
-                {
-                    vrmr_error(-1, "Internal Error", "malloc "
-                            "failed: %s (in: %s:%d).",
-                            strerror(errno), __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-                if(regcomp(reg->comment, TEXTFIELD_REGEX, REG_EXTENDED) != 0)
-                {
-                    vrmr_error(-1, "Internal Error", "regcomp() "
-                            "failed (in: %s:%d).",
-                            __FUNC__, __LINE__);
-                    return(-1);
-                }
-        */
     } else {
         /* zone */
         regfree(reg->zonename);

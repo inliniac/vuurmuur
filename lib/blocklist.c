@@ -29,24 +29,14 @@
 static int blocklist_add_ip_to_list(
         struct vrmr_blocklist *blocklist, const char *ip)
 {
-    size_t len = 0;
     char *ipaddress = NULL;
 
-    /* safety */
-    if (!blocklist || !ip) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(blocklist && ip);
 
     /* get the length */
-    len = strlen(ip);
+    size_t len = strlen(ip);
     if (len <= 0 || len > 15) {
-        vrmr_error(-1, "Internal Error",
-                "weird ipaddress "
-                "size %u",
+        vrmr_error(-1, "Internal Error", "weird ipaddress size %u",
                 (unsigned int)len);
         return (-1);
     }
@@ -59,9 +49,7 @@ static int blocklist_add_ip_to_list(
 
     /* append to list */
     if (vrmr_list_append(&blocklist->list, ipaddress) == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "appending into the "
-                "list failed");
+        vrmr_error(-1, "Internal Error", "appending into the list failed");
         free(ipaddress);
         return (-1);
     }
@@ -74,30 +62,15 @@ static int blocklist_add_string_to_list(
 {
     char *string = NULL;
 
-    /* safety */
-    if (!blocklist || !str) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(blocklist && str);
 
-    /* alloc the mem */
     if (!(string = strdup(str))) {
-        vrmr_error(-1, "Error",
-                "strdup failed: %s "
-                "(in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "strdup failed: %s", strerror(errno));
         return (-1);
     }
 
-    /* append to list */
     if (vrmr_list_append(&blocklist->list, string) == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "appending into the "
-                "list failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "appending into the list failed");
         free(string);
         return (-1);
     }
@@ -116,12 +89,7 @@ int vrmr_blocklist_add_one(struct vrmr_zones *zones,
     struct vrmr_zone *zone_ptr = NULL, *member_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (!zones || !blocklist || !line) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zones && blocklist && line);
 
     /* call vrmr_check_ipv4address with the quiet flag */
     if (vrmr_check_ipv4address(NULL, NULL, line, 1) != 1) {
@@ -151,9 +119,7 @@ int vrmr_blocklist_add_one(struct vrmr_zones *zones,
                         /* add the string */
                         if (blocklist_add_string_to_list(blocklist, line) < 0) {
                             vrmr_error(-1, "Internal Error",
-                                    "adding string to blocklist failed (in: "
-                                    "%s:%d).",
-                                    __FUNC__, __LINE__);
+                                    "adding string to blocklist failed");
                             return (-1);
                         }
                     } else {
@@ -180,9 +146,7 @@ int vrmr_blocklist_add_one(struct vrmr_zones *zones,
                             if (blocklist_add_string_to_list(blocklist, line) <
                                     0) {
                                 vrmr_error(-1, "Internal Error",
-                                        "adding string to blocklist failed "
-                                        "(in: %s:%d).",
-                                        __FUNC__, __LINE__);
+                                        "adding string to blocklist failed");
                                 return (-1);
                             }
                         } else {
@@ -190,9 +154,7 @@ int vrmr_blocklist_add_one(struct vrmr_zones *zones,
                             if (blocklist_add_ip_to_list(blocklist,
                                         zone_ptr->ipv4.ipaddress) < 0) {
                                 vrmr_error(-1, "Internal Error",
-                                        "adding ipaddress to blocklist failed "
-                                        "(in: %s:%d).",
-                                        __FUNC__, __LINE__);
+                                        "adding ipaddress to blocklist failed");
                                 return (-1);
                             }
                         }
@@ -204,9 +166,7 @@ int vrmr_blocklist_add_one(struct vrmr_zones *zones,
                             if (blocklist_add_string_to_list(blocklist, line) <
                                     0) {
                                 vrmr_error(-1, "Internal Error",
-                                        "adding string to blocklist failed "
-                                        "(in: %s:%d).",
-                                        __FUNC__, __LINE__);
+                                        "adding string to blocklist failed");
                                 return (-1);
                             }
                         } else {
@@ -214,8 +174,7 @@ int vrmr_blocklist_add_one(struct vrmr_zones *zones,
                                     d_node = d_node->next) {
                                 if (!(member_ptr = d_node->data)) {
                                     vrmr_error(-1, "Internal Error",
-                                            "NULL pointer (in: %s:%d).",
-                                            __FUNC__, __LINE__);
+                                            "NULL pointer");
                                     return (-1);
                                 }
 
@@ -232,8 +191,7 @@ int vrmr_blocklist_add_one(struct vrmr_zones *zones,
                                             0) {
                                         vrmr_error(-1, "Internal Error",
                                                 "adding ipaddress to blocklist "
-                                                "failed (in: %s:%d).",
-                                                __FUNC__, __LINE__);
+                                                "failed");
                                         return (-1);
                                     }
                                 }
@@ -247,8 +205,7 @@ int vrmr_blocklist_add_one(struct vrmr_zones *zones,
                 /* add the string */
                 if (blocklist_add_string_to_list(blocklist, line) < 0) {
                     vrmr_error(-1, "Internal Error",
-                            "adding string to blocklist failed (in: %s:%d).",
-                            __FUNC__, __LINE__);
+                            "adding string to blocklist failed");
                     return (-1);
                 }
             } else {
@@ -263,16 +220,14 @@ int vrmr_blocklist_add_one(struct vrmr_zones *zones,
             /* add the string */
             if (blocklist_add_string_to_list(blocklist, line) < 0) {
                 vrmr_error(-1, "Internal Error",
-                        "adding string to blocklist failed (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                        "adding string to blocklist failed");
                 return (-1);
             }
         } else {
             /* valid ip, so add to the block list */
             if (blocklist_add_ip_to_list(blocklist, line) < 0) {
                 vrmr_error(-1, "Internal Error",
-                        "adding ipaddress to blocklist failed (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                        "adding ipaddress to blocklist failed");
                 return (-1);
             }
         }
@@ -288,18 +243,11 @@ int vrmr_blocklist_rem_one(struct vrmr_zones *zones,
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_zone *zone_ptr = NULL;
 
-    /* safety */
-    if (!zones || !blocklist || !itemname) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zones && blocklist && itemname);
 
-    /* look the item up in the list */
     for (d_node = blocklist->list.top; d_node; d_node = d_node->next) {
         if (!(listitemname = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -313,18 +261,16 @@ int vrmr_blocklist_rem_one(struct vrmr_zones *zones,
                         zone_ptr->refcnt_blocklist--;
                     else {
                         vrmr_error(-1, "Internal Error",
-                                "blocklist refcnt of '%s' already 0! (in: "
-                                "%s:%d).",
-                                zone_ptr->name, __FUNC__, __LINE__);
+                                "blocklist refcnt of '%s' already 0!",
+                                zone_ptr->name);
                     }
                 }
             }
 
             /* this one needs to be removed */
             if (vrmr_list_remove_node(&blocklist->list, d_node) < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "removing item from list failed (in: %s:%d).", __FUNC__,
-                        __LINE__);
+                vrmr_error(
+                        -1, "Internal Error", "removing item from list failed");
                 return (-1);
             }
 
@@ -335,8 +281,7 @@ int vrmr_blocklist_rem_one(struct vrmr_zones *zones,
 
     /* if we get here something went wrong */
     vrmr_error(-1, "Internal Error",
-            "removing item '%s' from list failed: item not found (in: %s:%d).",
-            itemname, __FUNC__, __LINE__);
+            "removing item '%s' from list failed: item not found", itemname);
     return (-1);
 }
 
@@ -351,29 +296,21 @@ static int blocklist_read_file(struct vrmr_config *cfg,
 {
     FILE *fp = NULL;
     char line[128] = "";
-    size_t len = 0;
 
-    /* safety */
-    if (zones == NULL || blocklist == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zones && blocklist);
 
     vrmr_debug(HIGH, "load_ips: %c, no_refcnt: %c.", load_ips, no_refcnt);
 
     /* open the blocklist-file */
     if (!(fp = vuurmuur_fopen(cfg, cfg->blocklist_location, "r"))) {
-        vrmr_error(-1, "Error",
-                "opening blockfile '%s' failed: %s (in: %s:%d).",
-                cfg->blocklist_location, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "opening blockfile '%s' failed: %s",
+                cfg->blocklist_location, strerror(errno));
         return (-1);
     }
 
     /* read the file */
     while (fgets(line, (int)sizeof(line), fp) != NULL) {
-        len = strlen(line);
-
+        size_t len = strlen(line);
         if (len > 0 && line[0] != '#') {
             /* cut of the newline */
             if (line[len - 1] == '\n')
@@ -382,26 +319,16 @@ static int blocklist_read_file(struct vrmr_config *cfg,
             /* add it to the list */
             if (vrmr_blocklist_add_one(
                         zones, blocklist, load_ips, no_refcnt, line) < 0) {
-                vrmr_error(-1, "Error",
-                        "adding to the blocklist failed (in: %s:%d).", __FUNC__,
-                        __LINE__);
-
-                /* try to close the file */
-                if (fclose(fp) < 0) {
-                    vrmr_error(-1, "Error",
-                            "closing blockfile failed: %s (in: %s:%d).",
-                            strerror(errno), __FUNC__, __LINE__);
-                    return (-1);
-                }
-
+                vrmr_error(-1, "Error", "adding to the blocklist failed");
+                (void)fclose(fp);
                 return (-1);
             }
         }
     }
 
     if (fclose(fp) < 0) {
-        vrmr_error(-1, "Error", "closing blockfile failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(
+                -1, "Error", "closing blockfile failed: %s", strerror(errno));
         return (-1);
     }
 
@@ -422,13 +349,7 @@ int vrmr_blocklist_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
     int type = 0;
     char blocklist_found = FALSE;
 
-    /* safety */
-    if (zones == NULL || blocklist == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-    vrmr_debug(HIGH, "start");
+    assert(zones && blocklist);
 
     /* init */
     memset(blocklist, 0, sizeof(struct vrmr_blocklist));
@@ -466,8 +387,7 @@ int vrmr_blocklist_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
         if (blocklist_found == FALSE) {
             if (vctx->rf->add(vctx->rule_backend, "blocklist", VRMR_TYPE_RULE) <
                     0) {
-                vrmr_error(-1, "Internal Error",
-                        "rf->add() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "rf->add() failed");
                 return (-1);
             }
         }
@@ -488,9 +408,8 @@ int vrmr_blocklist_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
                     /* add it to the list */
                     if (vrmr_blocklist_add_one(zones, blocklist, load_ips,
                                 no_refcnt, value) < 0) {
-                        vrmr_error(-1, "Error",
-                                "adding to the blocklist failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
+                        vrmr_error(
+                                -1, "Error", "adding to the blocklist failed");
                         return (-1);
                     }
                 }
@@ -509,18 +428,12 @@ static int blocklist_write_file(
     int retval = 0;
     FILE *fp = NULL;
 
-    /* safety */
-    if (block_list == NULL) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(block_list);
 
     /* open the blockfile */
     if (!(fp = fopen(cfg->blocklist_location, "w+"))) {
-        vrmr_error(-1, "Error",
-                "opening blocklistfile '%s' failed: %s (in: %s:%d).",
-                cfg->blocklist_location, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "opening blocklistfile '%s' failed: %s",
+                cfg->blocklist_location, strerror(errno));
         return (-1);
     }
 
@@ -554,12 +467,7 @@ int vrmr_blocklist_save_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
     struct vrmr_list_node *d_node = NULL;
     char rule_str[128] = "";
 
-    /* safety */
-    if (blocklist == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(blocklist);
 
     if (blocklist->old_blocklistfile_used == TRUE) {
         result = blocklist_write_file(cfg, &blocklist->list);
@@ -570,8 +478,7 @@ int vrmr_blocklist_save_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
         if (blocklist->list.len == 0) {
             if (vctx->rf->tell(vctx->rule_backend, "blocklist", "RULE", "", 1,
                         VRMR_TYPE_RULE) < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "rf->tell() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "rf->tell() failed");
                 return (-1);
             }
         } else {
@@ -580,8 +487,7 @@ int vrmr_blocklist_save_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
             /* loop trough the list */
             for (d_node = blocklist->list.top; d_node; d_node = d_node->next) {
                 if (!(line = d_node->data)) {
-                    vrmr_error(-1, "Internal Error",
-                            "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer");
                     return (-1);
                 }
 
@@ -593,9 +499,7 @@ int vrmr_blocklist_save_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
                 /* write to the backend */
                 if (vctx->rf->tell(vctx->rule_backend, "blocklist", "RULE",
                             rule_str, overwrite, VRMR_TYPE_RULE) < 0) {
-                    vrmr_error(-1, "Internal Error",
-                            "rf->tell() failed (in: %s:%d).", __FUNC__,
-                            __LINE__);
+                    vrmr_error(-1, "Internal Error", "rf->tell() failed");
                     return (-1);
                 }
 

@@ -26,20 +26,14 @@
 */
 int backend_vrmr_check_active(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* check */
     if (strcasecmp(value, "yes") == 0 || strcasecmp(value, "no") == 0)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'ACTIVE' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'ACTIVE'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -48,20 +42,14 @@ int backend_vrmr_check_active(char *value, struct vrmr_regex *reg)
 */
 int backend_check_comment(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
-    /* check */
+    /* TODO check */
     if (1)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'COMMENT' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'COMMENT'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -70,20 +58,14 @@ int backend_check_comment(char *value, struct vrmr_regex *reg)
 */
 int backend_check_host_ipaddress(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* check */
     if (vrmr_check_ipv4address(NULL, NULL, value, 0) == 1)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'IPADDRESS' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'IPADDRESS'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -92,12 +74,7 @@ int backend_check_host_ipaddress(char *value, struct vrmr_regex *reg)
 */
 int backend_check_host_macaddress(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -108,8 +85,7 @@ int backend_check_host_macaddress(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'MAC' (in: %s:%d).", value,
-            __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'MAC'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -118,12 +94,7 @@ int backend_check_host_macaddress(char *value, struct vrmr_regex *reg)
 */
 int backend_check_group_member(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -134,8 +105,7 @@ int backend_check_group_member(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'MEMBER' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'MEMBER'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -144,20 +114,14 @@ int backend_check_group_member(char *value, struct vrmr_regex *reg)
 */
 int backend_check_network_network(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* check */
     if (vrmr_check_ipv4address(NULL, NULL, value, 0) == 1)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'NETWORK' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'NETWORK'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -166,20 +130,14 @@ int backend_check_network_network(char *value, struct vrmr_regex *reg)
 */
 int backend_check_network_netmask(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* check */
     if (vrmr_check_ipv4address(NULL, NULL, value, 0) == 1)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'NETMASK' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'NETMASK'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -188,12 +146,7 @@ int backend_check_network_netmask(char *value, struct vrmr_regex *reg)
 */
 int backend_check_network_interface(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -204,8 +157,7 @@ int backend_check_network_interface(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'INTERFACE' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'INTERFACE'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -217,12 +169,7 @@ int backend_check_network_rule(char *value, struct vrmr_regex *reg)
     char line[1024] = "";
     struct vrmr_rule rule;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -231,20 +178,17 @@ int backend_check_network_rule(char *value, struct vrmr_regex *reg)
     /* check */
     if (strlcpy(line, value, sizeof(line)) >= sizeof(line)) {
         vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                "value for variable 'RULE' to long (in: %s:%d).", __FUNC__,
-                __LINE__);
+                "value for variable 'RULE' to long");
         return (VRS_ERR_COMMANDLINE);
     }
 
     if (vrmr_rules_decode_rule(line, sizeof(line)) < 0) {
-        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                "decoding 'RULE' failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed");
         return (VRS_ERR_COMMANDLINE);
     }
 
     if (vrmr_zones_network_rule_parse_line(line, &rule) < 0) {
-        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                "parsing rule failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed");
         return (VRS_ERR_COMMANDLINE);
     }
 
@@ -256,12 +200,7 @@ int backend_check_network_rule(char *value, struct vrmr_regex *reg)
 */
 int backend_check_interface_ipaddress(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* check */
     if (strcasecmp(value, "dynamic") == 0)
@@ -270,8 +209,7 @@ int backend_check_interface_ipaddress(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'IPADDRESS' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'IPADDRESS'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -282,24 +220,18 @@ int backend_check_interface_device(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_interface interface;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* check */
     if (strlen(value) < sizeof(interface.device))
         return (0);
 
-    /* check */
+    /* TODO check */
     if (1)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'DEVICE' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'DEVICE'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -308,20 +240,14 @@ int backend_check_interface_device(char *value, struct vrmr_regex *reg)
 */
 int backend_check_interface_virtual(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* check */
     if (strcasecmp(value, "yes") == 0 || strcasecmp(value, "no") == 0)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'VIRTUAL' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'VIRTUAL'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -333,12 +259,7 @@ int backend_check_interface_rule(char *value, struct vrmr_regex *reg)
     char line[1024] = "";
     struct vrmr_rule rule;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -347,20 +268,17 @@ int backend_check_interface_rule(char *value, struct vrmr_regex *reg)
     /* check */
     if (strlcpy(line, value, sizeof(line)) >= sizeof(line)) {
         vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                "value for variable 'RULE' to long (in: %s:%d).", __FUNC__,
-                __LINE__);
+                "value for variable 'RULE' to long");
         return (VRS_ERR_COMMANDLINE);
     }
 
     if (vrmr_rules_decode_rule(line, sizeof(line)) < 0) {
-        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                "decoding 'RULE' failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed");
         return (VRS_ERR_COMMANDLINE);
     }
 
     if (vrmr_interfaces_rule_parse_line(line, &rule) < 0) {
-        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                "parsing rule failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed");
         return (VRS_ERR_COMMANDLINE);
     }
 
@@ -372,12 +290,7 @@ int backend_check_interface_rule(char *value, struct vrmr_regex *reg)
 */
 int backend_check_interface_shape(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -388,8 +301,7 @@ int backend_check_interface_shape(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'SHAPE' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'SHAPE'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -398,27 +310,19 @@ int backend_check_interface_shape(char *value, struct vrmr_regex *reg)
 */
 int backend_check_interface_bw(char *value, struct vrmr_regex *reg)
 {
-    size_t i = 0;
-
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
         return (0);
 
     /* check */
-    for (i = 0; i < strlen(value); i++) {
+    for (size_t i = 0; i < strlen(value); i++) {
         if (!isdigit(value[i])) {
             vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
                     "'%s' is not a valid value for variable 'BW_IN' or "
-                    "'BW_OUT' "
-                    " (in: %s:%d).",
-                    value, __FUNC__, __LINE__);
+                    "'BW_OUT' ",
+                    value);
             return (VRS_ERR_COMMANDLINE);
         }
     }
@@ -426,9 +330,8 @@ int backend_check_interface_bw(char *value, struct vrmr_regex *reg)
     /* check */
     if (strlen(value) >= 11) { /* max len of 32 bit int */
         vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                "'%s' is not a valid value for variable 'BW_IN' or 'BW_OUT' "
-                " (in: %s:%d).",
-                value, __FUNC__, __LINE__);
+                "'%s' is not a valid value for variable 'BW_IN' or 'BW_OUT'",
+                value);
         return (VRS_ERR_COMMANDLINE);
     }
 
@@ -440,12 +343,7 @@ int backend_check_interface_bw(char *value, struct vrmr_regex *reg)
 */
 int backend_check_interface_bw_unit(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -457,9 +355,8 @@ int backend_check_interface_bw_unit(char *value, struct vrmr_regex *reg)
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
             "'%s' is not a valid value for variable 'BW_IN_OUT' or "
-            "'BW_OUT_OUT' "
-            " (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'BW_OUT_OUT'",
+            value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -468,12 +365,7 @@ int backend_check_interface_bw_unit(char *value, struct vrmr_regex *reg)
 */
 int backend_check_interface_tcpmss(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -484,8 +376,7 @@ int backend_check_interface_tcpmss(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'TCPMSS' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'TCPMSS'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -494,20 +385,14 @@ int backend_check_interface_tcpmss(char *value, struct vrmr_regex *reg)
 */
 int backend_check_service_broadcast(char *value, struct vrmr_regex *reg)
 {
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* check */
     if (strcasecmp(value, "yes") == 0 || strcasecmp(value, "no") == 0)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'BROADCAST' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'BROADCAST'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -518,12 +403,7 @@ int backend_check_service_helper(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service service;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -534,8 +414,7 @@ int backend_check_service_helper(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'HELPER' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'HELPER'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -546,12 +425,7 @@ int backend_check_service_tcp(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service service;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -562,8 +436,7 @@ int backend_check_service_tcp(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'TCP' (in: %s:%d).", value,
-            __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'TCP'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -574,12 +447,7 @@ int backend_check_service_udp(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service service;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -590,8 +458,7 @@ int backend_check_service_udp(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'UDP' (in: %s:%d).", value,
-            __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'UDP'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -602,12 +469,7 @@ int backend_check_service_icmp(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service service;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -618,8 +480,7 @@ int backend_check_service_icmp(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'ICMP' (in: %s:%d).", value,
-            __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'ICMP'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -630,12 +491,7 @@ int backend_check_service_gre(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service service;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -646,8 +502,7 @@ int backend_check_service_gre(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'GRE' (in: %s:%d).", value,
-            __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'GRE'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -658,12 +513,7 @@ int backend_check_service_ah(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service service;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -674,8 +524,7 @@ int backend_check_service_ah(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'AH' (in: %s:%d).", value,
-            __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'AH'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -686,12 +535,7 @@ int backend_check_service_esp(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service service;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -702,8 +546,7 @@ int backend_check_service_esp(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'ESP' (in: %s:%d).", value,
-            __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'ESP'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
@@ -714,12 +557,7 @@ int backend_check_service_proto41(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service service;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -730,23 +568,13 @@ int backend_check_service_proto41(char *value, struct vrmr_regex *reg)
         return (0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'PROTO_41' (in: %s:%d).",
-            value, __FUNC__, __LINE__);
+            "'%s' is not a valid value for variable 'PROTO_41'", value);
     return (VRS_ERR_COMMANDLINE);
 }
 
 static int backend_check_blocklist_rule(char *value, struct vrmr_regex *reg)
 {
-    //    char                line[1024] = "";
-    //    char                action[32] = "";
-    //    struct vrmr_rule    rule;
-
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -764,12 +592,7 @@ int backend_check_rule_rule(char *value, struct vrmr_regex *reg)
     char action[32] = "";
     struct vrmr_rule rule;
 
-    /* safety */
-    if (value == NULL || reg == NULL) {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return (VRS_ERR_INTERNAL);
-    }
+    assert(value && reg);
 
     /* empty is also possible for clearing */
     if (value[0] == '\0')
@@ -778,14 +601,12 @@ int backend_check_rule_rule(char *value, struct vrmr_regex *reg)
     /* check */
     if (strlcpy(line, value, sizeof(line)) >= sizeof(line)) {
         vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                "value for variable 'RULE' to long (in: %s:%d).", __FUNC__,
-                __LINE__);
+                "value for variable 'RULE' to long");
         return (VRS_ERR_COMMANDLINE);
     }
 
     if (vrmr_rules_decode_rule(line, sizeof(line)) < 0) {
-        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                "decoding 'RULE' failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed");
         return (VRS_ERR_COMMANDLINE);
     }
 
@@ -794,8 +615,7 @@ int backend_check_rule_rule(char *value, struct vrmr_regex *reg)
         return (backend_check_blocklist_rule(value, reg));
     } else {
         if (vrmr_rules_parse_line(line, &rule, reg) < 0) {
-            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                    "parsing rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed");
             return (VRS_ERR_COMMANDLINE);
         }
     }
@@ -806,9 +626,7 @@ int backend_check_rule_rule(char *value, struct vrmr_regex *reg)
 int backend_check(
         int type, char *var, char *val, char overwrite, struct vrmr_regex *reg)
 {
-    int i = 0;
-
-    for (i = 0;; i++) {
+    for (int i = 0;; i++) {
         if (backend_vars[i].type == -1)
             break;
 
@@ -817,16 +635,13 @@ int backend_check(
                 strcmp(backend_vars[i].var, var) == 0) {
             if (overwrite == 0 && backend_vars[i].multi == 0) {
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                        "%s does not support appending (in: %s:%d).", var,
-                        __FUNC__, __LINE__);
+                        "%s does not support appending", var);
                 return (VRS_ERR_COMMANDLINE);
             }
 
             if (backend_vars[i].chk == NULL) {
                 vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                        "could not check: no check function defined (in: "
-                        "%s:%d).",
-                        __FUNC__, __LINE__);
+                        "could not check: no check function defined");
                 return (VRS_ERR_INTERNAL);
             }
 
@@ -834,8 +649,7 @@ int backend_check(
         }
     }
 
-    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "%s is not a valid variable name (in: %s:%d).", var, __FUNC__,
-            __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "%s is not a valid variable name",
+            var);
     return (VRS_ERR_COMMANDLINE);
 }

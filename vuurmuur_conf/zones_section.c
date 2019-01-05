@@ -332,9 +332,7 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "ACTIVE",
                         zone_ptr->active ? "Yes" : "No", 1,
                         VRMR_TYPE_HOST) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 return (-1);
             }
 
@@ -374,9 +372,7 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
                 if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name,
                             "IPADDRESS", zone_ptr->ipv4.ipaddress, 1,
                             VRMR_TYPE_HOST) < 0) {
-                    vrmr_error(-1, VR_ERR,
-                            gettext("saving to backend failed (in: %s:%d)."),
-                            __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                     return (-1);
                 }
 
@@ -417,9 +413,7 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name,
                         "IPV6ADDRESS", zone_ptr->ipv6.ip6, 1,
                         VRMR_TYPE_HOST) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 return (-1);
             }
 
@@ -457,9 +451,7 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
             /* save to backend */
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "MAC",
                         zone_ptr->mac, 1, VRMR_TYPE_HOST) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 return (-1);
             }
 
@@ -476,9 +468,7 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "COMMENT",
                         field_buffer(zonessec_ctx.edit_zone.fields[i], 0), 1,
                         VRMR_TYPE_HOST) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 return (-1);
             }
 
@@ -1874,9 +1864,7 @@ static int edit_zone_group_save(
             if (vctx->zf->tell(vctx->zone_backend, group_ptr->name, "ACTIVE",
                         group_ptr->active ? "Yes" : "No", 1,
                         VRMR_TYPE_GROUP) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 retval = -1;
             }
 
@@ -1889,9 +1877,7 @@ static int edit_zone_group_save(
             if (vctx->zf->tell(vctx->zone_backend, group_ptr->name, "COMMENT",
                         field_buffer(zonessec_ctx.edit_zone.fields[i], 0), 1,
                         VRMR_TYPE_GROUP) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 retval = -1;
             }
 
@@ -2630,8 +2616,7 @@ static int zones_rename_network_zone(struct vrmr_ctx *vctx,
     /* validate and split the new name */
     if (vrmr_validate_zonename(new_name_ptr, 0, vrmr_new_zone, new_net,
                 new_host, reg->zonename, VRMR_VERBOSE) != 0) {
-        vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).",
-                new_name_ptr, __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "invalid name '%s'", new_name_ptr);
         return (-1);
     }
     vrmr_debug(HIGH,
@@ -2641,8 +2626,7 @@ static int zones_rename_network_zone(struct vrmr_ctx *vctx,
     /* validate and split the old name */
     if (vrmr_validate_zonename(cur_name_ptr, 0, old_zone, old_net, old_host,
                 reg->zonename, VRMR_VERBOSE) != 0) {
-        vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).",
-                cur_name_ptr, __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "invalid name '%s'", cur_name_ptr);
         return (-1);
     }
     vrmr_debug(HIGH,
@@ -2774,8 +2758,7 @@ static int zones_rename_network_zone(struct vrmr_ctx *vctx,
             /* check the fromname */
             if (vrmr_validate_zonename(rule_ptr->from, 0, rule_zone, rule_net,
                         rule_host, reg->zonename, VRMR_VERBOSE) != 0) {
-                vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).",
-                        rule_ptr->from, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "invalid name '%s'", rule_ptr->from);
                 return (-1);
             }
             vrmr_debug(HIGH,
@@ -2815,8 +2798,7 @@ static int zones_rename_network_zone(struct vrmr_ctx *vctx,
             /* check the toname */
             if (vrmr_validate_zonename(rule_ptr->to, 0, rule_zone, rule_net,
                         rule_host, reg->zonename, VRMR_VERBOSE) != 0) {
-                vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).",
-                        rule_ptr->to, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "invalid name '%s'", rule_ptr->to);
                 return (-1);
             }
             vrmr_debug(HIGH,
@@ -3241,9 +3223,7 @@ static int zones_network_save_protectrules(
         /* clear */
         if (vctx->zf->tell(vctx->zone_backend, network_ptr->name, "RULE", "", 1,
                     VRMR_TYPE_NETWORK) < 0) {
-            vrmr_error(-1, VR_ERR,
-                    gettext("saving to backend failed (in: %s:%d)."), __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
             return (-1);
         }
     } else {
@@ -3267,18 +3247,14 @@ static int zones_network_save_protectrules(
                 /* save to backend */
                 if (vctx->zf->tell(vctx->zone_backend, network_ptr->name,
                             "RULE", rule_str, 1, VRMR_TYPE_NETWORK) < 0) {
-                    vrmr_error(-1, VR_ERR,
-                            gettext("saving to backend failed (in: %s:%d)."),
-                            __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                     return (-1);
                 }
             } else {
                 /* save to backend */
                 if (vctx->zf->tell(vctx->zone_backend, network_ptr->name,
                             "RULE", rule_str, 0, VRMR_TYPE_NETWORK) < 0) {
-                    vrmr_error(-1, VR_ERR,
-                            gettext("saving to backend failed (in: %s:%d)."),
-                            __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                     return (-1);
                 }
             }
@@ -3409,8 +3385,7 @@ static int edit_zone_network_save_protectrules(
 
     /* now let try to write this to the backend */
     if (zones_network_save_protectrules(vctx, network_ptr) < 0) {
-        vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."),
-                __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
         return (-1);
     }
 
@@ -3949,9 +3924,7 @@ static int edit_zone_network_save(
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "ACTIVE",
                         zone_ptr->active ? "Yes" : "No", 1,
                         VRMR_TYPE_NETWORK) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 return (-1);
             }
 
@@ -3972,9 +3945,7 @@ static int edit_zone_network_save(
 
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "NETWORK",
                         zone_ptr->ipv4.network, 1, VRMR_TYPE_NETWORK) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 return (-1);
             }
 
@@ -3995,9 +3966,7 @@ static int edit_zone_network_save(
 
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "NETMASK",
                         zone_ptr->ipv4.netmask, 1, VRMR_TYPE_NETWORK) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 return (-1);
             }
 
@@ -4022,9 +3991,7 @@ static int edit_zone_network_save(
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name,
                         "IPV6NETWORK", zone_ptr->ipv6.net6, 1,
                         VRMR_TYPE_NETWORK) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 return (-1);
             }
 
@@ -4047,9 +4014,7 @@ static int edit_zone_network_save(
 
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "IPV6CIDR",
                         cidrstr, 1, VRMR_TYPE_NETWORK) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 return (-1);
             }
 
@@ -4064,9 +4029,7 @@ static int edit_zone_network_save(
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "COMMENT",
                         field_buffer(zonessec_ctx.edit_zone.fields[i], 0), 1,
                         VRMR_TYPE_NETWORK) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 return (-1);
             }
 
@@ -4328,8 +4291,7 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
 
     /* save */
     if (edit_zone_network_save(vctx, zone_ptr) < 0) {
-        vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."),
-                __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
         retval = -1;
     }
 
@@ -5034,9 +4996,7 @@ static int edit_zone_zone_save(
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "ACTIVE",
                         zone_ptr->active ? "Yes" : "No", 1,
                         VRMR_TYPE_ZONE) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 retval = -1;
             }
 
@@ -5052,9 +5012,7 @@ static int edit_zone_zone_save(
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "COMMENT",
                         field_buffer(zonessec_ctx.edit_zone.fields[i], 0), 1,
                         VRMR_TYPE_ZONE) < 0) {
-                vrmr_error(-1, VR_ERR,
-                        gettext("saving to backend failed (in: %s:%d)."),
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving to backend failed"));
                 retval = -1;
             }
 
@@ -5448,9 +5406,8 @@ int zones_section(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                                     VRMR_VERBOSE) == 0) {
                             if (vrmr_new_zone(vctx, zones, vrmr_new_zone_ptr,
                                         VRMR_TYPE_ZONE) < 0) {
-                                vrmr_error(result, VR_ERR,
-                                        "adding zone failed (in: %s:%d).",
-                                        __FUNC__, __LINE__);
+                                vrmr_error(
+                                        result, VR_ERR, "adding zone failed");
                             } else {
                                 vrmr_audit("%s '%s' %s.", STR_ZONE,
                                         vrmr_new_zone_ptr,
@@ -5498,9 +5455,7 @@ int zones_section(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                                         (char *)item_name(cur), VRMR_TYPE_ZONE);
                                 if (result < 0) {
                                     vrmr_error(result, VR_ERR,
-                                            gettext("deleting zone failed (in: "
-                                                    "%s:%d)."),
-                                            __FUNC__, __LINE__);
+                                            gettext("deleting zone failed"));
                                 } else {
                                     vrmr_audit("%s '%s' %s.", STR_ZONE,
                                             save_zone_name,
@@ -5761,9 +5716,7 @@ int zones_blocklist_add_one(
                     if (vrmr_blocklist_add_one(zones, blocklist,
                                 /*load_ips*/ FALSE, /*no_refcnt*/ FALSE,
                                 new_ipaddress) < 0) {
-                        vrmr_error(-1, VR_INTERR,
-                                "blocklist_add_one() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "blocklist_add_one() failed");
                         return (-1);
                     }
 
@@ -5825,9 +5778,7 @@ int zones_blocklist_add_one(
                 if (vrmr_blocklist_add_one(zones, blocklist, /*load_ips*/ FALSE,
                             /*no_refcnt*/ FALSE, hostgroup) < 0) {
                     vrmr_error(-1, VR_ERR,
-                            gettext("adding host/group to list failed (in: "
-                                    "%s:%d)."),
-                            __FUNC__, __LINE__);
+                            gettext("adding host/group to list failed"));
                     return (-1);
                 }
 

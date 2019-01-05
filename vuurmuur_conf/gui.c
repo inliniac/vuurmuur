@@ -830,16 +830,12 @@ static char VrFormCheckboxNavigation(
 char VrFormDefaultNavigation(struct vrmr_gui_form *form, int key)
 {
     char match = FALSE;
-    FIELD *fld = NULL;
-    char *buf = NULL;
 
-    // vrmr_debug(__FUNC__, "key %d", key);
-
-    fld = current_field(form->f);
+    FIELD *fld = current_field(form->f);
     if (fld == NULL)
         return (FALSE);
 
-    buf = field_buffer(fld, 2);
+    char *buf = field_buffer(fld, 2);
     if (buf == NULL)
         return (FALSE);
 
@@ -943,8 +939,6 @@ int VrFormCheckOKCancel(struct vrmr_gui_form *form, int key)
 {
     FIELD *fld = NULL;
     char *buf = NULL;
-
-    // vrmr_debug(__FUNC__, "key %d", key);
 
     fld = current_field(form->f);
     if (fld == NULL)

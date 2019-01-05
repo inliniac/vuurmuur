@@ -39,23 +39,11 @@
 static int determine_action(struct vrmr_config *cfg, char *query, char *action,
         size_t size, struct vrmr_rule_options *option, int broadcast)
 {
-    int action_type = 0;
+    assert(query && action && option && cfg);
 
-    /* safety */
-    if (query == NULL || action == NULL || option == NULL || cfg == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-
-    action_type = vrmr_rules_actiontoi(query);
+    int action_type = vrmr_rules_actiontoi(query);
     if (action_type <= VRMR_AT_ERROR || action_type >= VRMR_AT_TOO_BIG) {
-        vrmr_error(-1, "Error",
-                "unknown action '%s' "
-                "(in: %s:%d).",
-                query, __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "unknown action '%s'", query);
         return (-1);
     }
 
@@ -127,10 +115,7 @@ static int determine_action(struct vrmr_config *cfg, char *query, char *action,
     } else if (action_type == VRMR_AT_NFLOG) {
         (void)strlcpy(action, "NEWNFLOG", size);
     } else {
-        vrmr_error(-1, "Error",
-                "unknown action '%s' "
-                "(in: %s:%d).",
-                query, __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "unknown action '%s'", query);
         return (-1);
     }
 
@@ -154,15 +139,7 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
     int result = 0;
     char network[VRMR_MAX_NET_ZONE] = "";
 
-    /* safety */
-    if (rule_ptr == NULL || create == NULL || services == NULL ||
-            zones == NULL || interfaces == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule_ptr && create && services && zones && interfaces);
 
     /* first the protect rule */
     if (rule_ptr->action == VRMR_AT_PROTECT) {
@@ -177,8 +154,8 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
 
                 if (!(create->who = vrmr_search_zonedata(
                               zones, rule_ptr->who))) {
-                    vrmr_error(-1, "Error", "zone '%s' not found (in: %s).",
-                            rule_ptr->who, __FUNC__);
+                    vrmr_error(
+                            -1, "Error", "zone '%s' not found", rule_ptr->who);
                     return (-1);
                 }
             } else if (rule_ptr->type == VRMR_PROT_PROC_INT) {
@@ -187,17 +164,15 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
 
                 if (!(create->who_int = vrmr_search_interface(
                               interfaces, rule_ptr->who))) {
-                    vrmr_error(-1, "Error",
-                            "interface '%s' not found (in: %s).", rule_ptr->who,
-                            __FUNC__);
+                    vrmr_error(-1, "Error", "interface '%s' not found",
+                            rule_ptr->who);
                     return (-1);
                 }
             } else {
                 create->who = NULL;
                 vrmr_error(-1, "Error",
-                        "don't know what to do with '%s' for rule type '%d' "
-                        "(in: %s).",
-                        rule_ptr->who, rule_ptr->type, __FUNC__);
+                        "don't know what to do with '%s' for rule type '%d'",
+                        rule_ptr->who, rule_ptr->type);
                 return (-1);
             }
         }
@@ -209,8 +184,8 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
         if (result == 0) {
             vrmr_debug(HIGH, "vrmr_get_danger_info successfull.");
         } else {
-            vrmr_error(-1, "Error", "getting danger '%s' failed (in: %s).",
-                    rule_ptr->danger, __FUNC__);
+            vrmr_error(-1, "Error", "getting danger '%s' failed",
+                    rule_ptr->danger);
             return (-1);
         }
 
@@ -229,8 +204,8 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
 
                 if (!(create->who = vrmr_search_zonedata(
                               zones, rule_ptr->who))) {
-                    vrmr_error(-1, "Error", "zone '%s' not found (in: %s).",
-                            rule_ptr->who, __FUNC__);
+                    vrmr_error(
+                            -1, "Error", "zone '%s' not found", rule_ptr->who);
                     return (-1);
                 }
             }
@@ -241,9 +216,8 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
             /* not much here */
             vrmr_debug(MEDIUM, "network rule service '%s'", rule_ptr->service);
         } else {
-            vrmr_error(-1, "Error",
-                    "unknown service '%s' in network rule (in: %s:%d).",
-                    rule_ptr->service, __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "unknown service '%s' in network rule",
+                    rule_ptr->service);
             return (-1);
         }
     }
@@ -282,8 +256,8 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
         } else {
             /* get the pointer to the zonedata in the ZonedataList */
             if (!(create->from = vrmr_search_zonedata(zones, rule_ptr->from))) {
-                vrmr_error(-1, "Error", "'from' zone '%s' not found (in: %s).",
-                        rule_ptr->from, __FUNC__);
+                vrmr_error(-1, "Error", "'from' zone '%s' not found",
+                        rule_ptr->from);
                 return (-1);
             }
         }
@@ -308,9 +282,8 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
                         create->from->network_name, create->from->zone_name);
 
                 if (!(create->to = vrmr_search_zonedata(zones, network))) {
-                    vrmr_error(-1, "Error",
-                            "'to' zone '%s' not found (in: %s).", network,
-                            __FUNC__);
+                    vrmr_error(
+                            -1, "Error", "'to' zone '%s' not found", network);
                     return (-1);
                 }
             }
@@ -329,8 +302,8 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
 
             /* get the pointer to the zonedata in the ZonedataList */
             if (!(create->to = vrmr_search_zonedata(zones, network_name))) {
-                vrmr_error(-1, "Error", "'to' zone '%s' not found (in: %s).",
-                        rule_ptr->to, __FUNC__);
+                vrmr_error(
+                        -1, "Error", "'to' zone '%s' not found", rule_ptr->to);
                 return (-1);
             }
 
@@ -338,8 +311,8 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
         } else {
             /* get the pointer to the zonedata in the ZonedataList */
             if (!(create->to = vrmr_search_zonedata(zones, rule_ptr->to))) {
-                vrmr_error(-1, "Error", "'to' zone '%s' not found (in: %s).",
-                        rule_ptr->to, __FUNC__);
+                vrmr_error(
+                        -1, "Error", "'to' zone '%s' not found", rule_ptr->to);
                 return (-1);
             }
         }
@@ -363,9 +336,8 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
                         create->to->network_name, create->to->zone_name);
 
                 if (!(create->from = vrmr_search_zonedata(zones, network))) {
-                    vrmr_error(-1, "Error",
-                            "'from' zone '%s' not found (in: %s).", network,
-                            __FUNC__);
+                    vrmr_error(
+                            -1, "Error", "'from' zone '%s' not found", network);
                     return (-1);
                 }
             }
@@ -378,8 +350,8 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
         } else {
             if (!(create->service = vrmr_search_service(
                           services, rule_ptr->service))) {
-                vrmr_error(-1, "Error", "service '%s' not found (in: %s).",
-                        rule_ptr->service, __FUNC__);
+                vrmr_error(-1, "Error", "service '%s' not found",
+                        rule_ptr->service);
                 return (-1);
             }
         }
@@ -395,8 +367,7 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
             vrmr_debug(HIGH, "determine_action succes, create->action = %s",
                     create->action);
         } else {
-            vrmr_error(-1, "Error", "could not determine action (in: %s).",
-                    __FUNC__);
+            vrmr_error(-1, "Error", "could not determine action");
             return (-1);
         }
 
@@ -405,9 +376,7 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
 
         create->ruletype = vrmr_rules_determine_ruletype(rule_ptr);
         if (create->ruletype == VRMR_RT_ERROR) {
-            vrmr_error(-1, "Error",
-                    "could not determine "
-                    "ruletype");
+            vrmr_error(-1, "Error", "could not determine ruletype");
             return (-1);
         }
 
@@ -560,10 +529,7 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
     /* if were on bash mode, alloc mem for the description */
     if (cnf->bash_out == TRUE) {
         if (!(create->description = malloc(VRMR_MAX_BASH_DESC))) {
-            vrmr_error(-1, "Error",
-                    "malloc failed: %s "
-                    "(in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "malloc failed: %s ", strerror(errno));
             return (-1);
         }
     } else {
@@ -648,12 +614,7 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
     int type = 0;
     unsigned int count = 1;
 
-    /* safety */
-    if (rules == NULL || reg == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rules && reg);
 
     /* init */
     memset(rules, 0, sizeof(*rules));
@@ -685,8 +646,7 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
                 /* alloc memory for the rule */
                 if (!(rule_ptr = vrmr_rule_malloc())) {
                     vrmr_error(-1, "Internal Error",
-                            "vrmr_rule_malloc() failed: %s (in: %s:%d).",
-                            strerror(errno), __FUNC__, __LINE__);
+                            "vrmr_rule_malloc() failed: %s", strerror(errno));
                     return (-1);
                 }
 
@@ -712,8 +672,7 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
                         /* append to the rules list */
                         if (!(vrmr_list_append(&rules->list, rule_ptr))) {
                             vrmr_error(-1, "Internal Error",
-                                    "vrmr_list_append() failed (in: %s:%d).",
-                                    __FUNC__, __LINE__);
+                                    "vrmr_list_append() failed");
                             return (-1);
                         }
 
@@ -728,8 +687,8 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
         vrmr_info("Info", "%d rules loaded.", count - 1);
 
         if (fclose(fp) < 0) {
-            vrmr_error(-1, "Error", "closing rules file failed: %s (in: %s).",
-                    strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "closing rules file failed: %s",
+                    strerror(errno));
             retval = -1;
         }
     }
@@ -750,8 +709,7 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
         if (rules_found == FALSE) {
             if (vctx->rf->add(vctx->rule_backend, "rules", VRMR_TYPE_RULE) <
                     0) {
-                vrmr_error(-1, "Internal Error",
-                        "rf->add() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "rf->add() failed");
                 return (-1);
             }
         }
@@ -769,8 +727,7 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
                 /* alloc memory for the rule */
                 if (!(rule_ptr = vrmr_rule_malloc())) {
                     vrmr_error(-1, "Internal Error",
-                            "vrmr_rule_malloc() failed: %s (in: %s:%d).",
-                            strerror(errno), __FUNC__, __LINE__);
+                            "vrmr_rule_malloc() failed: %s", strerror(errno));
                     return (-1);
                 }
 
@@ -796,8 +753,7 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
                         /* append to the rules list */
                         if (!(vrmr_list_append(&rules->list, rule_ptr))) {
                             vrmr_error(-1, "Internal Error",
-                                    "vrmr_list_append() failed (in: %s:%d).",
-                                    __FUNC__, __LINE__);
+                                    "vrmr_list_append() failed");
                             return (-1);
                         }
 
@@ -829,24 +785,17 @@ int vrmr_rules_parse_line(
     char options[VRMR_MAX_OPTIONS_LENGTH] = "";
     char action_str[32] = "";
 
-    /* safety first */
-    if (line == NULL || rule_ptr == NULL || reg == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(line && rule_ptr && reg);
 
     /* decode the line */
     if (vrmr_rules_decode_rule(line, VRMR_MAX_RULE_LENGTH) < 0) {
-        vrmr_error(-1, "Internal Error", "decode rule failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "decode rule failed");
         return (-1);
     }
 
     /* this should not happen, but it can't hurt to check, right? */
     if (strlen(line) > VRMR_MAX_RULE_LENGTH) {
-        vrmr_error(-1, "Internal Error", "rule is too long (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "rule is too long");
         return (-1);
     }
     /* strip the newline */
@@ -933,8 +882,8 @@ int vrmr_rules_parse_line(
             */
             if (vrmr_validate_zonename(rule_ptr->who, 1, NULL, NULL, NULL,
                         reg->zonename, VRMR_VERBOSE) != 0) {
-                vrmr_error(-1, "Error", "invalid zonename: '%s' (in: %s).",
-                        rule_ptr->who, __FUNC__);
+                vrmr_error(
+                        -1, "Error", "invalid zonename: '%s'", rule_ptr->who);
                 return (-1);
             }
 
@@ -958,9 +907,8 @@ int vrmr_rules_parse_line(
             */
             if (strcasecmp(rule_ptr->danger, "against") != 0) {
                 vrmr_error(-1, "Error",
-                        "bad rule syntax, keyword 'against' is missing: %s "
-                        "(in: %s).",
-                        line, __FUNC__);
+                        "bad rule syntax, keyword 'against' is missing: %s",
+                        line);
                 return (-1);
             }
 
@@ -1002,9 +950,7 @@ int vrmr_rules_parse_line(
                 */
                 if (strcasecmp(rule_ptr->source, "from") != 0) {
                     vrmr_error(-1, "Error",
-                            "bad rule syntax, keyword 'from' is missing: %s "
-                            "(in: %s).",
-                            line, __FUNC__);
+                            "bad rule syntax, keyword 'from' is missing");
                     return (-1);
                 }
 
@@ -1048,9 +994,8 @@ int vrmr_rules_parse_line(
 
             if (strcasecmp(rule_ptr->service, "service") != 0) {
                 vrmr_error(-1, "Error",
-                        "bad rule syntax, keyword 'service' is missing: %s "
-                        "(in: %s).",
-                        line, __FUNC__);
+                        "bad rule syntax, keyword 'service' is missing: %s",
+                        line);
                 return (-1);
             }
 
@@ -1071,8 +1016,8 @@ int vrmr_rules_parse_line(
             if (strcmp(rule_ptr->service, "from") == 0) {
                 vrmr_error(-1, "Error",
                         "bad rule syntax, keyword 'service' found, but has no "
-                        "value: %s (in: %s).",
-                        line, __FUNC__);
+                        "value: %s",
+                        line);
                 return (-1);
             }
 
@@ -1081,9 +1026,8 @@ int vrmr_rules_parse_line(
             */
             if (vrmr_validate_servicename(
                         rule_ptr->service, reg->servicename) != 0) {
-                vrmr_error(-1, "Error",
-                        "invalid servicename: '%s' (in: %s:%d).",
-                        rule_ptr->service, __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "invalid servicename: '%s'",
+                        rule_ptr->service);
                 return (-1);
             }
 
@@ -1103,9 +1047,7 @@ int vrmr_rules_parse_line(
 
             if (strcasecmp(rule_ptr->from, "from") != 0) {
                 vrmr_error(-1, "Error",
-                        "bad rule syntax, keyword 'from' is missing: %s (in: "
-                        "%s).",
-                        line, __FUNC__);
+                        "bad rule syntax, keyword 'from' is missing: %s", line);
                 return (-1);
             }
 
@@ -1129,8 +1071,8 @@ int vrmr_rules_parse_line(
             if (strcmp(rule_ptr->from, "to") == 0) {
                 vrmr_error(-1, "Error",
                         "bad rule syntax, keyword 'from' found, but has no "
-                        "value: %s (in: %s).",
-                        line, __FUNC__);
+                        "value: %s",
+                        line);
                 return (-1);
             }
 
@@ -1140,9 +1082,8 @@ int vrmr_rules_parse_line(
                 */
                 if (vrmr_validate_zonename(rule_ptr->from, 1, NULL, NULL, NULL,
                             reg->zonename, VRMR_VERBOSE) != 0) {
-                    vrmr_error(-1, "Error",
-                            "invalid from-zonename: '%s' (in: %s).",
-                            rule_ptr->from, __FUNC__);
+                    vrmr_error(-1, "Error", "invalid from-zonename: '%s'",
+                            rule_ptr->from);
                     return (-1);
                 }
             }
@@ -1163,9 +1104,7 @@ int vrmr_rules_parse_line(
 
             if (strcasecmp(rule_ptr->to, "to") != 0) {
                 vrmr_error(-1, "Error",
-                        "bad rule syntax, keyword 'to' is missing: %s (in: "
-                        "%s).",
-                        line, __FUNC__);
+                        "bad rule syntax, keyword 'to' is missing: %s", line);
                 return (-1);
             }
 
@@ -1189,8 +1128,8 @@ int vrmr_rules_parse_line(
             if (strcmp(rule_ptr->to, "options") == 0) {
                 vrmr_error(-1, "Error",
                         "bad rule syntax, keyword 'to' found, but has no "
-                        "value: %s (in: %s).",
-                        line, __FUNC__);
+                        "value: %s",
+                        line);
                 return (-1);
             }
 
@@ -1200,8 +1139,8 @@ int vrmr_rules_parse_line(
                 */
                 if (vrmr_validate_zonename(rule_ptr->to, 1, NULL, NULL, NULL,
                             reg->zonename, VRMR_VERBOSE) != 0) {
-                    vrmr_error(-1, "Error", "invalid zonename: '%s' (in: %s).",
-                            rule_ptr->to, __FUNC__);
+                    vrmr_error(-1, "Error", "invalid zonename: '%s'",
+                            rule_ptr->to);
                     return (-1);
                 }
             }
@@ -1241,8 +1180,7 @@ int vrmr_rules_parse_line(
 
             /* alloc options struct */
             if (!(rule_ptr->opt = vrmr_rule_option_malloc())) {
-                vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
-                        strerror(errno), __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
                 return (-1);
             }
 
@@ -1278,14 +1216,7 @@ char *vrmr_rules_assemble_rule(struct vrmr_rule *rule_ptr)
     char *line = NULL, buf[512] = "", *option_ptr = NULL;
     size_t bufsize = 0;
 
-    /* safety */
-    if (!rule_ptr) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(rule_ptr);
 
     /* assemble the line */
     if (rule_ptr->action == VRMR_AT_SEPARATOR) {
@@ -1306,18 +1237,12 @@ char *vrmr_rules_assemble_rule(struct vrmr_rule *rule_ptr)
             rule_ptr->opt, vrmr_rules_itoaction(rule_ptr->action));
     if (option_ptr != NULL) {
         if (strlcat(buf, " ", sizeof(buf)) >= sizeof(buf)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             free(option_ptr);
             return (NULL);
         }
         if (strlcat(buf, option_ptr, sizeof(buf)) >= sizeof(buf)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             free(option_ptr);
             return (NULL);
         }
@@ -1325,10 +1250,7 @@ char *vrmr_rules_assemble_rule(struct vrmr_rule *rule_ptr)
     }
 
     if (strlcat(buf, "\n", sizeof(buf)) >= sizeof(buf)) {
-        vrmr_error(-1, "Internal Error",
-                "string "
-                "overflow (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "string overflow");
         return (NULL);
     }
 
@@ -1336,10 +1258,7 @@ char *vrmr_rules_assemble_rule(struct vrmr_rule *rule_ptr)
     bufsize = strlen(buf) + 1; /* size of the line + nul */
 
     if (!(line = malloc(bufsize))) {
-        vrmr_error(-1, "Error",
-                "malloc failed: %s "
-                "(in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (NULL);
     }
 
@@ -1360,17 +1279,12 @@ static int rules_write_file(const struct vrmr_config *cnf,
     char *line = NULL;
     struct vrmr_rule *rule_ptr = NULL;
 
-    /* safety */
-    if (rulesfile_location == NULL || rules == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rulesfile_location && rules);
 
     /* open the rulesfile */
     if (!(fp = vrmr_rules_file_open(cnf, rulesfile_location, "w+", 0))) {
-        vrmr_error(-1, "Error", "opening rulesfile '%s' failed: %s (in: %s).",
-                rulesfile_location, strerror(errno), __FUNC__);
+        vrmr_error(-1, "Error", "opening rulesfile '%s' failed: %s",
+                rulesfile_location, strerror(errno));
         return (-1);
     }
 
@@ -1421,12 +1335,7 @@ int vrmr_rules_save_list(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     struct vrmr_rule *rule_ptr = NULL;
     char overwrite = FALSE;
 
-    /* safety */
-    if (cnf == NULL || rules == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cnf && rules);
 
     if (rules->old_rulesfile_used == TRUE) {
         result = rules_write_file(cnf, rules, cnf->rules_location);
@@ -1437,8 +1346,7 @@ int vrmr_rules_save_list(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         if (rules->list.len == 0) {
             if (vctx->rf->tell(vctx->rule_backend, "rules", "RULE", "", 1,
                         VRMR_TYPE_RULE) < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "rf->tell() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "rf->tell() failed");
                 return (-1);
             }
         } else {
@@ -1447,16 +1355,13 @@ int vrmr_rules_save_list(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             /* loop trough the list */
             for (d_node = rules->list.top; d_node; d_node = d_node->next) {
                 if (!(rule_ptr = d_node->data)) {
-                    vrmr_error(-1, "Internal Error",
-                            "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer");
                     return (-1);
                 }
 
                 if (!(line = vrmr_rules_assemble_rule(rule_ptr))) {
                     vrmr_error(-1, "Internal Error",
-                            "vrmr_rules_assemble_rule() failed (in: %s:%d).",
-                            __FUNC__, __LINE__);
-
+                            "vrmr_rules_assemble_rule() failed");
                     return (-1);
                 }
 
@@ -1470,18 +1375,14 @@ int vrmr_rules_save_list(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
                 /* encode */
                 if (vrmr_rules_encode_rule(eline, sizeof(eline)) < 0) {
-                    vrmr_error(-1, "Internal Error",
-                            "encode rule failed (in: %s:%d).", __FUNC__,
-                            __LINE__);
+                    vrmr_error(-1, "Internal Error", "encode rule failed");
                     return (-1);
                 }
 
                 /* write to the backend */
                 if (vctx->rf->tell(vctx->rule_backend, "rules", "RULE", eline,
                             overwrite, VRMR_TYPE_RULE) < 0) {
-                    vrmr_error(-1, "Internal Error",
-                            "rf->tell() failed (in: %s:%d).", __FUNC__,
-                            __LINE__);
+                    vrmr_error(-1, "Internal Error", "rf->tell() failed");
                     return (-1);
                 }
 
@@ -1506,20 +1407,14 @@ int vrmr_rules_cleanup_list(struct vrmr_rules *rules)
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_rule *rule_ptr = NULL;
 
-    /* safety */
-    if (!rules) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(rules);
 
     /*
         loop trough the list to remove the options
     */
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         if (!(rule_ptr = d_node->data)) {
-            vrmr_error(
-                    -1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -1558,12 +1453,7 @@ int vrmr_rules_insert_list(struct vrmr_rules *rules, unsigned int place,
     int retval = 0;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (!rules || !rule_ptr) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rules && rule_ptr);
 
     vrmr_debug(HIGH,
             "insert at: %d. (list len is %d), number: %d, action: %s, service: "
@@ -1596,8 +1486,7 @@ int vrmr_rules_insert_list(struct vrmr_rules *rules, unsigned int place,
 
         if (!(vrmr_list_prepend(&rules->list, rule_ptr))) {
             vrmr_error(-1, "Internal Error",
-                    "inserting the data to the top of list failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
+                    "inserting the data to the top of list failed");
             return (-1);
         }
 
@@ -1620,8 +1509,7 @@ int vrmr_rules_insert_list(struct vrmr_rules *rules, unsigned int place,
     */
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         if (!(listrule_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
         vrmr_debug(HIGH, "entry: %s %s %s %s %s",
@@ -1699,10 +1587,7 @@ char *vrmr_rules_assemble_options_string(
 
     action_type = vrmr_rules_actiontoi(action);
     if (action_type <= VRMR_AT_ERROR || action_type >= VRMR_AT_TOO_BIG) {
-        vrmr_error(-1, "Error",
-                "unknown action '%s' "
-                "(in: %s:%d).",
-                action, __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "unknown action '%s'", action);
         return (NULL);
     }
 
@@ -1716,10 +1601,7 @@ char *vrmr_rules_assemble_options_string(
 
         if (strlcat(options, interfacestr, sizeof(options)) >=
                 sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -1730,10 +1612,7 @@ char *vrmr_rules_assemble_options_string(
 
         if (strlcat(options, interfacestr, sizeof(options)) >=
                 sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -1744,10 +1623,7 @@ char *vrmr_rules_assemble_options_string(
 
         if (strlcat(options, interfacestr, sizeof(options)) >=
                 sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -1758,10 +1634,7 @@ char *vrmr_rules_assemble_options_string(
 
         if (strlcat(options, nfqueue_string, sizeof(options)) >=
                 sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -1772,10 +1645,7 @@ char *vrmr_rules_assemble_options_string(
 
         if (strlcat(options, nflog_string, sizeof(options)) >=
                 sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -1784,10 +1654,7 @@ char *vrmr_rules_assemble_options_string(
         snprintf(chainstr, sizeof(chainstr), "chain=\"%s\",", opt->chain);
 
         if (strlcat(options, chainstr, sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -1798,10 +1665,7 @@ char *vrmr_rules_assemble_options_string(
         /* log option is only valid when action is not LOG */
         if (opt->rule_log == TRUE && action_type != VRMR_AT_LOG) {
             if (strlcat(options, "log,", sizeof(options)) >= sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
         }
@@ -1812,25 +1676,16 @@ char *vrmr_rules_assemble_options_string(
 
             if (strlcat(options, "loglimit=\"", sizeof(options)) >=
                     sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
             if (strlcat(options, limit_string, sizeof(options)) >=
                     sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
             if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
         }
@@ -1839,25 +1694,16 @@ char *vrmr_rules_assemble_options_string(
         if (opt->rule_logprefix == 1 && strcmp(opt->logprefix, "") != 0) {
             if (strlcat(options, "logprefix=\"", sizeof(options)) >=
                     sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
             if (strlcat(options, opt->logprefix, sizeof(options)) >=
                     sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
             if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
         }
@@ -1871,20 +1717,14 @@ char *vrmr_rules_assemble_options_string(
             if (ports_ptr != NULL) {
                 if (strlcat(options, ports_ptr, sizeof(options)) >=
                         sizeof(options)) {
-                    vrmr_error(-1, "Internal Error",
-                            "string "
-                            "overflow (in: %s:%d).",
-                            __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "string overflow");
                     free(ports_ptr);
                     return (NULL);
                 }
                 free(ports_ptr);
 
                 if (strlcat(options, ",", sizeof(options)) >= sizeof(options)) {
-                    vrmr_error(-1, "Internal Error",
-                            "string "
-                            "overflow (in: %s:%d).",
-                            __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "string overflow");
                     return (NULL);
                 }
             }
@@ -1895,20 +1735,14 @@ char *vrmr_rules_assemble_options_string(
             if (ports_ptr != NULL) {
                 if (strlcat(options, ports_ptr, sizeof(options)) >=
                         sizeof(options)) {
-                    vrmr_error(-1, "Internal Error",
-                            "string "
-                            "overflow (in: %s:%d).",
-                            __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "string overflow");
                     free(ports_ptr);
                     return (NULL);
                 }
                 free(ports_ptr);
 
                 if (strlcat(options, ",", sizeof(options)) >= sizeof(options)) {
-                    vrmr_error(-1, "Internal Error",
-                            "string "
-                            "overflow (in: %s:%d).",
-                            __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "string overflow");
                     return (NULL);
                 }
             }
@@ -1919,25 +1753,16 @@ char *vrmr_rules_assemble_options_string(
         if (action_type == VRMR_AT_REJECT) {
             if (strlcat(options, "rejecttype=\"", sizeof(options)) >=
                     sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
             if (strlcat(options, opt->reject_type, sizeof(options)) >=
                     sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
             if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
         }
@@ -1950,25 +1775,16 @@ char *vrmr_rules_assemble_options_string(
 
             if (strlcat(options, "redirectport=\"", sizeof(options)) >=
                     sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
             if (strlcat(options, redirect_port, sizeof(options)) >=
                     sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
             if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
         }
@@ -1978,25 +1794,16 @@ char *vrmr_rules_assemble_options_string(
         snprintf(nfmark_string, sizeof(nfmark_string), "%lu", opt->nfmark);
 
         if (strlcat(options, "nfmark=\"", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, nfmark_string, sizeof(options)) >=
                 sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -2007,25 +1814,16 @@ char *vrmr_rules_assemble_options_string(
                 opt->limit_unit[0] ? opt->limit_unit : "sec");
 
         if (strlcat(options, "limit=\"", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, limit_string, sizeof(options)) >=
                 sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
 
@@ -2034,25 +1832,16 @@ char *vrmr_rules_assemble_options_string(
 
             if (strlcat(options, "burst=\"", sizeof(options)) >=
                     sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
             if (strlcat(options, limit_string, sizeof(options)) >=
                     sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
             if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-                vrmr_error(-1, "Internal Error",
-                        "string "
-                        "overflow (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "string overflow");
                 return (NULL);
             }
         }
@@ -2063,24 +1852,15 @@ char *vrmr_rules_assemble_options_string(
                 opt->bw_in_max_unit);
 
         if (strlcat(options, "in_max=\"", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, bw_string, sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -2090,24 +1870,15 @@ char *vrmr_rules_assemble_options_string(
 
         if (strlcat(options, "out_max=\"", sizeof(options)) >=
                 sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, bw_string, sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -2116,24 +1887,15 @@ char *vrmr_rules_assemble_options_string(
                 opt->bw_in_min_unit);
 
         if (strlcat(options, "in_min=\"", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, bw_string, sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -2143,24 +1905,15 @@ char *vrmr_rules_assemble_options_string(
 
         if (strlcat(options, "out_min=\"", sizeof(options)) >=
                 sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, bw_string, sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -2168,34 +1921,22 @@ char *vrmr_rules_assemble_options_string(
         snprintf(bw_string, sizeof(bw_string), "%u", opt->prio);
 
         if (strlcat(options, "prio=\"", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, bw_string, sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
 
     if (opt->random == TRUE) {
         if (strlcat(options, "random,", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -2204,25 +1945,16 @@ char *vrmr_rules_assemble_options_string(
     if (opt->rule_comment == 1 && strcmp(opt->comment, "") != 0) {
         if (strlcat(options, "comment=\"", sizeof(options)) >=
                 sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, opt->comment, sizeof(options)) >=
                 sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
         if (strlcat(options, "\",", sizeof(options)) >= sizeof(options)) {
-            vrmr_error(-1, "Internal Error",
-                    "string "
-                    "overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow");
             return (NULL);
         }
     }
@@ -2297,17 +2029,11 @@ void *vrmr_search_rule(
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_rule *listrule_ptr = NULL;
 
-    /* safety */
-    if (!rules || !searchrule_ptr) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(rules && searchrule_ptr);
 
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         if (!(listrule_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (NULL);
         }
 
@@ -2894,12 +2620,7 @@ int vrmr_rules_read_options(const char *optstr, struct vrmr_rule_options *op)
     char curopt[512];
     size_t x = 0, cur_pos = 0;
 
-    /* safety */
-    if (optstr == NULL || op == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(optstr && op);
 
     vrmr_debug(HIGH, "options: '%s', strlen(optstr): %d", optstr,
             (int)strlen(optstr));
@@ -2944,8 +2665,7 @@ int vrmr_rules_read_options(const char *optstr, struct vrmr_rule_options *op)
 
             /* error message for a missing trema */
             if (trema == 1) {
-                vrmr_error(-1, "Error", "unbalanced \" in rule (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "unbalanced \" in rule");
                 return (-1);
             }
 
@@ -3042,11 +2762,7 @@ char *vrmr_rules_itoaction_cap(int i)
 */
 int vrmr_rules_actiontoi(const char *action)
 {
-    if (action == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (VRMR_AT_ERROR);
-    }
+    assert(action);
 
     if (strcasecmp(action, "accept") == 0)
         return (VRMR_AT_ACCEPT);
@@ -3084,8 +2800,7 @@ int vrmr_rules_actiontoi(const char *action)
     else if (strcasecmp(action, "protect") == 0)
         return (VRMR_AT_PROTECT);
     else {
-        vrmr_error(-1, "Error", "unknown action '%s' (in: %s:%d).", action,
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "unknown action '%s'", action);
         return (VRMR_AT_ERROR);
     }
 }
@@ -3095,14 +2810,7 @@ struct vrmr_rule *rules_create_protect_rule(char *action, /*@null@*/ char *who,
 {
     struct vrmr_rule *rule_ptr = NULL;
 
-    /* safety */
-    if (!danger || !action) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(danger && action);
 
     /* get mem (vrmr_rule_malloc will report error) */
     if (!(rule_ptr = vrmr_rule_malloc()))
@@ -3146,17 +2854,11 @@ int vrmr_rules_chain_in_list(struct vrmr_list *list, char *chainname)
     char *str = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (list == NULL || chainname == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(list && chainname);
 
     for (d_node = list->top; d_node; d_node = d_node->next) {
         if (!(str = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -3184,23 +2886,13 @@ int vrmr_rules_get_custom_chains(struct vrmr_rules *rules)
     char *str = NULL;
     size_t size = 0;
 
-    /* safety */
-    if (rules == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rules);
 
     vrmr_list_setup(&rules->custom_chain_list, free);
 
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         if (!(rule_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL "
-                    "pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -3213,9 +2905,8 @@ int vrmr_rules_get_custom_chains(struct vrmr_rules *rules)
 
                     str = malloc(size);
                     if (str == NULL) {
-                        vrmr_error(-1, "Error",
-                                "malloc failed: %s (in: %s:%d).",
-                                strerror(errno), __FUNC__, __LINE__);
+                        vrmr_error(-1, "Error", "malloc failed: %s",
+                                strerror(errno));
                         return (-1);
                     }
 
@@ -3224,8 +2915,7 @@ int vrmr_rules_get_custom_chains(struct vrmr_rules *rules)
                     if (vrmr_list_append(&rules->custom_chain_list, str) ==
                             NULL) {
                         vrmr_error(-1, "Internal Error",
-                                "vrmr_list_append() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
+                                "vrmr_list_append() failed");
                         free(str);
                         return (-1);
                     }
@@ -3244,15 +2934,8 @@ static int vrmr_rules_get_system_chains_per_table(char *tablename,
     char line[128] = "", cmd[256] = "";
     FILE *p = NULL;
     char chainname[33] = "";
-    char *name = NULL;
-    size_t size = 0;
 
-    /* safety */
-    if (list == NULL || tablename == NULL || cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(list && tablename && cnf);
 
     /* commandline */
     if (ipv == VRMR_IPV4) {
@@ -3270,24 +2953,17 @@ static int vrmr_rules_get_system_chains_per_table(char *tablename,
             if (strncmp("Chain", line, 5) == 0) {
                 sscanf(line, "Chain %32s", chainname);
 
-                size = strlen(chainname) + 1;
-
-                name = malloc(size);
+                char *name = strdup(chainname);
                 if (name == NULL) {
-                    vrmr_error(-1, "Error",
-                            "malloc "
-                            "failed: %s (in: %s:%d).",
-                            strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(
+                            -1, "Error", "strdup failed: %s", strerror(errno));
                     pclose(p);
                     return (-1);
                 }
 
-                strlcpy(name, chainname, size);
-
                 if (vrmr_list_append(list, name) == NULL) {
-                    vrmr_error(-1, "Internal Error",
-                            "vrmr_list_append() failed (in: %s:%d).", __FUNC__,
-                            __LINE__);
+                    vrmr_error(
+                            -1, "Internal Error", "vrmr_list_append() failed");
                     free(name);
                     pclose(p);
                     return (-1);
@@ -3300,7 +2976,6 @@ static int vrmr_rules_get_system_chains_per_table(char *tablename,
     } else {
         vrmr_debug(MEDIUM, "popen() failed");
     }
-
     return (0);
 }
 
@@ -3315,12 +2990,7 @@ static int vrmr_rules_get_system_chains_per_table(char *tablename,
 int vrmr_rules_get_system_chains(
         struct vrmr_rules *rules, struct vrmr_config *cnf, int ipv)
 {
-    /* safety */
-    if (cnf == NULL || rules == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cnf && rules);
 
     /* initialize the lists */
     vrmr_list_setup(&rules->system_chain_filter, free);
@@ -3328,17 +2998,9 @@ int vrmr_rules_get_system_chains(
     if (ipv == VRMR_IPV4) {
         vrmr_list_setup(&rules->system_chain_nat, free);
     }
-    // if(vrmr_list_setup(&rules->system_chain_raw, free) < 0) {
-    //    vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in:
-    //    %s:%d).",
-    //            __FUNC__, __LINE__);
-    //    return(-1);
-    //}
 
     if (cnf->iptables_location[0] == '\0') {
-        vrmr_error(-1, "Internal Error",
-                "cnf->iptables_location is empty (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Internal Error", "cnf->iptables_location is empty");
         return (-1);
     }
 
@@ -3374,12 +3036,7 @@ int vrmr_rules_encode_rule(char *rulestr, size_t size)
     char line[1024] = "";
     size_t i = 0, x = 0;
 
-    /* safety */
-    if (rulestr == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rulestr);
 
     for (i = 0, x = 0; i < strlen(rulestr) && x < size; i++, x++) {
         if (rulestr[i] == '\"' &&
@@ -3403,12 +3060,7 @@ int vrmr_rules_decode_rule(char *rulestr, size_t size)
     char line[1024] = "";
     size_t i = 0, x = 0;
 
-    /* safety */
-    if (rulestr == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rulestr);
 
     for (i = 0, x = 0; i < strlen(rulestr) && x < size; i++) {
         if (rulestr[i] == '\\' && rulestr[i + 1] == '\"') {
@@ -3432,16 +3084,9 @@ int vrmr_rules_decode_rule(char *rulestr, size_t size)
 */
 int vrmr_rules_determine_ruletype(struct vrmr_rule *rule_ptr)
 {
-    int ruletype;
+    int ruletype = VRMR_RT_NOTSET;
 
-    /* safety */
-    if (rule_ptr == NULL) {
-        vrmr_error(VRMR_RT_ERROR, "Internal Error",
-                "parameter "
-                "problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (VRMR_RT_ERROR);
-    }
+    assert(rule_ptr);
 
     /* output: when source is firewall */
     if (strncasecmp(rule_ptr->from, "firewall", 8) == 0) {
@@ -3457,10 +3102,8 @@ int vrmr_rules_determine_ruletype(struct vrmr_rule *rule_ptr)
              (strncasecmp(rule_ptr->from, "firewall", 8) != 0)) {
         ruletype = VRMR_RT_FORWARD;
     } else {
-        vrmr_error(VRMR_RT_ERROR, "Internal Error",
-                "could not "
-                "determine chain (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(
+                VRMR_RT_ERROR, "Internal Error", "could not determine chain");
         return (VRMR_RT_ERROR);
     }
 
@@ -3496,12 +3139,7 @@ struct vrmr_rule *vrmr_rules_remove_rule_from_list(
     struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety */
-    if (rules == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(rules);
 
     vrmr_debug(LOW, "start: place: %d, updatenumbers: %d, listsize: %d", place,
             updatenumbers, rules->list.len);
@@ -3524,24 +3162,21 @@ struct vrmr_rule *vrmr_rules_remove_rule_from_list(
             vrmr_debug(HIGH, "removing last entry");
 
             if (vrmr_list_remove_bot(&rules->list) < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "vrmr_list_remove_bot() failed (in: %s:%d).", __FUNC__,
-                        __LINE__);
+                vrmr_error(
+                        -1, "Internal Error", "vrmr_list_remove_bot() failed");
                 return (NULL);
             }
         } else {
             vrmr_debug(HIGH, "removing normal entry");
 
             if (vrmr_list_remove_node(&rules->list, d_node) < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "vrmr_list_remove_node() failed (in: %s:%d).", __FUNC__,
-                        __LINE__);
+                vrmr_error(
+                        -1, "Internal Error", "vrmr_list_remove_node() failed");
                 return (NULL);
             }
 
             if (updatenumbers == 1) {
                 vrmr_debug(HIGH, "updatenumbers: %d, %d", place, 0);
-
                 vrmr_rules_update_numbers(rules, place, 0);
             }
         }
@@ -3566,12 +3201,7 @@ void vrmr_rules_update_numbers(
     struct vrmr_list_node *d_node = NULL;
     unsigned int i = 0;
 
-    /* safety */
-    if (rules == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return;
-    }
+    assert(rules);
 
     vrmr_debug(HIGH,
             "Update higher (or equal) than: %d, action = %d. (list len is %d)",
@@ -3599,6 +3229,8 @@ void vrmr_rules_print_list(const struct vrmr_rules *rules)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_rule *rule_ptr = NULL;
+
+    assert(rules);
 
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         rule_ptr = d_node->data;

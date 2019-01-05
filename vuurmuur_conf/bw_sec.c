@@ -100,12 +100,11 @@ static int bandwidth_get_iface(struct vrmr_config *conf, char *device, int year,
     char done = FALSE;
     int fd = 0;
     int result = 0;
-    ssize_t readsize = 0;
 
     char data_month = 0;
     int data_day = 0;
 
-    unsigned int i = 0, k = 0;
+    unsigned int k = 0;
 
     int act_border = 0;
 
@@ -172,17 +171,17 @@ static int bandwidth_get_iface(struct vrmr_config *conf, char *device, int year,
     /* open the file for reading */
     fd = open(tmpfile, 0);
     if (fd < 0) {
-        vrmr_error(-1, VR_ERR, gettext("opening '%s' failed: %s (in: %s:%d)."),
-                tmpfile, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("opening '%s' failed: %s"), tmpfile,
+                strerror(errno));
         return (-1);
     }
 
     while (done == FALSE) {
         memset(bw_buf, 0, sizeof(bw_buf));
 
-        readsize = read(fd, bw_buf, sizeof(bw_buf));
+        ssize_t readsize = read(fd, bw_buf, sizeof(bw_buf));
         if (readsize > 0) {
-            for (i = 0; i < (unsigned int)readsize; i++) {
+            for (unsigned int i = 0; i < (unsigned int)readsize; i++) {
                 if (bw_buf[i] == '\n') {
                     line_num++;
 
@@ -190,10 +189,6 @@ static int bandwidth_get_iface(struct vrmr_config *conf, char *device, int year,
 
                     sect_buf[k] = '\0';
                     k = 0;
-
-                    // vrmr_info(__FUNC__, "newline (act_border: %d, k: %d,
-                    // line_num: %d, sect_buf '%s'.)", act_border, k, line_num,
-                    // sect_buf);
 
                     if (parsing_device_line == 1) {
                         parsing_device_line = 0;
@@ -209,9 +204,6 @@ static int bandwidth_get_iface(struct vrmr_config *conf, char *device, int year,
                     sect_buf[k] = '\0';
                     k = 0;
 
-                    // vrmr_info(__FUNC__, "border  (act_border: %d, k: %d,
-                    // line_num: %d, sect_buf '%s'.)", act_border, k, line_num,
-                    // sect_buf);
                     buf_done = 1;
                 } else {
                     if (k < (unsigned int)sizeof(sect_buf) - 1) {
@@ -287,15 +279,11 @@ static int bandwidth_get_iface(struct vrmr_config *conf, char *device, int year,
                             data_month = 12;
                         else {
                             vrmr_error(-1, VR_ERR,
-                                    gettext("could not parse month '%s' (in: "
-                                            "%s:%d)."),
-                                    month_str, __FUNC__, __LINE__);
+                                    gettext("could not parse month '%s'"),
+                                    month_str);
                             retval = -1;
                             goto end;
                         }
-
-                        // vrmr_info(__FUNC__, "day: '%d', month: '%d'",
-                        // data_day, data_month);
                     }
                     /* device column */
                     if (parsing_data == 1 && device_column > 1 &&
@@ -342,9 +330,8 @@ end:
 
     /* remove the file */
     if (unlink(tmpfile) == -1) {
-        vrmr_error(-1, VR_ERR,
-                gettext("removing '%s' failed (unlink): %s (in: %s:%d)."),
-                tmpfile, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("removing '%s' failed (unlink): %s"),
+                tmpfile, strerror(errno));
         return (-1);
     }
 

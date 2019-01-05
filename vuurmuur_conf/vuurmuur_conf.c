@@ -413,9 +413,7 @@ int main(int argc, char *argv[])
 
     /* unload the backends */
     if (vrmr_backends_unload(&vctx.conf, &vctx) < 0) {
-        vrmr_error(-1, VR_ERR,
-                gettext("unloading the backends failed (in: %s:%d)."), __func__,
-                __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("unloading the backends failed"));
         retval = -1;
     }
 
@@ -623,8 +621,7 @@ int startup_screen(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         } else {
             vrmr_error(-1, VR_ERR,
                     "unknown return code from init_vcconfig. This can't be "
-                    "good (in: %s:%d).",
-                    __func__, __LINE__);
+                    "good");
             return (-1);
         }
 
@@ -687,8 +684,7 @@ int startup_screen(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         } else {
             vrmr_error(-1, VR_INTERR,
                     "unknown return code from vrmr_init_config. This can't be "
-                    "good (in: %s:%d).",
-                    __func__, __LINE__);
+                    "good");
             return (-1);
         }
 
@@ -849,9 +845,8 @@ int startup_screen(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         vuurmuur_shmp = shmat(vuurmuur_shmid, 0, 0);
         if (vuurmuur_shmp == (char *)(-1)) {
             vrmr_error(-1, VR_ERR,
-                    gettext("attaching to shared memory failed: %s (in: "
-                            "%s:%d)."),
-                    strerror(errno), __func__, __LINE__);
+                    gettext("attaching to shared memory failed: %s"),
+                    strerror(errno));
         } else {
             vuurmuur_shmtable = (struct vrmr_shm_table *)vuurmuur_shmp;
             vuurmuur_semid = vuurmuur_shmtable->sem_id;
@@ -907,9 +902,8 @@ int startup_screen(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         /* attach to shared memory */
         vuurmuurlog_shmp = shmat(vuurmuurlog_shmid, 0, 0);
         if (vuurmuurlog_shmp == (char *)(-1)) {
-            vrmr_error(-1, VR_ERR,
-                    "attaching to shared memory failed: %s (in: %s:%d).",
-                    strerror(errno), __func__, __LINE__);
+            vrmr_error(-1, VR_ERR, "attaching to shared memory failed: %s",
+                    strerror(errno));
         } else {
             vuurmuurlog_shmtable = (struct vrmr_shm_table *)vuurmuurlog_shmp;
             vuurmuurlog_semid = vuurmuurlog_shmtable->sem_id;

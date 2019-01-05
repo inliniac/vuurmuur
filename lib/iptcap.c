@@ -32,17 +32,12 @@ static int iptcap_get_one_cap_from_proc(char *procpath, char *request)
     FILE *fp = NULL;
     int retval = 0;
 
-    /* safety */
-    if (procpath == NULL || request == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(procpath && request);
 
     /* open the matches */
     if (!(fp = fopen(procpath, "r"))) {
-        vrmr_error(-1, "Error", "could not open '%s': %s (in: %s:%d).",
-                procpath, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "could not open '%s': %s", procpath,
+                strerror(errno));
         return (-1);
     }
 
@@ -64,8 +59,8 @@ static int iptcap_get_one_cap_from_proc(char *procpath, char *request)
 
     /* close the file */
     if (fclose(fp) == -1) {
-        vrmr_error(-1, "Error", "could not close '%s': %s (in: %s:%d).",
-                procpath, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "could not close '%s': %s", procpath,
+                strerror(errno));
         return (-1);
     }
 
@@ -82,12 +77,7 @@ static int iptcap_get_one_cap_from_proc(char *procpath, char *request)
 */
 static int iptcap_load_module(struct vrmr_config *cnf, char *modulename)
 {
-    /* safety */
-    if (modulename == NULL || cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(modulename && cnf);
 
     /* now execute the command */
     char *args[] = {cnf->modprobe_location, "-q", modulename, NULL};
@@ -106,21 +96,12 @@ static int iptcap_load_module(struct vrmr_config *cnf, char *modulename)
 static int iptcap_check_cap(struct vrmr_config *cnf, char *procpath,
         char *request, char *modulename, char load_module)
 {
-    int result = 0;
-
-    /* safety */
-    if (procpath == NULL || request == NULL || modulename == NULL ||
-            cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(procpath && request && modulename && cnf);
 
     /* get the cap */
-    result = iptcap_get_one_cap_from_proc(procpath, request);
+    int result = iptcap_get_one_cap_from_proc(procpath, request);
     if (result < 0) {
-        vrmr_error(-1, "Error", "getting iptcap for '%s' failed (in: %s:%d).",
-                request, __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "getting iptcap for '%s' failed", request);
         return (-1);
     } else if (result == 0) {
         vrmr_debug(LOW, "'%s' not loaded or not supported.", request);
@@ -149,8 +130,7 @@ static int iptcap_check_cap(struct vrmr_config *cnf, char *procpath,
     /* try get the cap again */
     result = iptcap_get_one_cap_from_proc(procpath, request);
     if (result < 0) {
-        vrmr_error(-1, "Error", "getting iptcap for '%s' failed (in: %s:%d).",
-                request, __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "getting iptcap for '%s' failed", request);
         return (-1);
     } else if (result == 0) {
         vrmr_debug(LOW, "'%s' not supported.", request);
@@ -169,15 +149,9 @@ static int iptcap_check_cap(struct vrmr_config *cnf, char *procpath,
 */
 static int iptcap_check_file(char *path)
 {
+    assert(path);
+
     FILE *fp = NULL;
-
-    /* safety */
-    if (path == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-
     if (!(fp = fopen(path, "r")))
         return (0);
 
@@ -541,11 +515,7 @@ static int iptcap_test_filter_limit_match(
 {
     int retval = 1;
 
-    if (ipt_loc == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(ipt_loc);
 
     if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
         vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
@@ -639,21 +609,12 @@ static int iptcap_test_nat_random(struct vrmr_config *cnf)
 int vrmr_check_iptcaps(
         struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
-    int result = 0;
-
-    /* safety */
-    if (iptcap == NULL || cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(iptcap != NULL && cnf != NULL);
 
     /* load the caps */
-    result = vrmr_load_iptcaps(cnf, iptcap, load_modules);
+    int result = vrmr_load_iptcaps(cnf, iptcap, load_modules);
     if (result == -1) {
-        vrmr_error(-1, "Error",
-                "loading iptables capabilities failed (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Error", "loading iptables capabilities failed");
         return (-1);
     }
 
@@ -673,9 +634,7 @@ int vrmr_check_iptcaps(
     /* require the filter table */
     if (iptcap->proc_net_names == TRUE && iptcap->table_filter == FALSE) {
         vrmr_error(-1, "Error",
-                "no iptables-support in the kernel: filter table missing (in: "
-                "%s:%d).",
-                __FUNC__, __LINE__);
+                "no iptables-support in the kernel: filter table missing");
         return (-1);
     }
     if (iptcap->proc_net_names == TRUE && iptcap->table_nat == FALSE)
@@ -687,9 +646,7 @@ int vrmr_check_iptcaps(
 
     /* require conntrack */
     if (iptcap->conntrack == FALSE) {
-        vrmr_error(-1, "Error",
-                "no connection tracking support in the kernel (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "no connection tracking support in the kernel");
         return (-1);
     }
 
@@ -699,8 +656,7 @@ int vrmr_check_iptcaps(
                     iptcap->match_icmp == FALSE)) {
         vrmr_error(-1, "Error",
                 "incomplete iptables-support in the kernel: tcp, udp or icmp "
-                "support missing (in: %s:%d).",
-                __FUNC__, __LINE__);
+                "support missing");
         return (-1);
     }
 
@@ -708,8 +664,7 @@ int vrmr_check_iptcaps(
     if (iptcap->proc_net_matches == TRUE && iptcap->match_state == FALSE) {
         vrmr_error(-1, "Error",
                 "incomplete iptables-support in the kernel: state support "
-                "missing (in: %s:%d).",
-                __FUNC__, __LINE__);
+                "missing");
         return (-1);
     }
 
@@ -730,10 +685,8 @@ static int check_conntrack(struct vrmr_config *cnf, int ipv)
     int result =
             libvuurmuur_exec_command(cnf, cnf->conntrack_location, args, NULL);
     if (result == -1) {
-        vrmr_error(-1, "Error",
-                "unable to execute "
-                "conntrack: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "unable to execute conntrack: %s",
+                strerror(errno));
         return 0;
     }
     return 1;
@@ -751,12 +704,8 @@ int vrmr_load_iptcaps(
          proc_net_nfconntrack[] = VRMR_PROC_NFCONNTRACK;
     int result = 0;
 
-    /* safety */
-    if (iptcap == NULL || cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(iptcap != NULL && cnf != NULL);
+
     /* init */
     memset(iptcap, 0, sizeof(struct vrmr_iptcaps));
 
@@ -1357,21 +1306,12 @@ int vrmr_load_iptcaps(
 int vrmr_check_ip6tcaps(
         struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
-    int result = 0;
-
-    /* safety */
-    if (iptcap == NULL || cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(iptcap != NULL && cnf != NULL);
 
     /* load the caps */
-    result = vrmr_load_ip6tcaps(cnf, iptcap, load_modules);
+    int result = vrmr_load_ip6tcaps(cnf, iptcap, load_modules);
     if (result == -1) {
-        vrmr_error(-1, "Error",
-                "loading ip6tables capabilities failed (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Error", "loading ip6tables capabilities failed");
         return (-1);
     }
 
@@ -1392,9 +1332,7 @@ int vrmr_check_ip6tcaps(
     if (iptcap->proc_net_ip6_names == TRUE &&
             iptcap->table_ip6_filter == FALSE) {
         vrmr_error(-1, "Error",
-                "no ip6tables-support in the kernel: filter table missing (in: "
-                "%s:%d).",
-                __FUNC__, __LINE__);
+                "no ip6tables-support in the kernel: filter table missing");
         return (-1);
     }
     if (iptcap->proc_net_ip6_names == TRUE && iptcap->table_ip6_mangle == FALSE)
@@ -1405,8 +1343,7 @@ int vrmr_check_ip6tcaps(
     /* require conntrack */
     if(iptcap->conntrack == FALSE)
     {
-        vrmr_error(-1, "Error", "no connection tracking support in the kernel (in: %s:%d).",
-            __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "no connection tracking support in the kernel");
         return(-1);
     }
 #endif
@@ -1417,8 +1354,7 @@ int vrmr_check_ip6tcaps(
                     iptcap->match_icmp6 == FALSE)) {
         vrmr_error(-1, "Error",
                 "incomplete ip6tables-support in the kernel: tcp, udp or icmp6 "
-                "support missing (in: %s:%d).",
-                __FUNC__, __LINE__);
+                "support missing");
         return (-1);
     }
 
@@ -1427,8 +1363,7 @@ int vrmr_check_ip6tcaps(
             iptcap->match_ip6_state == FALSE) {
         vrmr_error(-1, "Error",
                 "incomplete ip6tables-support in the kernel: state support "
-                "missing (in: %s:%d).",
-                __FUNC__, __LINE__);
+                "missing");
         return (-1);
     }
 
@@ -1447,14 +1382,8 @@ int vrmr_load_ip6tcaps(
        VRMR_PROC_IPCONNTRACK, proc_net_nfconntrack[]  = VRMR_PROC_NFCONNTRACK;
     */
     int result = 0;
+    assert(iptcap != NULL && cnf != NULL);
 
-    /* safety */
-    if (iptcap == NULL || cnf == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
-    vrmr_debug(LOW, "Starting the loading of IPv6 capabilities");
 #if 0
     /* init */
     memset(iptcap, 0, sizeof(struct vrmr_iptcaps));

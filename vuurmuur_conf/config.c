@@ -61,9 +61,8 @@ int init_vcconfig(struct vrmr_config *conf, char *configfile_location,
         /* don't print error if the file is missing, we use the defaults in
             that case */
         if (errno != ENOENT)
-            vrmr_error(-1, VR_ERR, "%s: %s %s (%s:%d).",
-                    STR_OPENING_FILE_FAILED, configfile_location,
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "%s: %s %s", STR_OPENING_FILE_FAILED,
+                    configfile_location, strerror(errno));
 
         if (errno == ENOENT)
             return (VRMR_CNF_E_FILE_MISSING);
@@ -261,8 +260,8 @@ int write_vcconfigfile(char *file_location, struct vrmr_gui_conf *cnf)
 
     /* open for over-writing */
     if (!(fp = fopen(file_location, "w+"))) {
-        vrmr_error(-1, VR_ERR, "%s: %s (%s:%d).", STR_OPENING_FILE_FAILED,
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(
+                -1, VR_ERR, "%s: %s", STR_OPENING_FILE_FAILED, strerror(errno));
         return (-1);
     }
 

@@ -33,10 +33,10 @@
 
 struct textdir_backend {
     /* 0: if backend is closed, 1: open */
-    int backend_open;
+    bool backend_open;
 
     /* not yet used */
-    int writable;
+    bool writable;
 
     DIR *zone_p;
     DIR *network_p;
@@ -72,18 +72,22 @@ struct textdir_backend {
     const struct vrmr_config *cfg;
 };
 
-char *get_filelocation(void *backend, char *name, const int type);
-int ask_textdir(void *backend, char *name, char *question, char *answer,
-        size_t max_answer, int type, int multi);
-int tell_textdir(void *backend, char *name, char *question, char *answer,
-        int overwrite, int type);
-int open_textdir(void *backend, int mode, int type);
-int close_textdir(void *backend, int type);
-char *list_textdir(void *backend, char *name, int *zonetype, int type);
-int init_textdir(void *backend, int type);
-int add_textdir(void *backend, char *name, int type);
-int del_textdir(void *backend, char *name, int type, int recurs);
-int rename_textdir(void *backend, char *name, char *newname, int type);
+char *get_filelocation(
+        void *backend, const char *name, const enum vrmr_objecttypes type);
+int ask_textdir(void *backend, const char *name, const char *question,
+        char *answer, size_t max_answer, enum vrmr_objecttypes type, int multi);
+int tell_textdir(void *backend, const char *name, const char *question,
+        const char *answer, int overwrite, enum vrmr_objecttypes type);
+int open_textdir(void *backend, int mode, enum vrmr_backend_types type);
+int close_textdir(void *backend, enum vrmr_backend_types type);
+char *list_textdir(
+        void *backend, char *name, int *zonetype, enum vrmr_backend_types type);
+int init_textdir(void *backend, enum vrmr_backend_types type);
+int add_textdir(void *backend, const char *name, enum vrmr_objecttypes type);
+int del_textdir(void *backend, const char *name, enum vrmr_objecttypes type,
+        int recurs);
+int rename_textdir(void *backend, const char *name, const char *newname,
+        enum vrmr_objecttypes type);
 int conf_textdir(void *backend);
 int setup_textdir(const struct vrmr_config *vuurmuur_config, void **backend);
 

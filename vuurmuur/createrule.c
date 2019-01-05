@@ -95,12 +95,8 @@ static void create_srcdst_string(char mode, const char *ipaddress,
 {
     int result = 0;
 
-    /* safety */
-    if (resultstr == NULL || ipaddress == NULL || netmask == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return;
-    }
+    assert(resultstr && ipaddress && netmask);
+
     /* clear */
     memset(resultstr, 0, size);
 
@@ -113,8 +109,7 @@ static void create_srcdst_string(char mode, const char *ipaddress,
             result = snprintf(resultstr, size, "-d %s/%s", ipaddress, netmask);
 
         if (result >= (int)size) {
-            vrmr_error(-1, "Error", "buffer overrun (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, "Error", "buffer overrun");
             return;
         }
     }
@@ -125,30 +120,18 @@ static int pipe_iptables_command(
 {
     char str[VRMR_MAX_PIPE_COMMAND] = "";
 
-    /* safety */
-    if (cmd == NULL || table == NULL || chain == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cmd && table && chain);
 
-    /*
-        assemble the command string
-    */
+    /* assemble the command string */
     if (snprintf(str, sizeof(str), "%s %s %s %s", conf->iptables_location,
                 table, chain, cmd) >= (int)sizeof(str)) {
-        vrmr_error(-1, "Error",
-                "iptables command creation overflow (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Error", "iptables command creation overflow");
         return (-1);
     }
 
-    /*
-        finally try to create the rule
-    */
+    /* create the rule */
     if (vrmr_pipe_command(conf, str, VRMR_PIPE_VERBOSE) < 0) {
-        vrmr_error(-1, "Error", "creating rule failed (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Error", "creating rule failed");
         return (-1);
     }
 
@@ -161,30 +144,18 @@ static int pipe_ip6tables_command(
 {
     char str[VRMR_MAX_PIPE_COMMAND] = "";
 
-    /* safety */
-    if (cmd == NULL || table == NULL || chain == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cmd && table && chain);
 
-    /*
-        assemble the command string
-    */
+    /* assemble the command string */
     if (snprintf(str, sizeof(str), "%s %s %s %s", conf->ip6tables_location,
                 table, chain, cmd) >= (int)sizeof(str)) {
-        vrmr_error(-1, "Error",
-                "iptables command creation overflow (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Error", "iptables command creation overflow");
         return (-1);
     }
 
-    /*
-        finally try to create the rule
-    */
+    /* create the rule */
     if (vrmr_pipe_command(conf, str, VRMR_PIPE_VERBOSE) < 0) {
-        vrmr_error(-1, "Error", "creating rule failed (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, "Error", "creating rule failed");
         return (-1);
     }
 
@@ -196,13 +167,7 @@ static int pipe_ip6tables_command(
  * otherwise */
 static int iptrulecmp(struct iptables_rule *r1, struct iptables_rule *r2)
 {
-    if (r1 == NULL || r2 == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(r1 && r2);
 
     if (r1->ipv == r2->ipv && r1->table == r2->table &&
             r1->chain == r2->chain && strcmp(r1->cmd, r2->cmd) == 0 &&
@@ -221,13 +186,7 @@ static int iptrule_insert(
     struct vrmr_list_node *d_node = NULL;
     struct iptables_rule *listrule = NULL;
 
-    if (iptrule == NULL || rule == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(iptrule && rule);
 
     for (d_node = rule->iptrulelist.top; d_node; d_node = d_node->next) {
         listrule = d_node->data;
@@ -239,10 +198,7 @@ static int iptrule_insert(
     }
 
     if (vrmr_list_append(&rule->iptrulelist, iptrule) == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "vrmr_list_append() "
-                "failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "vrmr_list_append() failed");
         return (-1);
     }
 
@@ -259,31 +215,18 @@ static int iptrule_insert(
 static int queue_rule(struct rule_scratch *rule, char *table, char *chain,
         char *cmd, unsigned long long packets, unsigned long long bytes)
 {
-    struct iptables_rule *iptrule = NULL;
+    assert(cmd && table && chain && rule);
 
-    /* safety */
-    if (cmd == NULL || table == NULL || chain == NULL || rule == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
     if (strncmp(chain, "-A ACC-", 7) == 0) {
         vrmr_error(-1, "Internal Error",
                 "parameter problem: "
-                "cannot use this function for custom chains "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+                "cannot use this function for custom chains");
         return (-1);
     }
 
-    iptrule = malloc(sizeof(struct iptables_rule));
+    struct iptables_rule *iptrule = malloc(sizeof(struct iptables_rule));
     if (iptrule == NULL) {
-        vrmr_error(-1, "Error",
-                "malloc failed: %s "
-                "(in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (-1);
     }
 
@@ -309,14 +252,7 @@ static int process_rule(struct vrmr_config *conf,
         /*@null@*/ struct rule_set *ruleset, int ipv, char *table, char *chain,
         char *cmd, unsigned long long packets, unsigned long long bytes)
 {
-    /* safety */
-    if (cmd == NULL || table == NULL || chain == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cmd && table && chain);
 
     if (ruleset == NULL) {
         /* not in ruleset mode */
@@ -446,18 +382,11 @@ int process_queued_rules(struct vrmr_config *conf,
         /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule)
 {
     struct vrmr_list_node *d_node = NULL;
-    struct iptables_rule *r = NULL;
 
-    if (rule == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule);
 
     for (d_node = rule->iptrulelist.top; d_node; d_node = d_node->next) {
-        r = d_node->data;
+        struct iptables_rule *r = d_node->data;
 
         if (process_rule(conf, ruleset, r->ipv, r->table, r->chain, r->cmd,
                     r->packets, r->bytes) < 0) {
@@ -488,14 +417,7 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
     char reverse_input_device[sizeof(rule->from_int) + 3] = "";
     unsigned long nfmark = 0;
 
-    /* safety */
-    if (rule == NULL || create == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create && iptcap);
 
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
@@ -953,14 +875,7 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
     char reverse_output_device[sizeof(rule->to_int) + 3] = "";
     unsigned long nfmark = 0;
 
-    /* safety */
-    if (rule == NULL || create == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create && iptcap);
 
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
@@ -1419,14 +1334,7 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
                                       "";
     unsigned long nfmark = 0;
 
-    /* safety */
-    if (rule == NULL || create == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create && iptcap);
 
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
@@ -1929,12 +1837,7 @@ int create_rule_masq(struct vrmr_config *conf, struct rule_scratch *rule,
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
     char output_device[sizeof(rule->to_int) + 3] = "";
 
-    /* safety */
-    if (rule == NULL || create == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create && iptcap);
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
@@ -1947,8 +1850,7 @@ int create_rule_masq(struct vrmr_config *conf, struct rule_scratch *rule,
         if (iptcap->target_masquerade == FALSE) {
             vrmr_warning("Warning",
                     "masquerade rules not created: MASQUERADE-target not "
-                    "supported by this system.",
-                    __FUNC__, __LINE__);
+                    "supported by this system");
             return (0); /* this is not an error */
         }
     }
@@ -1985,12 +1887,7 @@ int create_rule_snat(struct vrmr_config *conf, struct rule_scratch *rule,
     char cmd[VRMR_MAX_PIPE_COMMAND];
     char output_device[sizeof(rule->to_int) + 3] = "";
 
-    /* safety */
-    if (rule == NULL || create == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create && iptcap);
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
@@ -2003,8 +1900,7 @@ int create_rule_snat(struct vrmr_config *conf, struct rule_scratch *rule,
         if (iptcap->target_snat == FALSE) {
             vrmr_warning("Warning",
                     "snat rules not created: SNAT-target not supported by this "
-                    "system.",
-                    __FUNC__, __LINE__);
+                    "system");
             return (0); /* this is not an error */
         }
     }
@@ -2054,12 +1950,7 @@ int create_rule_portfw(struct vrmr_config *conf, struct rule_scratch *rule,
     char input_device[sizeof(rule->from_int) + 3] = "";
     char tmp_dst_prt[32] = "";
 
-    /* safety */
-    if (rule == NULL || create == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create && iptcap);
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
@@ -2072,8 +1963,7 @@ int create_rule_portfw(struct vrmr_config *conf, struct rule_scratch *rule,
         if (iptcap->target_dnat == FALSE) {
             vrmr_warning("Warning",
                     "portfw rules not created: DNAT-target not supported by "
-                    "this system.",
-                    __FUNC__, __LINE__);
+                    "this system");
             return (0); /* this is not an error */
         }
     }
@@ -2190,8 +2080,7 @@ int create_rule_portfw(struct vrmr_config *conf, struct rule_scratch *rule,
     }
 
     if (create_rule_forward(conf, rule, create, iptcap) < 0) {
-        vrmr_error(-1, "Error",
-                "creating forward rule for portfw failed (in: %s).", __FUNC__);
+        vrmr_error(-1, "Error", "creating forward rule for portfw failed");
         retval = -1;
     }
 
@@ -2215,12 +2104,7 @@ int create_rule_redirect(struct vrmr_config *conf, struct rule_scratch *rule,
          tmp_netmask[16] = "";
     char input_device[sizeof(rule->from_int) + 3] = "";
 
-    /* safety */
-    if (rule == NULL || create == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create && iptcap);
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
@@ -2233,8 +2117,7 @@ int create_rule_redirect(struct vrmr_config *conf, struct rule_scratch *rule,
         if (iptcap->target_redirect == FALSE) {
             vrmr_warning("Warning",
                     "redirect rules not created: REDIRECT-target not supported "
-                    "by this system.",
-                    __FUNC__, __LINE__);
+                    "by this system");
             return (0); /* this is not an error */
         }
     }
@@ -2302,8 +2185,7 @@ int create_rule_redirect(struct vrmr_config *conf, struct rule_scratch *rule,
 
     /* now create the input rule */
     if (create_rule_input(conf, rule, create, iptcap) < 0) {
-        vrmr_error(-1, "Error",
-                "creating input rule for redirect failed (in: %s).", __FUNC__);
+        vrmr_error(-1, "Error", "creating input rule for redirect failed");
         return (-1);
     }
 
@@ -2334,14 +2216,7 @@ int create_rule_dnat(struct vrmr_config *conf, struct rule_scratch *rule,
     char input_device[sizeof(rule->from_int) + 3] = "";
     //    char    tmp_dst_prt[32] = "";
 
-    /* safety */
-    if (rule == NULL || create == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create && iptcap);
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
@@ -2355,8 +2230,7 @@ int create_rule_dnat(struct vrmr_config *conf, struct rule_scratch *rule,
             vrmr_warning("Warning",
                     "dnat rules not "
                     "created: DNAT-target not supported by this "
-                    "system.",
-                    __FUNC__, __LINE__);
+                    "system");
             return (0); /* this is not an error */
         }
     }
@@ -2444,14 +2318,7 @@ int create_rule_bounce(struct vrmr_config *conf, struct rule_scratch *rule,
     char input_device[sizeof(rule->from_int) + 3] = "";
     char tmp_dst_prt[32] = "";
 
-    /* safety */
-    if (rule == NULL || create == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create && iptcap);
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
@@ -2465,16 +2332,14 @@ int create_rule_bounce(struct vrmr_config *conf, struct rule_scratch *rule,
             vrmr_warning("Warning",
                     "bounce rules not "
                     "created: DNAT-target not supported by this "
-                    "system.",
-                    __FUNC__, __LINE__);
+                    "system");
             return (0); /* this is not an error */
         }
         if (iptcap->target_snat == FALSE) {
             vrmr_warning("Warning",
                     "bounce rules not "
                     "created: SNAT-target not supported by this "
-                    "system.",
-                    __FUNC__, __LINE__);
+                    "system");
             return (0); /* this is not an error */
         }
     }
@@ -2592,8 +2457,7 @@ int create_rule_bounce(struct vrmr_config *conf, struct rule_scratch *rule,
     }
 
     if (create_rule_forward(conf, rule, create, iptcap) < 0) {
-        vrmr_error(-1, "Error",
-                "creating forward rule for portfw failed (in: %s).", __FUNC__);
+        vrmr_error(-1, "Error", "creating forward rule for portfw failed");
         retval = -1;
     }
 
@@ -2622,14 +2486,7 @@ int create_rule_input_broadcast(struct vrmr_config *conf,
     char input_device[sizeof(rule->from_int) + 3] = "";
     unsigned long nfmark = 0;
 
-    /* safety */
-    if (rule == NULL || create == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create && iptcap);
 
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
@@ -2742,14 +2599,7 @@ int create_rule_output_broadcast(struct vrmr_config *conf,
     char output_device[sizeof(rule->to_int) + 3] = "";
     unsigned long nfmark = 0;
 
-    /* safety */
-    if (rule == NULL || create == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rule && create && iptcap);
 
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
@@ -2850,14 +2700,7 @@ static int create_interface_tcpmss_rules(struct vrmr_config *conf,
     struct vrmr_interface *iface_ptr = NULL;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
-    /* safety */
-    if (interfaces == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(interfaces && iptcap);
 
     if (ipv == VRMR_IPV4) {
         if (conf->vrmr_check_iptcaps == TRUE &&
@@ -2884,10 +2727,7 @@ static int create_interface_tcpmss_rules(struct vrmr_config *conf,
     /* loop through the interfaces */
     for (d_node = interfaces->list.top; d_node; d_node = d_node->next) {
         if (!(iface_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -3409,10 +3249,7 @@ static int pre_rules_interface_counters_ipv4(struct vrmr_config *conf,
 
     for (d_node = interfaces->list.top; d_node; d_node = d_node->next) {
         if (!(iface_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer "
-                    " (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -4557,14 +4394,7 @@ int pre_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
 {
     int retval = 0;
 
-    /* safety */
-    if (interfaces == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(interfaces && iptcap);
 
     /* check cap */
     if (conf->vrmr_check_iptcaps == TRUE) {
@@ -4727,10 +4557,7 @@ int update_synlimit_rules(struct vrmr_config *conf,
     }
 
     if (conf->syn_limit == 0 || conf->syn_limit_burst == 0) {
-        vrmr_error(-1, "Error",
-                "limit of 0 cannot be used "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "limit of 0 cannot be used");
         return (-1);
     }
 
@@ -4818,8 +4645,7 @@ int update_udplimit_rules(struct vrmr_config *conf,
     }
 
     if (conf->udp_limit == 0 || conf->udp_limit_burst == 0) {
-        vrmr_error(-1, "Error", "limit of 0 cannot be used (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "limit of 0 cannot be used");
         return (-1);
     }
 
@@ -4907,14 +4733,7 @@ int post_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
     char my_limit[42] = "";
     char logprefix[64] = "";
 
-    /* safety */
-    if (iptcap == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(iptcap);
 
     /* do we want to log the default policy? */
     if (conf->log_policy == TRUE) {
@@ -5165,12 +4984,7 @@ int create_interface_rules(struct vrmr_config *conf,
     struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_interface *iface_ptr = NULL;
 
-    /* safety */
-    if (!interfaces) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(interfaces);
 
     if (conf->bash_out)
         fprintf(stdout, "\n# Loading interfaces protection rules...\n");
@@ -5178,8 +4992,7 @@ int create_interface_rules(struct vrmr_config *conf,
     /* loop through the interfaces */
     for (d_node = interfaces->list.top; d_node; d_node = d_node->next) {
         if (!(iface_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -5187,13 +5000,11 @@ int create_interface_rules(struct vrmr_config *conf,
         for (if_d_node = iface_ptr->ProtectList.top; if_d_node;
                 if_d_node = if_d_node->next) {
             if (!(rule_ptr = if_d_node->data)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
             if (!(create = &rule_ptr->rulecache)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                        __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 return (-1);
             }
 
@@ -5211,8 +5022,7 @@ int create_interface_rules(struct vrmr_config *conf,
                 vrmr_debug(HIGH, "protect proc (int)... ");
 
                 if (!create->who_int) {
-                    vrmr_error(-1, "Internal Error",
-                            "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer");
                     return (-1);
                 }
 
@@ -5221,9 +5031,8 @@ int create_interface_rules(struct vrmr_config *conf,
                 if (strcasecmp(rule_ptr->danger, "rp-filter") == 0) {
                     if (create_interface_rpfilter_rules(
                                 conf, ruleset, iptcap, create->who_int) < 0) {
-                        vrmr_error(-1, "Error",
-                                "creating rpfilter rules failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
+                        vrmr_error(
+                                -1, "Error", "creating rpfilter rules failed");
                     }
                 }
 
@@ -5243,9 +5052,7 @@ int create_interface_rules(struct vrmr_config *conf,
                                 create->danger.proc_set_on,
                                 create->who_int->device) != 0) {
                         /* if it fails, we dont really care, its not fatal */
-                        vrmr_error(-1, "Error",
-                                "setting proc entry failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
+                        vrmr_error(-1, "Error", "setting proc entry failed");
                     }
                 } else {
                     if (conf->bash_out) {
@@ -5257,8 +5064,8 @@ int create_interface_rules(struct vrmr_config *conf,
             /* Whoops, this is serious. */
             else {
                 vrmr_error(-1, "Internal Error",
-                        "unknown protect danger type %d (in: %s:%d).",
-                        create->danger.solution, __FUNC__, __LINE__);
+                        "unknown protect danger type %d",
+                        create->danger.solution);
                 return (-1);
             }
         }
@@ -5691,14 +5498,7 @@ int create_network_protect_rules(struct vrmr_config *conf,
     struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_interface *from_if_ptr = NULL;
 
-    /* safety */
-    if (zones == NULL || iptcap == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(zones && iptcap);
 
     /* check capability */
     if (conf->vrmr_check_iptcaps == TRUE && iptcap->match_limit == FALSE) {
@@ -5714,10 +5514,7 @@ int create_network_protect_rules(struct vrmr_config *conf,
     /* loop through the zones to look for networks */
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         if (!(zone_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL "
-                    "pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -5726,18 +5523,15 @@ int create_network_protect_rules(struct vrmr_config *conf,
             for (net_d_node = zone_ptr->ProtectList.top; net_d_node;
                     net_d_node = net_d_node->next) {
                 if (!(rule_ptr = net_d_node->data)) {
-                    vrmr_error(-1, "Internal Error",
-                            "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer");
                     return (-1);
                 }
                 if (!(create = &rule_ptr->rulecache)) {
-                    vrmr_error(-1, "Internal Error",
-                            "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer");
                     return (-1);
                 }
                 if (create->who == NULL) {
-                    vrmr_error(-1, "Internal Error",
-                            "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer");
                     return (-1);
                 }
 
@@ -5762,9 +5556,8 @@ int create_network_protect_rules(struct vrmr_config *conf,
                                 from_if_node;
                                 from_if_node = from_if_node->next) {
                             if (!(from_if_ptr = from_if_node->data)) {
-                                vrmr_error(-1, "Internal Error",
-                                        "NULL pointer (in: %s:%d).", __FUNC__,
-                                        __LINE__);
+                                vrmr_error(
+                                        -1, "Internal Error", "NULL pointer");
                                 return (-1);
                             }
 
@@ -5781,9 +5574,8 @@ int create_network_protect_rules(struct vrmr_config *conf,
                                 from_if_node;
                                 from_if_node = from_if_node->next) {
                             if (!(from_if_ptr = from_if_node->data)) {
-                                vrmr_error(-1, "Internal Error",
-                                        "NULL pointer (in: %s:%d).", __FUNC__,
-                                        __LINE__);
+                                vrmr_error(
+                                        -1, "Internal Error", "NULL pointer");
                                 return (-1);
                             }
 
@@ -5797,9 +5589,8 @@ int create_network_protect_rules(struct vrmr_config *conf,
                                 from_if_node;
                                 from_if_node = from_if_node->next) {
                             if (!(from_if_ptr = from_if_node->data)) {
-                                vrmr_error(-1, "Internal Error",
-                                        "NULL pointer (in: %s:%d).", __FUNC__,
-                                        __LINE__);
+                                vrmr_error(
+                                        -1, "Internal Error", "NULL pointer");
                                 return (-1);
                             }
 
@@ -5812,8 +5603,8 @@ int create_network_protect_rules(struct vrmr_config *conf,
                 /* Whoops, this is serious. */
                 else {
                     vrmr_error(-1, "Internal Error",
-                            "unknown protect danger type %d (in: %s).",
-                            create->danger.solution, __FUNC__);
+                            "unknown protect danger type %d",
+                            create->danger.solution);
                     return (-1);
                 }
             }
@@ -5830,12 +5621,7 @@ int create_block_rules(struct vrmr_config *conf,
     struct vrmr_list_node *d_node = NULL;
     int retval = 0;
 
-    /* safety */
-    if (!blocklist) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(blocklist);
 
     if (conf->bash_out == TRUE)
         fprintf(stdout, "\n# Loading Blocklist...\n");
@@ -5848,8 +5634,7 @@ int create_block_rules(struct vrmr_config *conf,
     /* create two rules for each ipaddress */
     for (d_node = blocklist->list.top; d_node; d_node = d_node->next) {
         if (!(ipaddress = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
         vrmr_debug(HIGH, "ipaddress to add: '%s'.", ipaddress);
@@ -5888,14 +5673,7 @@ int create_estrelnfqueue_rules(struct vrmr_config *conf,
     uint16_t queue_num = 0;
     char queues[65536 / 8];
 
-    /* safety */
-    if (rules == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rules);
 
     if (conf->bash_out == TRUE)
         fprintf(stdout, "\n# Setting up NFQueue state rules...\n");
@@ -5910,10 +5688,7 @@ int create_estrelnfqueue_rules(struct vrmr_config *conf,
     /* create two rules for each ipaddress */
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         if (!(rule_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -5972,14 +5747,7 @@ int create_newnfqueue_rules(struct vrmr_config *conf,
     uint16_t queue_num = 0;
     char queues[65536 / 8];
 
-    /* safety */
-    if (rules == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rules);
 
     if (conf->bash_out == TRUE)
         fprintf(stdout, "\n# Setting up NFQueue NEWNFQUEUE target rules...\n");
@@ -6006,10 +5774,7 @@ int create_newnfqueue_rules(struct vrmr_config *conf,
     /* create two rules for each ipaddress */
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         if (!(rule_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -6059,14 +5824,7 @@ int create_estrelnflog_rules(struct vrmr_config *conf,
     uint16_t nflog_num = 0;
     char queues[65536 / 8];
 
-    /* safety */
-    if (rules == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rules);
 
     if (conf->bash_out == TRUE)
         fprintf(stdout, "\n# Setting up NFLog state rules...\n");
@@ -6081,10 +5839,7 @@ int create_estrelnflog_rules(struct vrmr_config *conf,
     /* create two rules for each ipaddress */
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         if (!(rule_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -6165,14 +5920,7 @@ int create_newnflog_rules(struct vrmr_config *conf,
     uint16_t nflog_num = 0;
     char queues[65536 / 8];
 
-    /* safety */
-    if (rules == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(rules);
 
     if (conf->bash_out == TRUE)
         fprintf(stdout, "\n# Setting up NFLog NEWNFLOG target rules...\n");
@@ -6197,10 +5945,7 @@ int create_newnflog_rules(struct vrmr_config *conf,
     /* create two rules for each ipaddress */
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         if (!(rule_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error",
-                    "NULL pointer "
-                    "(in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 

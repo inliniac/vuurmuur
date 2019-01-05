@@ -45,9 +45,8 @@ int script_list(struct vuurmuur_script *vr_script)
                                 vr_script->vctx.reg.zonename,
                                 VRMR_VERBOSE) != 0) {
                         vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                                "invalid name '%s' returned from backend (in: "
-                                "%s:%d).",
-                                vr_script->name, __FUNC__, __LINE__);
+                                "invalid name '%s' returned from backend",
+                                vr_script->name);
                         return (VRS_ERR_INTERNAL);
                     }
                     vrmr_debug(HIGH,
@@ -75,9 +74,8 @@ int script_list(struct vuurmuur_script *vr_script)
                                 vr_script->vctx.reg.zonename,
                                 VRMR_VERBOSE) != 0) {
                         vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
-                                "invalid name '%s' returned from backend (in: "
-                                "%s:%d).",
-                                vr_script->name, __FUNC__, __LINE__);
+                                "invalid name '%s' returned from backend",
+                                vr_script->name);
                         return (VRS_ERR_INTERNAL);
                     }
                     vrmr_debug(HIGH,

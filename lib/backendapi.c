@@ -30,15 +30,10 @@ void vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
 {
     struct vrmr_plugin *plugin = NULL;
 
-    if (!plugin_data) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: load_plugin).");
-        return;
-    }
+    assert(plugin_data);
 
     if (!(plugin = malloc(sizeof(struct vrmr_plugin)))) {
-        vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return;
     }
     memset(plugin, 0x00, sizeof(*plugin));
@@ -49,20 +44,14 @@ void vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
     /* store the name of the plugin */
     if (strlcpy(plugin->name, plugin_data->name, sizeof(plugin->name)) >=
             sizeof(plugin->name)) {
-        vrmr_error(-1, "Internal Error",
-                "pluginname "
-                "overflow (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "pluginname overflow");
         free(plugin);
         return;
     }
 
     /* insert into the list */
     if (vrmr_list_append(&vrmr_plugin_list, plugin) == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "vrmr_list_append() "
-                "failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "vrmr_list_append() failed");
         free(plugin);
         return;
     }
@@ -84,23 +73,11 @@ static int load_plugin(struct vrmr_config *cfg ATTR_UNUSED,
     struct vrmr_plugin *plugin = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    if (!plugin_list || !plugin_name || !func_ptr) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: load_plugin).");
-        return (-1);
-    }
+    assert(plugin_list && plugin_name && func_ptr);
+    assert(strlen(plugin_name) > 0);
 
-    vrmr_debug(HIGH, "** start **, plugin_nane: '%s', pluginlist size: '%d'.",
-            plugin_name, plugin_list->len);
-
-    /* safety check */
-    if (plugin_name[0] == '\0') {
-        vrmr_error(-1, "Internal Error",
-                "plugin name not set "
-                " (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    vrmr_debug(HIGH, "plugin_nane: '%s', pluginlist size: '%d'.", plugin_name,
+            plugin_list->len);
 
     for (d_node = plugin_list->top; d_node; d_node = d_node->next) {
         plugin = d_node->data;
@@ -142,18 +119,12 @@ static int unload_plugin(struct vrmr_list *plugin_list, char *plugin_name,
     struct vrmr_plugin *plugin = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    /* safety first */
-    if (!plugin_list || !plugin_name || !func_ptr) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(plugin_list && plugin_name && func_ptr);
 
     /* first check if we have the plugin loaded */
     for (d_node = plugin_list->top; d_node; d_node = d_node->next) {
         if (!(plugin = d_node->data)) {
-            vrmr_error(
-                    -1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
@@ -186,8 +157,7 @@ static int unload_plugin(struct vrmr_list *plugin_list, char *plugin_name,
     if (plugin->ref_cnt == 0) {
         /* remove the plugindata from the list */
         if (vrmr_list_remove_node(plugin_list, d_node) < 0) {
-            vrmr_error(-1, "Internal Error",
-                    "removing plugin form list (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "removing plugin form list");
             return (-1);
         }
     }

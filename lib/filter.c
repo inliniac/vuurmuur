@@ -23,28 +23,14 @@
 
 void vrmr_filter_setup(struct vrmr_filter *filter)
 {
-    /* safety */
-    if (filter == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return;
-    }
+    assert(filter);
 
     memset(filter, 0, sizeof(struct vrmr_filter));
 }
 
 void vrmr_filter_cleanup(struct vrmr_filter *filter)
 {
-    /* safety */
-    if (filter == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return;
-    }
+    assert(filter);
 
     if (filter->reg_active == TRUE) {
         /* first remove old regex */

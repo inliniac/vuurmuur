@@ -116,8 +116,8 @@ int script_modify(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.zf->tell(vr_script->vctx.zone_backend,
                     vr_script->name, vr_script->var, vr_script->set,
                     vr_script->overwrite, VRMR_TYPE_ZONE) < 0) {
-            vrmr_error(-1, VR_ERR, "modifying zone '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, VR_ERR, "modifying zone '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -131,8 +131,8 @@ int script_modify(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.zf->tell(vr_script->vctx.zone_backend,
                     vr_script->name, vr_script->var, vr_script->set,
                     vr_script->overwrite, VRMR_TYPE_NETWORK) < 0) {
-            vrmr_error(-1, VR_ERR, "modifying network '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "modifying network '%s' failed",
+                    vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -148,8 +148,8 @@ int script_modify(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.zf->tell(vr_script->vctx.zone_backend,
                     vr_script->name, vr_script->var, vr_script->set,
                     vr_script->overwrite, VRMR_TYPE_HOST) < 0) {
-            vrmr_error(-1, VR_ERR, "modifying host '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, VR_ERR, "modifying host '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -163,8 +163,8 @@ int script_modify(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.zf->tell(vr_script->vctx.zone_backend,
                     vr_script->name, vr_script->var, vr_script->set,
                     vr_script->overwrite, VRMR_TYPE_GROUP) < 0) {
-            vrmr_error(-1, VR_ERR, "modifying group '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(
+                    -1, VR_ERR, "modifying group '%s' failed", vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -178,8 +178,8 @@ int script_modify(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.sf->tell(vr_script->vctx.serv_backend,
                     vr_script->name, vr_script->var, vr_script->set,
                     vr_script->overwrite, VRMR_TYPE_SERVICE) < 0) {
-            vrmr_error(-1, VR_ERR, "modifying service '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "modifying service '%s' failed",
+                    vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -195,9 +195,8 @@ int script_modify(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.af->tell(vr_script->vctx.ifac_backend,
                     vr_script->name, vr_script->var, vr_script->set,
                     vr_script->overwrite, VRMR_TYPE_INTERFACE) < 0) {
-            vrmr_error(-1, VR_ERR,
-                    "modifying interface '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "modifying interface '%s' failed",
+                    vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 
@@ -213,8 +212,8 @@ int script_modify(struct vuurmuur_script *vr_script)
         if (vr_script->vctx.rf->tell(vr_script->vctx.rule_backend,
                     vr_script->name, vr_script->var, vr_script->set,
                     vr_script->overwrite, VRMR_TYPE_RULE) < 0) {
-            vrmr_error(-1, VR_ERR, "modifying ruleset '%s' failed (in: %s:%d).",
-                    vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "modifying ruleset '%s' failed",
+                    vr_script->name);
             return (VRS_ERR_COMMAND_FAILED);
         }
 

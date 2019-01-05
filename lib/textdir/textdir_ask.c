@@ -26,42 +26,25 @@
     returns
         -1 error
 */
-int ask_textdir(void *backend, char *name, char *question, char *answer,
-        size_t max_answer, int type, int multi)
+int ask_textdir(void *backend, const char *name, const char *question,
+        char *answer, size_t max_answer, enum vrmr_objecttypes type, int multi)
 {
     int retval = 0;
     char *file_location = NULL;
     char line[MAX_LINE_LENGTH] = "", variable[64] = "", value[512] = "";
-    size_t i = 0, line_pos = 0, val_pos = 0;
-    char delt = 'a' - 'A';
+    size_t line_pos = 0, val_pos = 0;
     size_t line_length = 0;
-    struct textdir_backend *tb = NULL;
     size_t len = 0;
 
-    /* better safe than sorry */
-    if (!backend || !name || !question) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(backend && name && question);
 
     vrmr_debug(
             HIGH, "question: %s, name: %s, multi: %d", question, name, multi);
 
-    tb = (struct textdir_backend *)backend;
+    struct textdir_backend *tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
-        vrmr_error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
+        vrmr_error(-1, "Error", "backend not opened yet");
         return (-1);
-    }
-
-    /* convert question to uppercase: see pp 197 of 'sams teach yourself c in 24
-     * hours' */
-    while (question[i]) {
-        if ((question[i] >= 'a') && (question[i] <= 'z'))
-            question[i] -= delt;
-        ++i;
     }
 
     /* determine the location of the file */
@@ -72,8 +55,7 @@ int ask_textdir(void *backend, char *name, char *question, char *answer,
     if (tb->file != NULL && multi == 0) {
         vrmr_warning("Warning",
                 "the last 'multi' call to '%s' probably failed, because the "
-                "file is still open when it shouldn't.",
-                __FUNC__);
+                "file is still open when it shouldn't");
 
         fclose(tb->file);
         tb->file = NULL;
@@ -123,13 +105,11 @@ int ask_textdir(void *backend, char *name, char *question, char *answer,
             /* invalid line, ignore */
             continue;
         }
-
         strlcpy(variable, line, var_len);
-
         vrmr_debug(LOW, "variable %s", variable);
 
         /* now see if this was what we were looking for */
-        if (strcmp(question, variable) != 0) {
+        if (strcasecmp(question, variable) != 0) {
             /* nope, ignore line */
             continue;
         }
@@ -195,8 +175,8 @@ int ask_textdir(void *backend, char *name, char *question, char *answer,
         vrmr_debug(HIGH, "close the file.");
 
         if (fclose(tb->file) != 0) {
-            vrmr_error(-1, "Error", "closing file '%s' failed: %s (in: %s).",
-                    file_location, strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "closing file '%s' failed: %s",
+                    file_location, strerror(errno));
             retval = -1;
         }
         tb->file = NULL;

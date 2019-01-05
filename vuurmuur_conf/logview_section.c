@@ -1385,7 +1385,8 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                                         "%s/ '%s' 2>/dev/null",
                                         vccnf.scripts_location, logname,
                                         vctx->conf.vuurmuur_logdir_location,
-                                        search_ptr) >= (int)sizeof(search_string)) {
+                                        search_ptr) >=
+                                    (int)sizeof(search_string)) {
                                 vrmr_error(-1, VR_ERR,
                                         gettext("opening pipe failed: %s."),
                                         strerror(errno));

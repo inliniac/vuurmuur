@@ -23,50 +23,36 @@
 /*
 
 */
-int tell_textdir(void *backend, char *name, char *question, char *answer,
-        int overwrite, int type)
+int tell_textdir(void *backend, const char *name, const char *question,
+        const char *answer, int overwrite, enum vrmr_objecttypes type)
 {
     int retval = 0;
     char *file_location = NULL;
     char line[512] = "", *line_ptr = NULL, *tmp_line_ptr = NULL;
     int i = 0, found = 0, skip = 0;
-    int delta = 'a' - 'A';
     FILE *fp = NULL;
-    struct textdir_backend *tb = NULL;
     struct vrmr_list storelist;
     struct vrmr_list_node *d_node = NULL;
 
-    /*
-        safety
-    */
-    if (!backend || !name || !question || !answer) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(backend && name && question && answer);
 
     vrmr_debug(HIGH,
             "question: %s, answer: %s, name: %s, overwrite: %d, type: %d",
             question, answer, name, overwrite, type);
 
-    tb = (struct textdir_backend *)backend;
+    struct textdir_backend *tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
-        vrmr_error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
+        vrmr_error(-1, "Error", "backend not opened yet");
         return (-1);
     }
 
-    /*
-        convert question to uppercase
-    */
+    /* only uppercase allowed */
     while (question[i]) {
         if ((question[i] >= 'a') && (question[i] <= 'z'))
-            question[i] -= delta;
+            return (-1);
         ++i;
     }
 
-    /*
-        determine the location of the file
-    */
     if (!(file_location = get_filelocation(backend, name, type)))
         return (-1);
 
@@ -76,7 +62,6 @@ int tell_textdir(void *backend, char *name, char *question, char *answer,
     if (!(fp = vuurmuur_fopen(tb->cfg, file_location, "r"))) {
         vrmr_error(-1, "Error", "unable to open file '%s' for reading: %s.",
                 file_location, strerror(errno));
-
         free(file_location);
         return (-1);
     }
@@ -92,8 +77,7 @@ int tell_textdir(void *backend, char *name, char *question, char *answer,
 
         size_t line_size = sizeof(line);
         if (!(line_ptr = malloc(line_size))) {
-            vrmr_error(-1, "Error", "malloc failed: %s (in: %s).",
-                    strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
             /* cleanup */
             vrmr_list_cleanup(&storelist);
             free(file_location);
@@ -123,9 +107,7 @@ int tell_textdir(void *backend, char *name, char *question, char *answer,
         if (!skip) {
             if (vrmr_list_append(&storelist, line_ptr) == NULL) {
                 vrmr_error(-1, "Internal Error",
-                        "inserting line into temporary storage list failed "
-                        "(in: %s).",
-                        __FUNC__);
+                        "inserting line into temporary storage list failed");
                 /* cleanup */
                 vrmr_list_cleanup(&storelist);
                 free(line_ptr);
@@ -146,8 +128,7 @@ int tell_textdir(void *backend, char *name, char *question, char *answer,
     */
     if (!overwrite && found) {
         if (!(line_ptr = malloc(sizeof(line)))) {
-            vrmr_error(-1, "Error", "malloc failed: %s (in: %s).",
-                    strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
             /* cleanup */
             vrmr_list_cleanup(&storelist);
             free(file_location);
@@ -163,8 +144,7 @@ int tell_textdir(void *backend, char *name, char *question, char *answer,
         */
         for (d_node = storelist.bot; d_node; d_node = d_node->prev) {
             if (!(tmp_line_ptr = d_node->data)) {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s)",
-                        __FUNC__);
+                vrmr_error(-1, "Internal Error", "NULL pointer");
                 /* cleanup */
                 vrmr_list_cleanup(&storelist);
                 free(file_location);
@@ -180,9 +160,8 @@ int tell_textdir(void *backend, char *name, char *question, char *answer,
                 if (vrmr_list_insert_after(&storelist, d_node, line_ptr) ==
                         NULL) {
                     vrmr_error(-1, "Internal Error",
-                            "inserting line into temporary storage list failed "
-                            "(in: %s).",
-                            __FUNC__);
+                            "inserting line into temporary storage list "
+                            "failed");
                     /* cleanup */
                     vrmr_list_cleanup(&storelist);
                     free(file_location);
@@ -224,9 +203,7 @@ int tell_textdir(void *backend, char *name, char *question, char *answer,
         /* append into the list */
         if (vrmr_list_append(&storelist, line_ptr) == NULL) {
             vrmr_error(-1, "Internal Error",
-                    "inserting line into temporary storage list failed (in: "
-                    "%s).",
-                    __FUNC__);
+                    "inserting line into temporary storage list failed");
             /* cleanup */
             vrmr_list_cleanup(&storelist);
             free(file_location);
@@ -244,9 +221,8 @@ int tell_textdir(void *backend, char *name, char *question, char *answer,
 
     /* now open the file for writing */
     if (!(fp = vuurmuur_fopen(tb->cfg, file_location, "w+"))) {
-        vrmr_error(-1, "Error",
-                "unable to open file '%s' for writing: %s (in: %s).",
-                file_location, strerror(errno), __FUNC__);
+        vrmr_error(-1, "Error", "unable to open file '%s' for writing: %s",
+                file_location, strerror(errno));
 
         /* cleanup */
         vrmr_list_cleanup(&storelist);

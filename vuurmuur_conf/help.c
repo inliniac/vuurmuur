@@ -194,7 +194,7 @@ static int read_helpfile(struct vrmr_list *help_list, char *part)
         /* language helpfile does not exist, try to fall back to default */
         if (snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
                     vccnf.helpfile_location) >= (int)sizeof(helpfile))
-            return(-1);
+            return (-1);
         vrmr_sanitize_path(helpfile, sizeof(helpfile));
 
         if (!(fp = fopen(helpfile, "r"))) {

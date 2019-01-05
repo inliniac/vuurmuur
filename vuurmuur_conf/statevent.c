@@ -184,9 +184,8 @@ static char statevent_convert_conn(struct stat_event_ctx *ctl)
 {
     struct conntrack *ct = ctl->data;
 
-    unsigned int x;
     unsigned int array_size = ct->conn_list.len;
-    for (x = 0; x < array_size; x++) {
+    for (unsigned int x = 0; x < array_size; x++) {
         struct vrmr_conntrack_entry *cd_ptr = ct->conn_array[x];
         struct stat_event_conn *conn = statevent_init_conn();
         vrmr_fatal_if_null(conn);
@@ -246,21 +245,13 @@ static char parse_log_srcdst(const char *str_in, char *ret_ip, size_t ip_size,
 static char statevent_convert_log(struct stat_event_ctx *ctl)
 {
     struct vrmr_list_node *d_node = NULL;
-    struct log_record *log_record = NULL;
-    struct stat_event_log *log = NULL;
     struct vrmr_list *loglist = ctl->data;
-
-    char *s = NULL;
-
-#define MAX_TOK 32
-    char store[MAX_TOK][128];
-    int x = 0, y = 0, z = 0;
 
     for (d_node = loglist->top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        log_record = d_node->data;
+        struct log_record *log_record = d_node->data;
 
-        log = statevent_init_log();
+        struct stat_event_log *log = statevent_init_log();
         vrmr_fatal_if_null(log);
 
         strlcpy(log->ser, log_record->service, sizeof(log->ser));
@@ -274,7 +265,6 @@ static char statevent_convert_log(struct stat_event_ctx *ctl)
                 log_record->month, log_record->date, log_record->time);
 
         log->filtered = log_record->filtered;
-        // vrmr_debug(__FUNC__, "filtered %d, %s", log->filtered, log->ser);
 
         /* parse the details :-S */
         // vrprint.error(-1, "Details", "%s", log_record->details);
@@ -287,10 +277,12 @@ static char statevent_convert_log(struct stat_event_ctx *ctl)
            194.109.21.51 ICMP type 8 code 0 len:84 ttl:63) (in: ppp0 out: eth0
            194.109.5.241 -> 192.168.1.64 (41) len:76 ttl:26)
         */
-        s = log_record->details;
+        const char *s = log_record->details;
+#define MAX_TOK 32
+        char store[MAX_TOK][128];
 
         /* split the tokens */
-        for (x = 0, y = 0, z = 0; x < (int)strlen(s); x++) {
+        for (int x = 0, y = 0, z = 0; x < (int)strlen(s); x++) {
             /* copy char */
             store[y][z] = s[x];
 
@@ -310,32 +302,24 @@ static char statevent_convert_log(struct stat_event_ctx *ctl)
         int next = 0;
 
         if (strcmp(store[0], "(in:") == 0) {
-            // vrprint.debug(__FUNC__, "in = %s", store[1]);
             next = 2;
         } else if (strcmp(store[0], "(out:") == 0) {
-            // vrprint.debug(__FUNC__, "out = %s", store[1]);
             next = 2;
         }
         if (strcmp(store[next], "out:") == 0) {
-            // vrprint.debug(__FUNC__, "out = %s", store[3]);
             next += 2;
         }
 
         /* ip or ip+port */
-        // vrprint.debug(__FUNC__, "src ip/ip+port %s", store[next]);
         char *src = store[next];
         next++;
 
         /* arrow */
-        // vrprint.debug(__FUNC__, "arrow %s", store[next]);
         next++;
 
         /* ip or ip+port */
-        // vrprint.debug(__FUNC__, "dst ip/ip+port %s", store[next]);
         char *dst = store[next];
         next++;
-
-        // vrprint.debug(__FUNC__, "store[next] %s", store[next]);
 
         /*  parse src and dst
 
@@ -373,11 +357,8 @@ static char statevent_convert_log(struct stat_event_ctx *ctl)
             log->protocol = atoi(store[next + 1]);
             next++;
         } else {
-            vrprint.debug(__FUNC__, "no match '%s'", store[next]);
+            vrmr_debug(NONE, "no match '%s'", store[next]);
         }
-        // vrmr_debug(__FUNC__, "log->protocol %d", log->protocol);
-
-        // vrprint.debug(__FUNC__, "x = %d, y = %d, z = %d", x,y,z);
 
         vrmr_fatal_if(vrmr_list_append(&ctl->list, log) == NULL);
     }
@@ -523,7 +504,7 @@ static void statevent_interactivemenu_conn(struct vrmr_ctx *vctx,
                                         con->src_port, con->dst_port);
                             }
                         } else {
-                            vrprint.debug(__FUNC__,
+                            vrmr_debug(NONE,
                                     "cnt %u, src %s srcip %s dst %s dstip %s "
                                     "ser %s",
                                     con->cnt, con->src, con->src_ip, con->dst,

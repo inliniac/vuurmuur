@@ -79,7 +79,6 @@ char *VrShapeUnitMenu(char *unit, int y, int x, char bps)
                     if (r)
                         free(r);
                     r = strdup((char *)item_name(cur));
-                    // vrmr_debug(__FUNC__, "r %s", r);
                     quit = TRUE;
                 }
 
@@ -103,8 +102,6 @@ char *VrShapeUnitMenu(char *unit, int y, int x, char bps)
     VrDelWin(win);
     update_panels();
     doupdate();
-
-    // vrmr_debug(__FUNC__, "@exit r %s", r);
     return r;
 }
 
@@ -612,7 +609,7 @@ static struct rulebar *CurrentBar(struct rulebar_form *rbform, FORM *form)
         //            return(cur_bar);
     }
 
-    vrmr_error(-1, VR_INTERR, "bar not found (in: %s:%d).", __FUNC__, __LINE__);
+    vrmr_error(-1, VR_INTERR, "bar not found.");
     return (NULL);
 }
 
@@ -1046,9 +1043,6 @@ static void draw_rules(struct vrmr_rules *rules, struct rulebar_form *rbform)
                         /* cut off: 'options:' */
                         char *options_start = option_str + 8;
                         strlcpy(options, options_start, sizeof(options));
-                        // vrmr_debug(__FUNC__, "options_str '%s' options '%s'",
-                        // option_str, options);
-
                         free(option_str);
                         option_str = NULL;
                     }
@@ -1152,9 +1146,6 @@ static void draw_rules(struct vrmr_rules *rules, struct rulebar_form *rbform)
 
                 /* point to the next bar */
                 d_node = d_node->next;
-            } else {
-                // vrprint.info(__FUNC__, "dont draw: printable_lines: %d,
-                // draw_offset_down: %d", printable_lines, *draw_offset_down);
             }
         } else {
             filtered_rules++;
@@ -2216,13 +2207,13 @@ int edit_rule(struct vrmr_config *conf, struct vrmr_rules *rules,
         rule_num = 1;
 
     if (rules->list.len == 0) {
-        vrmr_error(-1, VR_INTERR, "list is empty (in: %s)", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "list is empty");
         return (-1);
     }
 
     /* go to rulenum in the rules list to get the rule_ptr */
     if (!(d_node = rules->list.top)) {
-        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s)", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "NULL pointer");
         return (-1);
     }
 
@@ -2237,11 +2228,8 @@ int edit_rule(struct vrmr_config *conf, struct vrmr_rules *rules,
 
     if (rule_ptr != NULL) {
         if (rule_ptr->action == VRMR_AT_PROTECT) {
-            vrmr_error(-1, VR_INTERR,
-                    "edit_rule can no longer be used for editting protect "
-                    "rules (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return (-1);
+            vrmr_fatal("edit_rule can no longer be used for editting protect "
+                       "rules");
         } else if (rule_ptr->action == VRMR_AT_SEPARATOR) {
             retval = edit_rule_separator(rule_ptr, reg);
         } else {
@@ -2249,8 +2237,7 @@ int edit_rule(struct vrmr_config *conf, struct vrmr_rules *rules,
                     conf, zones, interfaces, services, rule_ptr, reg);
         }
     } else {
-        vrmr_error(-1, VR_INTERR, "rule not found (in: %s:%d).", __FUNC__,
-                __LINE__);
+        vrmr_error(-1, VR_INTERR, "rule not found");
         retval = -1;
     }
 
@@ -2317,16 +2304,13 @@ static int edit_rule_fields_to_rule(FIELD **fields, size_t n_fields,
     char nflognum_str[6] = "";
     int last_char = 0;
     char action_str[32] = "";
-    size_t i = 0;
 
-    if (!fields || !rule_ptr || !reg) {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__,
-                __LINE__);
-        return (-1);
-    }
+    vrmr_fatal_if_null(fields);
+    vrmr_fatal_if_null(rule_ptr);
+    vrmr_fatal_if_null(reg);
 
     /* check for changed fields */
-    for (i = 0; i < n_fields; i++) {
+    for (size_t i = 0; i < n_fields; i++) {
         if (field_status(fields[i]) == TRUE) {
             if (fields[i] == rule_fields.action_fld_ptr) {
                 /* action */
@@ -3932,8 +3916,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                                 if (!(zone_ptr = vrmr_search_zonedata(
                                               zones, zonename))) {
                                     vrmr_error(-1, VR_INTERR,
-                                            "zone '%s' not found (in: %s:%d).",
-                                            zonename, __FUNC__, __LINE__);
+                                            "zone '%s' not found", zonename);
                                 } else {
                                     if (zone_ptr->type == VRMR_TYPE_ZONE) {
                                         vrmr_warning(VR_WARN,
@@ -4043,8 +4026,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                                 if (!(zone_ptr = vrmr_search_zonedata(
                                               zones, zonename))) {
                                     vrmr_error(-1, VR_INTERR,
-                                            "zone '%s' not found (in: %s:%d).",
-                                            zonename, __FUNC__, __LINE__);
+                                            "zone '%s' not found", zonename);
                                 } else {
                                     if (zone_ptr->type == VRMR_TYPE_ZONE) {
                                         vrmr_warning(VR_WARN,

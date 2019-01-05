@@ -52,8 +52,8 @@ FILE *vuurmuur_fopen(
     /* now open the file, this should not fail because if we get here it exists
        and is readable, but we check to be sure. */
     if (!(fp = fopen(path, mode))) {
-        vrmr_error(-1, "Error", "opening '%s' failed: %s (in: vuurmuur_fopen).",
-                path, strerror(errno));
+        vrmr_error(
+                -1, "Error", "opening '%s' failed: %s", path, strerror(errno));
         return NULL;
     }
 
@@ -116,12 +116,7 @@ int vrmr_stat_ok(const struct vrmr_config *cnf, const char *file_loc, char type,
     struct stat stat_buf;
     mode_t max, perm;
 
-    /* safety */
-    if (file_loc == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (0);
-    }
+    assert(file_loc);
 
     /* coverity[toctou] */
     if (lstat(file_loc, &stat_buf) == -1) {
@@ -316,55 +311,37 @@ int vrmr_remove_pidfile(char *pidfile_location)
 FILE *vrmr_rules_file_open(const struct vrmr_config *cnf, const char *path,
         const char *mode, int caller)
 {
-    FILE *lock_fp = NULL, *fp = NULL;
     char *lock_path = NULL;
-    size_t i = 0, lockpath_len = 0;
 
-    /* safety */
-    if (!path || !mode) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (NULL);
-    }
+    assert(path && mode);
 
-    lockpath_len = strlen(path) + 6;
+    size_t lockpath_len = strlen(path) + 6;
     if (lockpath_len == 0)
         return (NULL);
 
     if (!(lock_path = malloc(lockpath_len))) {
-        vrmr_error(-1, "Error",
-                "malloc failed: %s "
-                "(in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (NULL);
     }
 
     if (strlcpy(lock_path, path, lockpath_len) >= lockpath_len) {
-        vrmr_error(-1, "Error",
-                "string overflow "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "string overflow");
         free(lock_path);
         return (NULL);
     }
     if (strlcat(lock_path, ".LOCK", lockpath_len) >= lockpath_len) {
-        vrmr_error(-1, "Error",
-                "string overflow "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "string overflow");
         free(lock_path);
         return (NULL);
     }
 
     /* try to open the lockfile */
-    lock_fp = fopen(lock_path, "r");
+    FILE *lock_fp = fopen(lock_path, "r");
     if (lock_fp != NULL) {
         /* we are locked! enter wait loop */
         vrmr_warning(
                 "Warning", "rulesfile is locked, will try for 60 seconds.");
-        for (i = 0; i < 60; i++) {
+        for (size_t i = 0; i < 60; i++) {
             /* close the lockfile */
             (void)fclose(lock_fp);
 
@@ -404,7 +381,7 @@ FILE *vrmr_rules_file_open(const struct vrmr_config *cnf, const char *path,
     fclose(lock_fp);
     free(lock_path);
 
-    fp = vuurmuur_fopen(cnf, path, mode);
+    FILE *fp = vuurmuur_fopen(cnf, path, mode);
     return (fp);
 }
 
@@ -412,46 +389,30 @@ FILE *vrmr_rules_file_open(const struct vrmr_config *cnf, const char *path,
  */
 int vrmr_rules_file_close(FILE *file, const char *path)
 {
-    FILE *lock_fp = NULL;
     int retval = 0;
-    size_t lockpath_len = 0;
     char *lock_path = NULL;
 
-    /* safety */
-    if (!file || !path) {
-        vrmr_error(
-                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return (-1);
-    }
+    assert(file && path);
 
-    lockpath_len = strlen(path) + 6;
-    if (lockpath_len <= 0)
-        return (-1);
-
+    size_t lockpath_len = strlen(path) + 6;
     if (!(lock_path = malloc(lockpath_len))) {
         vrmr_error(-1, "Error", "malloc failed: %s.", strerror(errno));
         return (-1);
     }
 
     if (strlcpy(lock_path, path, lockpath_len) >= lockpath_len) {
-        vrmr_error(-1, "Error",
-                "string overflow "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "string overflow");
         free(lock_path);
         return (-1);
     }
     if (strlcat(lock_path, ".LOCK", lockpath_len) >= lockpath_len) {
-        vrmr_error(-1, "Error",
-                "string overflow "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "string overflow");
         free(lock_path);
         return (-1);
     }
 
     /* try to open the lockfile */
-    lock_fp = fopen(lock_path, "r");
+    FILE *lock_fp = fopen(lock_path, "r");
     if (lock_fp != NULL) {
         if (fclose(lock_fp) < 0)
             retval = -1;
@@ -468,8 +429,7 @@ int vrmr_rules_file_close(FILE *file, const char *path)
 
     /* close the file */
     if (fclose(file) < 0) {
-        vrmr_error(-1, "Error", "closing file failed: %s (in: %s).",
-                strerror(errno), __FUNC__);
+        vrmr_error(-1, "Error", "closing file failed: %s", strerror(errno));
         retval = -1;
     }
 
@@ -492,14 +452,7 @@ int vrmr_pipe_command(struct vrmr_config *cnf, char *command, char ignore_error)
     int retval = 0;
     FILE *p;
 
-    /* safety */
-    if (cnf == NULL || command == NULL) {
-        vrmr_error(-1, "Internal Error",
-                "parameter problem "
-                "(in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(cnf && command);
 
     vrmr_debug(MEDIUM, "command: %s", command);
     vrmr_debug(MEDIUM, "strlen(command) = %d, max = %d", (int)strlen(command),
@@ -656,8 +609,8 @@ pid_t get_vuurmuur_pid(char *vuurmuur_pidfile_location, int *shmid)
         *shmid = atoi(shm_c);
     } else {
         /* no need to return, because pid isn't touched, so still -1 */
-        vrmr_error(-1, "Error", "empty or corrupted pid file: '%s' (in: %s).",
-                vuurmuur_pidfile_location, __FUNC__);
+        vrmr_error(-1, "Error", "empty or corrupted pid file: '%s'",
+                vuurmuur_pidfile_location);
     }
 
     /* close the file again */
@@ -676,30 +629,21 @@ pid_t get_vuurmuur_pid(char *vuurmuur_pidfile_location, int *shmid)
 */
 int vrmr_create_tempfile(char *pathname)
 {
-    int fd = -1;
-
-    /* safety */
-    if (!pathname) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return (-1);
-    }
+    assert(pathname);
 
     /* we cannot be sure errno is set in case of error */
     errno = 0;
 
     /* call mkstemp */
     mode_t prev = umask(0600);
-    fd = mkstemp(pathname);
+    int fd = mkstemp(pathname);
     umask(prev);
     if (fd == -1) {
         if (errno == 0)
-            vrmr_error(-1, "Error", "could not create tempfile (in: %s:%d).",
-                    __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "could not create tempfile");
         else
-            vrmr_error(-1, "Error",
-                    "could not create tempfile: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "could not create tempfile: %s",
+                    strerror(errno));
     }
 
     return (fd);
@@ -707,12 +651,10 @@ int vrmr_create_tempfile(char *pathname)
 
 void vrmr_sanitize_path(char *path, size_t size)
 {
-    size_t i = 0;
-
     if (path == NULL)
         return;
 
-    for (i = 0; i < size && path[i] != '\0'; i++) {
+    for (size_t i = 0; i < size && path[i] != '\0'; i++) {
         /* we don't want ; chars */
         if (path[i] == ';')
             path[i] = 'x';

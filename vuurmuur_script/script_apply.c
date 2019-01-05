@@ -51,8 +51,7 @@ int script_apply(struct vuurmuur_script *vr_script)
         vuurmuur_shmp = shmat(vuurmuur_shmid, 0, 0);
         if (vuurmuur_shmp == (char *)(-1)) {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
-                    "attaching to shared memory failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+                    "attaching to shared memory failed: %s", strerror(errno));
         } else {
             vuurmuur_shmtable = (struct vrmr_shm_table *)vuurmuur_shmp;
             vuurmuur_semid = vuurmuur_shmtable->sem_id;
@@ -88,8 +87,7 @@ int script_apply(struct vuurmuur_script *vr_script)
         vuurmuurlog_shmp = shmat(vuurmuurlog_shmid, 0, 0);
         if (vuurmuurlog_shmp == (char *)(-1)) {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
-                    "attaching to shared memory failed: %s (in: %s:%d).",
-                    strerror(errno), __FUNC__, __LINE__);
+                    "attaching to shared memory failed: %s", strerror(errno));
         } else {
             vuurmuurlog_shmtable = (struct vrmr_shm_table *)vuurmuurlog_shmp;
             vuurmuurlog_semid = vuurmuurlog_shmtable->sem_id;

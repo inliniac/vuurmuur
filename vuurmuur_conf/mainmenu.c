@@ -56,8 +56,7 @@ static int convert_rulesfile_to_backend(struct vrmr_ctx *vctx,
 
     if (rules_found == FALSE) {
         if (vctx->rf->add(vctx->rule_backend, "rules", VRMR_TYPE_RULE) < 0) {
-            vrmr_error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, VR_INTERR, "rf->add() failed");
             return (-1);
         }
     }
@@ -123,8 +122,7 @@ static int convert_blocklistfile_to_backend(struct vrmr_ctx *vctx,
     if (blocklist_found == FALSE) {
         if (vctx->rf->add(vctx->rule_backend, "blocklist", VRMR_TYPE_RULE) <
                 0) {
-            vrmr_error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).", __FUNC__,
-                    __LINE__);
+            vrmr_error(-1, VR_INTERR, "rf->add() failed");
             return (-1);
         }
     }
@@ -740,9 +738,8 @@ static void mm_check_status_interfaces(/*@null@*/ struct vrmr_list *status_list,
                 memset(iface_ptr->ipv4.ipaddress, 0,
                         sizeof(iface_ptr->ipv4.ipaddress));
             } else if (ipresult < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "vrmr_get_dynamic_ip() failed (in: %s:%d).", __FUNC__,
-                        __LINE__);
+                vrmr_error(
+                        -1, "Internal Error", "vrmr_get_dynamic_ip() failed");
                 return;
             }
         }
@@ -768,9 +765,8 @@ static void mm_check_status_interfaces(/*@null@*/ struct vrmr_list *status_list,
             ipresult = vrmr_get_dynamic_ip(
                     iface_ptr->device, ipaddress, sizeof(ipaddress));
             if (ipresult < 0) {
-                vrmr_error(-1, "Internal Error",
-                        "vrmr_get_dynamic_ip() failed (in: %s:%d).", __FUNC__,
-                        __LINE__);
+                vrmr_error(
+                        -1, "Internal Error", "vrmr_get_dynamic_ip() failed");
                 return;
             } else if (ipresult == 0) {
                 /* down after all */

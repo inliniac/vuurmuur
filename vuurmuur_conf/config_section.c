@@ -2161,8 +2161,6 @@ static int VrEditConntrackSave(void *ctx, char *name, char *value)
     struct edit_conntrack_cnf *c = (struct edit_conntrack_cnf *)ctx;
     int retval = 0;
 
-    // vrmr_debug(__FUNC__, "%s:%s", name, value);
-
     if (strcmp(name, "S") == 0) {
         char enabled = 0;
 

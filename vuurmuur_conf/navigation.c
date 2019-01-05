@@ -311,15 +311,7 @@ int nav_field_toggleX(FORM *form, int key)
 
 int validate_commentfield(char *fieldbuffer, regex_t *reg_ex ATTR_UNUSED)
 {
-    size_t i = 0;
-
-    /* safety */
-    //    if(!fieldbuffer || !reg_ex)
-    if (!fieldbuffer) {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__,
-                __LINE__);
-        return (-1);
-    }
+    vrmr_fatal_if_null(fieldbuffer);
 
     /* run the regex */
     /*
@@ -330,7 +322,7 @@ int validate_commentfield(char *fieldbuffer, regex_t *reg_ex ATTR_UNUSED)
         }
     */
 
-    for (i = 0; i < StrMemLen(fieldbuffer); i++) {
+    for (size_t i = 0; i < StrMemLen(fieldbuffer); i++) {
         if (fieldbuffer[i] == '"') {
             vrmr_error(-1, VR_ERR,
                     gettext("the double quote sign \" is not allowed in the "
