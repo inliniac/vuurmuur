@@ -217,10 +217,4 @@
     gettext("the action 'Redirect' requires the 'Redirect port' option to be " \
             "set.")
 
-#define STR_CONNTRACK_LOC_NOT_SET                                              \
-    gettext("'conntrack' location not set. To be able to kill connections, "   \
-            "set the location of the 'conntrack' tool in 'Vuurmuur Options "   \
-            "-> General'. Note that the tool requires kernel version 2.6.14 "  \
-            "or higher.")
-
 #endif

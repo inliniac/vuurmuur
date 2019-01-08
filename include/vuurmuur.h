@@ -130,7 +130,6 @@
 #define VRMR_DEFAULT_LOGDIR_LOCATION "/var/log/vuurmuur"
 #define VRMR_DEFAULT_SYSTEMLOG_LOCATION "/var/log/messages"
 #define VRMR_DEFAULT_MODPROBE_LOCATION "/sbin/modprobe"
-#define VRMR_DEFAULT_CONNTRACK_LOCATION "/usr/sbin/conntrack"
 #define VRMR_DEFAULT_TC_LOCATION "/sbin/tc"
 
 #define VRMR_DEFAULT_BACKEND "textdir"
@@ -178,9 +177,6 @@
 #define VRMR_MAX_LOGRULE_SIZE 512
 #define VRMR_MAX_PIPE_COMMAND 512   /* maximum lenght of the pipe command */
 #define VRMR_MAX_RULECOMMENT_LEN 64 /* length in characters (for widec) */
-
-#define VRMR_PROC_IPCONNTRACK "/proc/net/ip_conntrack"
-#define VRMR_PROC_NFCONNTRACK "/proc/net/nf_conntrack"
 
 #define VRMR_MAX_BASH_DESC 512
 
@@ -473,7 +469,6 @@ struct vrmr_config {
     /** Fail when there is an error with IPv6 configuration, when set to TRUE */
     char check_ipv6;
 
-    char conntrack_location[128];
     char tc_location[128];
 
     char blocklist_location[64];
@@ -553,9 +548,6 @@ struct vrmr_config {
     char bash_out;
     char verbose_out;
     char test_mode;
-
-    /* this is detected at runtime */
-    char use_ipconntrack;
 
     /* Maximum permissions for files and directories used by vuurmuur
        (config & log files). This should include x bits, which are
@@ -1817,6 +1809,10 @@ void vrmr_connreq_setup(struct vrmr_conntrack_request *connreq);
 void vrmr_connreq_cleanup(struct vrmr_conntrack_request *connreq);
 int vrmr_conntrack_ct2lr(
         uint32_t type, struct nf_conntrack *ct, struct vrmr_log_record *lr);
+int vrmr_conn_kill_connection_api(const int family, const char *src_ip,
+        const char *dst_ip, uint16_t sp, uint16_t dp, uint8_t protocol);
+bool vrmr_conn_check_api(void);
+int vrmr_conn_count_connections_api(int *tcp, int *udp, int *other);
 
 /*
     linked list

@@ -671,27 +671,6 @@ int vrmr_check_iptcaps(
     return (0);
 }
 
-/**
- *  \retval 1 conntrack available
- *  \retval 0 not available
- */
-static int check_conntrack(struct vrmr_config *cnf, int ipv)
-{
-    char *args[] = {cnf->conntrack_location, "-L", "-f", "ipv4", NULL};
-
-    if (ipv == VRMR_IPV6)
-        args[3] = "ipv6";
-
-    int result =
-            libvuurmuur_exec_command(cnf, cnf->conntrack_location, args, NULL);
-    if (result == -1) {
-        vrmr_error(-1, "Error", "unable to execute conntrack: %s",
-                strerror(errno));
-        return 0;
-    }
-    return 1;
-}
-
 int vrmr_load_iptcaps(
         struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
@@ -699,9 +678,7 @@ int vrmr_load_iptcaps(
          proc_net_target[] = "/proc/net/ip_tables_targets",
          proc_net_names[] = "/proc/net/ip_tables_names",
          proc_net_netfilter_nfnetlink_queue[] =
-                 "/proc/net/netfilter/nfnetlink_queue",
-         proc_net_ipconntrack[] = VRMR_PROC_IPCONNTRACK,
-         proc_net_nfconntrack[] = VRMR_PROC_NFCONNTRACK;
+                 "/proc/net/netfilter/nfnetlink_queue";
     int result = 0;
 
     assert(iptcap != NULL && cnf != NULL);
@@ -816,18 +793,14 @@ int vrmr_load_iptcaps(
     }
 
     /* check for the CONNTRACK */
-    if ((check_conntrack(cnf, VRMR_IPV4) == 1) ||
-            (iptcap_check_file(proc_net_ipconntrack)) ||
-            (iptcap_check_file(proc_net_nfconntrack))) {
+    if (vrmr_conn_check_api()) {
         iptcap->conntrack = TRUE;
     } else {
         if (load_modules == TRUE) {
             (void)iptcap_load_module(cnf, "ip_conntrack");
             (void)iptcap_load_module(cnf, "nf_conntrack_ipv4");
 
-            if ((check_conntrack(cnf, VRMR_IPV4) == 1) ||
-                    (iptcap_check_file(proc_net_ipconntrack)) ||
-                    (iptcap_check_file(proc_net_nfconntrack))) {
+            if (vrmr_conn_check_api()) {
                 iptcap->conntrack = TRUE;
             } else {
                 iptcap->conntrack = FALSE;

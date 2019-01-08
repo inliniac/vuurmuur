@@ -64,8 +64,7 @@ static void edit_config_destroy(void)
 
 struct {
     FIELD *iptableslocfld, *iptablesrestorelocfld, *ip6tableslocfld,
-            *ip6tablesrestorelocfld, *conntracklocfld, *tclocfld,
-            *max_permission, *sysctllocfld;
+            *ip6tablesrestorelocfld, *tclocfld, *max_permission, *sysctllocfld;
 } GenConfig;
 
 static void edit_genconfig_init(
@@ -75,7 +74,7 @@ static void edit_genconfig_init(
     size_t i = 0;
     char number[5];
 
-    config_section.n_fields = 8;
+    config_section.n_fields = 7;
     config_section.fields =
             (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
     vrmr_fatal_alloc("calloc", config_section.fields);
@@ -89,15 +88,13 @@ static void edit_genconfig_init(
                                          1, 64, 5, 1, 0, 0)); /* ip6tables */
     GenConfig.ip6tablesrestorelocfld =
             (config_section.fields[3] = new_field(1, 64, 7, 1, 0, 0));
-    GenConfig.conntracklocfld =
-            (config_section.fields[4] = new_field(1, 64, 9, 1, 0, 0)); /*  */
     GenConfig.tclocfld =
-            (config_section.fields[5] = new_field(1, 64, 11, 1, 0, 0)); /*  */
+            (config_section.fields[4] = new_field(1, 64, 9, 1, 0, 0)); /*  */
     /* Config file permissions */
-    GenConfig.max_permission = (config_section.fields[6] = new_field(1, 4, 13,
+    GenConfig.max_permission = (config_section.fields[5] = new_field(1, 4, 11,
                                         1, 0, 0)); /* max_permissions */
     GenConfig.sysctllocfld =
-            (config_section.fields[7] = new_field(1, 64, 15, 1, 0, 0)); /*  */
+            (config_section.fields[6] = new_field(1, 64, 13, 1, 0, 0)); /*  */
 
     /* terminate */
     config_section.fields[config_section.n_fields] = NULL;
@@ -116,8 +113,6 @@ static void edit_genconfig_init(
     set_field_buffer_wrap(GenConfig.ip6tablesrestorelocfld, 0,
             conf->ip6tablesrestore_location);
 #endif
-    set_field_buffer_wrap(
-            GenConfig.conntracklocfld, 0, conf->conntrack_location);
     set_field_buffer_wrap(GenConfig.tclocfld, 0, conf->tc_location);
     (void)snprintf(number, sizeof(number), "%o", conf->max_permission);
     set_field_buffer_wrap(GenConfig.max_permission, 0, number);
@@ -160,22 +155,18 @@ static void edit_genconfig_init(
     mvwprintw(config_section.win, 7, 2,
             gettext("Ip6tables-restore location (full path):"));
 #endif
-    mvwprintw(config_section.win, 9, 2,
-            gettext("Conntrack location (full path):"));
-    mvwprintw(config_section.win, 11, 2, gettext("Tc location (full path):"));
-    mvwprintw(config_section.win, 13, 2,
+    mvwprintw(config_section.win, 9, 2, gettext("Tc location (full path):"));
+    mvwprintw(config_section.win, 11, 2,
             gettext("Maximum config and log file and dir permissions "
                     "(octal):"));
     mvwprintw(
-            config_section.win, 15, 2, gettext("Sysctl location (full path):"));
+            config_section.win, 13, 2, gettext("Sysctl location (full path):"));
 }
 
 static void edit_genconfig_save(struct vrmr_config *conf)
 {
-    size_t i = 0;
-
     /* check for changed fields */
-    for (i = 0; i < config_section.n_fields; i++) {
+    for (size_t i = 0; i < config_section.n_fields; i++) {
         /* we only act if a field is changed */
         if (field_status(config_section.fields[i]) == FALSE)
             continue;
@@ -230,18 +221,7 @@ static void edit_genconfig_save(struct vrmr_config *conf)
                     STR_IS_NOW_SET_TO, conf->ip6tablesrestore_location);
         }
 #endif
-        else if (config_section.fields[i] == GenConfig.conntracklocfld) {
-            /* conntrack location */
-            copy_field2buf(conf->conntrack_location,
-                    field_buffer(config_section.fields[i], 0),
-                    sizeof(conf->conntrack_location));
-
-            vrmr_sanitize_path(
-                    conf->conntrack_location, StrLen(conf->conntrack_location));
-
-            vrmr_audit("'conntrack location' %s '%s'.", STR_IS_NOW_SET_TO,
-                    conf->conntrack_location);
-        } else if (config_section.fields[i] == GenConfig.tclocfld) {
+        else if (config_section.fields[i] == GenConfig.tclocfld) {
             /* tc location */
             copy_field2buf(conf->tc_location,
                     field_buffer(config_section.fields[i], 0),
@@ -290,7 +270,7 @@ static void edit_genconfig_save(struct vrmr_config *conf)
 
 int edit_genconfig(struct vrmr_config *conf)
 {
-    int ch, retval = 0, quit = 0;
+    int retval = 0, quit = 0;
     int height, width, startx, starty, max_height, max_width;
     FIELD *cur = NULL, *prev = NULL;
     char not_defined = 0;
@@ -312,7 +292,7 @@ int edit_genconfig(struct vrmr_config *conf)
         draw_field_active_mark(cur, prev, config_section.win,
                 config_section.form, vccnf.color_win_mark | A_BOLD);
 
-        ch = wgetch(config_section.win);
+        int ch = wgetch(config_section.win);
 
         not_defined = 0;
 
@@ -323,8 +303,7 @@ int edit_genconfig(struct vrmr_config *conf)
                 cur == GenConfig.ip6tableslocfld ||
                 cur == GenConfig.ip6tablesrestorelocfld ||
 #endif
-                cur == GenConfig.tclocfld || cur == GenConfig.conntracklocfld ||
-                cur == GenConfig.max_permission) {
+                cur == GenConfig.tclocfld || cur == GenConfig.max_permission) {
             if (nav_field_simpletext(config_section.form, ch) < 0)
                 not_defined = 1;
         } else {

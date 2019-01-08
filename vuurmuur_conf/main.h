@@ -465,15 +465,15 @@ struct conntrack {
     unsigned int prev_list_size;
 } conntrack;
 
-int kill_connections_by_ip(struct vrmr_config *cnf, struct conntrack *ct,
-        char *srcip, char *dstip, char *sername, char connect_status);
+int kill_connections_by_ip(struct conntrack *ct, char *srcip, char *dstip,
+        char *sername, char connect_status);
 int block_and_kill(struct vrmr_ctx *vctx, struct conntrack *ct,
         struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
         struct vrmr_interfaces *interfaces, char *ip);
 int kill_connection(
-        char *cmd, char *srcip, char *dstip, int proto, int sp, int dp);
-int kill_connections_by_name(struct vrmr_config *cnf, struct conntrack *ct,
-        char *srcname, char *dstname, char *sername, char connect_status);
+        const char *srcip, const char *dstip, int proto, int sp, int dp);
+int kill_connections_by_name(struct conntrack *ct, char *srcname, char *dstname,
+        char *sername, char connect_status);
 
 struct conntrack *conn_init_ct(struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces, struct vrmr_services *services);

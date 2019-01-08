@@ -1115,33 +1115,16 @@ enum
     VR_PROTO_AH = 51
 };
 
-/* TODO move to lib */
 int kill_connection(
-        char *cmd, char *srcip, char *dstip, int proto, int sp, int dp)
+        const char *srcip, const char *dstip, int proto, int sp, int dp)
 {
-    char cmd_sp_str[6] = "";
-    char cmd_dp_str[6] = "";
-    int result = 0;
+    int family = AF_INET;
+    const char *v6 = strchr(srcip, ':');
+    if (v6)
+        family = AF_INET6;
 
-    snprintf(cmd_sp_str, sizeof(cmd_sp_str), "%d", sp);
-    snprintf(cmd_dp_str, sizeof(cmd_dp_str), "%d", dp);
-
-    if (proto == VR_PROTO_TCP) {
-        char *args[] = {cmd, "-D", "-s", srcip, "-d", dstip, "-p", "tcp",
-                "--orig-port-src", cmd_sp_str, "--orig-port-dst", cmd_dp_str,
-                NULL};
-        result = libvuurmuur_exec_command(NULL, cmd, args, NULL);
-    } else if (proto == VR_PROTO_UDP) {
-        char *args[] = {cmd, "-D", "-s", srcip, "-d", dstip, "-p", "udp",
-                "--orig-port-src", cmd_sp_str, "--orig-port-dst", cmd_dp_str,
-                NULL};
-        result = libvuurmuur_exec_command(NULL, cmd, args, NULL);
-    } else {
-        vrmr_error(-1, VR_ERR,
-                gettext("killing connections is only supported for TCP and "
-                        "UDP."));
-        return (-1);
-    }
+    int result =
+            vrmr_conn_kill_connection_api(family, srcip, dstip, sp, dp, proto);
 
     /* TRANSLATORS: example "killed connection: 1.2.3.4:5678 -> 8.7.6.5:4321
      * (6)" */
@@ -1149,31 +1132,18 @@ int kill_connection(
             result ? gettext("failed to kill connection")
                    : gettext("killed connection"),
             srcip, sp, dstip, dp, proto);
-    return (result);
+    return result;
 }
 
-int kill_connections_by_name(struct vrmr_config *cnf, struct conntrack *ct,
-        char *srcname, char *dstname, char *sername, char connect_status)
+int kill_connections_by_name(struct conntrack *ct, char *srcname, char *dstname,
+        char *sername, char connect_status)
 {
     struct vrmr_list_node *d_node = NULL;
-    struct vrmr_conntrack_entry *cd_ptr = NULL;
     int cnt = 0, failed = 0;
-    char *dip = NULL;
-
-    /* check if the conntrack tool is set */
-    if (cnf->conntrack_location[0] == '\0') {
-        vrmr_error(-1, VR_ERR,
-                gettext("'conntrack' location "
-                        "not set. To be able to kill connections, set the "
-                        "location of the 'conntrack' tool in 'Vuurmuur Options "
-                        "-> General'. Note that the tool requires kernel "
-                        "version 2.6.14 or higher."));
-        return (-1);
-    }
 
     for (d_node = ct->conn_list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        cd_ptr = d_node->data;
+        struct vrmr_conntrack_entry *cd_ptr = d_node->data;
 
         vrmr_debug(LOW, "ct: s:%s d:%s s:%s (%d)", cd_ptr->fromname,
                 cd_ptr->toname, cd_ptr->sername, cd_ptr->cnt);
@@ -1182,15 +1152,15 @@ int kill_connections_by_name(struct vrmr_config *cnf, struct conntrack *ct,
             if (dstname == NULL || strcmp(dstname, cd_ptr->toname) == 0) {
                 /* for DNATted connections we use the
                    orig_dst_ip */
-                dip = cd_ptr->orig_dst_ip[0] ? cd_ptr->orig_dst_ip
-                                             : cd_ptr->dst_ip;
+                const char *dip = cd_ptr->orig_dst_ip[0] ? cd_ptr->orig_dst_ip
+                                                         : cd_ptr->dst_ip;
 
                 if (sername == NULL || strcmp(sername, cd_ptr->sername) == 0) {
                     if (connect_status == VRMR_CONN_UNUSED ||
                             connect_status == cd_ptr->connect_status) {
-                        if (kill_connection(cnf->conntrack_location,
-                                    cd_ptr->src_ip, dip, cd_ptr->protocol,
-                                    cd_ptr->src_port, cd_ptr->dst_port) == -1) {
+                        if (kill_connection(cd_ptr->src_ip, dip,
+                                    cd_ptr->protocol, cd_ptr->src_port,
+                                    cd_ptr->dst_port) == -1) {
                             failed++;
                         }
 
@@ -1217,28 +1187,15 @@ int kill_connections_by_name(struct vrmr_config *cnf, struct conntrack *ct,
     return (0);
 }
 
-int kill_connections_by_ip(struct vrmr_config *cnf, struct conntrack *ct,
-        char *srcip, char *dstip, char *sername, char connect_status)
+int kill_connections_by_ip(struct conntrack *ct, char *srcip, char *dstip,
+        char *sername, char connect_status)
 {
     struct vrmr_list_node *d_node = NULL;
-    struct vrmr_conntrack_entry *cd_ptr = NULL;
     int cnt = 0, failed = 0;
-    char *dip = NULL;
-
-    /* check if the conntrack tool is set */
-    if (cnf->conntrack_location[0] == '\0') {
-        vrmr_error(-1, VR_ERR,
-                gettext("'conntrack' location "
-                        "not set. To be able to kill connections, set the "
-                        "location of the 'conntrack' tool in 'Vuurmuur Options "
-                        "-> General'. Note that the tool requires kernel "
-                        "version 2.6.14 or higher."));
-        return (-1);
-    }
 
     for (d_node = ct->conn_list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        cd_ptr = d_node->data;
+        struct vrmr_conntrack_entry *cd_ptr = d_node->data;
 
         if (srcip == NULL || strcmp(srcip, cd_ptr->src_ip) == 0) {
             if (dstip == NULL ||
@@ -1246,17 +1203,16 @@ int kill_connections_by_ip(struct vrmr_config *cnf, struct conntrack *ct,
                             strcmp(dstip, cd_ptr->dst_ip) == 0) ||
                     (cd_ptr->orig_dst_ip[0] != '\0' &&
                             strcmp(dstip, cd_ptr->orig_dst_ip) == 0)) {
-                /* for DNATted connections we use the
-                orig_dst_ip */
-                dip = cd_ptr->orig_dst_ip[0] ? cd_ptr->orig_dst_ip
-                                             : cd_ptr->dst_ip;
+                /* for DNATted connections we use the orig_dst_ip */
+                const char *dip = cd_ptr->orig_dst_ip[0] ? cd_ptr->orig_dst_ip
+                                                         : cd_ptr->dst_ip;
 
                 if (sername == NULL || strcmp(sername, cd_ptr->sername) == 0) {
                     if (connect_status == VRMR_CONN_UNUSED ||
                             connect_status == cd_ptr->connect_status) {
-                        if (kill_connection(cnf->conntrack_location,
-                                    cd_ptr->src_ip, dip, cd_ptr->protocol,
-                                    cd_ptr->src_port, cd_ptr->dst_port) == -1) {
+                        if (kill_connection(cd_ptr->src_ip, dip,
+                                    cd_ptr->protocol, cd_ptr->src_port,
+                                    cd_ptr->dst_port) == -1) {
                             failed++;
                         }
 
@@ -1335,15 +1291,9 @@ int block_and_kill(struct vrmr_ctx *vctx, struct conntrack *ct,
     /* apply the changes */
     vc_apply_changes(vctx);
 
-    /*  if we don't support killing connections we are happy with
-        only blocking as well */
-    if (vctx->conf.conntrack_location[0] != '\0') {
-        /* kill all connections for this ip */
-        kill_connections_by_ip(
-                &vctx->conf, ct, NULL, ip, NULL, VRMR_CONN_UNUSED);
-        kill_connections_by_ip(
-                &vctx->conf, ct, ip, NULL, NULL, VRMR_CONN_UNUSED);
-    }
+    /* kill all connections for this ip */
+    kill_connections_by_ip(ct, NULL, ip, NULL, VRMR_CONN_UNUSED);
+    kill_connections_by_ip(ct, ip, NULL, NULL, VRMR_CONN_UNUSED);
 
     VrBusyWinHide();
     return (0);

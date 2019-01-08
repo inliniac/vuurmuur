@@ -1290,19 +1290,6 @@ int vrmr_init_config(struct vrmr_config *cnf)
     vrmr_sanitize_path(cnf->ip6tablesrestore_location,
             sizeof(cnf->ip6tablesrestore_location));
 
-    result = vrmr_ask_configfile(cnf, "CONNTRACK", cnf->conntrack_location,
-            cnf->configfile, sizeof(cnf->conntrack_location));
-    if (result == 1) {
-        /* ok */
-    } else if (result == 0) {
-        /*  don't set a default because most systems
-            won't have this tool by default */
-    } else
-        return (VRMR_CNF_E_UNKNOWN_ERR);
-
-    vrmr_sanitize_path(
-            cnf->conntrack_location, sizeof(cnf->conntrack_location));
-
     result = vrmr_ask_configfile(cnf, "TC", cnf->tc_location, cnf->configfile,
             sizeof(cnf->tc_location));
     if (result == 1) {
@@ -1753,8 +1740,6 @@ int vrmr_write_configfile(char *file_location, struct vrmr_config *cfg)
     fprintf(fp, "# Location of the ip6tables-restore-command (full path).\n");
     fprintf(fp, "IP6TABLES_RESTORE=\"%s\"\n\n", cfg->ip6tablesrestore_location);
 
-    fprintf(fp, "# Location of the conntrack-command (full path).\n");
-    fprintf(fp, "CONNTRACK=\"%s\"\n\n", cfg->conntrack_location);
     fprintf(fp, "# Location of the tc-command (full path).\n");
     fprintf(fp, "TC=\"%s\"\n\n", cfg->tc_location);
 

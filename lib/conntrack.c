@@ -791,3 +791,147 @@ int vrmr_conn_get_connections(struct vrmr_config *cnf,
     vrmr_hash_cleanup(&conn_hash);
     return (retval);
 }
+
+int vrmr_conn_kill_connection_api(const int family, const char *src_ip,
+        const char *dst_ip, uint16_t sp, uint16_t dp, uint8_t protocol)
+{
+    assert(family == AF_INET || family == AF_INET6);
+
+    int retval = 0;
+
+    struct nf_conntrack *ct = nfct_new();
+    if (ct == NULL) {
+        vrmr_error(-1, "Error", "nfct_new failed");
+        return -1;
+    }
+
+    nfct_set_attr_u8(ct, ATTR_L4PROTO, protocol);
+    if (protocol == IPPROTO_TCP || protocol == IPPROTO_UDP) {
+        nfct_set_attr_u16(ct, ATTR_PORT_SRC, htons(sp));
+        nfct_set_attr_u16(ct, ATTR_PORT_DST, htons(dp));
+    }
+    if (family == AF_INET) {
+        nfct_set_attr_u8(ct, ATTR_L3PROTO, AF_INET);
+        nfct_set_attr_u32(ct, ATTR_IPV4_SRC, inet_addr(src_ip));
+        nfct_set_attr_u32(ct, ATTR_IPV4_DST, inet_addr(dst_ip));
+    } else {
+        nfct_set_attr_u8(ct, ATTR_L3PROTO, AF_INET6);
+    }
+
+    struct nfct_handle *h = nfct_open(CONNTRACK, 0);
+    if (h == NULL) {
+        vrmr_error(-1, "Error", "nfct_open failed");
+        nfct_destroy(ct);
+        return -1;
+    }
+
+    int ret = nfct_query(h, NFCT_Q_DESTROY, ct);
+    if (ret != 0) {
+        vrmr_error(-1, "Error", "nfct_query failed: %d", ret);
+        retval = -1;
+    }
+
+    nfct_close(h);
+    nfct_destroy(ct);
+    return retval;
+}
+
+static int stub_cb(enum nf_conntrack_msg_type type ATTR_UNUSED,
+        struct nf_conntrack *ct ATTR_UNUSED, void *data ATTR_UNUSED)
+{
+    return NFCT_CB_CONTINUE;
+}
+
+bool vrmr_conn_check_api(void)
+{
+    bool retval = true;
+
+    struct nf_conntrack *ct = nfct_new();
+    if (ct == NULL) {
+        vrmr_error(-1, "Error", "nfct_new failed");
+        return false;
+    }
+
+    struct nfct_handle *h = nfct_open(CONNTRACK, 0);
+    if (h == NULL) {
+        vrmr_error(-1, "Error", "nfct_open failed");
+        nfct_destroy(ct);
+        return false;
+    }
+
+    nfct_callback_register(h, NFCT_T_ALL, stub_cb, NULL);
+    int ret = nfct_query(h, NFCT_Q_DUMP, ct);
+    if (ret != 0) {
+        vrmr_error(-1, "Error", "nfct_query failed: %d", ret);
+        retval = false;
+    }
+
+    nfct_close(h);
+    nfct_destroy(ct);
+    return retval;
+}
+
+struct count_cb_ctx {
+    uint32_t tcp;
+    uint32_t udp;
+    uint32_t other;
+};
+
+static int count_cb(enum nf_conntrack_msg_type type ATTR_UNUSED,
+        struct nf_conntrack *ct, void *data)
+{
+    struct count_cb_ctx *ctx = data;
+    uint8_t protocol = nfct_get_attr_u8(ct, ATTR_L4PROTO);
+    switch (protocol) {
+        case IPPROTO_TCP:
+            ctx->tcp++;
+            break;
+        case IPPROTO_UDP:
+            ctx->udp++;
+            break;
+        default:
+            ctx->other++;
+            break;
+    }
+    return NFCT_CB_CONTINUE;
+}
+
+int vrmr_conn_count_connections_api(int *tcp, int *udp, int *other)
+{
+    int retval = 0;
+    struct count_cb_ctx ctx = {.tcp = 0, .udp = 0, .other = 0};
+
+    *tcp = -1;
+    *udp = -1;
+    *other = -1;
+
+    struct nf_conntrack *ct = nfct_new();
+    if (ct == NULL) {
+        vrmr_error(-1, "Error", "nfct_new failed");
+        return -1;
+    }
+
+    struct nfct_handle *h = nfct_open(CONNTRACK, 0);
+    if (h == NULL) {
+        vrmr_error(-1, "Error", "nfct_open failed");
+        nfct_destroy(ct);
+        return -1;
+    }
+
+    nfct_callback_register(h, NFCT_T_ALL, count_cb, &ctx);
+    int ret = nfct_query(h, NFCT_Q_DUMP, ct);
+    if (ret != 0) {
+        vrmr_error(-1, "Error", "nfct_query failed: %d", ret);
+        retval = -1;
+    }
+
+    nfct_close(h);
+    nfct_destroy(ct);
+
+    if (retval == 0) {
+        *tcp = ctx.tcp;
+        *udp = ctx.udp;
+        *other = ctx.other;
+    }
+    return retval;
+}

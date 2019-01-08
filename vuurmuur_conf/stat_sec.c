@@ -145,37 +145,20 @@ static int count_host_udp_conn(int *udp_count, int *udp_list_count)
 }
 #endif
 
-static int count_conntrack_conn(struct vrmr_config *cnf, int *conntrack_count,
-        int *tcp_count, int *udp_count, int *other_count)
+static int count_conntrack_conn(
+        int *conntrack_count, int *tcp_count, int *udp_count, int *other_count)
 {
-    FILE *fp = NULL;
-    char line[512];
-    int i = 0, tcp = 0, udp = 0, other = 0;
+    int tot = 0, tcp = 0, udp = 0, other = 0;
 
-    if (cnf->use_ipconntrack == TRUE ||
-            (!(fp = fopen(VRMR_PROC_NFCONNTRACK, "r")))) {
-        if (!(fp = fopen(VRMR_PROC_IPCONNTRACK, "r")))
-            return (-1);
-    }
+    if (vrmr_conn_count_connections_api(&tcp, &udp, &other) < 0)
+        return (-1);
 
-    while (fgets(line, (int)sizeof(line), fp) != NULL) {
-        if (strncmp(line, "tcp", 3) == 0)
-            tcp++;
-        else if (strncmp(line, "udp", 3) == 0)
-            udp++;
-        else
-            other++;
+    tot = tcp + udp + other;
 
-        i++;
-    }
-
-    *conntrack_count = i;
+    *conntrack_count = tot;
     *tcp_count = tcp;
     *udp_count = udp;
     *other_count = other;
-
-    if (fclose(fp) < 0)
-        return (-1);
 
     return (0);
 }
@@ -854,9 +837,8 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
                 return (-1);
             }
 
-            if (count_conntrack_conn(cnf, &conntrack_conn_total,
-                        &conntrack_conn_tcp, &conntrack_conn_udp,
-                        &conntrack_conn_other) < 0) {
+            if (count_conntrack_conn(&conntrack_conn_total, &conntrack_conn_tcp,
+                        &conntrack_conn_udp, &conntrack_conn_other) < 0) {
                 snprintf(conn_total, sizeof(conn_total), gettext("error"));
                 snprintf(conn_tcp, sizeof(conn_tcp), gettext("error"));
                 snprintf(conn_udp, sizeof(conn_udp), gettext("error"));
