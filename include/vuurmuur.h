@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2017 by Victor Julien                              *
+ *   Copyright (C) 2002-2019 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -55,7 +55,7 @@
 /* our version */
 #define VUURMUUR_VERSION "0.8rc5"
 
-#define VUURMUUR_COPYRIGHT "Copyright (C) 2002-2017 Victor Julien et al"
+#define VUURMUUR_COPYRIGHT "Copyright (C) 2002-2019 Victor Julien et al"
 
 /* we need this to stringify the VUURMUUR_CONFIGDIR which is supplied at
    compiletime see:
