@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
             0;                  /* for checking the dynamic ipaddresses */
     unsigned int wait_time = 0; /* time in seconds we have waited for an
                                    VRMR_RR_RESULT_ACK when using SHM-IPC */
-    static char optstring[] = "hd:bVlvnc:L:CFDtkfK";
+    static char optstring[] = "hd:bVlvnc:L:CFDtkfKX";
     struct option prog_opts[] = {
             {"help", no_argument, NULL, 'h'},
             {"debug", required_argument, NULL, 'd'},
@@ -101,9 +101,6 @@ int main(int argc, char *argv[])
             {"clear-all", no_argument, NULL, 'F'},
             {"daemon", no_argument, NULL, 'D'},
             {"no-check", no_argument, NULL, 't'},
-            /* Or maybe use this version *
-            { "no-check", no_argument, (int)&conf.vrmr_check_iptcaps, 0 },
-             */
             {"keep", no_argument, NULL, 'k'},
             {"force-start", no_argument, NULL, 'f'},
             {0, 0, 0, 0},

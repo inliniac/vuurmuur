@@ -36,10 +36,10 @@ struct vrmr_conntrack_line {
     int dst_port;
     int alt_src_port;
     int alt_dst_port;
-    unsigned long long to_src_packets;
-    unsigned long long to_src_bytes;
-    unsigned long long to_dst_packets;
-    unsigned long long to_dst_bytes;
+    uint64_t to_src_packets;
+    uint64_t to_src_bytes;
+    uint64_t to_dst_packets;
+    uint64_t to_dst_bytes;
     char to_src_packets_str[16];
     char to_src_bytes_str[16];
     char to_dst_packets_str[16];
@@ -47,6 +47,18 @@ struct vrmr_conntrack_line {
     char status[16];
     char use_acc;
 };
+
+static void free_conntrack_entry(struct vrmr_conntrack_entry *ce)
+{
+    if (ce->from == NULL)
+        free(ce->fromname);
+    if (ce->to == NULL)
+        free(ce->toname);
+    if (ce->service == NULL)
+        free(ce->sername);
+
+    free(ce);
+}
 
 /*
 
@@ -1492,6 +1504,41 @@ void vrmr_conn_list_cleanup(struct vrmr_list *conn_dlist)
     vrmr_list_cleanup(conn_dlist);
 }
 
+static void update_stats(const struct vrmr_conntrack_entry *ce,
+        struct vrmr_conntrack_stats *connstat_ptr)
+{
+    assert(ce);
+    assert(connstat_ptr);
+
+    connstat_ptr->conn_total++;
+
+    if (ce->from != NULL && ce->from->type == VRMR_TYPE_FIREWALL)
+        connstat_ptr->conn_out++;
+    else if (ce->to != NULL && ce->to->type == VRMR_TYPE_FIREWALL)
+        connstat_ptr->conn_in++;
+    else
+        connstat_ptr->conn_fw++;
+
+    if (ce->connect_status == VRMR_CONN_CONNECTING)
+        connstat_ptr->stat_connect++;
+    else if (ce->connect_status == VRMR_CONN_DISCONNECTING)
+        connstat_ptr->stat_closing++;
+    else if (ce->connect_status == VRMR_CONN_CONNECTED)
+        connstat_ptr->stat_estab++;
+    else
+        connstat_ptr->stat_other++;
+
+    if (strlen(ce->sername) > connstat_ptr->sername_max)
+        connstat_ptr->sername_max = strlen(ce->sername);
+    if (strlen(ce->fromname) > connstat_ptr->fromname_max)
+        connstat_ptr->fromname_max = strlen(ce->fromname);
+    if (strlen(ce->toname) > connstat_ptr->toname_max)
+        connstat_ptr->toname_max = strlen(ce->toname);
+
+    if (ce->use_acc == 1)
+        connstat_ptr->accounting = 1;
+}
+
 /*  vrmr_conn_get_connections
 
     Assembles all conntrack connections in one list, and counts all items.
@@ -1512,8 +1559,8 @@ void vrmr_conn_list_cleanup(struct vrmr_list *conn_dlist)
     cd struct
 */
 static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
-        const unsigned int prev_conn_cnt, struct vrmr_hash_table *serv_hash,
-        struct vrmr_hash_table *zone_hash, struct vrmr_list *conn_dlist,
+        struct vrmr_hash_table *serv_hash, struct vrmr_hash_table *zone_hash,
+        struct vrmr_list *conn_dlist, struct vrmr_hash_table *conn_hash,
         struct vrmr_list *zone_list, struct vrmr_conntrack_request *req,
         struct vrmr_conntrack_stats *connstat_ptr, int ipver)
 {
@@ -1521,29 +1568,11 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
 
     char line[1024] = "";
     FILE *fp = NULL;
-    struct vrmr_conntrack_line cl;
-    struct vrmr_conntrack_entry *cd_ptr = NULL;
-    struct vrmr_conntrack_entry *old_cd_ptr = NULL;
 
-    /* default hashtable size */
-    unsigned int hashtbl_size = 256;
-    struct vrmr_hash_table conn_hash;
     char tmpfile[] = "/tmp/vuurmuur-conntrack-XXXXXX";
     int conntrack_cmd = 0;
 
     assert(serv_hash && zone_hash && cnf);
-
-    /* if the prev_conn_cnt supplied by the user is bigger than 0,
-       use it. */
-    if (prev_conn_cnt > 0)
-        hashtbl_size = prev_conn_cnt;
-
-    /* initialize the hash */
-    if (vrmr_hash_setup(&conn_hash, hashtbl_size, conn_hash_conntrackdata,
-                conn_match_conntrackdata) != 0) {
-        vrmr_error(-1, "Internal Error", "vrmr_hash_setup() failed");
-        return (-1);
-    }
 
     if (ipver != 0) {
         conntrack_cmd = 1;
@@ -1561,9 +1590,7 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
             int result = libvuurmuur_exec_command(
                     cnf, cnf->conntrack_location, args, outputs);
             if (result == -1) {
-                vrmr_error(-1, "Error",
-                        "unable to execute "
-                        "conntrack: %s",
+                vrmr_error(-1, "Error", "unable to execute conntrack: %s",
                         strerror(errno));
                 return (-1);
             }
@@ -1572,9 +1599,7 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
             int result = libvuurmuur_exec_command(
                     cnf, cnf->conntrack_location, args, outputs);
             if (result == -1) {
-                vrmr_error(-1, "Error",
-                        "unable to execute "
-                        "conntrack: %s",
+                vrmr_error(-1, "Error", "unable to execute conntrack: %s",
                         strerror(errno));
                 return (-1);
             }
@@ -1582,9 +1607,7 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
 
         fp = fopen(tmpfile, "r");
         if (fp == NULL) {
-            vrmr_error(-1, "Error",
-                    "unable to open proc "
-                    "conntrack: %s",
+            vrmr_error(-1, "Error", "unable to open proc conntrack: %s",
                     strerror(errno));
             return (-1);
         }
@@ -1606,28 +1629,13 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
         }
     }
     if (fp == NULL) {
-        vrmr_error(-1, "Error",
-                "unable to open proc "
-                "conntrack: %s",
+        vrmr_error(-1, "Error", "unable to open proc conntrack: %s",
                 strerror(errno));
         return (-1);
     }
 
-    /*  now read the file, interpret the line and trough hash_look up
-        if the line is already in the list
-
-        if it is do 2 things:
-            1. increment the counter
-            2. check if the count is bigger than the line
-               above (in the list)
-                    if so, move line up one
-
-        else insert the line into the list, and hash
-
-        The result will be reasonably good sorted list, at almost
-        no speed penalty.
-    */
     while ((fgets(line, (int)sizeof(line), fp) != NULL)) {
+        struct vrmr_conntrack_line cl;
         /* start with a clean slate */
         memset(&cl, 0, sizeof(cl));
 
@@ -1648,14 +1656,13 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
         }
 
         /* allocate memory for the data */
-        if (!(cd_ptr = (struct vrmr_conntrack_entry *)malloc(
-                      sizeof(struct vrmr_conntrack_entry)))) {
-            vrmr_error(-1, "Error", "malloc() failed: %s", strerror(errno));
+        struct vrmr_conntrack_entry *cd_ptr = NULL;
+        if (!(cd_ptr = (struct vrmr_conntrack_entry *)calloc(
+                      1, sizeof(struct vrmr_conntrack_entry)))) {
+            vrmr_error(-1, "Error", "calloc() failed: %s", strerror(errno));
             retval = -1;
             goto end;
         }
-        /* init to 0 */
-        memset(cd_ptr, 0, sizeof(struct vrmr_conntrack_entry));
 
         /* analyse it */
         if (conn_line_to_data(
@@ -1666,117 +1673,49 @@ static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
             goto end;
         }
 
-        /*  if the hashlookup is succesfull, cd_ptr is overwritten,
-            so we store it here */
-        old_cd_ptr = cd_ptr;
-
-        /*
-            we ignore the local loopback connections
-            and connections that are filtered
-         */
+        /*  we ignore the local loopback connections
+            and connections that are filtered */
         if ((strncmp(cd_ptr->fromname, "127.", 4) == 0 ||
                     strncmp(cd_ptr->toname, "127.", 4) == 0 ||
                     (req->use_filter == TRUE &&
                             filtered_connection(cd_ptr, &req->filter) == 1))) {
-            if (cd_ptr->from == NULL)
-                free(cd_ptr->fromname);
-            if (cd_ptr->to == NULL)
-                free(cd_ptr->toname);
-            if (cd_ptr->service == NULL)
-                free(cd_ptr->sername);
+            free_conntrack_entry(cd_ptr);
+            continue;
+        }
 
-            free(cd_ptr);
-            cd_ptr = NULL;
-            old_cd_ptr = NULL;
+        /* update counters */
+        update_stats(cd_ptr, connstat_ptr);
+
+        /* now check if the cd is already in the list */
+        struct vrmr_conntrack_entry *found = NULL;
+        if (req->group_conns == TRUE &&
+                (found = vrmr_hash_search(conn_hash, (void *)cd_ptr)) != NULL) {
+            /*  FOUND in the hash. Transfer the acc data */
+            found->to_src_packets += cd_ptr->to_src_packets;
+            found->to_src_bytes += cd_ptr->to_src_bytes;
+            found->to_dst_packets += cd_ptr->to_dst_packets;
+            found->to_dst_bytes += cd_ptr->to_dst_bytes;
+            found->cnt++;
+
+            free_conntrack_entry(cd_ptr);
         } else {
-            /* update counters */
-            connstat_ptr->conn_total++;
+            /*  NOT found in the hash */
 
-            if (cd_ptr->from != NULL &&
-                    cd_ptr->from->type == VRMR_TYPE_FIREWALL)
-                connstat_ptr->conn_out++;
-            else if (cd_ptr->to != NULL &&
-                     cd_ptr->to->type == VRMR_TYPE_FIREWALL)
-                connstat_ptr->conn_in++;
-            else
-                connstat_ptr->conn_fw++;
-
-            if (cd_ptr->connect_status == VRMR_CONN_CONNECTING)
-                connstat_ptr->stat_connect++;
-            else if (cd_ptr->connect_status == VRMR_CONN_DISCONNECTING)
-                connstat_ptr->stat_closing++;
-            else if (cd_ptr->connect_status == VRMR_CONN_CONNECTED)
-                connstat_ptr->stat_estab++;
-            else
-                connstat_ptr->stat_other++;
-
-            if (strlen(cd_ptr->sername) > connstat_ptr->sername_max)
-                connstat_ptr->sername_max = strlen(cd_ptr->sername);
-            if (strlen(cd_ptr->fromname) > connstat_ptr->fromname_max)
-                connstat_ptr->fromname_max = strlen(cd_ptr->fromname);
-            if (strlen(cd_ptr->toname) > connstat_ptr->toname_max)
-                connstat_ptr->toname_max = strlen(cd_ptr->toname);
-
-            if (cd_ptr->use_acc == 1)
-                connstat_ptr->accounting = 1;
-
-            /* now check if the cd is already in the list */
-            if (req->group_conns == TRUE &&
-                    (cd_ptr = vrmr_hash_search(&conn_hash, (void *)cd_ptr)) !=
-                            NULL) {
-                /*  FOUND in the hash
-
-                    transfer the acc data */
-                cd_ptr->to_src_packets =
-                        cd_ptr->to_src_packets + old_cd_ptr->to_src_packets;
-                cd_ptr->to_src_bytes =
-                        cd_ptr->to_src_bytes + old_cd_ptr->to_src_bytes;
-                cd_ptr->to_dst_packets =
-                        cd_ptr->to_dst_packets + old_cd_ptr->to_dst_packets;
-                cd_ptr->to_dst_bytes =
-                        cd_ptr->to_dst_bytes + old_cd_ptr->to_dst_bytes;
-
-                /*  free the memory in the old_cd_ptr,
-                    we dont need it no more */
-                if (old_cd_ptr->from == NULL)
-                    free(old_cd_ptr->fromname);
-                if (old_cd_ptr->to == NULL)
-                    free(old_cd_ptr->toname);
-                if (old_cd_ptr->service == NULL)
-                    free(old_cd_ptr->sername);
-
-                free(old_cd_ptr);
-                old_cd_ptr = NULL;
-
-                /* now increment the counter */
-                cd_ptr->cnt++;
-            } else {
-                /*  NOT found in the hash
-
-                    set cd_ptr to old_cd_ptr because cd_ptr is NULL after the
-                   failed hash search
-                */
-                cd_ptr = old_cd_ptr;
-
-                /* append the new cd to the list */
-                cd_ptr->d_node = vrmr_list_append(conn_dlist, cd_ptr);
-                if (!cd_ptr->d_node) {
-                    vrmr_error(
-                            -1, "Internal Error", "unable to append into list");
-                    retval = -1;
-                    goto end;
-                }
-
-                /* and insert it into the hash */
-                if (vrmr_hash_insert(&conn_hash, cd_ptr) != 0) {
-                    vrmr_error(
-                            -1, "Internal Error", "unable to insert into hash");
-                    retval = -1;
-                    goto end;
-                }
-
-                cd_ptr->cnt = 1;
+            /* append the new cd to the list */
+            if (vrmr_list_append(conn_dlist, cd_ptr) == NULL) {
+                vrmr_error(-1, "Internal Error", "unable to append into list");
+                retval = -1;
+                goto end;
             }
+
+            /* and insert it into the hash */
+            if (vrmr_hash_insert(conn_hash, cd_ptr) != 0) {
+                vrmr_error(-1, "Internal Error", "unable to insert into hash");
+                retval = -1;
+                goto end;
+            }
+
+            cd_ptr->cnt = 1;
         }
     }
 
@@ -1793,64 +1732,27 @@ end:
             retval = -1;
         }
     }
-
-    /* cleanup */
-    vrmr_hash_cleanup(&conn_hash);
-
     return (retval);
 }
 
 static int vrmr_conn_get_connections_cmd(struct vrmr_config *cnf,
-        const unsigned int prev_conn_cnt, struct vrmr_hash_table *serv_hash,
-        struct vrmr_hash_table *zone_hash, struct vrmr_list *conn_dlist,
+        struct vrmr_hash_table *serv_hash, struct vrmr_hash_table *zone_hash,
+        struct vrmr_list *conn_dlist, struct vrmr_hash_table *conn_hash,
         struct vrmr_list *zone_list, struct vrmr_conntrack_request *req,
         struct vrmr_conntrack_stats *connstat_ptr, int ipver)
 {
-    return vrmr_conn_get_connections_do(cnf, prev_conn_cnt, serv_hash,
-            zone_hash, conn_dlist, zone_list, req, connstat_ptr, ipver);
+    return vrmr_conn_get_connections_do(cnf, serv_hash, zone_hash, conn_dlist,
+            conn_hash, zone_list, req, connstat_ptr, ipver);
 }
 
 static int vrmr_conn_get_connections_proc(struct vrmr_config *cnf,
-        const unsigned int prev_conn_cnt, struct vrmr_hash_table *serv_hash,
-        struct vrmr_hash_table *zone_hash, struct vrmr_list *conn_dlist,
+        struct vrmr_hash_table *serv_hash, struct vrmr_hash_table *zone_hash,
+        struct vrmr_list *conn_dlist, struct vrmr_hash_table *conn_hash,
         struct vrmr_list *zone_list, struct vrmr_conntrack_request *req,
         struct vrmr_conntrack_stats *connstat_ptr)
 {
-    return vrmr_conn_get_connections_do(cnf, prev_conn_cnt, serv_hash,
-            zone_hash, conn_dlist, zone_list, req, connstat_ptr, 0);
-}
-
-int vrmr_conn_get_connections(struct vrmr_config *cnf,
-        const unsigned int prev_conn_cnt, struct vrmr_hash_table *serv_hash,
-        struct vrmr_hash_table *zone_hash, struct vrmr_list *conn_dlist,
-        struct vrmr_list *zone_list, struct vrmr_conntrack_request *req,
-        struct vrmr_conntrack_stats *connstat_ptr)
-{
-    int retval = 0;
-
-    /* set stat counters to zero */
-    connstat_ptr->conn_total = 0, connstat_ptr->conn_in = 0,
-    connstat_ptr->conn_out = 0, connstat_ptr->conn_fw = 0;
-
-    connstat_ptr->stat_connect = 0, connstat_ptr->stat_estab = 0,
-    connstat_ptr->stat_closing = 0, connstat_ptr->stat_other = 0;
-
-    connstat_ptr->accounting = 0;
-
-    if (strlen(cnf->conntrack_location) > 0) {
-        retval = vrmr_conn_get_connections_cmd(cnf, prev_conn_cnt, serv_hash,
-                zone_hash, conn_dlist, zone_list, req, connstat_ptr, VRMR_IPV4);
-        if (retval == 0 && req->ipv6) {
-            retval = vrmr_conn_get_connections_cmd(cnf, prev_conn_cnt,
-                    serv_hash, zone_hash, conn_dlist, zone_list, req,
-                    connstat_ptr, VRMR_IPV6);
-        }
-    } else {
-        retval = vrmr_conn_get_connections_proc(cnf, prev_conn_cnt, serv_hash,
-                zone_hash, conn_dlist, zone_list, req, connstat_ptr);
-    }
-
-    return (retval);
+    return vrmr_conn_get_connections_do(cnf, serv_hash, zone_hash, conn_dlist,
+            conn_hash, zone_list, req, connstat_ptr, 0);
 }
 
 void vrmr_connreq_setup(struct vrmr_conntrack_request *connreq)
@@ -1869,4 +1771,591 @@ void vrmr_connreq_cleanup(struct vrmr_conntrack_request *connreq)
     vrmr_filter_cleanup(&connreq->filter);
 
     memset(connreq, 0, sizeof(struct vrmr_conntrack_request));
+}
+
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
+#include <libmnl/libmnl.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack.h>
+#include <assert.h>
+#include <inttypes.h>
+#include <sys/time.h>
+#include <linux/netfilter/nf_conntrack_tcp.h>
+
+struct vrmr_conntrack_api_entry {
+    uint32_t status;
+    uint8_t family;
+    uint8_t protocol;
+    uint16_t sp;
+    uint16_t alt_sp;
+    uint16_t dp;
+    uint16_t alt_dp;
+    uint32_t nfmark;
+    uint32_t age_s; /**< age in seconds */
+
+    uint8_t tcp_state;
+    uint8_t tcp_flags_ts;
+    uint8_t tcp_flags_tc;
+
+    char src_ip[46];
+    char dst_ip[46];
+    char orig_dst_ip[46];
+
+    uint64_t toserver_packets;
+    uint64_t toserver_bytes;
+    uint64_t toclient_packets;
+    uint64_t toclient_bytes;
+};
+
+/*
+    This function analyzes the api entry supplied through the 'ae' ptr.
+    It should never fail, unless we have a serious problem: malloc failure
+    or parameter problems.
+
+    Returncodes:
+         0: ok
+        -1: (serious) error
+*/
+static int conn_data_to_entry(const struct vrmr_conntrack_api_entry *cae,
+        struct vrmr_conntrack_entry *ce, struct vrmr_hash_table *serhash,
+        struct vrmr_hash_table *zonehash, struct vrmr_list *zonelist,
+        struct vrmr_conntrack_request *req)
+{
+    char service_name[VRMR_MAX_SERVICE] = "", *zone_name_ptr = NULL;
+
+    assert(cae && ce && serhash && zonehash && req);
+
+    if (req->unknown_ip_as_net && zonelist == NULL) {
+        vrmr_error(-1, "Internal Error", "parameter problem");
+        return (-1);
+    }
+
+    ce->ipv6 = (cae->family == AF_INET6);
+
+    /* first the service name */
+    ce->service = vrmr_search_service_in_hash(
+            cae->sp, cae->dp, cae->protocol, serhash);
+    if (ce->service == NULL) {
+        /* do a reverse lookup. This will prevent connections that
+         * have been picked up by conntrack midstream to look
+         * unrecognized  */
+        if ((ce->service = vrmr_search_service_in_hash(
+                     cae->dp, cae->sp, cae->protocol, serhash)) == NULL) {
+            if (cae->protocol == 6 || cae->protocol == 17)
+                snprintf(service_name, sizeof(service_name), "%d -> %d",
+                        cae->sp, cae->dp);
+            else if (cae->protocol == 1)
+                snprintf(service_name, sizeof(service_name), "%d:%d", cae->sp,
+                        cae->dp);
+            else
+                snprintf(service_name, sizeof(service_name), "proto %d",
+                        cae->protocol);
+
+            if (!(ce->sername = strdup(service_name))) {
+                vrmr_error(-1, "Error", "strdup() failed: %s", strerror(errno));
+                return (-1);
+            }
+        } else {
+            /* found! */
+            ce->sername = ce->service->name;
+        }
+    } else {
+        ce->sername = ce->service->name;
+    }
+
+    /* for hashing and display */
+
+    /* if the dst port and alt_dst_port don't match, it is
+        a portfw rule with the remoteport option set. */
+    if (cae->dp == cae->alt_sp)
+        ce->dst_port = cae->dp;
+    else
+        ce->dst_port = cae->alt_sp;
+
+    ce->protocol = cae->protocol;
+    ce->src_port = cae->sp;
+
+    /* src ip */
+    if (strlcpy(ce->src_ip, cae->src_ip, sizeof(ce->src_ip)) >=
+            sizeof(ce->src_ip)) {
+        vrmr_error(-1, "Internal Error", "string overflow");
+        return (-1);
+    }
+
+    /* then the from name */
+    if (!(ce->ipv6))
+        ce->from = vrmr_search_zone_in_hash_with_ipv4(ce->src_ip, zonehash);
+    if (ce->from == NULL) {
+        vrmr_debug(HIGH, "unknown ip: '%s'.", ce->src_ip);
+
+        if (req->unknown_ip_as_net == FALSE) {
+            if (!(ce->fromname = strdup(ce->src_ip))) {
+                vrmr_error(-1, "Error",
+                        "strdup() "
+                        "failed: %s",
+                        strerror(errno));
+                return (-1);
+            }
+        } else {
+            if (!(zone_name_ptr = vrmr_get_network_for_ipv4(
+                          ce->src_ip, zonelist))) {
+                if (!(ce->fromname = strdup(ce->src_ip))) {
+                    vrmr_error(-1, "Internal Error", "malloc failed: %s",
+                            strerror(errno));
+                    return (-1);
+                }
+            } else {
+                if (!(ce->fromname = strdup(zone_name_ptr))) {
+                    vrmr_error(-1, "Internal Error", "strdup failed: %s",
+                            strerror(errno));
+                    free(zone_name_ptr);
+                    return (-1);
+                }
+
+                free(zone_name_ptr);
+            }
+        }
+    } else {
+        ce->fromname = ce->from->name;
+    }
+
+    /* dst ip */
+    strlcpy(ce->dst_ip, cae->dst_ip, sizeof(ce->dst_ip));
+    /* dst ip */
+    strlcpy(ce->orig_dst_ip, cae->orig_dst_ip, sizeof(ce->orig_dst_ip));
+    /* then the to name */
+    if (!(ce->ipv6))
+        ce->to = vrmr_search_zone_in_hash_with_ipv4(ce->dst_ip, zonehash);
+    if (ce->to == NULL) {
+        if (req->unknown_ip_as_net == FALSE) {
+            if (!(ce->toname = strdup(ce->dst_ip))) {
+                vrmr_error(-1, "Internal Error", "strdup failed: %s",
+                        strerror(errno));
+                return (-1);
+            }
+        } else {
+            if (!(zone_name_ptr = vrmr_get_network_for_ipv4(
+                          ce->dst_ip, zonelist))) {
+                if (!(ce->toname = strdup(ce->dst_ip))) {
+                    vrmr_error(-1, "Internal Error", "strdup failed: %s",
+                            strerror(errno));
+                    return (-1);
+                }
+            } else {
+                if (!(ce->toname = strdup(zone_name_ptr))) {
+                    vrmr_error(-1, "Internal Error", "strdup failed: %s",
+                            strerror(errno));
+
+                    free(zone_name_ptr);
+                    return (-1);
+                }
+
+                free(zone_name_ptr);
+            }
+        }
+    } else {
+        ce->toname = ce->to->name;
+    }
+
+    vrmr_debug(NONE, "status cae->status %u", cae->status);
+
+    if ((cae->status & IPS_SEEN_REPLY) == 0) {
+        ce->connect_status = VRMR_CONN_CONNECTING;
+    } else {
+        switch (cae->tcp_state) {
+            case TCP_CONNTRACK_SYN_SENT:
+            case TCP_CONNTRACK_SYN_SENT2:
+            case TCP_CONNTRACK_SYN_RECV:
+            case TCP_CONNTRACK_NONE:
+                ce->connect_status = VRMR_CONN_CONNECTING;
+                break;
+            case TCP_CONNTRACK_ESTABLISHED:
+                ce->connect_status = VRMR_CONN_CONNECTED;
+                break;
+            case TCP_CONNTRACK_FIN_WAIT:
+            case TCP_CONNTRACK_CLOSE_WAIT:
+            case TCP_CONNTRACK_LAST_ACK:
+            case TCP_CONNTRACK_TIME_WAIT:
+            case TCP_CONNTRACK_CLOSE:
+                ce->connect_status = VRMR_CONN_DISCONNECTING;
+                break;
+        }
+    }
+
+    if (ce->from != NULL && ce->from->type == VRMR_TYPE_FIREWALL)
+        ce->direction_status = VRMR_CONN_OUT;
+    else if (ce->to != NULL && ce->to->type == VRMR_TYPE_FIREWALL)
+        ce->direction_status = VRMR_CONN_IN;
+    else
+        ce->direction_status = VRMR_CONN_FW;
+
+    /* transfer the acc data */
+    ce->to_src_packets = cae->toclient_packets;
+    ce->to_src_bytes = cae->toclient_bytes;
+    ce->to_dst_packets = cae->toserver_packets;
+    ce->to_dst_bytes = cae->toserver_bytes;
+    ce->use_acc = (ce->to_src_packets || ce->to_dst_packets);
+    return (0);
+}
+
+/**
+ * \retval 1 ok
+ * \retval 0 skipped
+ */
+int vrmr_conntrack_ct2ae(uint32_t type ATTR_UNUSED, struct nf_conntrack *ct,
+        struct vrmr_conntrack_api_entry *lr)
+{
+    uint64_t ts_start = nfct_get_attr_u64(ct, ATTR_TIMESTAMP_START);
+    uint64_t ts_stop = nfct_get_attr_u64(ct, ATTR_TIMESTAMP_STOP);
+    uint64_t ts_delta = ts_stop - ts_start;
+    uint32_t ts_delta_sec = ts_delta / 1000000000UL;
+
+    lr->age_s = ts_delta_sec;
+
+    struct nfct_attr_grp_ctrs ctrs = {0, 0};
+
+    nfct_get_attr_grp(ct, ATTR_GRP_ORIG_COUNTERS, &ctrs);
+    lr->toserver_packets = ctrs.packets;
+    lr->toserver_bytes = ctrs.bytes;
+
+    nfct_get_attr_grp(ct, ATTR_GRP_REPL_COUNTERS, &ctrs);
+    lr->toclient_packets = ctrs.packets;
+    lr->toclient_bytes = ctrs.bytes;
+
+    uint8_t ipv = nfct_get_attr_u8(ct, ATTR_L3PROTO);
+    switch (ipv) {
+        case AF_INET: {
+            uint32_t src_ip = nfct_get_attr_u32(ct, ATTR_IPV4_SRC);
+            uint32_t dst_ip = nfct_get_attr_u32(ct, ATTR_IPV4_DST);
+            uint32_t repl_src_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_SRC);
+            uint32_t repl_dst_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_DST);
+
+            inet_ntop(AF_INET, &src_ip, lr->src_ip, sizeof(lr->src_ip));
+            inet_ntop(AF_INET, &dst_ip, lr->dst_ip, sizeof(lr->dst_ip));
+
+            if (src_ip == repl_dst_ip && dst_ip == repl_src_ip) {
+                /* normal line */
+            } else if (src_ip == repl_dst_ip) {
+                inet_ntop(
+                        AF_INET, &repl_src_ip, lr->dst_ip, sizeof(lr->dst_ip));
+                inet_ntop(AF_INET, &dst_ip, lr->orig_dst_ip,
+                        sizeof(lr->orig_dst_ip));
+            } else if (src_ip != repl_src_ip && dst_ip != repl_dst_ip) {
+                inet_ntop(
+                        AF_INET, &repl_src_ip, lr->dst_ip, sizeof(lr->dst_ip));
+                inet_ntop(AF_INET, &dst_ip, lr->orig_dst_ip,
+                        sizeof(lr->orig_dst_ip));
+            }
+            inet_ntop(AF_INET, &src_ip, lr->src_ip, sizeof(lr->src_ip));
+
+            if (strncmp(lr->src_ip, "127.", 4) == 0)
+                goto skip;
+            break;
+        }
+        case AF_INET6: {
+            struct nfct_attr_grp_ipv6 addrs;
+            memset(&addrs, 0, sizeof(addrs));
+            nfct_get_attr_grp(ct, ATTR_GRP_ORIG_IPV6, &addrs);
+
+            inet_ntop(AF_INET6, &addrs.src, lr->src_ip, sizeof(lr->src_ip));
+            inet_ntop(AF_INET6, &addrs.dst, lr->dst_ip, sizeof(lr->dst_ip));
+            break;
+        }
+        default:
+            abort();
+    }
+    lr->family = ipv;
+
+    lr->protocol = nfct_get_attr_u8(ct, ATTR_L4PROTO);
+    switch (lr->protocol) {
+        case IPPROTO_TCP:
+        case IPPROTO_UDP:
+            lr->sp = ntohs(nfct_get_attr_u16(ct, ATTR_PORT_SRC));
+            lr->dp = ntohs(nfct_get_attr_u16(ct, ATTR_PORT_DST));
+            lr->alt_sp = ntohs(nfct_get_attr_u16(ct, ATTR_REPL_PORT_SRC));
+            lr->alt_dp = ntohs(nfct_get_attr_u16(ct, ATTR_REPL_PORT_DST));
+            break;
+    }
+
+    if (lr->protocol == IPPROTO_TCP) {
+        lr->tcp_state = nfct_get_attr_u8(ct, ATTR_TCP_STATE);
+        lr->tcp_flags_ts = nfct_get_attr_u8(ct, ATTR_TCP_FLAGS_ORIG);
+        lr->tcp_flags_tc = nfct_get_attr_u8(ct, ATTR_TCP_FLAGS_REPL);
+    }
+
+    lr->nfmark = nfct_get_attr_u32(ct, ATTR_MARK);
+    lr->status = nfct_get_attr_u32(ct, ATTR_STATUS);
+    return 1;
+skip:
+    return 0;
+}
+
+/**
+ * \retval 1 ok
+ * \retval 0 skipped
+ */
+int vrmr_conntrack_ct2lr(
+        uint32_t type, struct nf_conntrack *ct, struct vrmr_log_record *lr)
+{
+    memset(lr, 0, sizeof(*lr));
+
+    switch (type) {
+        case NFCT_T_NEW:
+            lr->conn_rec.type = VRMR_LOG_CONN_NEW;
+            break;
+        case NFCT_T_DESTROY: {
+            lr->conn_rec.type = VRMR_LOG_CONN_COMPLETED;
+
+            uint64_t ts_start = nfct_get_attr_u64(ct, ATTR_TIMESTAMP_START);
+            uint64_t ts_stop = nfct_get_attr_u64(ct, ATTR_TIMESTAMP_STOP);
+            uint64_t ts_delta = ts_stop - ts_start;
+            uint32_t ts_delta_sec = ts_delta / 1000000000UL;
+
+            lr->conn_rec.age_s = ts_delta_sec;
+
+            struct nfct_attr_grp_ctrs ctrs = {0, 0};
+
+            nfct_get_attr_grp(ct, ATTR_GRP_ORIG_COUNTERS, &ctrs);
+            lr->conn_rec.toserver_packets = ctrs.packets;
+            lr->conn_rec.toserver_bytes = ctrs.bytes;
+
+            nfct_get_attr_grp(ct, ATTR_GRP_REPL_COUNTERS, &ctrs);
+            lr->conn_rec.toclient_packets = ctrs.packets;
+            lr->conn_rec.toclient_bytes = ctrs.bytes;
+            break;
+        }
+    }
+
+    uint8_t ipv = nfct_get_attr_u8(ct, ATTR_L3PROTO);
+    switch (ipv) {
+        case AF_INET: {
+            uint32_t src_ip = nfct_get_attr_u32(ct, ATTR_IPV4_SRC);
+            uint32_t dst_ip = nfct_get_attr_u32(ct, ATTR_IPV4_DST);
+            uint32_t repl_src_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_SRC);
+            inet_ntop(AF_INET, &src_ip, lr->src_ip, sizeof(lr->src_ip));
+            /* DNAT has the ip we care about as repl_src_ip */
+            if (repl_src_ip != dst_ip)
+                dst_ip = repl_src_ip;
+            inet_ntop(AF_INET, &dst_ip, lr->dst_ip, sizeof(lr->dst_ip));
+
+            if (strncmp(lr->src_ip, "127.", 4) == 0)
+                goto skip;
+            break;
+        }
+        case AF_INET6: {
+            lr->ipv6 = TRUE;
+
+            struct nfct_attr_grp_ipv6 addrs;
+            memset(&addrs, 0, sizeof(addrs));
+            nfct_get_attr_grp(ct, ATTR_GRP_ORIG_IPV6, &addrs);
+
+            inet_ntop(AF_INET6, &addrs.src, lr->src_ip, sizeof(lr->src_ip));
+            inet_ntop(AF_INET6, &addrs.dst, lr->dst_ip, sizeof(lr->dst_ip));
+            break;
+        }
+        default:
+            abort();
+    }
+
+    lr->protocol = nfct_get_attr_u8(ct, ATTR_L4PROTO);
+    switch (lr->protocol) {
+        case IPPROTO_TCP:
+        case IPPROTO_UDP: {
+            lr->src_port = ntohs(nfct_get_attr_u16(ct, ATTR_PORT_SRC));
+            lr->dst_port = ntohs(nfct_get_attr_u16(ct, ATTR_PORT_DST));
+            break;
+        }
+    }
+
+    lr->conn_rec.mark = nfct_get_attr_u32(ct, ATTR_MARK);
+    return 1;
+skip:
+    return 0;
+}
+
+struct dump_cb_ctx {
+    struct vrmr_config *cnf;
+    struct vrmr_hash_table *serhash;
+    struct vrmr_hash_table *zonehash;
+    struct vrmr_list *zonelist;
+    struct vrmr_conntrack_request *req;
+    struct vrmr_conntrack_stats *connstat_ptr;
+    struct vrmr_list *conn_dlist;
+    struct vrmr_hash_table *conn_hash;
+};
+
+static int dump_cb(
+        enum nf_conntrack_msg_type type, struct nf_conntrack *ct, void *data)
+{
+    assert(ct);
+    assert(data);
+
+    struct vrmr_conntrack_api_entry cae;
+    memset(&cae, 0, sizeof(cae));
+
+    struct dump_cb_ctx *ctx = data;
+    if (vrmr_conntrack_ct2ae(type, ct, &cae)) {
+        struct vrmr_conntrack_entry *ce = NULL;
+        if (!(ce = calloc(1, sizeof(*ce)))) {
+            vrmr_error(-1, "Error", "calloc() failed: %s", strerror(errno));
+            return NFCT_CB_STOP;
+        }
+
+        if (conn_data_to_entry(&cae, ce, ctx->serhash, ctx->zonehash,
+                    ctx->zonelist, ctx->req) < 0) {
+            vrmr_error(-1, "Error", "conn_data_to_entry() failed");
+            free(ce);
+            return NFCT_CB_STOP;
+        }
+
+        /*  we ignore the local loopback connections
+            and connections that are filtered */
+        if ((strncmp(ce->fromname, "127.", 4) == 0 ||
+                    strncmp(ce->toname, "127.", 4) == 0 ||
+                    (ctx->req->use_filter == TRUE &&
+                            filtered_connection(ce, &ctx->req->filter) == 1))) {
+            free_conntrack_entry(ce);
+            return NFCT_CB_CONTINUE;
+        }
+
+        /* update counters */
+        update_stats(ce, ctx->connstat_ptr);
+
+        /* now check if the cd is already in the list */
+        struct vrmr_conntrack_entry *found = NULL;
+        if (ctx->req->group_conns == TRUE &&
+                (found = vrmr_hash_search(ctx->conn_hash, (void *)ce)) !=
+                        NULL) {
+            /*  FOUND in the hash. Transfer the acc data */
+            found->to_src_packets += ce->to_src_packets;
+            found->to_src_bytes += ce->to_src_bytes;
+            found->to_dst_packets += ce->to_dst_packets;
+            found->to_dst_bytes += ce->to_dst_bytes;
+            found->cnt++;
+
+            free_conntrack_entry(ce);
+        } else {
+            /*  NOT found in the hash */
+
+            /* append the new cd to the list */
+            if (vrmr_list_append(ctx->conn_dlist, ce) == NULL) {
+                vrmr_error(-1, "Internal Error", "unable to append into list");
+                free_conntrack_entry(ce);
+                return NFCT_CB_STOP;
+            }
+
+            /* and insert it into the hash */
+            if (vrmr_hash_insert(ctx->conn_hash, ce) != 0) {
+                vrmr_error(-1, "Internal Error", "unable to insert into hash");
+                free_conntrack_entry(ce);
+                return NFCT_CB_STOP;
+            }
+
+            ce->cnt = 1;
+        }
+    }
+    return NFCT_CB_CONTINUE;
+}
+
+static int vrmr_conn_get_connections_api(struct vrmr_config *cnf,
+        struct vrmr_hash_table *serv_hash, struct vrmr_hash_table *zone_hash,
+        struct vrmr_list *conn_dlist, struct vrmr_hash_table *conn_hash,
+        struct vrmr_list *zone_list, struct vrmr_conntrack_request *req,
+        struct vrmr_conntrack_stats *connstat_ptr)
+{
+    assert(cnf);
+    assert(serv_hash);
+    assert(zone_hash);
+    assert(req);
+
+    int retval = 0;
+
+    struct nf_conntrack *ct = nfct_new();
+    if (ct == NULL) {
+        vrmr_error(-1, "Error", "nfct_new failed");
+        return -1;
+    }
+
+    struct nfct_handle *h = nfct_open(CONNTRACK, 0);
+    if (h == NULL) {
+        vrmr_error(-1, "Error", "nfct_open failed");
+        nfct_destroy(ct);
+        return -1;
+    }
+
+    struct dump_cb_ctx ctx = {
+            .cnf = cnf,
+            .serhash = serv_hash,
+            .zonehash = zone_hash,
+            .conn_dlist = conn_dlist,
+            .zonelist = zone_list,
+            .req = req,
+            .connstat_ptr = connstat_ptr,
+            .conn_hash = conn_hash,
+    };
+
+    nfct_callback_register(h, NFCT_T_ALL, dump_cb, &ctx);
+    int ret = nfct_query(h, NFCT_Q_DUMP, ct);
+    if (ret != 0) {
+        vrmr_error(-1, "Error", "nfct_query failed: %d", ret);
+        retval = -1;
+    }
+
+    nfct_close(h);
+    nfct_destroy(ct);
+    return retval;
+}
+#endif
+
+int vrmr_conn_get_connections(struct vrmr_config *cnf,
+        const unsigned int prev_conn_cnt, struct vrmr_hash_table *serv_hash,
+        struct vrmr_hash_table *zone_hash, struct vrmr_list *conn_dlist,
+        struct vrmr_list *zone_list, struct vrmr_conntrack_request *req,
+        struct vrmr_conntrack_stats *connstat_ptr)
+{
+    int retval = 0;
+
+    /* set stat counters to zero */
+    connstat_ptr->conn_total = 0, connstat_ptr->conn_in = 0,
+    connstat_ptr->conn_out = 0, connstat_ptr->conn_fw = 0;
+
+    connstat_ptr->stat_connect = 0, connstat_ptr->stat_estab = 0,
+    connstat_ptr->stat_closing = 0, connstat_ptr->stat_other = 0;
+
+    connstat_ptr->accounting = 0;
+
+    /* connection hash: if the prev_conn_cnt supplied by
+     * the user is bigger than 0, use it. */
+    uint32_t hashtbl_size = prev_conn_cnt ? prev_conn_cnt : 256;
+    struct vrmr_hash_table conn_hash;
+    if (vrmr_hash_setup(&conn_hash, hashtbl_size, conn_hash_conntrackdata,
+                conn_match_conntrackdata, NULL) != 0) {
+        vrmr_error(-1, "Internal Error", "vrmr_hash_setup() failed");
+        return (-1);
+    }
+
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
+    retval = vrmr_conn_get_connections_api(cnf, serv_hash, zone_hash,
+            conn_dlist, &conn_hash, zone_list, req, connstat_ptr);
+    if (retval == 0) {
+        vrmr_hash_cleanup(&conn_hash);
+        return (retval);
+    }
+#endif
+
+    if (strlen(cnf->conntrack_location) > 0) {
+        retval = vrmr_conn_get_connections_cmd(cnf, serv_hash, zone_hash,
+                conn_dlist, &conn_hash, zone_list, req, connstat_ptr,
+                VRMR_IPV4);
+        if (retval == 0 && req->ipv6) {
+            retval = vrmr_conn_get_connections_cmd(cnf, serv_hash, zone_hash,
+                    conn_dlist, &conn_hash, zone_list, req, connstat_ptr,
+                    VRMR_IPV6);
+        }
+    } else {
+        retval = vrmr_conn_get_connections_proc(cnf, serv_hash, zone_hash,
+                conn_dlist, &conn_hash, zone_list, req, connstat_ptr);
+    }
+
+    vrmr_hash_cleanup(&conn_hash);
+    return (retval);
 }

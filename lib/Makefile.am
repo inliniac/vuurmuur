@@ -1,6 +1,6 @@
 lib_LTLIBRARIES = libvuurmuur.la
 libvuurmuur_la_LDFLAGS = -version-info 6:0:6
-libvuurmuur_la_LIBADD = textdir/libtextdir.la
+libvuurmuur_la_LIBADD = textdir/libtextdir.la $(NFNETLINK_LIBS) $(LIBMNL_LIBS) $(LIBNETFILTER_CONNTRACK_LIBS)
 
 libvuurmuur_la_SOURCES = \
 backendapi.c \

@@ -233,92 +233,10 @@ static int record_cb(const struct nlmsghdr *nlh, void *data)
         return MNL_CB_OK;
     nfct_nlmsg_parse(nlh, ct);
 
-    memset(lr, 0, sizeof(*lr));
-
-    switch (type) {
-        case NFCT_T_NEW:
-            lr->conn_rec.type = VRMR_LOG_CONN_NEW;
-            break;
-        case NFCT_T_DESTROY: {
-            lr->conn_rec.type = VRMR_LOG_CONN_COMPLETED;
-
-            uint64_t ts_start = nfct_get_attr_u64(ct, ATTR_TIMESTAMP_START);
-            uint64_t ts_stop = nfct_get_attr_u64(ct, ATTR_TIMESTAMP_STOP);
-            uint64_t ts_delta = ts_stop - ts_start;
-            uint32_t ts_delta_sec = ts_delta / 1000000000UL;
-
-            lr->conn_rec.age_s = ts_delta_sec;
-
-            struct nfct_attr_grp_ctrs ctrs = {0, 0};
-
-            nfct_get_attr_grp(ct, ATTR_GRP_ORIG_COUNTERS, &ctrs);
-            lr->conn_rec.toserver_packets = ctrs.packets;
-            lr->conn_rec.toserver_bytes = ctrs.bytes;
-
-            nfct_get_attr_grp(ct, ATTR_GRP_REPL_COUNTERS, &ctrs);
-            lr->conn_rec.toclient_packets = ctrs.packets;
-            lr->conn_rec.toclient_bytes = ctrs.bytes;
-            break;
-        }
-    }
-
-    uint8_t ipv = nfct_get_attr_u8(ct, ATTR_L3PROTO);
-    switch (ipv) {
-        case AF_INET: {
-            uint32_t src_ip = nfct_get_attr_u32(ct, ATTR_IPV4_SRC);
-            uint32_t dst_ip = nfct_get_attr_u32(ct, ATTR_IPV4_DST);
-
-            uint32_t repl_src_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_SRC);
-            // uint32_t repl_dst_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_DST);
-
-            inet_ntop(AF_INET, &src_ip, lr->src_ip, sizeof(lr->src_ip));
-
-            /* DNAT has the ip we care about as repl_src_ip */
-            if (repl_src_ip != dst_ip)
-                dst_ip = repl_src_ip;
-            inet_ntop(AF_INET, &dst_ip, lr->dst_ip, sizeof(lr->dst_ip));
-
-            if (strncmp(lr->src_ip, "127.", 4) == 0)
-                goto skip;
-            break;
-        }
-        case AF_INET6: {
-            lr->ipv6 = TRUE;
-
-            struct nfct_attr_grp_ipv6 addrs;
-            memset(&addrs, 0, sizeof(addrs));
-            nfct_get_attr_grp(ct, ATTR_GRP_ORIG_IPV6, &addrs);
-
-            inet_ntop(AF_INET6, &addrs.src, lr->src_ip, sizeof(lr->src_ip));
-            inet_ntop(AF_INET6, &addrs.dst, lr->dst_ip, sizeof(lr->dst_ip));
-            break;
-        }
-        default:
-            abort();
-    }
-
-    lr->protocol = nfct_get_attr_u8(ct, ATTR_L4PROTO);
-    switch (lr->protocol) {
-        case IPPROTO_TCP:
-        case IPPROTO_UDP: {
-            lr->src_port = ntohs(nfct_get_attr_u16(ct, ATTR_PORT_SRC));
-            lr->dst_port = ntohs(nfct_get_attr_u16(ct, ATTR_PORT_DST));
-            break;
-        }
-    }
-
-#if 0 // looks like this is not available in a DESTROY record :-(
-    if (lr->protocol == IPPROTO_TCP) {
-        lr->conn_rec.tcp_state = nfct_get_attr_u8(ct, ATTR_TCP_STATE);
-        lr->conn_rec.tcp_flags_ts = nfct_get_attr_u8(ct, ATTR_TCP_FLAGS_ORIG);
-        lr->conn_rec.tcp_flags_tc = nfct_get_attr_u8(ct, ATTR_TCP_FLAGS_REPL);
-    }
-#endif
-    lr->conn_rec.mark = nfct_get_attr_u32(ct, ATTR_MARK);
+    vrmr_conntrack_ct2lr(type, ct, lr);
 
     process_connrecord(lr);
 
-skip:
     nfct_destroy(ct);
     return MNL_CB_OK;
 }

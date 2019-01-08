@@ -25,8 +25,8 @@ int vrmr_hash_setup(struct vrmr_hash_table *hash_table, /* the hash table ;-) */
         unsigned int rows, /* the number of rows in the table */
         unsigned int (*hash_func)(const void *data), /* the hash function */
         int (*compare_func)(const void *table_data,
-                const void *search_data) /* the compare function */
-)
+                const void *search_data), /* the compare function */
+        void (*free_func)(void *data))
 {
     assert(hash_table != NULL && hash_func && compare_func);
 
@@ -50,6 +50,7 @@ int vrmr_hash_setup(struct vrmr_hash_table *hash_table, /* the hash table ;-) */
     /* setup the functions. */
     hash_table->hash_func = hash_func;
     hash_table->compare_func = compare_func;
+    hash_table->free_func = free_func;
 
     /* initialize the rows. */
     hash_table->rows = rows;
@@ -60,7 +61,7 @@ int vrmr_hash_setup(struct vrmr_hash_table *hash_table, /* the hash table ;-) */
         setup the list without a cleanup function.
     */
     for (unsigned int row = 0; row < hash_table->rows; row++) {
-        vrmr_list_setup(&hash_table->table[row], NULL);
+        vrmr_list_setup(&hash_table->table[row], free_func);
     }
 
     return (0);
@@ -411,7 +412,8 @@ int vrmr_init_services_hashtable(unsigned int n_rows,
     assert(services_list);
 
     /* init the hashtable for services */
-    if (vrmr_hash_setup(hash_table, n_rows, hash_func, compare_func) != 0) {
+    if (vrmr_hash_setup(hash_table, n_rows, hash_func, compare_func, NULL) !=
+            0) {
         vrmr_error(-1, "Internal Error", "hash table initializing failed");
         return (-1);
     }
@@ -521,7 +523,8 @@ int vrmr_init_zonedata_hashtable(unsigned int n_rows,
     assert(zones_list);
 
     /* setup the hash table */
-    if (vrmr_hash_setup(hash_table, n_rows, hash_func, compare_func) != 0) {
+    if (vrmr_hash_setup(hash_table, n_rows, hash_func, compare_func, NULL) !=
+            0) {
         vrmr_error(-1, "Internal Error", "hash table initializing failed");
         return (-1);
     }

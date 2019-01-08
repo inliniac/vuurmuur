@@ -21,6 +21,7 @@
 #ifndef __VUURMUUR_H__
 #define __VUURMUUR_H__
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -45,6 +46,13 @@
 #include <ctype.h>     /* for isdigit, isalpha, etc */
 #include <assert.h>
 #include <stdbool.h>
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
+#include <libmnl/libmnl.h>
+#include <libnetfilter_conntrack/libnetfilter_conntrack.h>
+#include <inttypes.h>
+#include <sys/time.h>
+#include <linux/netfilter/nf_conntrack_tcp.h>
+#endif
 
 /* our version */
 #define VUURMUUR_VERSION "0.8rc5"
@@ -291,6 +299,7 @@ struct vrmr_hash_table {
     /* the functions for hashing, comparing the data */
     unsigned int (*hash_func)(const void *data);
     int (*compare_func)(const void *table_data, const void *search_data);
+    void (*free_func)(void *data);
 
     /* the number of cells in the table */
     unsigned int cells;
@@ -1020,8 +1029,6 @@ struct vrmr_conntrack_entry {
     /* counter */
     int cnt;
 
-    struct vrmr_list_node *d_node;
-
     /* connection status - 0 for unused */
     int connect_status;
     /* do we use connect_status */
@@ -1482,7 +1489,8 @@ size_t strlcpy(char *dst, const char *src, size_t size);
 */
 int vrmr_hash_setup(struct vrmr_hash_table *hash_table,
         unsigned int rows, unsigned int (*hash_func)(const void *data),
-        int (*compare_func)(const void *table_data, const void *search_data));
+        int (*compare_func)(const void *table_data, const void *search_data),
+        void (*free_func)(void *data));
 int vrmr_hash_cleanup(struct vrmr_hash_table *hash_table);
 int vrmr_hash_insert(struct vrmr_hash_table *hash_table,
         const void *data);
@@ -1810,6 +1818,10 @@ void vrmr_conn_print_dlist(const struct vrmr_list *);
 void vrmr_conn_list_cleanup(struct vrmr_list *conn_dlist);
 void vrmr_connreq_setup(struct vrmr_conntrack_request *connreq);
 void vrmr_connreq_cleanup(struct vrmr_conntrack_request *connreq);
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
+int vrmr_conntrack_ct2lr(
+        uint32_t type, struct nf_conntrack *ct, struct vrmr_log_record *lr);
+#endif
 
 /*
     linked list

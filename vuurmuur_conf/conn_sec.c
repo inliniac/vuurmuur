@@ -595,7 +595,6 @@ void conn_ct_clear_connections(struct conntrack *ct)
 {
     /* store prev list size */
     ct->prev_list_size = ct->conn_list.len;
-
     vrmr_conn_list_cleanup(&ct->conn_list);
     free(ct->conn_array);
     ct->conn_array = NULL;
