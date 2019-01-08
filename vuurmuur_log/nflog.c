@@ -24,8 +24,6 @@
 
 #include "vuurmuur_log.h"
 
-#ifdef HAVE_LIBNETFILTER_LOG
-
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
@@ -387,5 +385,3 @@ int readnflog(void)
     }
     return (1);
 }
-
-#endif /* HAVE_LIBNETFILTER_LOG */

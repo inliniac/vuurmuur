@@ -116,9 +116,11 @@ LDFLAGS="${LDFLAGS}  -L${with_libnetfilter_conntrack_libraries}"
 fi
 
 AC_CHECK_LIB(netfilter_conntrack, nfct_nlmsg_parse, [LIBNETFILTER_CONNTRACK_LIBS="-lnetfilter_conntrack"], NFCONNTRACK="no")
-if test "$NFCONNTRACK" != "no"; then
-    AC_DEFINE([HAVE_LIBNETFILTER_CONNTRACK],[1],[libnetfilter_conntrack available])
+if test "$NFCONNTRACK" = "no"; then
+    echo "ERROR libnetfilter_conntrack was not found"
+    exit 1
 fi
+AC_DEFINE([HAVE_LIBNETFILTER_CONNTRACK],[1],[libnetfilter_conntrack available])
 
 # netfilter_log lib
 AC_ARG_WITH(libnetfilter_log_includes,
@@ -138,9 +140,11 @@ LDFLAGS="${LDFLAGS}  -L${with_libnetfilter_log_libraries}"
 fi
 
 AC_CHECK_LIB(netfilter_log, nflog_open, [LIBNETFILTER_LOG_LIBS="-lnetfilter_log"], NFLOG="no")
-if test "$NFLOG" != "no"; then
-    AC_DEFINE([HAVE_LIBNETFILTER_LOG],[1],[libnetfilter_log available])
+if test "$NFLOG" = "no"; then
+    echo "ERROR libnetfilter_log was not found"
+    exit 1
 fi
+AC_DEFINE([HAVE_LIBNETFILTER_LOG],[1],[libnetfilter_log available])
 
 AC_ARG_WITH(ncurses_includes,
 	[  --with-libncurses-includes=DIR  libncurses includes directory],

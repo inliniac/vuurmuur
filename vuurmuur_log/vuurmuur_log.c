@@ -25,12 +25,8 @@
 #include "vuurmuur_ipc.h"
 #include "conntrack.h"
 
-#ifdef HAVE_NFNETLINK
 #include <libnfnetlink/libnfnetlink.h>
-#ifdef HAVE_LIBNETFILTER_LOG
 #include <libnetfilter_log/libnetfilter_log.h>
-#endif /* HAVE_LIBNETFILTER_LOG */
-#endif /* HAVE_NFNETLINK */
 
 /*@null@*/
 struct vrmr_shm_table *shm_table = 0;
@@ -157,7 +153,6 @@ int process_logrecord(struct vrmr_log_record *log_record)
     return 0;
 }
 
-#ifdef HAVE_LIBNETFILTER_CONNTRACK
 /** \internal
  *
  *  \brief open or reopen conntrack output logfiles
@@ -184,7 +179,6 @@ static int conntrack_open_logs(struct vrmr_config *cnf)
 
     return (0);
 }
-#endif /* HAVE_LIBNETFILTER_CONNTRACK */
 
 int main(int argc, char *argv[])
 {
@@ -218,9 +212,7 @@ int main(int argc, char *argv[])
     char *sscanf_str = NULL;
 
     struct vrmr_log_record logrule;
-#ifdef HAVE_LIBNETFILTER_CONNTRACK
     struct vrmr_log_record logconn;
-#endif
     int debug_level = NONE;
 
     /* shm, sem stuff */
@@ -353,7 +345,6 @@ int main(int argc, char *argv[])
     vrmr_audit("Vuurmuur_log %s %s started by user %s.", version_string,
             (syslog) ? "" : "(nflog mode)", vctx.user_data.realusername);
 
-#ifdef HAVE_LIBNETFILTER_LOG
     /* Setup nflog after vrmr_init_config as and logging as we need &conf in
      * subscribe_nflog() */
     if (!syslog) {
@@ -362,7 +353,6 @@ int main(int argc, char *argv[])
             vrmr_error(-1, "Error", "could not set up nflog subscription");
             exit(EXIT_FAILURE);
         }
-#ifdef HAVE_LIBNETFILTER_CONNTRACK
         if (conntrack_subscribe(&logconn) < 0) {
             vrmr_error(-1, "Error", "could not set up conntrack subscription");
             exit(EXIT_FAILURE);
@@ -371,15 +361,7 @@ int main(int argc, char *argv[])
             vrmr_error(-1, "Error", "could not open connection log files");
             exit(EXIT_FAILURE);
         }
-#endif
     }
-#else
-    if (!syslog) {
-        vrmr_error(-1, "Error",
-                "syslog mode disabled but no other modes available.");
-        exit(EXIT_FAILURE);
-    }
-#endif /* HAVE_LIBNETFILTER_LOG */
 
     if (vrmr_backends_load(&vctx.conf, &vctx) < 0) {
         vrmr_error(-1, "Error", "loading plugins failed, bailing out.");
@@ -543,15 +525,12 @@ int main(int argc, char *argv[])
                 }
                 /* not using syslog so must be using nflog here */
             } else {
-#ifdef HAVE_LIBNETFILTER_CONNTRACK
                 switch (conntrack_read(&logconn)) {
                     case 0:
                         break;
                     case -1:
                         break;
                 }
-#endif /* HAVE_LIBNETFILTER_CONNTRACK */
-#ifdef HAVE_LIBNETFILTER_LOG
                 switch (readnflog()) {
                     case -1:
                         vrmr_error(-1, "Error", "could not read from nflog");
@@ -561,7 +540,6 @@ int main(int argc, char *argv[])
                         usleep(100000);
                         break;
                 }
-#endif        /* HAVE_LIBNETFILTER_LOG */
             } /* if syslog */
         }     /* if reload == 0 */
 
@@ -688,7 +666,6 @@ int main(int argc, char *argv[])
                 vrmr_error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
             }
-#ifdef HAVE_LIBNETFILTER_CONNTRACK
             if (!syslog) {
                 vrmr_shm_update_progress(
                         sem_id, &shm_table->reload_progress, 92);
@@ -698,7 +675,6 @@ int main(int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 }
             }
-#endif /* HAVE_LIBNETFILTER_CONNTRACK */
             vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 95);
 
             /* only ok now */
@@ -737,9 +713,7 @@ int main(int argc, char *argv[])
         fclose(system_log);
 
     if (!syslog) {
-#ifdef HAVE_LIBNETFILTER_CONNTRACK
         conntrack_disconnect();
-#endif
     }
 
     /* destroy hashtables */

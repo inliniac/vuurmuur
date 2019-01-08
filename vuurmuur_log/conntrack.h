@@ -21,10 +21,8 @@
 #ifndef __CONNTRACK_H__
 #define __CONNTRACK_H__
 
-#ifdef HAVE_LIBNETFILTER_CONNTRACK
 int conntrack_subscribe(struct vrmr_log_record *);
 int conntrack_disconnect(void);
 int conntrack_read(struct vrmr_log_record *);
-#endif
 
 #endif /* __CONNTRACK_H__ */

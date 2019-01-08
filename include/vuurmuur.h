@@ -46,13 +46,11 @@
 #include <ctype.h>     /* for isdigit, isalpha, etc */
 #include <assert.h>
 #include <stdbool.h>
-#ifdef HAVE_LIBNETFILTER_CONNTRACK
 #include <libmnl/libmnl.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 #include <inttypes.h>
 #include <sys/time.h>
 #include <linux/netfilter/nf_conntrack_tcp.h>
-#endif
 
 /* our version */
 #define VUURMUUR_VERSION "0.8rc5"
@@ -1814,14 +1812,11 @@ int vrmr_conn_get_connections(struct vrmr_config *, unsigned int,
         struct vrmr_hash_table *, struct vrmr_hash_table *, struct vrmr_list *,
         struct vrmr_list *, struct vrmr_conntrack_request *,
         struct vrmr_conntrack_stats *);
-void vrmr_conn_print_dlist(const struct vrmr_list *);
 void vrmr_conn_list_cleanup(struct vrmr_list *conn_dlist);
 void vrmr_connreq_setup(struct vrmr_conntrack_request *connreq);
 void vrmr_connreq_cleanup(struct vrmr_conntrack_request *connreq);
-#ifdef HAVE_LIBNETFILTER_CONNTRACK
 int vrmr_conntrack_ct2lr(
         uint32_t type, struct nf_conntrack *ct, struct vrmr_log_record *lr);
-#endif
 
 /*
     linked list
