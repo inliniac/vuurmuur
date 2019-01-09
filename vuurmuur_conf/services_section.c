@@ -1129,8 +1129,7 @@ static int edit_serv_portranges_edit(int place, struct vrmr_service *ser_ptr)
         } else if (port_ptr->protocol == 41 || port_ptr->protocol == 47 ||
                    port_ptr->protocol == 50 || port_ptr->protocol == 51) {
             vrmr_warning(VR_WARN,
-                    gettext("this protocol can only be removed or added."),
-                    port_ptr->protocol);
+                    gettext("this protocol can only be removed or added."));
             return (0);
         } else {
             vrmr_warning(VR_WARN, gettext("edit of protocol %d not supported."),

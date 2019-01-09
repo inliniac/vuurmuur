@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 } else
                     vrmr_info("Info",
-                            "Entered daemon mode: obtained a new PID (%ld).",
+                            "Entered daemon mode: obtained a new PID (%d).",
                             getpid());
             }
 

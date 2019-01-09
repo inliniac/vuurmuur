@@ -947,7 +947,7 @@ static int statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 
     /* print a warning if we have no data */
     if (ctl->list.len == 0) {
-        vrmr_warning(VR_WARN, ctl->warn_no_data_str);
+        vrmr_warning(VR_WARN, "%s", ctl->warn_no_data_str);
         return (0);
     }
 
@@ -1011,7 +1011,7 @@ static int statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     }
     /* check if we didn't add any item (if all was filtered) */
     if (num == 1) {
-        vrmr_warning(VR_WARN, ctl->warn_no_data_str);
+        vrmr_warning(VR_WARN, "%s", ctl->warn_no_data_str);
         VrDelMenu(menu);
         VrDelWin(win);
         update_panels();

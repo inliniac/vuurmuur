@@ -55,7 +55,8 @@ int ask_textdir(void *backend, const char *name, const char *question,
     if (tb->file != NULL && multi == 0) {
         vrmr_warning("Warning",
                 "the last 'multi' call to '%s' probably failed, because the "
-                "file is still open when it shouldn't");
+                "file is still open when it shouldn't",
+                name);
 
         fclose(tb->file);
         tb->file = NULL;

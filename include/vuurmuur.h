@@ -419,10 +419,6 @@ struct vrprint {
 
 extern int vrmr_debug_level;
 
-#define vrmr_warning (void)vrprint.warning
-#define vrmr_info (void)vrprint.info
-#define vrmr_audit (void)vrprint.audit
-
 #define vrmr_debug(lvl, ...)                                                   \
     do {                                                                       \
         if (vrmr_debug_level >= (lvl)) {                                       \
@@ -434,6 +430,32 @@ extern int vrmr_debug_level;
                     __LINE__, __func__);                                       \
             (void)vrprint.debug(_vrmr_loc, _vrmr_msg);                         \
         }                                                                      \
+    } while (0)
+
+#define vrmr_audit(...)                                                        \
+    do {                                                                       \
+        char _vrmr_msg[2048];                                                  \
+        snprintf(_vrmr_msg, 2048, __VA_ARGS__);                                \
+        (void)vrprint.audit("%s", _vrmr_msg);                                  \
+    } while (0)
+
+#define vrmr_info(title, ...)                                                  \
+    do {                                                                       \
+        char _vrmr_msg[2048];                                                  \
+                                                                               \
+        snprintf(_vrmr_msg, 2048, __VA_ARGS__);                                \
+        (void)vrprint.info((title), "%s", _vrmr_msg);                          \
+    } while (0)
+
+#define vrmr_warning(title, ...)                                               \
+    do {                                                                       \
+        char _vrmr_msg[2048];                                                  \
+        char _vrmr_loc[512];                                                   \
+                                                                               \
+        snprintf(_vrmr_msg, 2048, __VA_ARGS__);                                \
+        snprintf(_vrmr_loc, sizeof(_vrmr_loc), "%s:%d:%s", __FILE__, __LINE__, \
+                __func__);                                                     \
+        (void)vrprint.warning((title), "%s (in: %s)", _vrmr_msg, _vrmr_loc);   \
     } while (0)
 
 #define vrmr_error(code, title, ...)                                           \
@@ -1469,32 +1491,26 @@ int vrmr_shm_lock(int, int);
 char *libvuurmuur_get_version(void);
 int vrmr_regex_setup(int action, struct vrmr_regex *reg);
 
-int range_strcpy(char *dest, const char *src,
-        const size_t start, const size_t end, size_t size);
+int range_strcpy(char *dest, const char *src, const size_t start,
+        const size_t end, size_t size);
 size_t strlcat(char *dst, const char *src, size_t size);
 size_t strlcpy(char *dst, const char *src, size_t size);
 
 /*
     hash table
 */
-int vrmr_hash_setup(struct vrmr_hash_table *hash_table,
-        unsigned int rows, unsigned int (*hash_func)(const void *data),
+int vrmr_hash_setup(struct vrmr_hash_table *hash_table, unsigned int rows,
+        unsigned int (*hash_func)(const void *data),
         int (*compare_func)(const void *table_data, const void *search_data),
         void (*free_func)(void *data));
 int vrmr_hash_cleanup(struct vrmr_hash_table *hash_table);
-int vrmr_hash_insert(struct vrmr_hash_table *hash_table,
-        const void *data);
-int vrmr_hash_remove(struct vrmr_hash_table *hash_table,
-        void *data);
-void *vrmr_hash_search(const struct vrmr_hash_table *hash_table,
-        void *data);
+int vrmr_hash_insert(struct vrmr_hash_table *hash_table, const void *data);
+int vrmr_hash_remove(struct vrmr_hash_table *hash_table, void *data);
+void *vrmr_hash_search(const struct vrmr_hash_table *hash_table, void *data);
 
-int vrmr_compare_ports(
-        const void *string1, const void *string2);
-int vrmr_compare_ipaddress(
-        const void *string1, const void *string2);
-int vrmr_compare_string(
-        const void *string1, const void *string2);
+int vrmr_compare_ports(const void *string1, const void *string2);
+int vrmr_compare_ipaddress(const void *string1, const void *string2);
+int vrmr_compare_string(const void *string1, const void *string2);
 unsigned int vrmr_hash_port(const void *key);
 unsigned int vrmr_hash_ipaddress(const void *key);
 unsigned int vrmr_hash_string(const void *key);
@@ -1820,18 +1836,16 @@ int vrmr_conn_count_connections_api(int *tcp, int *udp, int *other);
 void vrmr_list_setup(
         /*@out@*/ struct vrmr_list *ATTR_NONNULL,
         /*@null@*/ void (*remove)(void *data));
-int vrmr_list_remove_node(struct vrmr_list *ATTR_NONNULL,
-        struct vrmr_list_node *d_node);
+int vrmr_list_remove_node(
+        struct vrmr_list *ATTR_NONNULL, struct vrmr_list_node *d_node);
 int vrmr_list_remove_top(struct vrmr_list *ATTR_NONNULL);
 int vrmr_list_remove_bot(struct vrmr_list *ATTR_NONNULL);
-struct vrmr_list_node *vrmr_list_append(
-        struct vrmr_list *, const void *data);
-struct vrmr_list_node *vrmr_list_prepend(
-        struct vrmr_list *, const void *data);
-struct vrmr_list_node *vrmr_list_insert_after(struct vrmr_list *,
-        struct vrmr_list_node *d_node, const void *data);
-struct vrmr_list_node *vrmr_list_insert_before(struct vrmr_list *,
-        struct vrmr_list_node *d_node, const void *data);
+struct vrmr_list_node *vrmr_list_append(struct vrmr_list *, const void *data);
+struct vrmr_list_node *vrmr_list_prepend(struct vrmr_list *, const void *data);
+struct vrmr_list_node *vrmr_list_insert_after(
+        struct vrmr_list *, struct vrmr_list_node *d_node, const void *data);
+struct vrmr_list_node *vrmr_list_insert_before(
+        struct vrmr_list *, struct vrmr_list_node *d_node, const void *data);
 int vrmr_list_node_is_top(struct vrmr_list_node *d_node);
 int vrmr_list_node_is_bot(struct vrmr_list_node *d_node);
 int vrmr_list_cleanup(struct vrmr_list *ATTR_NONNULL);

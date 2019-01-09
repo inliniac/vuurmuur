@@ -89,7 +89,7 @@ static int VrTcpmssIfaceSave(void *ctx, char *name, char *value)
 
             /* example: "interface 'lan' has been changed: active is now set to
              * 'Yes' (was: 'No')." */
-            vrmr_audit("%s '%s' %s: %s %s '%u' (%s: '%u').", STR_INTERFACE,
+            vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').", STR_INTERFACE,
                     c->iface_ptr->name, STR_HAS_BEEN_CHANGED, STR_TCPMSS,
                     STR_IS_NOW_SET_TO, enabled ? "Yes" : "No", STR_WAS,
                     c->enabled ? "Yes" : "No");
@@ -257,7 +257,7 @@ static int VrShapeIfaceSave(void *ctx, char *name, char *value)
 
             /* example: "interface 'lan' has been changed: active is now set to
              * 'Yes' (was: 'No')." */
-            vrmr_audit("%s '%s' %s: %s %s '%u' (%s: '%u').", STR_INTERFACE,
+            vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').", STR_INTERFACE,
                     c->iface_ptr->name, STR_HAS_BEEN_CHANGED, STR_IN_UNIT,
                     STR_IS_NOW_SET_TO, value, STR_WAS,
                     c->iface_ptr->bw_in_unit);
@@ -276,7 +276,7 @@ static int VrShapeIfaceSave(void *ctx, char *name, char *value)
 
             /* example: "interface 'lan' has been changed: active is now set to
              * 'Yes' (was: 'No')." */
-            vrmr_audit("%s '%s' %s: %s %s '%u' (%s: '%u').", STR_INTERFACE,
+            vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').", STR_INTERFACE,
                     c->iface_ptr->name, STR_HAS_BEEN_CHANGED, STR_OUT_UNIT,
                     STR_IS_NOW_SET_TO, value, STR_WAS,
                     c->iface_ptr->bw_out_unit);
@@ -301,7 +301,7 @@ static int VrShapeIfaceSave(void *ctx, char *name, char *value)
 
             /* example: "interface 'lan' has been changed: active is now set to
              * 'Yes' (was: 'No')." */
-            vrmr_audit("%s '%s' %s: %s %s '%u' (%s: '%u').", STR_INTERFACE,
+            vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').", STR_INTERFACE,
                     c->iface_ptr->name, STR_HAS_BEEN_CHANGED, STR_SHAPE,
                     STR_IS_NOW_SET_TO, enabled ? "Yes" : "No", STR_WAS,
                     c->enabled ? "Yes" : "No");
@@ -912,7 +912,6 @@ static int edit_interface_save(
         struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
 {
     int retval = 0, result = 0, status = 0;
-    size_t i = 0;
     struct vrmr_interface *tempiface_ptr = NULL;
     char rules_changed = FALSE;
     struct vrmr_rule *rule_ptr = NULL;
@@ -929,7 +928,7 @@ static int edit_interface_save(
     *tempiface_ptr = *iface_ptr;
 
     /* check for changed fields */
-    for (i = 0; i < ifsec_ctx.edit.n_fields; i++) {
+    for (size_t i = 0; i < ifsec_ctx.edit.n_fields; i++) {
         if (field_status(ifsec_ctx.edit.fields[i]) == FALSE)
             continue;
 
@@ -1171,6 +1170,7 @@ static int edit_interface_save(
                 STR_NUMBER_OF_RULES, iface_ptr->ProtectList.len,
                 STR_LISTED_BELOW);
 
+        int i;
         for (i = 1, d_node = iface_ptr->ProtectList.top; d_node;
                 d_node = d_node->next, i++) {
             vrmr_fatal_if_null(d_node->data);

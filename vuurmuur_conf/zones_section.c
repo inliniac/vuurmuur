@@ -4077,15 +4077,15 @@ static int edit_zone_network_save(
 
             if (rule_ptr->action == VRMR_AT_PROTECT) {
                 if (rule_ptr->source[0] != '\0')
-                    vrmr_audit("%2d: %s against %s from %s", i,
+                    vrmr_audit("%2d: %s against %s from %s", (int)i,
                             vrmr_rules_itoaction(rule_ptr->action),
                             rule_ptr->danger, rule_ptr->source);
                 else
-                    vrmr_audit("%2d: %s against %s", i,
+                    vrmr_audit("%2d: %s against %s", (int)i,
                             vrmr_rules_itoaction(rule_ptr->action),
                             rule_ptr->danger);
             } else {
-                vrmr_audit("%2d: %s %s", i,
+                vrmr_audit("%2d: %s %s", (int)i,
                         vrmr_rules_itoaction(rule_ptr->action),
                         rule_ptr->service);
             }

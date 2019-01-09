@@ -1250,13 +1250,11 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     FIELD **fields;
     FORM *form;
     int rows, cols, ch,
-            quit = 0, x, field_y, field_x,
+            quit = 0, x, field_x,
             rules_changed = 0; /* 1 if rules are changed, 0 if not */
     size_t n_fields = 0;
-    unsigned int bars = 0, field_bar_num = 0, current_bar_num = 1,
+    unsigned int bars = 0, current_bar_num = 1,
                  pgdn_offset = 0, insert_rule_num = 0, cur_rule_num = 0;
-    size_t i = 0;
-
     struct rulebar_form *rbform;
     struct rulebar *cur_bar = NULL;
 
@@ -1324,7 +1322,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     fields = (FIELD **)calloc(n_fields + 1, sizeof(FIELD *));
     vrmr_fatal_alloc("calloc", fields);
 
-    for (i = 1, field_bar_num = 0, field_y = 2; i <= bars; i++, field_y++) {
+    for (size_t i = 1, field_bar_num = 0, field_y = 2; i <= bars; i++, field_y++) {
         for (x = 1, field_x = 0; x <= FIELDS_PER_BAR; x++) {
             /* active field */
             if (x == 1) {
@@ -1393,7 +1391,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     fields[n_fields] = NULL;
 
     /* set field attr */
-    for (i = 0; i < (unsigned int)n_fields; i++) {
+    for (unsigned int i = 0; i < (unsigned int)n_fields; i++) {
         // set field options
         set_field_back(fields[i], vccnf.color_win_rev);
         field_opts_off(fields[i], O_AUTOSKIP);
@@ -1533,7 +1531,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
             /* half a page up */
             case 339: /* page up */
-                for (i = 0; i < (rbform->max_bars_on_screen); i++) {
+                for (unsigned int i = 0; i < (rbform->max_bars_on_screen); i++) {
                     if (current_bar_num > 1) {
                         form_driver(form, REQ_PREV_FIELD);
 
@@ -1549,7 +1547,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             case 338: /* page down */
                 pgdn_offset = 0;
 
-                for (i = 0; i < (rbform->max_bars_on_screen); i++) {
+                for (unsigned int i = 0; i < (rbform->max_bars_on_screen); i++) {
                     vrmr_debug(HIGH,
                             "338 (pgdn): current_bar_num : %d, "
                             "rbform->max_bars_on_screen: %d, "
@@ -2049,6 +2047,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         vrmr_audit("%s: %s: %d (%s).", STR_RULES_ARE_CHANGED,
                 STR_NUMBER_OF_RULES, rules->list.len, STR_LISTED_BELOW);
 
+        int i;
         for (i = 1, d_node = rules->list.top; d_node;
                 d_node = d_node->next, i++) {
             vrmr_fatal_if_null(d_node->data);
@@ -2078,7 +2077,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     unpost_form(form);
     free_form(form);
 
-    for (i = 0; i < n_fields; i++) {
+    for (size_t i = 0; i < n_fields; i++) {
         free_field(fields[i]);
     }
     free(fields);
