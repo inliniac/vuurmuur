@@ -1710,7 +1710,7 @@ int vrmr_log_record_get_names(struct vrmr_log_record *log_record,
         struct vrmr_hash_table *zone_hash,
         struct vrmr_hash_table *service_hash);
 void vrmr_log_record_parse_prefix(
-        struct vrmr_log_record *log_record, char *prefix);
+        struct vrmr_log_record *log_record, const char *prefix);
 
 /*
     io.c

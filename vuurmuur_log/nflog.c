@@ -80,25 +80,21 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
     struct nfulnl_msg_packet_hdr *ph;
     char *hwhdr;
     char macstr[20];
-    uint32_t indev;
-    uint32_t outdev;
     void *protoh;
     struct tcphdr *tcph;
     struct udphdr *udph;
     struct icmphdr *icmph;
-    char *prefix;
     char *payload;
     int payload_len;
     struct timeval tv;
     struct vrmr_log_record *log_record = data;
-    time_t when;
     char s[256];
     union ipv4_adress ip;
 
     memset(log_record, 0, sizeof(struct vrmr_log_record));
 
     /* Check first if this pkt comes from a vuurmuur logrule */
-    prefix = nflog_get_prefix(nfa);
+    char *prefix = nflog_get_prefix(nfa);
     vrmr_log_record_parse_prefix(log_record, prefix);
 
     /* Copy hostname in log_rule struct, seems kind of silly to do this every
@@ -129,7 +125,7 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
     }
 
     /* Find indev idx for pkg and translate to interface name */
-    indev = nflog_get_indev(nfa);
+    uint32_t indev = nflog_get_indev(nfa);
     if (indev) {
         if_indextoname(indev, log_record->interface_in);
         snprintf(log_record->from_int, sizeof(log_record->from_int), "in: %s ",
@@ -140,7 +136,7 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
     }
 
     /* Find outdev idx for pkg and translate to interface name */
-    outdev = nflog_get_outdev(nfa);
+    uint32_t outdev = nflog_get_outdev(nfa);
     if (outdev) {
         if_indextoname(outdev, log_record->interface_out);
         snprintf(log_record->to_int, sizeof(log_record->to_int), "out: %s ",
@@ -155,7 +151,7 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
     if (nflog_get_timestamp(nfa, &tv) == -1) {
         gettimeofday(&tv, NULL);
     }
-    when = tv.tv_sec;
+    time_t when = tv.tv_sec;
     struct tm *tm = localtime(&when);
     strftime(s, 256, "%b %d %T", tm);
     if (sscanf(s, "%3s %2d %2d:%2d:%2d", log_record->month, &log_record->day,
@@ -378,9 +374,13 @@ int readnflog(void)
         }
     }
 
+    errno = 0;
     rv = nflog_handle_packet(h, buf, rv);
     if (rv != 0) {
-        vrmr_debug(NONE, "nflog_handle_packet() returned %d", rv);
+        if (errno != 0)
+            vrmr_debug(NONE, "nflog_handle_packet() returned %d: %s", rv, strerror(errno));
+        else
+            vrmr_debug(LOW, "nflog_handle_packet() returned %d", rv);
         return (2); /* invalid record */
     }
     return (1);

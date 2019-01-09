@@ -645,17 +645,14 @@ int vrmr_log_record_build_line(
 }
 
 void vrmr_log_record_parse_prefix(
-        struct vrmr_log_record *log_record, char *prefix)
+        struct vrmr_log_record *log_record, const char *prefix)
 {
-    char *needle;
-    size_t i;
-
     if (prefix != NULL && strlen(prefix) > 6) {
-        needle = strstr(prefix, "vrmr: ");
+        char *needle = strstr(prefix, "vrmr: ");
         if (needle != NULL) {
             needle += 6;
 
-            i = 0;
+            size_t i = 0;
             while (*needle != '\0' && *needle != ' ') {
                 if (i < (sizeof(log_record->action) - 1))
                     log_record->action[i++] = *needle;
