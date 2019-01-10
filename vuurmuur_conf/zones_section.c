@@ -500,17 +500,15 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
 static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         char *name, struct vrmr_regex *reg)
 {
-    int ch, not_defined = 0, quit = 0;
+    int quit = 0;
     struct vrmr_zone *zone_ptr = NULL;
     int height, width, startx, starty;
     FIELD *cur = NULL, *prev = NULL;
-    /* top menu */
     char *key_choices[] = {"F12", "F10"};
     int key_choices_n = 2;
     char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
 
-    /* safety */
     vrmr_fatal_if_null(name);
     vrmr_fatal_if_null(zones);
     vrmr_fatal_if_null(reg);
@@ -551,22 +549,17 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         draw_field_active_mark(cur, prev, zonessec_ctx.edit_zone.win,
                 zonessec_ctx.edit_zone.form, vccnf.color_win_mark | A_BOLD);
 
-        not_defined = 0;
-
-        /* get user input */
-        ch = wgetch(zonessec_ctx.edit_zone.win);
-
+        int ch = wgetch(zonessec_ctx.edit_zone.win);
+        int not_defined = 0;
         if (cur == HostSec.commentfld) {
-            if (nav_field_comment(zonessec_ctx.edit_zone.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_comment(zonessec_ctx.edit_zone.form, ch));
         } else if (cur == HostSec.activefld) {
-            if (nav_field_yesno(zonessec_ctx.edit_zone.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_yesno(zonessec_ctx.edit_zone.form, ch));
         } else if (cur == HostSec.ipaddressfld ||
                    cur == HostSec.ip6addressfld ||
                    cur == HostSec.macaddressfld) {
-            if (nav_field_simpletext(zonessec_ctx.edit_zone.form, ch) < 0)
-                not_defined = 1;
+            not_defined =
+                    !(nav_field_simpletext(zonessec_ctx.edit_zone.form, ch));
         } else {
             not_defined = 1;
         }
@@ -1930,7 +1923,7 @@ static void edit_zone_group_destroy(void)
 static int edit_zone_group(
         struct vrmr_ctx *vctx, struct vrmr_zones *zones, char *name)
 {
-    int ch, not_defined = 0, retval = 0;
+    int retval = 0;
     struct vrmr_zone *zone_ptr = NULL;
     int quit = 0;
     FIELD *cur = NULL, *prev = NULL;
@@ -1985,21 +1978,17 @@ static int edit_zone_group(
             draw_field_active_mark(cur, prev, zonessec_ctx.edit_zone.win,
                     zonessec_ctx.edit_zone.form, vccnf.color_win_mark | A_BOLD);
 
-            /* get user input */
-            ch = wgetch(zonessec_ctx.edit_zone.win);
-
-            not_defined = 0;
-
-            /* handle input */
+            int not_defined = 0;
+            int ch = wgetch(zonessec_ctx.edit_zone.win);
             if (cur == GroupSec.commentfld) {
-                if (nav_field_comment(zonessec_ctx.edit_zone.form, ch) < 0)
-                    not_defined = 1;
+                not_defined =
+                        !(nav_field_comment(zonessec_ctx.edit_zone.form, ch));
             } else if (cur == GroupSec.activefld) {
-                if (nav_field_yesno(zonessec_ctx.edit_zone.form, ch) < 0)
-                    not_defined = 1;
-            } else
+                not_defined =
+                        !(nav_field_yesno(zonessec_ctx.edit_zone.form, ch));
+            } else {
                 not_defined = 1;
-
+            }
             /* the rest is handled here */
             if (not_defined == 1) {
                 switch (ch) {
@@ -4132,7 +4121,7 @@ static void edit_zone_network_destroy(void)
 static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces, char *name)
 {
-    int ch = 0, not_defined = 0, quit = 0, retval = 0;
+    int quit = 0, retval = 0;
     struct vrmr_zone *zone_ptr = NULL;
     int height = 0, width = 0, startx = 0, starty = 0;
     FIELD *cur = NULL, *prev = NULL;
@@ -4192,22 +4181,17 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         draw_field_active_mark(cur, prev, zonessec_ctx.edit_zone.win,
                 zonessec_ctx.edit_zone.form, vccnf.color_win_mark | A_BOLD);
 
-        not_defined = 0;
-
-        /* get the input */
-        ch = wgetch(zonessec_ctx.edit_zone.win);
-
+        int ch = wgetch(zonessec_ctx.edit_zone.win);
+        int not_defined = 0;
         if (cur == NetworkSec.commentfld) {
-            if (nav_field_comment(zonessec_ctx.edit_zone.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_comment(zonessec_ctx.edit_zone.form, ch));
         } else if (cur == NetworkSec.activefld) {
-            if (nav_field_yesno(zonessec_ctx.edit_zone.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_yesno(zonessec_ctx.edit_zone.form, ch));
         } else if (cur == NetworkSec.networkfld ||
                    cur == NetworkSec.network6fld ||
                    cur == NetworkSec.netmaskfld || cur == NetworkSec.cidr6fld) {
-            if (nav_field_simpletext(zonessec_ctx.edit_zone.form, ch) < 0)
-                not_defined = 1;
+            not_defined =
+                    !(nav_field_simpletext(zonessec_ctx.edit_zone.form, ch));
         }
         /* this one needs to be last */
         else if (cur == NetworkSec.loopbackfld || cur == NetworkSec.classafld ||
@@ -4218,11 +4202,10 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                  cur == NetworkSec.iana08fld || cur == NetworkSec.brdsrcfld ||
                  cur == NetworkSec.brddstfld || cur == NetworkSec.dhcpsrvfld ||
                  cur == NetworkSec.dhcpclifld) {
-            if (nav_field_toggleX(zonessec_ctx.edit_zone.form, ch) < 0)
-                not_defined = 1;
-        } else
+            not_defined = !(nav_field_toggleX(zonessec_ctx.edit_zone.form, ch));
+        } else {
             not_defined = 1;
-
+        }
         /* the rest is handled here */
         if (not_defined == 1) {
             switch (ch) {
@@ -5064,9 +5047,7 @@ static void edit_zone_zone_destroy(void)
 static int edit_zone_zone(
         struct vrmr_ctx *vctx, struct vrmr_zones *zones, char *name)
 {
-    int ch,                  /* for the keys */
-            not_defined = 0, /* 1 is a key is defined */
-            quit = 0, retval = 0;
+    int quit = 0, retval = 0;
     struct vrmr_zone *zone_ptr = NULL;
     int height, width, startx, starty;
     FIELD *cur = NULL, *prev = NULL;
@@ -5075,13 +5056,11 @@ static int edit_zone_zone(
     char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
 
-    /* safety */
     vrmr_fatal_if_null(name);
     vrmr_fatal_if_null(zones);
 
     height = 20;
     width = 54;
-    /* place on the same y as zones list */
     VrWinGetOffset(
             -1, -1, height, width, 4, zonessec_ctx.z_xre + 1, &starty, &startx);
 
@@ -5106,25 +5085,18 @@ static int edit_zone_zone(
         draw_field_active_mark(cur, prev, zonessec_ctx.edit_zone.win,
                 zonessec_ctx.edit_zone.form, vccnf.color_win_mark | A_BOLD);
 
-        not_defined = 0;
-
-        /* get user input */
-        ch = wgetch(zonessec_ctx.edit_zone.win);
-
-        /* user fields */
-
+        int ch = wgetch(zonessec_ctx.edit_zone.win);
+        int not_defined = 0;
         /* comment */
         if (cur == ZoneSec.commentfld) {
-            if (nav_field_comment(zonessec_ctx.edit_zone.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_comment(zonessec_ctx.edit_zone.form, ch));
         }
         /* active */
         else if (cur == ZoneSec.activefld) {
-            if (nav_field_yesno(zonessec_ctx.edit_zone.form, ch) < 0)
-                not_defined = 1;
-        } else
+            not_defined = !(nav_field_yesno(zonessec_ctx.edit_zone.form, ch));
+        } else {
             not_defined = 1;
-
+        }
         /* keys special for this window */
         if (not_defined == 1) {
             switch (ch) {

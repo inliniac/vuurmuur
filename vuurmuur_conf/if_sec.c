@@ -1196,14 +1196,9 @@ static int edit_interface_save(
 static int edit_interface(
         struct vrmr_ctx *vctx, struct vrmr_interfaces *interfaces, char *name)
 {
-    int ch; /* keystroke catcher */
-    int height, width, startx, starty,
-            not_defined; /* 1 if a key is undefined */
-
+    int height, width, startx, starty;
     struct vrmr_interface *iface_ptr = NULL;
-
     FIELD *cur = NULL, *prev = NULL;
-
     char quit = 0, advanced_mode = vccnf.advanced_mode;
 
     /* top menu */
@@ -1297,25 +1292,20 @@ static int edit_interface(
         draw_field_active_mark(cur, prev, ifsec_ctx.edit.win,
                 ifsec_ctx.edit.form, vccnf.color_win_mark | A_BOLD);
 
-        not_defined = 0;
-
-        // get key
-        ch = wgetch(ifsec_ctx.edit.win);
+        int not_defined = 0;
+        int ch = wgetch(ifsec_ctx.edit.win);
 
         /* comment */
         if (cur == IfSec.commentfld) {
-            if (nav_field_comment(ifsec_ctx.edit.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_comment(ifsec_ctx.edit.form, ch));
         }
         /* active */
         else if (cur == IfSec.activefld) {
-            if (nav_field_yesno(ifsec_ctx.edit.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_yesno(ifsec_ctx.edit.form, ch));
         }
         /* dynamic */
         else if (cur == IfSec.dynamicfld) {
-            if (nav_field_toggleX(ifsec_ctx.edit.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_toggleX(ifsec_ctx.edit.form, ch));
 
             /* set the ipaddress field to active/inactive */
             if (strncmp(field_buffer(cur, 0), "X", 1) == 0)
@@ -1328,12 +1318,10 @@ static int edit_interface(
         else if (cur == IfSec.devicevirtualfld || cur == IfSec.srcrtpktsfld ||
                  cur == IfSec.icmpredirectfld || cur == IfSec.sendredirectfld ||
                  cur == IfSec.rpfilterfld || cur == IfSec.logmartiansfld) {
-            if (nav_field_toggleX(ifsec_ctx.edit.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_toggleX(ifsec_ctx.edit.form, ch));
         } else if (cur == IfSec.ipaddressfld || cur == IfSec.devicefld ||
                    cur == IfSec.ip6addressfld) {
-            if (nav_field_simpletext(ifsec_ctx.edit.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_simpletext(ifsec_ctx.edit.form, ch));
         } else {
             not_defined = 1;
         }

@@ -569,8 +569,12 @@ static int status_section_init(
     mvwaddch(statsec_ctx.win, (int)ifac_start, 77, ACS_RTEE);
     mvwhline(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 1, ACS_HLINE,
             76);
-    if (!(maxy - 4 == height)) mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 0, ACS_LTEE);
-    if (!(maxy - 4 == height)) mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 77, ACS_RTEE);
+    if (!(maxy - 4 == height))
+        mvwaddch(
+                statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 0, ACS_LTEE);
+    if (!(maxy - 4 == height))
+        mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 77,
+                ACS_RTEE);
 
     mvwaddch(statsec_ctx.win, (int)ifac_start, 14, ACS_LTEE);
     // mvwaddch(statsec_ctx.win, ifac_start, 68, ACS_RTEE);

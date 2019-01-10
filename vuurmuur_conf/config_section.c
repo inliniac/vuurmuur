@@ -273,8 +273,7 @@ int edit_genconfig(struct vrmr_config *conf)
 {
     int retval = 0, quit = 0;
     int height, width, startx, starty, max_height, max_width;
-    FIELD *cur = NULL, *prev = NULL;
-    char not_defined = 0;
+    FIELD *prev = NULL;
 
     getmaxyx(stdscr, max_height, max_width);
     height = 18;
@@ -286,7 +285,7 @@ int edit_genconfig(struct vrmr_config *conf)
     update_panels();
     doupdate();
 
-    cur = current_field(config_section.form);
+    FIELD *cur = current_field(config_section.form);
 
     /* Loop through to get user requests */
     while (quit == 0) {
@@ -294,9 +293,7 @@ int edit_genconfig(struct vrmr_config *conf)
                 config_section.form, vccnf.color_win_mark | A_BOLD);
 
         int ch = wgetch(config_section.win);
-
-        not_defined = 0;
-
+        int not_defined = 0;
         if (cur == GenConfig.iptableslocfld ||
                 cur == GenConfig.iptablesrestorelocfld ||
                 cur == GenConfig.sysctllocfld ||
@@ -305,8 +302,7 @@ int edit_genconfig(struct vrmr_config *conf)
                 cur == GenConfig.ip6tablesrestorelocfld ||
 #endif
                 cur == GenConfig.tclocfld || cur == GenConfig.max_permission) {
-            if (nav_field_simpletext(config_section.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_simpletext(config_section.form, ch));
         } else {
             not_defined = 1;
         }
@@ -483,10 +479,9 @@ static void edit_intconfig_save(struct vrmr_config *conf)
 
 static int edit_intconfig(struct vrmr_config *conf)
 {
-    int ch, retval = 0, quit = 0;
+    int retval = 0, quit = 0;
     int height, width, startx, starty, max_height, max_width;
     FIELD *cur = NULL, *prev = NULL;
-    char not_defined = 0;
 
     getmaxyx(stdscr, max_height, max_width);
     height = 18;
@@ -503,16 +498,12 @@ static int edit_intconfig(struct vrmr_config *conf)
         draw_field_active_mark(cur, prev, config_section.win,
                 config_section.form, vccnf.color_win_mark | A_BOLD);
 
-        ch = wgetch(config_section.win);
-
-        not_defined = 0;
-
+        int ch = wgetch(config_section.win);
+        int not_defined = 0;
         if (cur == IntConfig.dynchkintfld) {
-            if (nav_field_simpletext(config_section.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_simpletext(config_section.form, ch));
         } else if (cur == IntConfig.dynchkfld) {
-            if (nav_field_toggleX(config_section.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_toggleX(config_section.form, ch));
         } else {
             not_defined = 1;
         }
@@ -523,7 +514,6 @@ static int edit_intconfig(struct vrmr_config *conf)
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
-
                     /* save the field to the conf struct */
                     edit_intconfig_save(conf);
                     quit = 1;
@@ -570,7 +560,6 @@ static int edit_intconfig(struct vrmr_config *conf)
                     break;
             }
         }
-
         prev = cur;
         cur = current_field(config_section.form);
     }
@@ -705,10 +694,9 @@ static void edit_modconfig_save(struct vrmr_config *conf)
 
 static int edit_modconfig(struct vrmr_config *conf)
 {
-    int ch, retval = 0, quit = 0;
+    int retval = 0, quit = 0;
     int height, width, startx, starty, max_height, max_width;
     FIELD *cur = NULL, *prev = NULL;
-    char not_defined = 0;
 
     getmaxyx(stdscr, max_height, max_width);
     height = 18;
@@ -725,16 +713,12 @@ static int edit_modconfig(struct vrmr_config *conf)
         draw_field_active_mark(cur, prev, config_section.win,
                 config_section.form, vccnf.color_win_mark | A_BOLD);
 
-        ch = wgetch(config_section.win);
-
-        not_defined = 0;
-
+        int ch = wgetch(config_section.win);
+        int not_defined = 0;
         if (cur == ModConfig.modprobefld || cur == ModConfig.waittimefld) {
-            if (nav_field_simpletext(config_section.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_simpletext(config_section.form, ch));
         } else if (cur == ModConfig.loadmodulesfld) {
-            if (nav_field_toggleX(config_section.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_toggleX(config_section.form, ch));
         } else {
             not_defined = 1;
         }
@@ -917,10 +901,9 @@ static void edit_plugconfig_save(struct vrmr_config *conf)
 
 static int edit_plugconfig(struct vrmr_config *conf)
 {
-    int ch, retval = 0, quit = 0;
+    int retval = 0, quit = 0;
     int height, width, startx, starty, max_height, max_width;
     FIELD *cur = NULL, *prev = NULL;
-    char not_defined = 0;
 
     getmaxyx(stdscr, max_height, max_width);
     height = 18;
@@ -937,15 +920,12 @@ static int edit_plugconfig(struct vrmr_config *conf)
         draw_field_active_mark(cur, prev, config_section.win,
                 config_section.form, vccnf.color_win_mark | A_BOLD);
 
-        ch = wgetch(config_section.win);
-
-        not_defined = 0;
-
+        int ch = wgetch(config_section.win);
+        int not_defined = 0;
         if (cur == PlugConfig.servbackfld || cur == PlugConfig.zonebackfld ||
                 cur == PlugConfig.ifacbackfld ||
                 cur == PlugConfig.rulebackfld) {
-            if (nav_field_simpletext(config_section.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_simpletext(config_section.form, ch));
         } else {
             not_defined = 1;
         }
@@ -1209,7 +1189,7 @@ static void edit_conconfig_save(struct vrmr_config *conf)
 
 static int edit_conconfig(struct vrmr_config *conf)
 {
-    int ch, retval = 0, quit = 0, not_defined = 0;
+    int retval = 0, quit = 0;
     int height, width, startx, starty, max_height, max_width;
     FIELD *cur = NULL, *prev = NULL;
 
@@ -1250,19 +1230,14 @@ static int edit_conconfig(struct vrmr_config *conf)
             field_opts_off(ConConfig.udpburstfld, O_ACTIVE);
         }
 
-        /* keyboard input */
-        ch = wgetch(config_section.win);
-
-        not_defined = 0;
-
+        int ch = wgetch(config_section.win);
+        int not_defined = 0;
         if (cur == ConConfig.synlimitfld || cur == ConConfig.synburstfld ||
                 cur == ConConfig.udplimitfld || cur == ConConfig.udpburstfld) {
-            if (nav_field_simpletext(config_section.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_simpletext(config_section.form, ch));
         } else if (cur == ConConfig.usesynlimitfld ||
                    cur == ConConfig.useudplimitfld) {
-            if (nav_field_toggleX(config_section.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_toggleX(config_section.form, ch));
         } else {
             not_defined = 1;
         }
@@ -1512,7 +1487,7 @@ static void edit_vcconfig_save(void)
 
 int edit_vcconfig(void)
 {
-    int ch, retval = 0, quit = 0, not_defined = 0;
+    int retval = 0, quit = 0;
     int height, width, startx, starty, max_height, max_width;
     FIELD *cur = NULL, *prev = NULL;
 
@@ -1543,22 +1518,18 @@ int edit_vcconfig(void)
                 config_section.form, vccnf.color_win_mark | A_BOLD);
 
         /* keyboard input */
-        ch = wgetch(config_section.win);
-
-        not_defined = 0;
-
+        int ch = wgetch(config_section.win);
+        int not_defined = 0;
         if (cur == VcConfig.newrule_loglimitfld ||
                 cur == VcConfig.logview_bufsizefld ||
                 cur == VcConfig.iptrafvollocfld) {
-            if (nav_field_simpletext(config_section.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_simpletext(config_section.form, ch));
         } else if (cur == VcConfig.newrule_logfld ||
                    cur == VcConfig.advancedmodefld ||
                    cur == VcConfig.mainmenu_statusfld ||
                    cur == VcConfig.backgroundfld) {
-            if (nav_field_toggleX(config_section.form, ch) < 0) {
-                not_defined = 1;
-            } else {
+            not_defined = !(nav_field_toggleX(config_section.form, ch));
+            if (!not_defined) {
                 /* hack to make color setting available instantly */
                 if (cur == VcConfig.backgroundfld) {
                     if (field_buffer(cur, 0)[0] == 'X')
@@ -2002,7 +1973,7 @@ static int edit_logconfig_save(struct vrmr_config *conf)
 
 int edit_logconfig(struct vrmr_config *conf)
 {
-    int ch, retval = 0, quit = 0, not_defined = 0;
+    int retval = 0, quit = 0;
     int height, width, startx, starty, max_height, max_width;
     FIELD *cur = NULL, *prev = NULL;
 
@@ -2024,17 +1995,13 @@ int edit_logconfig(struct vrmr_config *conf)
         draw_field_active_mark(cur, prev, config_section.win,
                 config_section.form, vccnf.color_win_mark | A_BOLD);
 
-        /* keyboard input */
-        ch = wgetch(config_section.win);
-
-        not_defined = 0;
-
+        int ch = wgetch(config_section.win);
+        int not_defined = 0;
         if (cur == LogConfig.logdirfld || cur == LogConfig.loglevelfld ||
                 cur == LogConfig.systemlogfld ||
                 cur == LogConfig.logpolicylimitfld ||
                 cur == LogConfig.nfgrpfld) {
-            if (nav_field_simpletext(config_section.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_simpletext(config_section.form, ch));
         } else if (cur == LogConfig.logpolicyfld ||
                    cur == LogConfig.logtcpoptionsfld ||
                    cur == LogConfig.logblocklistfld ||
@@ -2043,8 +2010,7 @@ int edit_logconfig(struct vrmr_config *conf)
                    cur == LogConfig.logprobesfld ||
                    cur == LogConfig.logfragfld ||
                    cur == LogConfig.rule_nflogfld) {
-            if (nav_field_toggleX(config_section.form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_toggleX(config_section.form, ch));
         } else {
             not_defined = 1;
         }

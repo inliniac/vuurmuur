@@ -98,9 +98,8 @@ int filter_input_box(struct vrmr_filter *filter)
     FIELD *cur = NULL, *prev = NULL;
     FORM *my_form = NULL;
     int height = 0, width = 0, startx = 0, starty = 0, max_height = 0,
-        max_width = 0, ch = 0, rows = 0, cols = 0, quit = 0;
+        max_width = 0, rows = 0, cols = 0, quit = 0;
     size_t i = 0;
-    char not_defined = FALSE;
 
     /* init fields */
     memset(&filter_fields, 0, sizeof(filter_fields));
@@ -166,17 +165,12 @@ int filter_input_box(struct vrmr_filter *filter)
         draw_field_active_mark(
                 cur, prev, ib_win, my_form, vccnf.color_win_mark | A_BOLD);
 
-        not_defined = 0;
-
-        /* get user input */
-        ch = wgetch(ib_win);
-
+        int ch = wgetch(ib_win);
+        int not_defined;
         if (cur == filter_fields.check_fld) {
-            if (nav_field_toggleX(my_form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_toggleX(my_form, ch));
         } else if (cur == filter_fields.string_fld) {
-            if (nav_field_simpletext(my_form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_simpletext(my_form, ch));
         } else {
             not_defined = 1;
         }

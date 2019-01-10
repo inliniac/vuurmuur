@@ -364,11 +364,7 @@ static void edit_tcpudp(struct vrmr_portdata *port_ptr)
                                         "the high-end of the range."));
 
         int ch = wgetch(win);
-        int not_defined = 0;
-
-        if (nav_field_simpletext(form, ch) < 0)
-            not_defined = 1;
-
+        int not_defined = !(nav_field_simpletext(form, ch));
         if (not_defined) {
             switch (ch) {
                 case 27:
@@ -1958,11 +1954,9 @@ static void edit_service_destroy(void)
 static int edit_service(
         struct vrmr_ctx *vctx, struct vrmr_services *services, const char *name)
 {
-    int ch, /* for recording keystrokes */
-            quit = 0, not_defined = 0, retval = 0;
+    int quit = 0, retval = 0;
     struct vrmr_service *ser_ptr = NULL;
     FIELD *cur = NULL, *prev = NULL;
-    /* top menu */
     char *key_choices[] = {"F12", "F6", "F10"};
     int key_choices_n = 3;
     char *cmd_choices[] = {
@@ -2002,20 +1996,18 @@ static int edit_service(
         doupdate();
 
         while (quit == 0) {
-            ch = wgetch(sersec_ctx.edit_service.win);
-
-            not_defined = 0;
-
+            int ch = wgetch(sersec_ctx.edit_service.win);
+            int not_defined = 0;
             if (cur == ServiceSec.commentfld) {
-                if (nav_field_comment(sersec_ctx.edit_service.form, ch) < 0)
-                    not_defined = 1;
+                not_defined =
+                        !(nav_field_comment(sersec_ctx.edit_service.form, ch));
             } else if (cur == ServiceSec.helperfld) {
-                if (nav_field_simpletext(sersec_ctx.edit_service.form, ch) < 0)
-                    not_defined = 1;
+                not_defined = !(
+                        nav_field_simpletext(sersec_ctx.edit_service.form, ch));
             } else if (cur == ServiceSec.activefld ||
                        cur == ServiceSec.broadcastfld) {
-                if (nav_field_yesno(sersec_ctx.edit_service.form, ch) < 0)
-                    not_defined = 1;
+                not_defined =
+                        !(nav_field_yesno(sersec_ctx.edit_service.form, ch));
             } else {
                 not_defined = 1;
             }

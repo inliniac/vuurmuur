@@ -32,18 +32,15 @@ int nav_field_comment(FORM *form, int key)
 {
     switch (key) {
         case 9:
-            return (-1);
-
+            return (0);
         case KEY_F(5):
         case KEY_F(6):
         case KEY_F(10):
         case KEY_F(12):
         case 27: // esc:
-
             form_driver_wrap(form,
                     REQ_NEXT_FIELD); // this is to make sure the field is saved
-            return (-1);
-
+            return (0);
         case 32: // space
             form_driver_wrap(form, key);
             break;
@@ -107,7 +104,7 @@ int nav_field_comment(FORM *form, int key)
             break;
     }
 
-    return (0);
+    return (1);
 }
 
 int nav_field_simpletext(FORM *form, int key)
@@ -115,8 +112,7 @@ int nav_field_simpletext(FORM *form, int key)
     vrmr_debug(LOW, "key %d", key);
     switch (key) {
         case 9: /* tab */
-            return (-1);
-
+            return (0);
         case KEY_F(5):  /* f5  */
         case KEY_F(6):  /* f6  */
         case KEY_F(10): /* f10 */
@@ -126,7 +122,7 @@ int nav_field_simpletext(FORM *form, int key)
                     REQ_NEXT_FIELD); // this is to make sure the field is saved
             form_driver_wrap(
                     form, REQ_PREV_FIELD); /* But we don't want to move down */
-            return (-1);
+            return (0);
 
         case 32: // space
             form_driver_wrap(form, key);
@@ -175,7 +171,7 @@ int nav_field_simpletext(FORM *form, int key)
             break;
     }
 
-    return (0);
+    return (1);
 }
 
 int nav_field_yesno(FORM *form, int key)
@@ -183,8 +179,7 @@ int nav_field_yesno(FORM *form, int key)
     switch (key) {
         case 32: // space
         {
-            FIELD *cur;
-            cur = current_field(form);
+            FIELD *cur = current_field(form);
 
             if (strncasecmp(field_buffer(cur, 0), STR_YES, StrLen(STR_YES)) ==
                     0) {
@@ -195,8 +190,7 @@ int nav_field_yesno(FORM *form, int key)
             break;
         }
         case 'y': {
-            FIELD *cur;
-            cur = current_field(form);
+            FIELD *cur = current_field(form);
 
             if (strncasecmp(field_buffer(cur, 0), STR_NO, StrLen(STR_NO)) ==
                     0) {
@@ -205,8 +199,7 @@ int nav_field_yesno(FORM *form, int key)
             break;
         }
         case 'n': {
-            FIELD *cur;
-            cur = current_field(form);
+            FIELD *cur = current_field(form);
 
             if (strncasecmp(field_buffer(cur, 0), STR_YES, StrLen(STR_YES)) ==
                     0) {
@@ -215,20 +208,16 @@ int nav_field_yesno(FORM *form, int key)
             break;
         }
         default:
-            return (-1);
+            return (0);
     }
-    return (0);
+    return (1);
 }
 
 int nav_field_toggleX(FORM *form, int key)
 {
-    FIELD *cur = NULL;
-
-    if (!form)
-        return (-1);
-
-    if (!(cur = current_field(form)))
-        return (-1);
+    vrmr_fatal_if_null(form);
+    FIELD *cur = current_field(form);
+    vrmr_fatal_if_null(cur);
 
     switch (key) {
         case 32: // space
@@ -238,28 +227,24 @@ int nav_field_toggleX(FORM *form, int key)
             } else {
                 set_field_buffer_wrap(cur, 0, "X");
             }
-
             break;
         }
         case 'y': {
             if (strncasecmp(field_buffer(cur, 0), " ", 1) == 0) {
                 set_field_buffer_wrap(cur, 0, "X");
             }
-
             break;
         }
         case 'n': {
             if (strncasecmp(field_buffer(cur, 0), "X", 1) == 0) {
                 set_field_buffer_wrap(cur, 0, " ");
             }
-
             break;
         }
         default:
-            return (-1);
+            return (0);
     }
-
-    return (0);
+    return (1);
 }
 
 int validate_commentfield(char *fieldbuffer, regex_t *reg_ex ATTR_UNUSED)

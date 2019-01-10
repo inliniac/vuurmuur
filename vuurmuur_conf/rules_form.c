@@ -2725,9 +2725,8 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
     PANEL *my_panels[1];
     WINDOW *edit_win;
     FIELD **fields, *cur = NULL, *prev = NULL;
-
     FORM *form;
-    int ch, rows, cols, retval = 0, quit = 0, not_defined = 0;
+    int rows, cols, retval = 0, quit = 0;
     size_t field_num = 0, n_fields = 0, i = 0;
     char redirect_port[6] = "", loglimit_string[4] = "", nfmark_string[9] = "",
          nfqueuenum_string[6] = "0", nflognum_string[6] = "0";
@@ -3709,9 +3708,8 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
             status_print(status_win, gettext("Randomize the source ports of "
                                              "NAT'd connections."));
 
-        ch = wgetch(edit_win);
-        not_defined = 0;
-
+        int ch = wgetch(edit_win);
+        int not_defined = 0;
         if (cur == rule_fields.logprefix_fld_ptr ||
                 cur == rule_fields.redirect_fld_ptr ||
                 cur == rule_fields.listen_fld_ptr ||
@@ -3724,12 +3722,10 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                 cur == rule_fields.nfqueuenum_fld_ptr ||
                 cur == rule_fields.nflognum_fld_ptr ||
                 cur == rule_fields.burst_fld_ptr) {
-            if (nav_field_simpletext(form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_simpletext(form, ch));
         } else if (cur == rule_fields.random_fld_ptr ||
                    cur == rule_fields.log_fld_ptr) {
-            if (nav_field_toggleX(form, ch) < 0)
-                not_defined = 1;
+            not_defined = !(nav_field_toggleX(form, ch));
         } else {
             not_defined = 1;
         }
@@ -4358,7 +4354,7 @@ static int edit_rule_separator(
     FIELD **fields, *cur = NULL;
 
     FORM *form;
-    int ch, rows, cols, retval = 0, quit = 0;
+    int rows, cols, retval = 0, quit = 0;
     size_t n_fields = 0, i = 0, field_num = 0;
     int height, width, startx, starty, max_height, max_width;
     int result = 0;
@@ -4444,12 +4440,8 @@ static int edit_rule_separator(
         if (cur == sep_rule_fields.comment_fld_ptr)
             status_print(status_win, gettext("Enter an optional comment."));
 
-        ch = wgetch(edit_win);
-
-        char not_defined = 0;
-        if (nav_field_simpletext(form, ch) < 0)
-            not_defined = 1;
-
+        int ch = wgetch(edit_win);
+        int not_defined = !(nav_field_simpletext(form, ch));
         if (not_defined == 1) {
             switch (ch) {
                 case 27:
