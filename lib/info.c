@@ -505,8 +505,6 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
     int numreqs = 30;
     struct ifconf ifc;
     struct ifreq *ifr_ptr = NULL, ifr_struct;
-    int n;
-    int sockfd = 0;
     char ipaddress[16] = "";
     struct sockaddr *sa = NULL;
     struct sockaddr_in *sin = NULL;
@@ -515,7 +513,7 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
     assert(device && answer_ptr);
 
     /* open a socket for ioctl */
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd == -1) {
         vrmr_error(-1, "Error", "couldn't open socket: %s", strerror(errno));
         return (-1);
@@ -529,7 +527,6 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
         if (!(ifc.ifc_buf = realloc(ifc.ifc_buf, (size_t)ifc.ifc_len))) {
             vrmr_error(-1, "Error", "realloc failed: %s", strerror(errno));
             (void)close(sockfd);
-
             return (-1);
         }
 
@@ -539,7 +536,6 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
                     strerror(errno));
             free(ifc.ifc_buf);
             (void)close(sockfd);
-
             return (-1);
         }
         if (ifc.ifc_len == (int)(sizeof(struct ifreq) * numreqs)) {
@@ -551,7 +547,7 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
     }
 
     ifr_ptr = ifc.ifc_req;
-    for (n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq)) {
+    for (int n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq)) {
         vrmr_debug(HIGH, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
 
         if (strcmp(device, ifr_ptr->ifr_name) == 0) {
@@ -580,7 +576,6 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
                             device, strerror(errno));
                     (void)close(sockfd);
                     free(ifc.ifc_buf);
-
                     return (-1);
                 }
 
@@ -595,7 +590,6 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
                             device);
                     (void)close(sockfd);
                     free(ifc.ifc_buf);
-
                     return (-1);
                 }
 
@@ -610,7 +604,6 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
 
     /* not found */
     vrmr_debug(LOW, "device '%s' not found.", device);
-
     close(sockfd);
     free(ifc.ifc_buf);
     return (0);
@@ -656,7 +649,6 @@ int vrmr_check_ipv4address(const char *network, const char *netmask,
         if (!quiet) {
             vrmr_error(-1, "Error", "invalid ipaddress: '%s'", ipaddress);
         }
-
         return (-1);
     } else {
         vrmr_debug(HIGH, "ipaddress = %s", inet_ntoa(ip));
@@ -698,7 +690,6 @@ int vrmr_check_ipv4address(const char *network, const char *netmask,
                 ipaddress, network, netmask);
         retval = 1;
     }
-
     return (retval);
 }
 
@@ -713,16 +704,15 @@ int vrmr_check_ipv4address(const char *network, const char *netmask,
 int vrmr_get_mac_address(struct vrmr_ctx *vctx, const char *hostname,
         char *answer_ptr, size_t size, regex_t *mac_rgx)
 {
-    int retval = 0, result = 0;
+    int retval = 0;
 
     assert(hostname && mac_rgx);
 
     /* ask the backend */
-    result = vctx->zf->ask(vctx->zone_backend, hostname, "MAC", answer_ptr,
+    int result = vctx->zf->ask(vctx->zone_backend, hostname, "MAC", answer_ptr,
             size, VRMR_TYPE_HOST, 0);
     if (result == 1) {
         vrmr_debug(HIGH, "found!");
-
         retval = 1;
 
         if (strcmp(answer_ptr, "none") == 0) {
@@ -741,7 +731,6 @@ int vrmr_get_mac_address(struct vrmr_ctx *vctx, const char *hostname,
         vrmr_error(-1, "Error", "getting macaddress for %s failed", hostname);
         retval = -1;
     }
-
     return (retval);
 }
 
