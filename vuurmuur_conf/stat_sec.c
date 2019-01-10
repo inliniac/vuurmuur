@@ -284,16 +284,15 @@ static int get_system_uptime(
 static int status_section_init(
         int height, int width, int starty, int startx, unsigned int ifac_num)
 {
-    int rows, cols, max_width;
+    int rows, cols;
     unsigned int ifac_fields = 0, ifacs = 0, ifac_start = 12;
     size_t i = 0;
 
-    /* get and check the screen dimentions */
-    max_width = getmaxx(stdscr);
-    if (width > max_width)
-        return (-1);
-    if ((int)ifac_num > height - 15)
-        ifac_num = (unsigned int)height - 15;
+    int maxy = getmaxy(stdscr);
+    VrWinGetOffset(-1, -1, height, width, starty, startx, &starty, &startx);
+
+    if ((int)ifac_num > height - 14)
+        ifac_num = (unsigned int)height - 14;
 
     /* set the number of fields */
     statsec_ctx.n_fields = (size_t)(16 + (6 * ifac_num));
@@ -570,8 +569,8 @@ static int status_section_init(
     mvwaddch(statsec_ctx.win, (int)ifac_start, 77, ACS_RTEE);
     mvwhline(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 1, ACS_HLINE,
             76);
-    mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 0, ACS_LTEE);
-    mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 77, ACS_RTEE);
+    if (!(maxy - 4 == height)) mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 0, ACS_LTEE);
+    if (!(maxy - 4 == height)) mvwaddch(statsec_ctx.win, (int)(ifac_start + ifac_num + 1), 77, ACS_RTEE);
 
     mvwaddch(statsec_ctx.win, (int)ifac_start, 14, ACS_LTEE);
     // mvwaddch(statsec_ctx.win, ifac_start, 68, ACS_RTEE);
@@ -612,23 +611,19 @@ static int status_section_init(
     return (0);
 }
 
-static int status_section_destroy(void)
+static void status_section_destroy(void)
 {
-    size_t i;
-
-    // Un post form and free the memory
     unpost_form(statsec_ctx.form);
     free_form(statsec_ctx.form);
-
-    for (i = 0; i < statsec_ctx.n_fields; i++) {
+    for (size_t i = 0; i < statsec_ctx.n_fields; i++) {
         free_field(statsec_ctx.fields[i]);
     }
     free(statsec_ctx.fields);
-
     del_panel(statsec_ctx.panel[0]);
+    nodelay(statsec_ctx.win, FALSE);
     destroy_win(statsec_ctx.win);
-
-    return (0);
+    update_panels();
+    doupdate();
 }
 
 /*  status_section
@@ -642,36 +637,24 @@ static int status_section_destroy(void)
 int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
 {
     FIELD *cur = NULL;
-    int retval = 0;
     int quit = 0, ch = 0;
 
     int y = 0;
 
     unsigned int i = 0, cur_interface = 0;
 
-    int max_height = 0,
-
-        conntrack_conn_max = 0,
-
-        conntrack_conn_total = 0, conntrack_conn_tcp = 0,
-        conntrack_conn_udp = 0, conntrack_conn_other = 0,
-
-        mem_total = 0, mem_free = 0, mem_cached = 0, mem_bufferd = 0;
+    int conntrack_conn_max = 0, conntrack_conn_total = 0,
+        conntrack_conn_tcp = 0, conntrack_conn_udp = 0,
+        conntrack_conn_other = 0, mem_total = 0, mem_free = 0, mem_cached = 0,
+        mem_bufferd = 0;
 
     char hostname[60] = "", load_str[6] = "", mem_str[7] = "",
-         interfacename[32] = "",
-
-         upt_day[5] = "", upt_hour[3] = "", upt_minute[3] = "",
-         upt_second[3] = "",
-
-         conn_max[7] = "", conn_total[7] = "", conn_tcp[7] = "",
-         conn_udp[7] = "", conn_other[7] = "",
-
-         recv_host[11] = "", send_host[11] = "",
-
-         recv_net[11] = "", send_net[11] = "",
-
-         recv_speed[9] = "", send_speed[9] = "";
+         interfacename[32] = "", upt_day[5] = "", upt_hour[3] = "",
+         upt_minute[3] = "", upt_second[3] = "", conn_max[7] = "",
+         conn_total[7] = "", conn_tcp[7] = "", conn_udp[7] = "",
+         conn_other[7] = "", recv_host[11] = "", send_host[11] = "",
+         recv_net[11] = "", send_net[11] = "", recv_speed[9] = "",
+         send_speed[9] = "";
 
     /* uname struct, for gettig the kernel version */
     struct utsname uts_name;
@@ -758,45 +741,33 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
             return (-1);
     }
 
-    /* create the service and zone hash for conn_get_stats */
-
-    /*
-        set up the statuswin
-    */
-    max_height = getmaxy(stdscr);
-
-    /*
-        init
-    */
-    if (status_section_init(max_height - 8, 78, 4, 1, interfaces->list.len) < 0)
+    int maxy = getmaxy(stdscr);
+    int height = maxy - 8;
+    if (height - 13 < (int)interfaces->list.len)
+        height = maxy - 4;
+    if (height > 15 + (int)interfaces->list.len)
+        height = 15 + (int)interfaces->list.len;
+    if (status_section_init(height, 78, 4, 1, interfaces->list.len) < 0)
         return (-1);
 
-    /*
-        make sure wgetch doesn't block
-    */
+    /* make sure wgetch doesn't block */
     nodelay(statsec_ctx.win, TRUE);
     keypad(statsec_ctx.win, TRUE);
 
-    /*
-        get the hostname of the system, or set to error on failure
-    */
+    /* get the hostname of the system, or set to error on failure */
     if (gethostname(hostname, sizeof(hostname)) < 0)
         (void)strlcpy(hostname, gettext("error"), sizeof(hostname));
 
     mvwprintw(statsec_ctx.win, 1, 15, "%s", hostname);
 
-    /*
-        uname - get some system information
-    */
+    /* uname - get some system information */
     if (uname(&uts_name) < 0)
         vrmr_error(-1, VR_ERR, "uname() failed.");
 
     mvwprintw(statsec_ctx.win, 2, 15, "%s %s", uts_name.sysname,
             uts_name.release);
 
-    /*
-        get the maximum connections
-    */
+    /* get the maximum connections */
     if (get_conntrack_max(&conntrack_conn_max) < 0)
         (void)snprintf(conn_max, sizeof(conn_max), gettext("error"));
     else
@@ -804,12 +775,11 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
 
     draw_top_menu(top_win, gettext("System Status"), key_choices_n, key_choices,
             cmd_choices_n, cmd_choices);
-
     update_panels();
     doupdate();
 
     /* the main loop */
-    while (quit == 0 && retval == 0) {
+    while (quit == 0) {
         vrmr_debug(LOW, "slept_so_far: %d, update_interval: %d.", slept_so_far,
                 update_interval);
 
@@ -933,7 +903,7 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
             /* print interfaces, starting at line 13 */
             for (cur_interface = 0, y = 13, d_node = interfaces->list.top,
                 shadow_node = shadow_list.top;
-                    d_node && y < max_height - 8 - 2;
+                    d_node && y < height - 1;
                     d_node = d_node->next, shadow_node = shadow_node->next) {
                 unsigned long long tmp_ull;
 
@@ -941,195 +911,181 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
                 shadow_ptr = shadow_node->data;
 
                 /* only show real interfaces */
-                if (iface_ptr->device_virtual == FALSE) {
-                    /* get the counters for determining speed */
-                    vrmr_get_iface_stats(iface_ptr->device, &recv_bytes, NULL,
-                            &trans_bytes, NULL);
+                if (iface_ptr->device_virtual == TRUE) {
+                    continue;
+                }
+                /* get the counters for determining speed */
+                vrmr_get_iface_stats(iface_ptr->device, &recv_bytes, NULL,
+                        &trans_bytes, NULL);
 
-                    /* get the real counters from iptables */
-                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device,
-                            "INPUT", &shadow_ptr->recv_host_packets,
-                            &shadow_ptr->recv_host, &tmp_ull, &tmp_ull);
-                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device,
-                            "OUTPUT", &tmp_ull, &tmp_ull,
-                            &shadow_ptr->send_host_packets,
-                            &shadow_ptr->send_host);
-                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device,
-                            "FORWARD", &shadow_ptr->recv_net_packets,
-                            &shadow_ptr->recv_net,
-                            &shadow_ptr->send_net_packets,
-                            &shadow_ptr->send_net);
+                /* get the real counters from iptables */
+                vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "INPUT",
+                        &shadow_ptr->recv_host_packets, &shadow_ptr->recv_host,
+                        &tmp_ull, &tmp_ull);
+                vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "OUTPUT",
+                        &tmp_ull, &tmp_ull, &shadow_ptr->send_host_packets,
+                        &shadow_ptr->send_host);
+                vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "FORWARD",
+                        &shadow_ptr->recv_net_packets, &shadow_ptr->recv_net,
+                        &shadow_ptr->send_net_packets, &shadow_ptr->send_net);
 
-                    /* RECV host/firewall */
-                    if ((shadow_ptr->recv_host / (1024 * 1024)) >= 1000) {
-                        snprintf(recv_host, sizeof(recv_host), "%7.3f GB",
-                                (float)shadow_ptr->recv_host /
-                                        (1024 * 1024 * 1024));
-                        vrmr_debug(HIGH, "recv_host: '%s'.", recv_host);
-                    } else if ((shadow_ptr->recv_host / (1024 * 1024)) < 1)
-                        snprintf(recv_host, sizeof(recv_host), "%7d kb",
-                                (int)shadow_ptr->recv_host / (1024));
+                /* RECV host/firewall */
+                if ((shadow_ptr->recv_host / (1024 * 1024)) >= 1000) {
+                    snprintf(recv_host, sizeof(recv_host), "%7.3f GB",
+                            (float)shadow_ptr->recv_host /
+                                    (1024 * 1024 * 1024));
+                    vrmr_debug(HIGH, "recv_host: '%s'.", recv_host);
+                } else if ((shadow_ptr->recv_host / (1024 * 1024)) < 1)
+                    snprintf(recv_host, sizeof(recv_host), "%7d kb",
+                            (int)shadow_ptr->recv_host / (1024));
+                else
+                    snprintf(recv_host, sizeof(recv_host), "%7.3f MB",
+                            (float)shadow_ptr->recv_host / (1024 * 1024));
+
+                /* SEND host/firewall */
+                if ((shadow_ptr->send_host / (1024 * 1024)) >= 1000)
+                    snprintf(send_host, sizeof(send_host), "%7.3f GB",
+                            (float)shadow_ptr->send_host /
+                                    (1024 * 1024 * 1024));
+                else if ((shadow_ptr->send_host / (1024 * 1024)) < 1)
+                    snprintf(send_host, sizeof(send_host), "%7d kb",
+                            (int)shadow_ptr->send_host / (1024));
+                else
+                    snprintf(send_host, sizeof(send_host), "%7.3f MB",
+                            (float)shadow_ptr->send_host / (1024 * 1024));
+
+                /* RECV net/forward */
+                if ((shadow_ptr->recv_net / (1024 * 1024)) >= 1000)
+                    snprintf(recv_net, sizeof(recv_net), "%7.3f GB",
+                            (float)shadow_ptr->recv_net / (1024 * 1024 * 1024));
+                else if ((shadow_ptr->recv_net / (1024 * 1024)) < 1)
+                    snprintf(recv_net, sizeof(recv_net), "%7d kb",
+                            (int)shadow_ptr->recv_net / (1024));
+                else
+                    snprintf(recv_net, sizeof(recv_net), "%7.3f MB",
+                            (float)shadow_ptr->recv_net / (1024 * 1024));
+
+                /* SEND net/forward */
+                if ((shadow_ptr->send_net / (1024 * 1024)) >= 1000)
+                    snprintf(send_net, sizeof(send_net), "%7.3f GB",
+                            (float)shadow_ptr->send_net / (1024 * 1024 * 1024));
+                else if ((shadow_ptr->send_net / (1024 * 1024)) < 1)
+                    snprintf(send_net, sizeof(send_net), "%7d kb",
+                            (int)shadow_ptr->send_net / (1024));
+                else
+                    snprintf(send_net, sizeof(send_net), "%7.3f MB",
+                            (float)shadow_ptr->send_net / (1024 * 1024));
+
+                /* store the number of bytes */
+                shadow_ptr->cur_recv_bytes = recv_bytes;
+                shadow_ptr->cur_send_bytes = trans_bytes;
+
+                /* get the time we needed for our run */
+                gettimeofday(&shadow_ptr->end_tv, 0);
+                elapse = (double)shadow_ptr->end_tv.tv_sec +
+                         (double)shadow_ptr->end_tv.tv_usec * 1e-6;
+                elapse -= (double)shadow_ptr->begin_tv.tv_sec +
+                          (double)shadow_ptr->begin_tv.tv_usec * 1e-6;
+                gettimeofday(&shadow_ptr->begin_tv, 0);
+
+                /* this the correction value */
+                correction = elapse;
+
+                /* this is the value to be corrected */
+                delta_bytes = (shadow_ptr->cur_recv_bytes -
+                               shadow_ptr->prev_recv_bytes);
+                /* now we correct it */
+                speed_bytes = (delta_bytes / correction);
+
+                vrmr_debug(HIGH, "bytes: %d, corrections: %f", (int)speed_bytes,
+                        correction);
+
+                /* calculating the current connection speed */
+                if (iface_ptr->up == TRUE) {
+                    if (shadow_ptr->calc == 1)
+                        snprintf(recv_speed, sizeof(recv_speed), "calc");
+                    else if ((speed_bytes / 1024) < 1)
+                        snprintf(recv_speed, sizeof(recv_speed), "%5d b",
+                                (int)speed_bytes);
+                    else if ((speed_bytes / 1024) >= 1024)
+                        snprintf(recv_speed, sizeof(recv_speed), "%5.1f mb",
+                                (float)speed_bytes / (1024 * 1024));
                     else
-                        snprintf(recv_host, sizeof(recv_host), "%7.3f MB",
-                                (float)shadow_ptr->recv_host / (1024 * 1024));
+                        snprintf(recv_speed, sizeof(recv_speed), "%5.1f kb",
+                                (float)speed_bytes / 1024);
+                } else {
+                    snprintf(recv_speed, sizeof(recv_speed), "%5s", "-");
+                }
 
-                    /* SEND host/firewall */
-                    if ((shadow_ptr->send_host / (1024 * 1024)) >= 1000)
-                        snprintf(send_host, sizeof(send_host), "%7.3f GB",
-                                (float)shadow_ptr->send_host /
-                                        (1024 * 1024 * 1024));
-                    else if ((shadow_ptr->send_host / (1024 * 1024)) < 1)
-                        snprintf(send_host, sizeof(send_host), "%7d kb",
-                                (int)shadow_ptr->send_host / (1024));
+                /* this is the value to be corrected */
+                delta_bytes = (shadow_ptr->cur_send_bytes -
+                               shadow_ptr->prev_send_bytes);
+                /* now we correct it */
+                delta_bytes = (delta_bytes / correction);
+
+                if (iface_ptr->up == TRUE) {
+                    if (shadow_ptr->calc == 1)
+                        snprintf(send_speed, sizeof(send_speed), "calc");
+                    else if ((delta_bytes / 1024) < 1)
+                        snprintf(send_speed, sizeof(send_speed), "%5d b",
+                                (int)delta_bytes);
+                    else if ((delta_bytes / 1024) >= 1024)
+                        snprintf(send_speed, sizeof(send_speed), "%5.1f mb",
+                                (float)delta_bytes / (1024 * 1024));
                     else
-                        snprintf(send_host, sizeof(send_host), "%7.3f MB",
-                                (float)shadow_ptr->send_host / (1024 * 1024));
+                        snprintf(send_speed, sizeof(send_speed), "%5.1f kb",
+                                (float)delta_bytes / 1024);
+                } else {
+                    snprintf(send_speed, sizeof(send_speed), "%5s", "-");
+                }
 
-                    /* RECV net/forward */
-                    if ((shadow_ptr->recv_net / (1024 * 1024)) >= 1000)
-                        snprintf(recv_net, sizeof(recv_net), "%7.3f GB",
-                                (float)shadow_ptr->recv_net /
-                                        (1024 * 1024 * 1024));
-                    else if ((shadow_ptr->recv_net / (1024 * 1024)) < 1)
-                        snprintf(recv_net, sizeof(recv_net), "%7d kb",
-                                (int)shadow_ptr->recv_net / (1024));
-                    else
-                        snprintf(recv_net, sizeof(recv_net), "%7.3f MB",
-                                (float)shadow_ptr->recv_net / (1024 * 1024));
+                /* set the fields to the form */
+                for (i = cur_interface; i < (unsigned int)statsec_ctx.n_fields;
+                        i++) {
+                    cur = statsec_ctx.fields[i];
 
-                    /* SEND net/forward */
-                    if ((shadow_ptr->send_net / (1024 * 1024)) >= 1000)
-                        snprintf(send_net, sizeof(send_net), "%7.3f GB",
-                                (float)shadow_ptr->send_net /
-                                        (1024 * 1024 * 1024));
-                    else if ((shadow_ptr->send_net / (1024 * 1024)) < 1)
-                        snprintf(send_net, sizeof(send_net), "%7d kb",
-                                (int)shadow_ptr->send_net / (1024));
-                    else
-                        snprintf(send_net, sizeof(send_net), "%7.3f MB",
-                                (float)shadow_ptr->send_net / (1024 * 1024));
+                    if (strncmp(field_buffer(cur, 1), "recv_s", 6) == 0)
+                        set_field_buffer_wrap(cur, 0, recv_speed);
+                    else if (strncmp(field_buffer(cur, 1), "send_s", 6) == 0)
+                        set_field_buffer_wrap(cur, 0, send_speed);
 
-                    /* store the number of bytes */
-                    shadow_ptr->cur_recv_bytes = recv_bytes;
-                    shadow_ptr->cur_send_bytes = trans_bytes;
+                    else if (strncmp(field_buffer(cur, 1), "rcv_ti", 6) == 0)
+                        set_field_buffer_wrap(cur, 0, recv_host);
+                    else if (strncmp(field_buffer(cur, 1), "snd_to", 6) == 0)
+                        set_field_buffer_wrap(cur, 0, send_host);
 
-                    /* get the time we needed for our run */
-                    gettimeofday(&shadow_ptr->end_tv, 0);
-                    elapse = (double)shadow_ptr->end_tv.tv_sec +
-                             (double)shadow_ptr->end_tv.tv_usec * 1e-6;
-                    elapse -= (double)shadow_ptr->begin_tv.tv_sec +
-                              (double)shadow_ptr->begin_tv.tv_usec * 1e-6;
-                    gettimeofday(&shadow_ptr->begin_tv, 0);
-
-                    /* this the correction value */
-                    correction = elapse;
-
-                    /* this is the value to be corrected */
-                    delta_bytes = (shadow_ptr->cur_recv_bytes -
-                                   shadow_ptr->prev_recv_bytes);
-                    /* now we correct it */
-                    speed_bytes = (delta_bytes / correction);
-
-                    vrmr_debug(HIGH, "bytes: %d, corrections: %f",
-                            (int)speed_bytes, correction);
-
-                    /* calculating the current connection speed */
-                    if (iface_ptr->up == TRUE) {
-                        if (shadow_ptr->calc == 1)
-                            snprintf(recv_speed, sizeof(recv_speed), "calc");
-                        else if ((speed_bytes / 1024) < 1)
-                            snprintf(recv_speed, sizeof(recv_speed), "%5d b",
-                                    (int)speed_bytes);
-                        else if ((speed_bytes / 1024) >= 1024)
-                            snprintf(recv_speed, sizeof(recv_speed), "%5.1f mb",
-                                    (float)speed_bytes / (1024 * 1024));
-                        else
-                            snprintf(recv_speed, sizeof(recv_speed), "%5.1f kb",
-                                    (float)speed_bytes / 1024);
-                    } else {
-                        snprintf(recv_speed, sizeof(recv_speed), "%5s", "-");
+                    else if (strncmp(field_buffer(cur, 1), "rcv_tf", 6) == 0)
+                        set_field_buffer_wrap(cur, 0, recv_net);
+                    else if (strncmp(field_buffer(cur, 1), "snd_tf", 6) == 0) {
+                        set_field_buffer_wrap(cur, 0, send_net);
+                        break;
                     }
+                }
+                cur_interface = i + 1;
 
-                    /* this is the value to be corrected */
-                    delta_bytes = (shadow_ptr->cur_send_bytes -
-                                   shadow_ptr->prev_send_bytes);
-                    /* now we correct it */
-                    delta_bytes = (delta_bytes / correction);
+                /* draw the interface name */
+                snprintf(interfacename, sizeof(interfacename), "%s",
+                        iface_ptr->name);
 
-                    if (iface_ptr->up == TRUE) {
-                        if (shadow_ptr->calc == 1)
-                            snprintf(send_speed, sizeof(send_speed), "calc");
-                        else if ((delta_bytes / 1024) < 1)
-                            snprintf(send_speed, sizeof(send_speed), "%5d b",
-                                    (int)delta_bytes);
-                        else if ((delta_bytes / 1024) >= 1024)
-                            snprintf(send_speed, sizeof(send_speed), "%5.1f mb",
-                                    (float)delta_bytes / (1024 * 1024));
-                        else
-                            snprintf(send_speed, sizeof(send_speed), "%5.1f kb",
-                                    (float)delta_bytes / 1024);
-                    } else {
-                        snprintf(send_speed, sizeof(send_speed), "%5s", "-");
-                    }
+                if (iface_ptr->up == TRUE)
+                    wattron(statsec_ctx.win, vccnf.color_win | A_BOLD);
 
-                    /* set the fields to the form */
-                    for (i = cur_interface;
-                            i < (unsigned int)statsec_ctx.n_fields; i++) {
-                        cur = statsec_ctx.fields[i];
+                mvwprintw(statsec_ctx.win, y, 2, "%s", interfacename);
 
-                        if (strncmp(field_buffer(cur, 1), "recv_s", 6) == 0)
-                            set_field_buffer_wrap(cur, 0, recv_speed);
-                        else if (strncmp(field_buffer(cur, 1), "send_s", 6) ==
-                                 0)
-                            set_field_buffer_wrap(cur, 0, send_speed);
+                if (iface_ptr->up == TRUE)
+                    wattroff(statsec_ctx.win, vccnf.color_win | A_BOLD);
 
-                        else if (strncmp(field_buffer(cur, 1), "rcv_ti", 6) ==
-                                 0)
-                            set_field_buffer_wrap(cur, 0, recv_host);
-                        else if (strncmp(field_buffer(cur, 1), "snd_to", 6) ==
-                                 0)
-                            set_field_buffer_wrap(cur, 0, send_host);
+                /* store the number of bytes */
+                shadow_ptr->prev_recv_bytes = recv_bytes;
+                shadow_ptr->prev_send_bytes = trans_bytes;
 
-                        else if (strncmp(field_buffer(cur, 1), "rcv_tf", 6) ==
-                                 0)
-                            set_field_buffer_wrap(cur, 0, recv_net);
-                        else if (strncmp(field_buffer(cur, 1), "snd_tf", 6) ==
-                                 0) {
-                            set_field_buffer_wrap(cur, 0, send_net);
-                            break;
-                        }
-                    }
-                    cur_interface = i + 1;
+                y++;
 
-                    /* draw the interface name */
-                    snprintf(interfacename, sizeof(interfacename), "%s",
-                            iface_ptr->name);
-
-                    if (iface_ptr->up == TRUE)
-                        wattron(statsec_ctx.win, vccnf.color_win | A_BOLD);
-
-                    mvwprintw(statsec_ctx.win, y, 2, "%s", interfacename);
-
-                    if (iface_ptr->up == TRUE)
-                        wattroff(statsec_ctx.win, vccnf.color_win | A_BOLD);
-
-                    /* store the number of bytes */
-                    shadow_ptr->prev_recv_bytes = recv_bytes;
-                    shadow_ptr->prev_send_bytes = trans_bytes;
-
-                    y++;
-
-                    /*  after the first run we are no
-                        longer calculating. */
-                    if (shadow_ptr->calc > 0)
-                        shadow_ptr->calc--;
-
-                } /* end if virtual device */
+                /*  after the first run we are no
+                    longer calculating. */
+                if (shadow_ptr->calc > 0)
+                    shadow_ptr->calc--;
             }
-
-            /*
-                finally draw the screen
-            */
             wrefresh(statsec_ctx.win);
         }
 
@@ -1155,7 +1111,6 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
         if (quit == 0) {
             usleep(10000);
             slept_so_far = slept_so_far + 10000;
-
             vrmr_debug(HIGH, "just slept: slept_so_far '%d'.", slept_so_far);
         }
     }
@@ -1163,14 +1118,7 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
     /* destroy hashtables and the shadowlist */
     vrmr_list_cleanup(&shadow_list);
 
-    /* EXIT: cleanup */
-    nodelay(statsec_ctx.win, FALSE);
-
     /* destroy the window and form */
     status_section_destroy();
-
-    update_panels();
-    doupdate();
-
-    return (retval);
+    return (0);
 }
