@@ -85,27 +85,6 @@ static void setup_signal_handler(int sig, void (*handler)(int))
     sigaction(sig, &action, 0);
 }
 
-static char *assemble_logline_sscanf_string(struct vrmr_log_record *log_record)
-{
-    char *string, temp_buf[256] = "";
-
-    //"%s %2d %2d:%2d:%2d %s";
-    snprintf(temp_buf, sizeof(temp_buf), "%%%ds %%2d %%2d:%%2d:%%2d %%%ds",
-            (int)sizeof(log_record->month) - 1,
-            (int)sizeof(log_record->hostname) - 1);
-
-    vrmr_debug(HIGH, "assemble_logline_sscanf_string: string: '%s'. (len: %d)",
-            temp_buf, (int)strlen(temp_buf));
-
-    string = strdup(temp_buf);
-    if (string == NULL) {
-        vrmr_error(-1, "Error", "strdup failed: %s.", strerror(errno));
-        return (NULL);
-    }
-
-    return (string);
-}
-
 static void print_help(void)
 {
     fprintf(stdout, "Usage: vuurmuur_log [OPTIONS]\n");
@@ -184,18 +163,11 @@ int main(int argc, char *argv[])
 {
     struct vrmr_ctx vctx;
     FILE *system_log = NULL;
-    char line_in[1024] = "";
-    char line_out[1024] = "";
-    size_t line_in_len = 0;
-    int result,
-            /*  variable for counting how long we are waiting
-                for the next line in 1/10th of a second.
-            */
-            waiting = 0;
+    int result;
     pid_t pid;
     int optch;
     static char optstring[] = "hc:vnd:VsKN";
-    int verbose = 0, nodaemon = 0, syslog = 1;
+    int verbose = 0, nodaemon = 0;
     struct option prog_opts[] = {
             {"help", no_argument, NULL, 'h'},
             {"verbose", no_argument, &verbose, 1},
@@ -309,20 +281,6 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if (vctx.conf.rule_nflog) {
-        syslog = 0;
-    } else {
-        syslog = 1;
-    }
-
-    /* set up the sscanf parser string if we're using the legacy syslog parsing
-     */
-    if (syslog && !(sscanf_str = assemble_logline_sscanf_string(&logrule))) {
-        vrmr_error(-1, "Error",
-                "could not set up parse string for legacy syslog parsing.");
-        exit(EXIT_FAILURE);
-    }
-
     if (verbose)
         vrmr_info("Info", "Vuurmuur_log %s", version_string);
 
@@ -338,12 +296,11 @@ int main(int argc, char *argv[])
     vrprint.audit = vrmr_logprint_audit;
 
     /* get the current user */
-    vrmr_audit("Vuurmuur_log %s %s started by user %s.", version_string,
-            (syslog) ? "" : "(nflog mode)", vctx.user_data.realusername);
+    vrmr_audit("Vuurmuur_log %s started by user %s.", version_string,
+            vctx.user_data.realusername);
 
     /* Setup nflog after vrmr_init_config as and logging as we need &conf in
      * subscribe_nflog() */
-    if (!syslog) {
         vrmr_debug(NONE, "Setting up nflog");
         if (subscribe_nflog(&vctx.conf, &logrule) < 0) {
             vrmr_error(-1, "Error", "could not set up nflog subscription");
@@ -357,16 +314,9 @@ int main(int argc, char *argv[])
             vrmr_error(-1, "Error", "could not open connection log files");
             exit(EXIT_FAILURE);
         }
-    }
 
     if (vrmr_backends_load(&vctx.conf, &vctx) < 0) {
         vrmr_error(-1, "Error", "loading plugins failed, bailing out.");
-        exit(EXIT_FAILURE);
-    }
-
-    /* open the logs */
-    if (syslog && open_syslog(&vctx.conf, &system_log) < 0) {
-        vrmr_error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
     }
 
@@ -436,108 +386,22 @@ int main(int argc, char *argv[])
     while (quit == 0) {
         reload = ipc_check_reload(shm_table);
         if (reload == 0) {
-            if (syslog) {
-                if (fgets(line_in, (int)sizeof(line_in), system_log) != NULL) {
-                    waiting = 0;
-
-                    line_in_len = strlen(line_in);
-                    if ((line_in_len < sizeof(line_in) - 1) &&
-                            line_in[line_in_len - 1] != '\n') {
-                        fseek(system_log, (int)line_in_len * -1, SEEK_CUR);
-                    } else {
-                        if (check_ipt_line(line_in)) {
-                            switch (parse_ipt_logline(line_in, line_in_len,
-                                    sscanf_str, &logrule, &counters)) {
-                                case -1:
-                                    exit(EXIT_FAILURE);
-                                    break;
-                                case 0:
-                                    counters.invalid_loglines++;
-                                    break;
-                                default:
-                                    result = vrmr_log_record_get_names(&logrule,
-                                            &zone_htbl, &service_htbl);
-                                    switch (result) {
-                                        case -1:
-                                            exit(EXIT_FAILURE);
-                                            break;
-                                        case 0:
-                                            counters.invalid_loglines++;
-                                            break;
-                                        default:
-                                            if (vrmr_log_record_build_line(
-                                                        &logrule, line_out,
-                                                        sizeof(line_out)) < 0) {
-                                                vrmr_error(-1, "Error",
-                                                        "could not build "
-                                                        "output line");
-                                            } else {
-                                                fprintf(g_traffic_log, "%s",
-                                                        line_out);
-                                                fflush(g_traffic_log);
-                                            }
-                                            break;
-                                    }
-                            }
-                            counters.totalvuurmuur++;
-                        } else {
-                            counters.noipt++;
-                        }
-                        counters.total++;
-                    }
-                }
-                /* no line received or not using syslog */
-                else {
-                    /* increase the waiter */
-                    waiting++;
-
-                    /* see the definition of MAX_WAIT_TIME for details. */
-                    if (waiting >= MAX_WAIT_TIME) {
-                        vrmr_debug(MEDIUM,
-                                "didn't get a logline for %d seconds, closing "
-                                "and reopening the logfiles.",
-                                waiting / 10);
-
-                        /* re-open the logs */
-                        if (reopen_syslog(&vctx.conf, &system_log) < 0) {
-                            vrmr_error(
-                                    -1, "Error", "re-opening syslog failed.");
-                            exit(EXIT_FAILURE);
-                        }
-
-                        if (reopen_vuurmuurlog(&vctx.conf, &g_traffic_log) <
-                                0) {
-                            vrmr_error(-1, "Error",
-                                    "re-opening vuurmuur traffic log failed.");
-                            exit(EXIT_FAILURE);
-                        }
-
-                        /* reset waiting */
-                        waiting = 0;
-                    } else {
-                        /* sleep so we don't use all system resources */
-                        usleep(100000); /* this should be 1/10th of a second */
-                    }
-                }
-                /* not using syslog so must be using nflog here */
-            } else {
-                switch (conntrack_read(&logconn)) {
-                    case 0:
-                        break;
-                    case -1:
-                        break;
-                }
-                switch (readnflog()) {
-                    case -1:
-                        vrmr_error(-1, "Error", "could not read from nflog");
-                        exit(EXIT_FAILURE);
-                        break;
-                    case 0:
-                        usleep(100000);
-                        break;
-                }
-            } /* if syslog */
-        }     /* if reload == 0 */
+            switch (conntrack_read(&logconn)) {
+                case 0:
+                    break;
+                case -1:
+                    break;
+            }
+            switch (readnflog()) {
+                case -1:
+                    vrmr_error(-1, "Error", "could not read from nflog");
+                    exit(EXIT_FAILURE);
+                    break;
+                case 0:
+                    usleep(100000);
+                    break;
+            }
+        }
 
         /*
             hey! we received a sighup. We will reload the data.
@@ -652,24 +516,16 @@ int main(int argc, char *argv[])
             }
             vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 90);
 
-            /* re-open the logs */
-            if (syslog && reopen_syslog(&vctx.conf, &system_log) < 0) {
-                vrmr_error(-1, "Error", "re-opening logfiles failed.");
-                exit(EXIT_FAILURE);
-            }
-
             if (reopen_vuurmuurlog(&vctx.conf, &g_traffic_log) < 0) {
                 vrmr_error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
             }
-            if (!syslog) {
-                vrmr_shm_update_progress(
-                        sem_id, &shm_table->reload_progress, 92);
-                if (conntrack_open_logs(&vctx.conf) != 0) {
-                    vrmr_error(-1, "Error",
-                            "could not re-open connection log files");
-                    exit(EXIT_FAILURE);
-                }
+            vrmr_shm_update_progress(
+                    sem_id, &shm_table->reload_progress, 92);
+            if (conntrack_open_logs(&vctx.conf) != 0) {
+                vrmr_error(-1, "Error",
+                        "could not re-open connection log files");
+                exit(EXIT_FAILURE);
             }
             vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 95);
 
@@ -708,9 +564,7 @@ int main(int argc, char *argv[])
     if (system_log != NULL)
         fclose(system_log);
 
-    if (!syslog) {
-        conntrack_disconnect();
-    }
+    conntrack_disconnect();
 
     /* destroy hashtables */
     vrmr_hash_cleanup(&zone_htbl);
