@@ -423,7 +423,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (SetupVMIPC(&shm_id, &shm_table) == -1)
+    if (ipc_setup(&shm_id, &shm_table) == -1)
         exit(EXIT_FAILURE);
 
     if (vrmr_create_pidfile(PIDFILE, shm_id) < 0)
@@ -434,7 +434,7 @@ int main(int argc, char *argv[])
 
     /* enter the main loop */
     while (quit == 0) {
-        reload = CheckVMIPC(shm_table);
+        reload = ipc_check_reload(shm_table);
         if (reload == 0) {
             if (syslog) {
                 if (fgets(line_in, (int)sizeof(line_in), system_log) != NULL) {
@@ -679,7 +679,7 @@ int main(int argc, char *argv[])
             /* if we are reloading because of an IPC command, we need to
              * communicate with the caller */
             if (reload == 1)
-                WaitVMIPCACK(30, &result, shm_table, &reload);
+                ipc_sync(30, &result, shm_table, &reload);
         }
 
         /* check for a signal */
@@ -690,7 +690,7 @@ int main(int argc, char *argv[])
     /*
         cleanup
     */
-    if (ClearVMIPC(shm_id) == -1) {
+    if (ipc_destroy(shm_id) == -1) {
         vrmr_error(-1, "Error", "Detach from VM IPC failed.");
         /* fall through */
     }

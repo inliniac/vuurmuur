@@ -30,11 +30,8 @@
 static union semun semarg;
 static ushort seminit[] = {1, 0};
 
-int SetupVMIPC(int *shm_id, struct vrmr_shm_table **shm_table)
+int ipc_setup(int *shm_id, struct vrmr_shm_table **shm_table)
 {
-
-    char *shmp;
-
     /* create shared memory segment */
     *shm_id = shmget(IPC_PRIVATE, sizeof(**shm_table), 0600);
     if (*shm_id < 0) {
@@ -69,7 +66,7 @@ int SetupVMIPC(int *shm_id, struct vrmr_shm_table **shm_table)
 
     /* now attach to the shared mem */
     if (*shm_id > 0) {
-        shmp = shmat(*shm_id, 0, 0);
+        char *shmp = shmat(*shm_id, 0, 0);
         if (shmp == (char *)(-1)) {
             vrmr_error(-1, "Error", "unable to attach to shared memory: %s.",
                     strerror(errno));
@@ -112,7 +109,7 @@ int SetupVMIPC(int *shm_id, struct vrmr_shm_table **shm_table)
     return (0);
 }
 
-int ClearVMIPC(int shm_id)
+int ipc_destroy(int shm_id)
 {
     /* destroy shm */
     vrmr_info("Info", "Destroying shared memory...");
@@ -138,7 +135,7 @@ int ClearVMIPC(int shm_id)
  *  \retval 1 reload
  *  \retval 0 don't reload
  */
-int CheckVMIPC(struct vrmr_shm_table *shm_table)
+int ipc_check_reload(struct vrmr_shm_table *shm_table)
 {
     int retval = 0;
 
@@ -169,11 +166,9 @@ int CheckVMIPC(struct vrmr_shm_table *shm_table)
     return (retval);
 }
 
-int WaitVMIPCACK(int wait_time, int *result, struct vrmr_shm_table *shm_table,
+int ipc_sync(int wait_time, int *result, struct vrmr_shm_table *shm_table,
         int *reload)
 {
-    int waited = 0;
-
     if (vrmr_lock(sem_id)) {
         /* finished so 100% */
         shm_table->reload_progress = 100;
@@ -193,8 +188,7 @@ int WaitVMIPCACK(int wait_time, int *result, struct vrmr_shm_table *shm_table,
     vrmr_info("Info", "Waiting for an VRMR_RR_RESULT_ACK");
 
     *result = 0;
-    waited = 0;
-
+    int waited = 0;
     /* now wait max wait_time seconds for an ACK from the caller */
     while (*result == 0 && waited < wait_time) {
         if (vrmr_lock(sem_id)) {
