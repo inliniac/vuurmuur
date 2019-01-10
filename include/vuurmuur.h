@@ -1801,6 +1801,7 @@ int vrmr_interfaces_analyze_rule(struct vrmr_rule *, struct vrmr_rule_cache *,
 int vrmr_interfaces_rule_parse_line(const char *, struct vrmr_rule *);
 int vrmr_interface_check_devicename(const char *);
 int vrmr_interface_ipv6_enabled(struct vrmr_interface *);
+int vrmr_get_devices(struct vrmr_list *list);
 
 /*
     icmp.c

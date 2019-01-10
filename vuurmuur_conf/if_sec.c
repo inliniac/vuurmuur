@@ -1319,8 +1319,33 @@ static int edit_interface(
                  cur == IfSec.icmpredirectfld || cur == IfSec.sendredirectfld ||
                  cur == IfSec.rpfilterfld || cur == IfSec.logmartiansfld) {
             not_defined = !(nav_field_toggleX(ifsec_ctx.edit.form, ch));
-        } else if (cur == IfSec.ipaddressfld || cur == IfSec.devicefld ||
+        } else if (cur == IfSec.ipaddressfld ||
                    cur == IfSec.ip6addressfld) {
+            not_defined = !(nav_field_simpletext(ifsec_ctx.edit.form, ch));
+        } else if (cur == IfSec.devicefld && ch == 0x20) {
+            struct vrmr_list iflist;
+            vrmr_list_setup(&iflist, free);
+            if (vrmr_get_devices(&iflist) == 0) {
+                char **devs = calloc(iflist.len + 1, sizeof(char *));
+                vrmr_fatal_alloc("calloc", devs);
+
+                int x = 0;
+                for (struct vrmr_list_node *n = iflist.top; n; n = n->next) {
+                    vrmr_debug(NONE, "device %s", (char *)n->data);
+                    devs[x++] = (char *)n->data;
+                }
+                const char *cur_ptr = (char *)field_buffer(cur, 0);
+                char *ptr;
+                if ((ptr = selectbox(gettext("Device"),
+                                gettext("Select device"), x,
+                                devs, 1, cur_ptr))) {
+                    set_field_buffer_wrap(cur, 0, ptr);
+                    free(ptr);
+                }
+                free(devs);
+            }
+            vrmr_list_cleanup(&iflist);
+        } else if (cur == IfSec.devicefld) {
             not_defined = !(nav_field_simpletext(ifsec_ctx.edit.form, ch));
         } else {
             not_defined = 1;

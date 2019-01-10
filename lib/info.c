@@ -609,6 +609,84 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
     return (0);
 }
 
+/**
+  fill list with device names from the system
+
+  partly ripped from Net-tools 1.60 (c) Phil Blundell philb@gnu.org and
+  Bernd Eckenfels net-tools@lina.inka.de
+
+  \retval 0 ok
+  \retval -1 error
+ */
+int vrmr_get_devices(struct vrmr_list *list)
+{
+    int numreqs = 30;
+    struct ifconf ifc;
+
+    assert(list);
+
+    /* open a socket for ioctl */
+    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd == -1) {
+        vrmr_error(-1, "Error", "couldn't open socket: %s", strerror(errno));
+        return (-1);
+    }
+
+    /* initialize the buf otherwise realloc will freak out (read segv) */
+    ifc.ifc_buf = NULL;
+    for (;;) {
+        ifc.ifc_len = (int)(sizeof(struct ifreq) * numreqs);
+        /* get some mem */
+        if (!(ifc.ifc_buf = realloc(ifc.ifc_buf, (size_t)ifc.ifc_len))) {
+            vrmr_error(-1, "Error", "realloc failed: %s", strerror(errno));
+            (void)close(sockfd);
+            return (-1);
+        }
+
+        /* get the interfaces from the system */
+        if (ioctl(sockfd, SIOCGIFCONF, &ifc) < 0) {
+            vrmr_error(-1, "Error", "ioctl(SIOCGIFCONF) failed: %s",
+                    strerror(errno));
+            free(ifc.ifc_buf);
+            (void)close(sockfd);
+            return (-1);
+        }
+        if (ifc.ifc_len == (int)(sizeof(struct ifreq) * numreqs)) {
+            /* assume it overflowed and try again */
+            numreqs += 10;
+            continue;
+        }
+        break;
+    }
+
+    struct ifreq *ifr_ptr = ifc.ifc_req;
+    for (int n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq)) {
+        vrmr_debug(HIGH, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
+
+        char *device = strdup(ifr_ptr->ifr_name);
+        if (device == NULL) {
+            vrmr_error(-1, "Error", "strdup failed %s", strerror(errno));
+            (void)close(sockfd);
+            free(ifc.ifc_buf);
+            return (-1);
+        }
+
+        if (vrmr_list_append(list, device) == NULL) {
+            vrmr_error(-1, "Error", "vrmr_list_append() failed");
+            free(device);
+            (void)close(sockfd);
+            free(ifc.ifc_buf);
+            return (-1);
+        }
+
+        ifr_ptr++;
+    }
+
+    close(sockfd);
+    free(ifc.ifc_buf);
+    return (0);
+}
+
 /*  vrmr_check_ipv4address
 
     Checks if a ipaddress is valid, in two steps
