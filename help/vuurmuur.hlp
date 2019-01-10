@@ -8,11 +8,6 @@ Vuurmuur needs the paths to the 'iptables'-command and to the 'iptables-restore'
 For some operations Vuurmuur uses a script. Scripts are stored in the 'Scripts
 location'. Please give the full path to it.
 
-As of Vuurmuur 0.5.57 a new method for creating rules was introduced, using
-iptables-restore, resulting in much faster rule creating. If you run into
-problems, or liked the old way better for some reason, you can still use the
-old method.
-
 Vuurmuur checks all config and log files it uses, and the directories they're
 in against having their permission set too wide. Here you can specify the
 maximum permissions any directory can have. This value also applies to files,
@@ -851,7 +846,7 @@ F12: help.
 Vuurmuur Help
 
 
-Welcome to Vuurmuur-conf. This the Ncurses-based configurationtool for
+Welcome to Vuurmuur-conf. This the Ncurses-based configuration tool for
 Vuurmuur. It can be run from the console and X, but also from Windows with
 Putty. Make sure you use an fixed-width font, otherwise the interface won't look
 as intended.
@@ -866,26 +861,25 @@ rules. Those rules are build with two main components:
 You can manage both in the 'Services' section and the 'Zones' section. A Zone is
 a container for Networks, Hosts and Groups. A Zone is used to group networks
 that are similar together. The firewall can have multiple interfaces in the same
-network, for example an ADSL internet-connection, and an ISDN
-backup-connection. Therefore interfaces need to be defined seperately and need
-to be attached to a Network. Managing interfaces can be done in the 'Interfaces'
-section.
+network, for example an DSL internet-connection, and a cable backup-connection.
+Therefore interfaces need to be defined seperately and need to be attached to a
+Network. Managing interfaces can be done in the 'Interfaces' section.
 
 Managing a firewall is impossible without good information about what is
 currently going on. Therefore three tools are available:
-1. logviewer.
-2. connectionsviewer.
-3. statusviewer.
+1. log viewer.
+2. connections viewer.
+3. status viewer.
 
-The Logviewer allows the administrator to view the logs in real-time. The log
+The Log Viewer allows the administrator to view the logs in real-time. The log
 uses the same names for Zones, Services and Interfaces as the rules. Filtering
 and searching through the logs is also possible.
 
-The Connectionviewer, like the logviewer, allows for viewing in realtime. The
+The Connection Viewer, like the log viewer, allows for viewing in realtime. The
 current connections are shown and can be sorted by connection state and by
 direction.
 
-The Statusviewer shows some statistics about the system. It also shows the
+The Status Viewer shows some statistics about the system. It also shows the
 current speed of downloading and uploading of the interfaces.
 
 In the Configuration all settings of Vuurmuur can be changed.
