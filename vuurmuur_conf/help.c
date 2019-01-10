@@ -401,7 +401,7 @@ static void set_lines(struct vrmr_list *help_list, size_t width)
 static void set_wide_lines(struct vrmr_list *help_list, int width)
 {
     int line_width = 0, line_num = 1, words = 0;
-    struct helpword *hw = NULL, *next_hw = NULL;
+    struct whelpword *hw = NULL, *next_hw = NULL;
     struct vrmr_list_node *d_node = NULL, *next_d_node = NULL;
 
     /* safety */
@@ -726,7 +726,8 @@ void print_help(char *part)
     } else {
         /* convert the part name to a wchar_t string */
         mbstowcs(wpart, part, wsizeof(wpart));
-        vrmr_debug(LOW, "part: %s, wpart %ls, %u", part, wpart, wsizeof(wpart));
+        vrmr_debug(
+                LOW, "part: %s, wpart %ls, %lu", part, wpart, wsizeof(wpart));
 
         /* read the helpfile */
         if (read_wide_helpfile(&HelpList, wpart) < 0)
