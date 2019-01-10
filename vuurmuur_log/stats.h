@@ -22,23 +22,23 @@
 #define __STATS_H__
 
 struct logcounters {
-    unsigned int drop;
-    unsigned int accept;
-    unsigned int reject;
-    unsigned int queue;
-    unsigned int other_match;
+    uint32_t drop;
+    uint32_t accept;
+    uint32_t reject;
+    uint32_t queue;
+    uint32_t other_match;
 
-    unsigned int tcp;
-    unsigned int udp;
-    unsigned int icmp;
-    unsigned int other_proto;
+    uint32_t tcp;
+    uint32_t udp;
+    uint32_t icmp;
+    uint32_t other_proto;
 
-    unsigned int totalvuurmuur;
+    uint32_t totalvuurmuur;
 
-    unsigned int noipt;
-    unsigned int invalid_loglines;
+    uint32_t noipt;
+    uint32_t invalid_loglines;
 
-    unsigned int total;
+    uint32_t total;
 };
 
 void show_stats(struct logcounters *);

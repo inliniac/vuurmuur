@@ -56,7 +56,7 @@ void upd_action_ctrs(char *action, struct logcounters *c)
         c->accept++;
     else if (strcmp(action, "REJECT") == 0)
         c->reject++;
-    else if (strcmp(action, "QUEUE") == 0 || strcmp(action, "NFQUEUE") == 0)
+    else if (strcmp(action, "NFQUEUE") == 0)
         c->queue++;
     else
         c->other_match++;
