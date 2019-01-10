@@ -511,7 +511,7 @@ void VrShapeIface(struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
 #define wsizeof(s) sizeof(s) / sizeof(wchar_t)
 #endif /* USE_WIDEC */
 
-#if !defined(__clang_analyzer__) && !defined(DEBUG)
+#if !defined(__clang_analyzer__) && !defined(DEBUG) && !defined(CPPCHECK)
 #define vrmr_fatal(...)                                                        \
     do {                                                                       \
         char _vrmr_msg[2048];                                                  \
