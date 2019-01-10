@@ -646,12 +646,11 @@ void VrFormConnectToWin(struct vrmr_gui_form *form, struct vrmr_gui_win *win)
     int result;
     int rows, cols;
     struct vrmr_list_node *node = NULL;
-    struct vrmr_gui_form_field *fld = NULL;
     int fields = 2; /* ok & cancel */
 
     /* count number of fields we need to create */
     for (node = form->list.top; node; node = node->next) {
-        fld = node->data;
+        struct vrmr_gui_form_field *fld = node->data;
         switch (fld->type) {
             case VRMR_GUI_FORM_FIELD_TYPE_LABEL:
             case VRMR_GUI_FORM_FIELD_TYPE_TEXT:
@@ -670,7 +669,7 @@ void VrFormConnectToWin(struct vrmr_gui_form *form, struct vrmr_gui_win *win)
     memset(form->fields, 0, (sizeof(FIELD *) * (form->nfields + 1)));
 
     for (node = form->list.top; node; node = node->next) {
-        fld = node->data;
+        struct vrmr_gui_form_field *fld = node->data;
         VrFormCreateField(form, fld);
     }
 
@@ -703,63 +702,63 @@ static char VrFormTextNavigation(struct vrmr_gui_form *form, int key)
     switch (key) {
         case 127:
         case KEY_BACKSPACE:
-            form_driver(form->f, REQ_PREV_CHAR);
-            form_driver(form->f, REQ_DEL_CHAR);
-            form_driver(form->f, REQ_END_LINE);
+            form_driver_wrap(form->f, REQ_PREV_CHAR);
+            form_driver_wrap(form->f, REQ_DEL_CHAR);
+            form_driver_wrap(form->f, REQ_END_LINE);
             break;
         case KEY_DC:
-            form_driver(form->f, REQ_PREV_CHAR);
-            form_driver(form->f, REQ_DEL_CHAR);
-            form_driver(form->f, REQ_END_LINE);
+            form_driver_wrap(form->f, REQ_PREV_CHAR);
+            form_driver_wrap(form->f, REQ_DEL_CHAR);
+            form_driver_wrap(form->f, REQ_END_LINE);
             break;
         case KEY_RIGHT:
-            form_driver(form->f, REQ_NEXT_CHAR);
+            form_driver_wrap(form->f, REQ_NEXT_CHAR);
             match = TRUE;
             break;
         case KEY_LEFT:
-            form_driver(form->f, REQ_PREV_CHAR);
+            form_driver_wrap(form->f, REQ_PREV_CHAR);
             match = TRUE;
             break;
         case KEY_DOWN:
-            form_driver(form->f, REQ_NEXT_FIELD);
+            form_driver_wrap(form->f, REQ_NEXT_FIELD);
             match = TRUE;
             break;
         case KEY_UP:
-            form_driver(form->f, REQ_PREV_FIELD);
+            form_driver_wrap(form->f, REQ_PREV_FIELD);
             match = TRUE;
             break;
         case KEY_NPAGE:
-            if (form_driver(form->f, REQ_NEXT_PAGE) != E_OK) {
-                while (form_driver(form->f, REQ_NEXT_FIELD) == E_OK)
+            if (form_driver_wrap(form->f, REQ_NEXT_PAGE) != E_OK) {
+                while (form_driver_wrap(form->f, REQ_NEXT_FIELD) == E_OK)
                     ;
             }
             match = TRUE;
             break;
         case KEY_PPAGE:
-            if (form_driver(form->f, REQ_PREV_PAGE) != E_OK) {
-                while (form_driver(form->f, REQ_PREV_FIELD) == E_OK)
+            if (form_driver_wrap(form->f, REQ_PREV_PAGE) != E_OK) {
+                while (form_driver_wrap(form->f, REQ_PREV_FIELD) == E_OK)
                     ;
             }
             match = TRUE;
             break;
             /* TODO last pos in field */
         case KEY_HOME:
-            form_driver(form->f, REQ_BEG_LINE);
+            form_driver_wrap(form->f, REQ_BEG_LINE);
             match = TRUE;
             break;
         case KEY_END:
-            form_driver(form->f, REQ_END_LINE);
+            form_driver_wrap(form->f, REQ_END_LINE);
             match = TRUE;
             break;
         case 9: /* TAB */
-            form_driver(form->f, REQ_NEXT_FIELD);
+            form_driver_wrap(form->f, REQ_NEXT_FIELD);
             match = TRUE;
             break;
         default:
             // vrmr_info(VR_INFO, "default");
             if (isprint(key)) {
                 // vrmr_info(VR_INFO, "default %d", key);
-                form_driver(form->f, key);
+                form_driver_wrap(form->f, key);
                 match = TRUE;
             }
             break;
@@ -775,29 +774,29 @@ static char VrFormCheckboxNavigation(
 
     switch (key) {
         case KEY_DOWN:
-            form_driver(form->f, REQ_NEXT_FIELD);
+            form_driver_wrap(form->f, REQ_NEXT_FIELD);
             match = TRUE;
             break;
         case KEY_UP:
-            form_driver(form->f, REQ_PREV_FIELD);
+            form_driver_wrap(form->f, REQ_PREV_FIELD);
             match = TRUE;
             break;
         case KEY_NPAGE:
-            if (form_driver(form->f, REQ_NEXT_PAGE) != E_OK) {
-                while (form_driver(form->f, REQ_NEXT_FIELD) == E_OK)
+            if (form_driver_wrap(form->f, REQ_NEXT_PAGE) != E_OK) {
+                while (form_driver_wrap(form->f, REQ_NEXT_FIELD) == E_OK)
                     ;
             }
             match = TRUE;
             break;
         case KEY_PPAGE:
-            if (form_driver(form->f, REQ_PREV_PAGE) != E_OK) {
-                while (form_driver(form->f, REQ_PREV_FIELD) == E_OK)
+            if (form_driver_wrap(form->f, REQ_PREV_PAGE) != E_OK) {
+                while (form_driver_wrap(form->f, REQ_PREV_FIELD) == E_OK)
                     ;
             }
             match = TRUE;
             break;
         case 9: /* TAB */
-            form_driver(form->f, REQ_NEXT_FIELD);
+            form_driver_wrap(form->f, REQ_NEXT_FIELD);
             match = TRUE;
             break;
         case 32: /* SPACE */
@@ -846,46 +845,46 @@ char VrFormDefaultNavigation(struct vrmr_gui_form *form, int key)
 
     switch (key) {
         case KEY_RIGHT:
-            form_driver(form->f, REQ_NEXT_CHAR);
+            form_driver_wrap(form->f, REQ_NEXT_CHAR);
             match = TRUE;
             break;
         case KEY_LEFT:
-            form_driver(form->f, REQ_PREV_CHAR);
+            form_driver_wrap(form->f, REQ_PREV_CHAR);
             match = TRUE;
             break;
         case KEY_DOWN:
-            form_driver(form->f, REQ_NEXT_FIELD);
+            form_driver_wrap(form->f, REQ_NEXT_FIELD);
             match = TRUE;
             break;
         case KEY_UP:
-            form_driver(form->f, REQ_PREV_FIELD);
+            form_driver_wrap(form->f, REQ_PREV_FIELD);
             match = TRUE;
             break;
         case KEY_NPAGE:
-            if (form_driver(form->f, REQ_NEXT_PAGE) != E_OK) {
-                while (form_driver(form->f, REQ_NEXT_FIELD) == E_OK)
+            if (form_driver_wrap(form->f, REQ_NEXT_PAGE) != E_OK) {
+                while (form_driver_wrap(form->f, REQ_NEXT_FIELD) == E_OK)
                     ;
             }
             match = TRUE;
             break;
         case KEY_PPAGE:
-            if (form_driver(form->f, REQ_PREV_PAGE) != E_OK) {
-                while (form_driver(form->f, REQ_PREV_FIELD) == E_OK)
+            if (form_driver_wrap(form->f, REQ_PREV_PAGE) != E_OK) {
+                while (form_driver_wrap(form->f, REQ_PREV_FIELD) == E_OK)
                     ;
             }
             match = TRUE;
             break;
             /* TODO last pos in field */
         case KEY_HOME:
-            form_driver(form->f, REQ_FIRST_FIELD);
+            form_driver_wrap(form->f, REQ_FIRST_FIELD);
             match = TRUE;
             break;
         case KEY_END:
-            form_driver(form->f, REQ_LAST_FIELD);
+            form_driver_wrap(form->f, REQ_LAST_FIELD);
             match = TRUE;
             break;
         case 9: /* TAB */
-            form_driver(form->f, REQ_NEXT_FIELD);
+            form_driver_wrap(form->f, REQ_NEXT_FIELD);
             match = TRUE;
             break;
     }

@@ -143,8 +143,8 @@ static void VrTcpmssIface(
             switch (ch) {
                 case KEY_DOWN:
                 case 10: // enter
-                    form_driver(form->f, REQ_NEXT_FIELD);
-                    form_driver(form->f, REQ_BEG_LINE);
+                    form_driver_wrap(form->f, REQ_NEXT_FIELD);
+                    form_driver_wrap(form->f, REQ_BEG_LINE);
                     break;
                 case 27:
                 case 'q':
@@ -380,8 +380,8 @@ void VrShapeIface(struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
             switch (ch) {
                 case KEY_DOWN:
                 case 10: // enter
-                    form_driver(form->f, REQ_NEXT_FIELD);
-                    form_driver(form->f, REQ_BEG_LINE);
+                    form_driver_wrap(form->f, REQ_NEXT_FIELD);
+                    form_driver_wrap(form->f, REQ_BEG_LINE);
                     break;
                 case 27:
                 case 'q':
@@ -497,39 +497,39 @@ static void edit_interface_init(struct vrmr_ctx *vctx, int height, int width,
     */
 
     /* active */
-    IfSec.activelabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 2, 0, 0, 0));
+    IfSec.activelabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                    new_field_wrap(1, 16, 2, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.activelabelfld, 0, STR_CACTIVE);
     field_opts_off(IfSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.activefld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 3, 1, 0, 0));
+    IfSec.activefld = (ifsec_ctx.edit.fields[field_num] =
+                               new_field_wrap(1, 3, 3, 1, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             IfSec.activefld, 0, iface_ptr->active ? STR_YES : STR_NO);
 
     /* device */
-    IfSec.devicelabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 5, 0, 0, 0));
+    IfSec.devicelabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                    new_field_wrap(1, 16, 5, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.devicelabelfld, 0, STR_CDEVICE);
     field_opts_off(IfSec.devicelabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.devicefld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 12, 6, 1, 0, 0));
+    IfSec.devicefld = (ifsec_ctx.edit.fields[field_num] =
+                               new_field_wrap(1, 12, 6, 1, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.devicefld, 0, iface_ptr->device);
 
     /* ipaddress */
-    IfSec.ipaddresslabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 7, 0, 0, 0));
+    IfSec.ipaddresslabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                       new_field_wrap(1, 16, 7, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.ipaddresslabelfld, 0, STR_IPADDRESS);
     field_opts_off(IfSec.ipaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.ipaddressfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 8, 1, 0, 0));
+    IfSec.ipaddressfld = (ifsec_ctx.edit.fields[field_num] =
+                                  new_field_wrap(1, 16, 8, 1, 0, 0));
     field_num++;
     set_field_type(IfSec.ipaddressfld, TYPE_IPV4);
     set_field_buffer_wrap(IfSec.ipaddressfld, 0, iface_ptr->ipv4.ipaddress);
@@ -539,14 +539,14 @@ static void edit_interface_init(struct vrmr_ctx *vctx, int height, int width,
         field_opts_off(IfSec.ipaddressfld, O_AUTOSKIP | O_ACTIVE);
 
     /* ip6address */
-    IfSec.ip6addresslabelfld =
-            (ifsec_ctx.edit.fields[field_num++] = new_field(1, 16, 9, 0, 0, 0));
+    IfSec.ip6addresslabelfld = (ifsec_ctx.edit.fields[field_num++] =
+                                        new_field_wrap(1, 16, 9, 0, 0, 0));
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(IfSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
 #endif
     field_opts_off(IfSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.ip6addressfld = (ifsec_ctx.edit.fields[field_num++] = new_field(
+    IfSec.ip6addressfld = (ifsec_ctx.edit.fields[field_num++] = new_field_wrap(
                                    1, VRMR_MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
     // set_field_type(IfSec.ip6addressfld, TYPE_IPV6);
 #ifdef IPV6_ENABLED
@@ -554,64 +554,65 @@ static void edit_interface_init(struct vrmr_ctx *vctx, int height, int width,
 #endif
 
     /* dynamic ip toggle */
-    IfSec.dynamicbracketsfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 6, 20, 0, 0));
+    IfSec.dynamicbracketsfld = (ifsec_ctx.edit.fields[field_num] =
+                                        new_field_wrap(1, 3, 6, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.dynamicbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.dynamicbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.dynamiclabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 18, 5, 19, 0, 0));
+    IfSec.dynamiclabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                     new_field_wrap(1, 18, 5, 19, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.dynamiclabelfld, 0, STR_CDYNAMICIP);
     field_opts_off(IfSec.dynamiclabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.dynamicfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 6, 21, 0, 0));
+    IfSec.dynamicfld = (ifsec_ctx.edit.fields[field_num] =
+                                new_field_wrap(1, 1, 6, 21, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.dynamicfld, 0, iface_ptr->dynamic ? "X" : " ");
 
     /* is the device virtual */
     IfSec.devicevirtualbracketsfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 8, 20, 0, 0));
+            (ifsec_ctx.edit.fields[field_num] =
+                            new_field_wrap(1, 3, 8, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.devicevirtualbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.devicevirtualbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.devicevirtuallabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 18, 7, 19, 0, 0));
+    IfSec.devicevirtuallabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                           new_field_wrap(1, 18, 7, 19, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.devicevirtuallabelfld, 0, STR_CVIRTUAL);
     field_opts_off(IfSec.devicevirtuallabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.devicevirtualfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 8, 21, 0, 0));
+    IfSec.devicevirtualfld = (ifsec_ctx.edit.fields[field_num] =
+                                      new_field_wrap(1, 1, 8, 21, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             IfSec.devicevirtualfld, 0, iface_ptr->device_virtual ? "X" : " ");
 
     /* protect label */
-    IfSec.labelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 2, 38, 0, 0));
+    IfSec.labelfld = (ifsec_ctx.edit.fields[field_num] =
+                              new_field_wrap(1, 16, 2, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.labelfld, 0, gettext("Protection"));
     field_opts_off(IfSec.labelfld, O_AUTOSKIP | O_ACTIVE);
 
     /* source routed packets */
-    IfSec.srcrtpktsbracketsfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 4, 54, 0, 0));
+    IfSec.srcrtpktsbracketsfld = (ifsec_ctx.edit.fields[field_num] =
+                                          new_field_wrap(1, 3, 4, 54, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.srcrtpktsbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.srcrtpktsbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.srcrtpktslabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 14, 4, 38, 0, 0));
+    IfSec.srcrtpktslabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                       new_field_wrap(1, 14, 4, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.srcrtpktslabelfld, 0, "Src-rt-pkts");
     field_opts_off(IfSec.srcrtpktslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.srcrtpktsfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 4, 55, 0, 0));
+    IfSec.srcrtpktsfld = (ifsec_ctx.edit.fields[field_num] =
+                                  new_field_wrap(1, 1, 4, 55, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.srcrtpktsfld, 0,
             protectrule_loaded(&iface_ptr->ProtectList, "protect",
@@ -620,20 +621,20 @@ static void edit_interface_init(struct vrmr_ctx *vctx, int height, int width,
                     : " ");
 
     /* icmp redirects */
-    IfSec.icmpredirectbracketsfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 5, 54, 0, 0));
+    IfSec.icmpredirectbracketsfld = (ifsec_ctx.edit.fields[field_num] =
+                                             new_field_wrap(1, 3, 5, 54, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.icmpredirectbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.icmpredirectbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.icmpredirectlabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 14, 5, 38, 0, 0));
+    IfSec.icmpredirectlabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                          new_field_wrap(1, 14, 5, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.icmpredirectlabelfld, 0, "Icmp-redirect");
     field_opts_off(IfSec.icmpredirectlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.icmpredirectfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 5, 55, 0, 0));
+    IfSec.icmpredirectfld = (ifsec_ctx.edit.fields[field_num] =
+                                     new_field_wrap(1, 1, 5, 55, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.icmpredirectfld, 0,
             protectrule_loaded(
@@ -642,20 +643,20 @@ static void edit_interface_init(struct vrmr_ctx *vctx, int height, int width,
                     : " ");
 
     /* send redirect */
-    IfSec.sendredirectbracketsfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 6, 54, 0, 0));
+    IfSec.sendredirectbracketsfld = (ifsec_ctx.edit.fields[field_num] =
+                                             new_field_wrap(1, 3, 6, 54, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.sendredirectbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.sendredirectbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.sendredirectlabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 14, 6, 38, 0, 0));
+    IfSec.sendredirectlabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                          new_field_wrap(1, 14, 6, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.sendredirectlabelfld, 0, "Send-redirect");
     field_opts_off(IfSec.sendredirectlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.sendredirectfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 6, 55, 0, 0));
+    IfSec.sendredirectfld = (ifsec_ctx.edit.fields[field_num] =
+                                     new_field_wrap(1, 1, 6, 55, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.sendredirectfld, 0,
             protectrule_loaded(
@@ -664,20 +665,20 @@ static void edit_interface_init(struct vrmr_ctx *vctx, int height, int width,
                     : " ");
 
     /* rp filter */
-    IfSec.rpfilterbracketsfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 7, 54, 0, 0));
+    IfSec.rpfilterbracketsfld = (ifsec_ctx.edit.fields[field_num] =
+                                         new_field_wrap(1, 3, 7, 54, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.rpfilterbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.rpfilterbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.rpfilterlabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 14, 7, 38, 0, 0));
+    IfSec.rpfilterlabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                      new_field_wrap(1, 14, 7, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.rpfilterlabelfld, 0, "Rp-filter");
     field_opts_off(IfSec.rpfilterlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.rpfilterfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 7, 55, 0, 0));
+    IfSec.rpfilterfld = (ifsec_ctx.edit.fields[field_num] =
+                                 new_field_wrap(1, 1, 7, 55, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.rpfilterfld, 0,
             protectrule_loaded(
@@ -686,20 +687,20 @@ static void edit_interface_init(struct vrmr_ctx *vctx, int height, int width,
                     : " ");
 
     /* log martians */
-    IfSec.logmartiansbracketsfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 3, 8, 54, 0, 0));
+    IfSec.logmartiansbracketsfld = (ifsec_ctx.edit.fields[field_num] =
+                                            new_field_wrap(1, 3, 8, 54, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.logmartiansbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.logmartiansbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.logmartianslabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 14, 8, 38, 0, 0));
+    IfSec.logmartianslabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                         new_field_wrap(1, 14, 8, 38, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.logmartianslabelfld, 0, "Log martians");
     field_opts_off(IfSec.logmartianslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.logmartiansfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 1, 8, 55, 0, 0));
+    IfSec.logmartiansfld = (ifsec_ctx.edit.fields[field_num] =
+                                    new_field_wrap(1, 1, 8, 55, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.logmartiansfld, 0,
             protectrule_loaded(
@@ -708,8 +709,8 @@ static void edit_interface_init(struct vrmr_ctx *vctx, int height, int width,
                     : " ");
 
     /* comment */
-    IfSec.commentlabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 16, 12, 0, 0, 0));
+    IfSec.commentlabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                     new_field_wrap(1, 16, 12, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(IfSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(IfSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
@@ -717,8 +718,8 @@ static void edit_interface_init(struct vrmr_ctx *vctx, int height, int width,
     comment_y = 5;
     comment_x = 48;
 
-    IfSec.commentfld = (ifsec_ctx.edit.fields[field_num] =
-                                new_field(comment_y, comment_x, 13, 1, 0, 0));
+    IfSec.commentfld = (ifsec_ctx.edit.fields[field_num] = new_field_wrap(
+                                comment_y, comment_x, 13, 1, 0, 0));
     field_num++;
     if (vctx->af->ask(vctx->ifac_backend, iface_ptr->name, "COMMENT",
                 ifsec_ctx.comment, sizeof(ifsec_ctx.comment),
@@ -734,16 +735,16 @@ static void edit_interface_init(struct vrmr_ctx *vctx, int height, int width,
         iface_ptr->up = FALSE;
 
     /* up? */
-    IfSec.interfaceuplabelfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 18, 2, 19, 0, 0));
+    IfSec.interfaceuplabelfld = (ifsec_ctx.edit.fields[field_num] =
+                                         new_field_wrap(1, 18, 2, 19, 0, 0));
     field_num++;
     /* TRANSLATORS: max 18 chars */
     set_field_buffer_wrap(
             IfSec.interfaceuplabelfld, 0, gettext("Is interface up?"));
     field_opts_off(IfSec.interfaceuplabelfld, O_ACTIVE);
 
-    IfSec.interfaceupfld =
-            (ifsec_ctx.edit.fields[field_num] = new_field(1, 6, 3, 20, 0, 0));
+    IfSec.interfaceupfld = (ifsec_ctx.edit.fields[field_num] =
+                                    new_field_wrap(1, 6, 3, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             IfSec.interfaceupfld, 0, iface_ptr->up ? STR_YES : STR_NO);
@@ -1344,14 +1345,14 @@ static int edit_interface(
                 case KEY_DOWN:
                 case 10: // enter
 
-                    form_driver(ifsec_ctx.edit.form, REQ_NEXT_FIELD);
-                    form_driver(ifsec_ctx.edit.form, REQ_END_LINE);
+                    form_driver_wrap(ifsec_ctx.edit.form, REQ_NEXT_FIELD);
+                    form_driver_wrap(ifsec_ctx.edit.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
 
-                    form_driver(ifsec_ctx.edit.form, REQ_PREV_FIELD);
-                    form_driver(ifsec_ctx.edit.form, REQ_END_LINE);
+                    form_driver_wrap(ifsec_ctx.edit.form, REQ_PREV_FIELD);
+                    form_driver_wrap(ifsec_ctx.edit.form, REQ_END_LINE);
                     break;
 
                 case 27:

@@ -1047,10 +1047,10 @@ static int mm_reload_shm(struct vrmr_ctx *vctx)
     vrmr_fatal_alloc("calloc", fields);
 
     /* overall */
-    vuurmuurfld = (fields[0] = new_field(1, 3, 3, 20, 0, 0));
+    vuurmuurfld = (fields[0] = new_field_wrap(1, 3, 3, 20, 0, 0));
     set_field_buffer_wrap(vuurmuurfld, 0, "  0");
     set_field_back(vuurmuurfld, vccnf.color_win);
-    vuurmuurlogfld = (fields[1] = new_field(1, 3, 4, 20, 0, 0));
+    vuurmuurlogfld = (fields[1] = new_field_wrap(1, 3, 4, 20, 0, 0));
     set_field_buffer_wrap(vuurmuurlogfld, 0, "  0");
     set_field_back(vuurmuurlogfld, vccnf.color_win);
     /* terminate */
@@ -1477,28 +1477,28 @@ int main_menu(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 (FIELD **)calloc(StatusFlds.n_fields + 1, sizeof(FIELD *));
 
         /* overall */
-        StatusFlds.overallfld =
-                (StatusFlds.fields[field_num] = new_field(1, 6, 5, 0, 0, 0));
+        StatusFlds.overallfld = (StatusFlds.fields[field_num] =
+                                         new_field_wrap(1, 6, 5, 0, 0, 0));
         field_num++;
         /* backend */
-        StatusFlds.backendfld =
-                (StatusFlds.fields[field_num] = new_field(1, 6, 8, 0, 0, 0));
+        StatusFlds.backendfld = (StatusFlds.fields[field_num] =
+                                         new_field_wrap(1, 6, 8, 0, 0, 0));
         field_num++;
         /* config */
-        StatusFlds.configfld =
-                (StatusFlds.fields[field_num] = new_field(1, 6, 9, 0, 0, 0));
+        StatusFlds.configfld = (StatusFlds.fields[field_num] =
+                                        new_field_wrap(1, 6, 9, 0, 0, 0));
         field_num++;
         /* settings */
-        StatusFlds.settingsfld =
-                (StatusFlds.fields[field_num] = new_field(1, 6, 10, 0, 0, 0));
+        StatusFlds.settingsfld = (StatusFlds.fields[field_num] =
+                                          new_field_wrap(1, 6, 10, 0, 0, 0));
         field_num++;
         /* shm */
-        StatusFlds.shmfld =
-                (StatusFlds.fields[field_num] = new_field(1, 6, 12, 0, 0, 0));
+        StatusFlds.shmfld = (StatusFlds.fields[field_num] =
+                                     new_field_wrap(1, 6, 12, 0, 0, 0));
         field_num++;
         /* system */
-        StatusFlds.systemfld =
-                (StatusFlds.fields[field_num] = new_field(1, 6, 14, 0, 0, 0));
+        StatusFlds.systemfld = (StatusFlds.fields[field_num] =
+                                        new_field_wrap(1, 6, 14, 0, 0, 0));
         field_num++;
         /* terminate */
         StatusFlds.fields[field_num] = NULL;

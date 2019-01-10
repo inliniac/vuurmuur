@@ -149,36 +149,36 @@ static void edit_zone_host_init(struct vrmr_ctx *vctx, int height, int width,
 
     /* preload the active field */
     HostSec.activelabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                      new_field(1, 16, 2, 0, 0, 0));
+                                      new_field_wrap(1, 16, 2, 0, 0, 0));
     set_field_buffer_wrap(HostSec.activelabelfld, 0, STR_CACTIVE);
     field_opts_off(HostSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     HostSec.activefld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                 new_field(1, 3, 3, 1, 0, 0));
+                                 new_field_wrap(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(
             HostSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
     HostSec.ipaddresslabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                         new_field(1, 16, 2, 8, 0, 0));
+                                         new_field_wrap(1, 16, 2, 8, 0, 0));
     set_field_buffer_wrap(HostSec.ipaddresslabelfld, 0, STR_IPADDRESS);
     field_opts_off(HostSec.ipaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     HostSec.ipaddressfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                    new_field(1, 16, 3, 9, 0, 0));
+                                    new_field_wrap(1, 16, 3, 9, 0, 0));
     set_field_type(HostSec.ipaddressfld, TYPE_IPV4);
     set_field_buffer_wrap(HostSec.ipaddressfld, 0, zone_ptr->ipv4.ipaddress);
     field_opts_on(HostSec.ipaddressfld, O_BLANK);
 
     HostSec.ip6addresslabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                          new_field(1, 16, 4, 8, 0, 0));
+                                          new_field_wrap(1, 16, 4, 8, 0, 0));
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(HostSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
 #endif
     field_opts_off(HostSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     HostSec.ip6addressfld =
-            (zonessec_ctx.edit_zone.fields[field_num++] =
-                            new_field(1, VRMR_MAX_IPV6_ADDR_LEN, 5, 9, 0, 0));
+            (zonessec_ctx.edit_zone.fields[field_num++] = new_field_wrap(
+                     1, VRMR_MAX_IPV6_ADDR_LEN, 5, 9, 0, 0));
     // set_field_type(HostSec.ipaddressfld, TYPE_IPV4);
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(HostSec.ip6addressfld, 0, zone_ptr->ipv6.ip6);
@@ -186,18 +186,18 @@ static void edit_zone_host_init(struct vrmr_ctx *vctx, int height, int width,
     field_opts_on(HostSec.ip6addressfld, O_BLANK);
 
     HostSec.macaddresslabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                          new_field(1, 16, 6, 8, 0, 0));
+                                          new_field_wrap(1, 16, 6, 8, 0, 0));
     set_field_buffer_wrap(HostSec.macaddresslabelfld, 0, STR_MACADDRESS);
     field_opts_off(HostSec.macaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     HostSec.macaddressfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                     new_field(1, 19, 7, 9, 0, 0));
+                                     new_field_wrap(1, 19, 7, 9, 0, 0));
     set_field_buffer_wrap(HostSec.macaddressfld, 0, zone_ptr->mac);
     field_opts_on(HostSec.macaddressfld, O_BLANK);
 
     /* comment label */
     HostSec.commentlabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                       new_field(1, 16, 10, 0, 0, 0));
+                                       new_field_wrap(1, 16, 10, 0, 0, 0));
     set_field_buffer_wrap(HostSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(HostSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
@@ -205,8 +205,9 @@ static void edit_zone_host_init(struct vrmr_ctx *vctx, int height, int width,
     comment_y = 5;
     comment_x = 48;
     /* create the comment field */
-    HostSec.commentfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                  new_field(comment_y, comment_x, 11, 1, 0, 0));
+    HostSec.commentfld =
+            (zonessec_ctx.edit_zone.fields[field_num++] =
+                            new_field_wrap(comment_y, comment_x, 11, 1, 0, 0));
 
     /* load the comment from the backend */
     if (vctx->zf->ask(vctx->zone_backend, zone_ptr->name, "COMMENT",
@@ -217,7 +218,7 @@ static void edit_zone_host_init(struct vrmr_ctx *vctx, int height, int width,
     set_field_buffer_wrap(HostSec.commentfld, 0, zonessec_ctx.comment);
 
     HostSec.warningfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                  new_field(1, 48, 15, 1, 0, 0));
+                                  new_field_wrap(1, 48, 15, 1, 0, 0));
     field_opts_off(HostSec.warningfld, O_AUTOSKIP | O_ACTIVE | O_VISIBLE);
     set_field_just(HostSec.warningfld, JUSTIFY_CENTER);
 
@@ -576,13 +577,15 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                 case KEY_DOWN:
                 case 10: // enter
                 case 9:  // tab
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_NEXT_FIELD);
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
+                    form_driver_wrap(
+                            zonessec_ctx.edit_zone.form, REQ_NEXT_FIELD);
+                    form_driver_wrap(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case KEY_UP:
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_PREV_FIELD);
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
+                    form_driver_wrap(
+                            zonessec_ctx.edit_zone.form, REQ_PREV_FIELD);
+                    form_driver_wrap(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case 27:
@@ -1747,18 +1750,18 @@ static void edit_zone_group_init(
 
     /* preload the active field */
     GroupSec.activelabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                       new_field(1, 16, 2, 0, 0, 0));
+                                       new_field_wrap(1, 16, 2, 0, 0, 0));
     set_field_buffer_wrap(GroupSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(GroupSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     GroupSec.activefld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                  new_field(1, 3, 3, 1, 0, 0));
+                                  new_field_wrap(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(
             GroupSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
     /* comment label */
     GroupSec.commentlabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                        new_field(1, 16, 5, 0, 0, 0));
+                                        new_field_wrap(1, 16, 5, 0, 0, 0));
     set_field_buffer_wrap(GroupSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(GroupSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
@@ -1766,8 +1769,9 @@ static void edit_zone_group_init(
     comment_y = 5;
     comment_x = 48;
     /* create the comment field */
-    GroupSec.commentfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                   new_field(comment_y, comment_x, 6, 1, 0, 0));
+    GroupSec.commentfld =
+            (zonessec_ctx.edit_zone.fields[field_num++] =
+                            new_field_wrap(comment_y, comment_x, 6, 1, 0, 0));
 
     /* load the comment from the backend */
     if (vctx->zf->ask(vctx->zone_backend, zone_ptr->name, "COMMENT",
@@ -1779,7 +1783,7 @@ static void edit_zone_group_init(
 
     /* comment label */
     GroupSec.warningfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                   new_field(1, 48, 11, 1, 0, 0));
+                                   new_field_wrap(1, 48, 11, 1, 0, 0));
     field_opts_off(GroupSec.warningfld, O_AUTOSKIP | O_ACTIVE | O_VISIBLE);
     set_field_just(GroupSec.warningfld, JUSTIFY_CENTER);
 
@@ -2023,16 +2027,18 @@ static int edit_zone_group(
                     case 9:  // tab
                     case 10: // enter
 
-                        form_driver(
+                        form_driver_wrap(
                                 zonessec_ctx.edit_zone.form, REQ_NEXT_FIELD);
-                        form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
+                        form_driver_wrap(
+                                zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                         break;
 
                     case KEY_UP:
 
-                        form_driver(
+                        form_driver_wrap(
                                 zonessec_ctx.edit_zone.form, REQ_PREV_FIELD);
-                        form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
+                        form_driver_wrap(
+                                zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                         break;
 
                     case KEY_F(12):
@@ -3411,46 +3417,46 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* active toggle */
     NetworkSec.activelabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                         new_field(1, 16, 2, 0, 0, 0));
+                                         new_field_wrap(1, 16, 2, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(NetworkSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.activefld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                    new_field(1, 3, 3, 1, 0, 0));
+                                    new_field_wrap(1, 3, 3, 1, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
     /* network */
     NetworkSec.networklabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                          new_field(1, 8, 5, 0, 0, 0));
+                                          new_field_wrap(1, 8, 5, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.networklabelfld, 0, gettext("Network"));
     field_opts_off(NetworkSec.networklabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.networkfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                     new_field(1, 16, 6, 1, 0, 0));
+                                     new_field_wrap(1, 16, 6, 1, 0, 0));
     set_field_type(NetworkSec.networkfld, TYPE_IPV4);
     field_num++;
     set_field_buffer_wrap(NetworkSec.networkfld, 0, zone_ptr->ipv4.network);
 
     /* network */
     NetworkSec.netmasklabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                          new_field(1, 8, 7, 0, 0, 0));
+                                          new_field_wrap(1, 8, 7, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.netmasklabelfld, 0, gettext("Netmask"));
     field_opts_off(NetworkSec.netmasklabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.netmaskfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                     new_field(1, 16, 8, 1, 0, 0));
+                                     new_field_wrap(1, 16, 8, 1, 0, 0));
     set_field_type(NetworkSec.netmaskfld, TYPE_IPV4);
     field_num++;
     set_field_buffer_wrap(NetworkSec.netmaskfld, 0, zone_ptr->ipv4.netmask);
 
     /* network */
     NetworkSec.network6labelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                           new_field(1, 12, 9, 0, 0, 0));
+                                           new_field_wrap(1, 12, 9, 0, 0, 0));
     field_num++;
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(
@@ -3459,8 +3465,8 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
     field_opts_off(NetworkSec.network6labelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.network6fld =
-            (zonessec_ctx.edit_zone.fields[field_num++] =
-                            new_field(1, VRMR_MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
+            (zonessec_ctx.edit_zone.fields[field_num++] = new_field_wrap(
+                     1, VRMR_MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
     // set_field_type(NetworkSec.networkfld, TYPE_IPV4);
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(NetworkSec.network6fld, 0, zone_ptr->ipv6.net6);
@@ -3468,14 +3474,14 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* cidr */
     NetworkSec.cidr6labelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                        new_field(1, 9, 11, 0, 0, 0));
+                                        new_field_wrap(1, 9, 11, 0, 0, 0));
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(NetworkSec.cidr6labelfld, 0, gettext("IPv6 CIDR"));
 #endif
     field_opts_off(NetworkSec.cidr6labelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.cidr6fld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                   new_field(1, 3, 12, 1, 0, 0));
+                                   new_field_wrap(1, 3, 12, 1, 0, 0));
 #ifdef IPV6_ENABLED
     char cidr[3] = "";
     snprintf(cidr, sizeof(cidr), "%d", zone_ptr->ipv6.cidr6);
@@ -3484,19 +3490,20 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* anti-spoof loopback */
     NetworkSec.loopbacklabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                           new_field(1, 8, 4, 20, 0, 0));
+                                           new_field_wrap(1, 8, 4, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.loopbacklabelfld, 0, gettext("Loopback"));
     field_opts_off(NetworkSec.loopbacklabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.loopbackbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                              new_field(1, 3, 4, 32, 0, 0));
+    NetworkSec.loopbackbracketsfld =
+            (zonessec_ctx.edit_zone.fields[field_num] =
+                            new_field_wrap(1, 3, 4, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.loopbackbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.loopbackbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.loopbackfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                      new_field(1, 1, 4, 33, 0, 0));
+                                      new_field_wrap(1, 1, 4, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.loopbackfld, 0,
             protectrule_loaded(
@@ -3506,19 +3513,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* anti-spoof class-a */
     NetworkSec.classalabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                         new_field(1, 8, 5, 20, 0, 0));
+                                         new_field_wrap(1, 8, 5, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classalabelfld, 0, gettext("Class A"));
     field_opts_off(NetworkSec.classalabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classabracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                            new_field(1, 3, 5, 32, 0, 0));
+                                            new_field_wrap(1, 3, 5, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classabracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classabracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classafld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                    new_field(1, 1, 5, 33, 0, 0));
+                                    new_field_wrap(1, 1, 5, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classafld, 0,
             protectrule_loaded(
@@ -3528,19 +3535,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* anti-spoof class-b */
     NetworkSec.classblabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                         new_field(1, 8, 6, 20, 0, 0));
+                                         new_field_wrap(1, 8, 6, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classblabelfld, 0, gettext("Class B"));
     field_opts_off(NetworkSec.classblabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classbbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                            new_field(1, 3, 6, 32, 0, 0));
+                                            new_field_wrap(1, 3, 6, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classbbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classbbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classbfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                    new_field(1, 1, 6, 33, 0, 0));
+                                    new_field_wrap(1, 1, 6, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classbfld, 0,
             protectrule_loaded(
@@ -3550,19 +3557,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* anti-spoof class-c */
     NetworkSec.classclabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                         new_field(1, 8, 7, 20, 0, 0));
+                                         new_field_wrap(1, 8, 7, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classclabelfld, 0, gettext("Class C"));
     field_opts_off(NetworkSec.classclabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classcbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                            new_field(1, 3, 7, 32, 0, 0));
+                                            new_field_wrap(1, 3, 7, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classcbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classcbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classcfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                    new_field(1, 1, 7, 33, 0, 0));
+                                    new_field_wrap(1, 1, 7, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classcfld, 0,
             protectrule_loaded(
@@ -3572,19 +3579,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* anti-spoof class-d */
     NetworkSec.classdlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                         new_field(1, 8, 8, 20, 0, 0));
+                                         new_field_wrap(1, 8, 8, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classdlabelfld, 0, gettext("Class D"));
     field_opts_off(NetworkSec.classdlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classdbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                            new_field(1, 3, 8, 32, 0, 0));
+                                            new_field_wrap(1, 3, 8, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classdbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classdbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classdfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                    new_field(1, 1, 8, 33, 0, 0));
+                                    new_field_wrap(1, 1, 8, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classdfld, 0,
             protectrule_loaded(
@@ -3594,19 +3601,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* anti-spoof class-e */
     NetworkSec.classelabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                         new_field(1, 8, 9, 20, 0, 0));
+                                         new_field_wrap(1, 8, 9, 20, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classelabelfld, 0, gettext("Class E"));
     field_opts_off(NetworkSec.classelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classebracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                            new_field(1, 3, 9, 32, 0, 0));
+                                            new_field_wrap(1, 3, 9, 32, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classebracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classebracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classefld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                    new_field(1, 1, 9, 33, 0, 0));
+                                    new_field_wrap(1, 1, 9, 33, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.classefld, 0,
             protectrule_loaded(
@@ -3616,19 +3623,19 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* anti-spoof testnet */
     NetworkSec.testnetlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                          new_field(1, 14, 4, 37, 0, 0));
+                                          new_field_wrap(1, 14, 4, 37, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.testnetlabelfld, 0, gettext("Test-net"));
     field_opts_off(NetworkSec.testnetlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.testnetbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                             new_field(1, 3, 4, 52, 0, 0));
+                                             new_field_wrap(1, 3, 4, 52, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.testnetbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.testnetbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.testnetfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                     new_field(1, 1, 4, 53, 0, 0));
+                                     new_field_wrap(1, 1, 4, 53, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.testnetfld, 0,
             protectrule_loaded(
@@ -3638,7 +3645,7 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* anti-spoof link local net */
     NetworkSec.lnklocnetlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                            new_field(1, 14, 5, 37, 0, 0));
+                                            new_field_wrap(1, 14, 5, 37, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.lnklocnetlabelfld, 0, gettext("Link local net"));
@@ -3646,13 +3653,13 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     NetworkSec.lnklocnetbracketsfld =
             (zonessec_ctx.edit_zone.fields[field_num] =
-                            new_field(1, 3, 5, 52, 0, 0));
+                            new_field_wrap(1, 3, 5, 52, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.lnklocnetbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.lnklocnetbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.lnklocnetfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                       new_field(1, 1, 5, 53, 0, 0));
+                                       new_field_wrap(1, 1, 5, 53, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.lnklocnetfld, 0,
             protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing",
@@ -3662,20 +3669,20 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* anti-spoof link local net */
     NetworkSec.iana08labelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                         new_field(1, 14, 6, 37, 0, 0));
+                                         new_field_wrap(1, 14, 6, 37, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.iana08labelfld, 0, gettext("0.0.0.0/8 res."));
     field_opts_off(NetworkSec.iana08labelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.iana08bracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                            new_field(1, 3, 6, 52, 0, 0));
+                                            new_field_wrap(1, 3, 6, 52, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.iana08bracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.iana08bracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.iana08fld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                    new_field(1, 1, 6, 53, 0, 0));
+                                    new_field_wrap(1, 1, 6, 53, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.iana08fld, 0,
             protectrule_loaded(
@@ -3685,20 +3692,20 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* anti-spoof link local net */
     NetworkSec.brdsrclabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                         new_field(1, 14, 7, 37, 0, 0));
+                                         new_field_wrap(1, 14, 7, 37, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.brdsrclabelfld, 0, gettext("Broadcast src."));
     field_opts_off(NetworkSec.brdsrclabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.brdsrcbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                            new_field(1, 3, 7, 52, 0, 0));
+                                            new_field_wrap(1, 3, 7, 52, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.brdsrcbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.brdsrcbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.brdsrcfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                    new_field(1, 1, 7, 53, 0, 0));
+                                    new_field_wrap(1, 1, 7, 53, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.brdsrcfld, 0,
             protectrule_loaded(
@@ -3708,20 +3715,20 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* anti-spoof link local net */
     NetworkSec.brddstlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                         new_field(1, 14, 8, 37, 0, 0));
+                                         new_field_wrap(1, 14, 8, 37, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.brddstlabelfld, 0, gettext("Broadcast dst."));
     field_opts_off(NetworkSec.brddstlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.brddstbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                            new_field(1, 3, 8, 52, 0, 0));
+                                            new_field_wrap(1, 3, 8, 52, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.brddstbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.brddstbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.brddstfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                    new_field(1, 1, 8, 53, 0, 0));
+                                    new_field_wrap(1, 1, 8, 53, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.brddstfld, 0,
             protectrule_loaded(
@@ -3731,20 +3738,20 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* DHCP Server */
     NetworkSec.dhcpsrvlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                          new_field(1, 14, 4, 57, 0, 0));
+                                          new_field_wrap(1, 14, 4, 57, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.dhcpsrvlabelfld, 0, gettext("DHCP Server"));
     field_opts_off(NetworkSec.dhcpsrvlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.dhcpsrvbracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                             new_field(1, 3, 4, 71, 0, 0));
+                                             new_field_wrap(1, 3, 4, 71, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.dhcpsrvbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.dhcpsrvbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.dhcpsrvfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                     new_field(1, 1, 4, 72, 0, 0));
+                                     new_field_wrap(1, 1, 4, 72, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.dhcpsrvfld, 0,
             protectrule_loaded(
@@ -3754,20 +3761,20 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* DHCP Client */
     NetworkSec.dhcpclilabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                          new_field(1, 14, 5, 57, 0, 0));
+                                          new_field_wrap(1, 14, 5, 57, 0, 0));
     field_num++;
     set_field_buffer_wrap(
             NetworkSec.dhcpclilabelfld, 0, gettext("DHCP Client"));
     field_opts_off(NetworkSec.dhcpclilabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.dhcpclibracketsfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                             new_field(1, 3, 5, 71, 0, 0));
+                                             new_field_wrap(1, 3, 5, 71, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.dhcpclibracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.dhcpclibracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.dhcpclifld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                     new_field(1, 1, 5, 72, 0, 0));
+                                     new_field_wrap(1, 1, 5, 72, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.dhcpclifld, 0,
             protectrule_loaded(
@@ -3781,18 +3788,18 @@ static void edit_zone_network_init(struct vrmr_ctx *vctx,
 
     /* comment */
     NetworkSec.commentlabelfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                          new_field(1, 16, 13, 0, 0, 0));
+                                          new_field_wrap(1, 16, 13, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(NetworkSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(NetworkSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.commentfld =
             (zonessec_ctx.edit_zone.fields[field_num] =
-                            new_field(comment_y, comment_x, 14, 1, 0, 0));
+                            new_field_wrap(comment_y, comment_x, 14, 1, 0, 0));
     field_num++;
 
     NetworkSec.warningfld = (zonessec_ctx.edit_zone.fields[field_num] =
-                                     new_field(1, width - 4, 1, 0, 0, 0));
+                                     new_field_wrap(1, width - 4, 1, 0, 0, 0));
 
     field_opts_off(NetworkSec.warningfld, O_VISIBLE | O_ACTIVE);
     field_num++;
@@ -4233,14 +4240,16 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
                 case 10: // enter
                 case 9:  // tab
 
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_NEXT_FIELD);
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
+                    form_driver_wrap(
+                            zonessec_ctx.edit_zone.form, REQ_NEXT_FIELD);
+                    form_driver_wrap(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case KEY_UP:
 
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_PREV_FIELD);
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
+                    form_driver_wrap(
+                            zonessec_ctx.edit_zone.form, REQ_PREV_FIELD);
+                    form_driver_wrap(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case 27:
@@ -4885,17 +4894,17 @@ static void edit_zone_zone_init(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     vrmr_fatal_alloc("calloc", zonessec_ctx.edit_zone.fields);
 
     ZoneSec.activelabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                      new_field(1, 16, 2, 0, 0, 0));
+                                      new_field_wrap(1, 16, 2, 0, 0, 0));
     set_field_buffer_wrap(ZoneSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(ZoneSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     ZoneSec.activefld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                 new_field(1, 3, 3, 1, 0, 0));
+                                 new_field_wrap(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(
             ZoneSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
     ZoneSec.commentlabelfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                       new_field(1, 16, 5, 0, 0, 0));
+                                       new_field_wrap(1, 16, 5, 0, 0, 0));
     set_field_buffer_wrap(ZoneSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(ZoneSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
@@ -4903,8 +4912,9 @@ static void edit_zone_zone_init(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     comment_y = 5;
     comment_x = 48;
     /* create and label the comment field */
-    ZoneSec.commentfld = (zonessec_ctx.edit_zone.fields[field_num++] =
-                                  new_field(comment_y, comment_x, 6, 1, 0, 0));
+    ZoneSec.commentfld =
+            (zonessec_ctx.edit_zone.fields[field_num++] =
+                            new_field_wrap(comment_y, comment_x, 6, 1, 0, 0));
     /* load the comment from the backend */
     if (vctx->zf->ask(vctx->zone_backend, zone_ptr->name, "COMMENT",
                 zonessec_ctx.comment, sizeof(zonessec_ctx.comment),
@@ -5121,14 +5131,16 @@ static int edit_zone_zone(
                 case KEY_DOWN:
                 case 10: // enter
                 case 9:  // tab
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_NEXT_FIELD);
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
+                    form_driver_wrap(
+                            zonessec_ctx.edit_zone.form, REQ_NEXT_FIELD);
+                    form_driver_wrap(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_PREV_FIELD);
-                    form_driver(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
+                    form_driver_wrap(
+                            zonessec_ctx.edit_zone.form, REQ_PREV_FIELD);
+                    form_driver_wrap(zonessec_ctx.edit_zone.form, REQ_BEG_LINE);
                     break;
 
                 case 27:

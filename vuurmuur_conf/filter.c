@@ -126,9 +126,9 @@ int filter_input_box(struct vrmr_filter *filter)
     vrmr_fatal_alloc("calloc", filter_fields.fields);
 
     filter_fields.string_fld =
-            (filter_fields.fields[0] = new_field(1, 31, 3, 4, 0, 0));
+            (filter_fields.fields[0] = new_field_wrap(1, 31, 3, 4, 0, 0));
     filter_fields.check_fld =
-            (filter_fields.fields[1] = new_field(1, 1, 5, 5, 0, 0));
+            (filter_fields.fields[1] = new_field_wrap(1, 1, 5, 5, 0, 0));
 
     set_field_back(filter_fields.string_fld, vccnf.color_win_rev);
     field_opts_off(filter_fields.string_fld, O_AUTOSKIP);
@@ -186,15 +186,15 @@ int filter_input_box(struct vrmr_filter *filter)
             switch (ch) {
                 case KEY_UP:
 
-                    form_driver(my_form, REQ_PREV_FIELD);
-                    form_driver(my_form, REQ_END_LINE);
+                    form_driver_wrap(my_form, REQ_PREV_FIELD);
+                    form_driver_wrap(my_form, REQ_END_LINE);
                     break;
 
                 case KEY_DOWN:
                 case 9: // tab
 
-                    form_driver(my_form, REQ_NEXT_FIELD);
-                    form_driver(my_form, REQ_END_LINE);
+                    form_driver_wrap(my_form, REQ_NEXT_FIELD);
+                    form_driver_wrap(my_form, REQ_END_LINE);
                     break;
 
                 case 10: // enter
@@ -202,8 +202,8 @@ int filter_input_box(struct vrmr_filter *filter)
                     if (cur == filter_fields.check_fld) {
                         quit = 1;
                     } else {
-                        form_driver(my_form, REQ_NEXT_FIELD);
-                        form_driver(my_form, REQ_END_LINE);
+                        form_driver_wrap(my_form, REQ_NEXT_FIELD);
+                        form_driver_wrap(my_form, REQ_END_LINE);
                     }
                     break;
 

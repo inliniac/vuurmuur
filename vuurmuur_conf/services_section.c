@@ -229,24 +229,24 @@ static int edit_serv_portranges_new_validate(struct vrmr_ctx *vctx,
 
 struct {
     FIELD *src_lo_fld, *src_hi_fld, *dst_lo_fld, *dst_hi_fld;
-} TCPUDPSec;
+} portrange_tcpudp_ctx;
 
 static void edit_tcpudp(struct vrmr_portdata *port_ptr)
 {
-    WINDOW *new_portrange_win;
-    PANEL *my_panels[1];
-    FIELD **fields, *cur = NULL, *prev = NULL;
-    FORM *my_form;
-    int height, width, startx = 0, starty = 0, max_height, max_width, ch, i,
-                       rows, cols, quit = 0;
-    int not_defined = 0, field_num = 0;
+    WINDOW *win;
+    PANEL *panel;
+    FIELD **fields;
+    FORM *form;
+    int height, width, startx = 0, starty = 0, max_height, max_width, rows,
+                       cols, quit = 0;
+    int field_num = 0;
     char port_str[6] = ""; /* 5 (65535) + \0 = 6 */
 
     /* safety */
     vrmr_fatal_if_null(port_ptr);
 
     /* clear */
-    memset(&TCPUDPSec, 0, sizeof(TCPUDPSec));
+    memset(&portrange_tcpudp_ctx, 0, sizeof(portrange_tcpudp_ctx));
 
     /* set window dimentions */
     height = 8;
@@ -256,103 +256,117 @@ static void edit_tcpudp(struct vrmr_portdata *port_ptr)
     starty = (max_height - height) / 2;
     startx = (max_width - width) / 2;
 
+    vrmr_debug(LOW,
+            "max_height %d height %d, max_width %d width %d starty %d startx "
+            "%d",
+            max_height, height, max_width, width, starty, startx);
+
     /* create window and panel */
     if (port_ptr->protocol == 6)
-        new_portrange_win = create_newwin(height, width, starty, startx,
+        win = create_newwin(height, width, starty, startx,
                 gettext("TCP Portrange"), vccnf.color_win);
     else
-        new_portrange_win = create_newwin(height, width, starty, startx,
+        win = create_newwin(height, width, starty, startx,
                 gettext("UDP Portrange"), vccnf.color_win);
-    vrmr_fatal_if_null(new_portrange_win);
-    my_panels[0] = new_panel(new_portrange_win);
-    vrmr_fatal_if_null(my_panels[0]);
-    keypad(new_portrange_win, TRUE);
+    vrmr_fatal_if_null(win);
+    panel = new_panel(win);
+    vrmr_fatal_if_null(panel);
+    keypad(win, TRUE);
 
     fields = (FIELD **)calloc(4 + 1, sizeof(FIELD *));
     vrmr_fatal_alloc("calloc", fields);
 
-    TCPUDPSec.src_lo_fld = (fields[field_num++] = new_field(1, 5, 3, 3, 0, 0));
+    portrange_tcpudp_ctx.src_lo_fld =
+            (fields[field_num++] = new_field_wrap(1, 5, 3, 3, 0, 0));
     if (port_ptr->src_low > 0 && port_ptr->src_low <= 65535) {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->src_low);
-        set_field_buffer_wrap(TCPUDPSec.src_lo_fld, 0, port_str);
+        set_field_buffer_wrap(portrange_tcpudp_ctx.src_lo_fld, 0, port_str);
     }
 
-    TCPUDPSec.src_hi_fld = (fields[field_num++] = new_field(1, 5, 3, 11, 0, 0));
+    portrange_tcpudp_ctx.src_hi_fld =
+            (fields[field_num++] = new_field_wrap(1, 5, 3, 11, 0, 0));
     if (port_ptr->src_high > 0 && port_ptr->src_high <= 65535) {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->src_high);
-        set_field_buffer_wrap(TCPUDPSec.src_hi_fld, 0, port_str);
+        set_field_buffer_wrap(portrange_tcpudp_ctx.src_hi_fld, 0, port_str);
     }
 
-    TCPUDPSec.dst_lo_fld = (fields[field_num++] = new_field(1, 5, 3, 24, 0, 0));
+    portrange_tcpudp_ctx.dst_lo_fld =
+            (fields[field_num++] = new_field_wrap(1, 5, 3, 24, 0, 0));
     if (port_ptr->dst_low > 0 && port_ptr->dst_low <= 65535) {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->dst_low);
-        set_field_buffer_wrap(TCPUDPSec.dst_lo_fld, 0, port_str);
+        set_field_buffer_wrap(portrange_tcpudp_ctx.dst_lo_fld, 0, port_str);
     }
 
-    TCPUDPSec.dst_hi_fld = (fields[field_num++] = new_field(1, 5, 3, 32, 0, 0));
+    portrange_tcpudp_ctx.dst_hi_fld =
+            (fields[field_num++] = new_field_wrap(1, 5, 3, 32, 0, 0));
     if (port_ptr->dst_high > 0 && port_ptr->dst_high <= 65535) {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->dst_high);
-        set_field_buffer_wrap(TCPUDPSec.dst_hi_fld, 0, port_str);
+        set_field_buffer_wrap(portrange_tcpudp_ctx.dst_hi_fld, 0, port_str);
     }
-
     vrmr_fatal_if(field_num != 4);
 
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
         set_field_back(fields[i], vccnf.color_win_rev);
         field_opts_off(fields[i], O_AUTOSKIP);
         set_field_status(fields[i], FALSE);
     }
 
     /* create form */
-    my_form = new_form(fields);
-    scale_form(my_form, &rows, &cols);
-    set_form_win(my_form, new_portrange_win);
-    set_form_sub(my_form, derwin(new_portrange_win, rows, cols, 1, 2));
-    post_form(my_form);
+    form = new_form(fields);
+    vrmr_fatal_if_null(form);
+    int x = scale_form(form, &rows, &cols);
+    vrmr_fatal_if(x != E_OK);
+    vrmr_debug(NONE, "rows %d cols %d", rows, cols);
+    x = set_form_win(form, win);
+    vrmr_fatal_if(x != E_OK);
+    WINDOW *der_win = derwin(win, rows, cols, 1, 2);
+    vrmr_fatal_if_null(der_win);
+    x = set_form_sub(form, der_win);
+    vrmr_fatal_if(x != E_OK);
+    x = post_form(form);
+    vrmr_fatal_if(x != E_OK);
 
-    mvwprintw(new_portrange_win, 2, 5, gettext("Source"));
-    mvwprintw(new_portrange_win, 3, 5, gettext("Low"));
-    mvwprintw(new_portrange_win, 3, 13, gettext("High"));
+    mvwprintw(win, 2, 5, gettext("Source"));
+    mvwprintw(win, 3, 5, gettext("Low"));
+    mvwprintw(win, 3, 13, gettext("High"));
+    mvwprintw(win, 4, 21, "->");
+    mvwprintw(win, 2, 26, gettext("Destination"));
+    mvwprintw(win, 3, 26, gettext("Low"));
+    mvwprintw(win, 3, 34, gettext("High"));
 
-    mvwprintw(new_portrange_win, 4, 21, "->");
-
-    mvwprintw(new_portrange_win, 2, 26, gettext("Destination"));
-    mvwprintw(new_portrange_win, 3, 26, gettext("Low"));
-    mvwprintw(new_portrange_win, 3, 34, gettext("High"));
-
-    pos_form_cursor(my_form);
+    pos_form_cursor(form);
 
     /* go to the 3rd field, so we focus on dst_low */
-    form_driver(my_form, REQ_NEXT_FIELD);
-    form_driver(my_form, REQ_NEXT_FIELD);
+    form_driver_wrap(form, REQ_NEXT_FIELD);
+    form_driver_wrap(form, REQ_NEXT_FIELD);
 
-    cur = current_field(my_form);
+    FIELD *cur = current_field(form);
+    FIELD *prev = NULL;
 
     update_panels();
     doupdate();
 
     while (quit == 0) {
-        draw_field_active_mark(cur, prev, new_portrange_win, my_form,
-                vccnf.color_win_mark | A_BOLD);
+        draw_field_active_mark(
+                cur, prev, win, form, vccnf.color_win_mark | A_BOLD);
 
-        if (cur == TCPUDPSec.src_lo_fld)
+        if (cur == portrange_tcpudp_ctx.src_lo_fld)
             status_print(status_win, gettext("Enter a portnumber (1-65535)."));
-        else if (cur == TCPUDPSec.src_hi_fld)
+        else if (cur == portrange_tcpudp_ctx.src_hi_fld)
             status_print(
                     status_win, gettext("Enter a portnumber (1-65535). This is "
                                         "the high-end of the range."));
-        else if (cur == TCPUDPSec.dst_lo_fld)
+        else if (cur == portrange_tcpudp_ctx.dst_lo_fld)
             status_print(status_win, gettext("Enter a portnumber (1-65535)."));
-        else if (cur == TCPUDPSec.dst_hi_fld)
+        else if (cur == portrange_tcpudp_ctx.dst_hi_fld)
             status_print(
                     status_win, gettext("Enter a portnumber (1-65535). This is "
                                         "the high-end of the range."));
 
-        ch = wgetch(new_portrange_win);
+        int ch = wgetch(win);
+        int not_defined = 0;
 
-        not_defined = 0;
-
-        if (nav_field_simpletext(my_form, ch) < 0)
+        if (nav_field_simpletext(form, ch) < 0)
             not_defined = 1;
 
         if (not_defined) {
@@ -369,26 +383,26 @@ static void edit_tcpudp(struct vrmr_portdata *port_ptr)
                 case 10: // enter
                 case 9:  // tab
 
-                    form_driver(my_form, REQ_NEXT_FIELD);
-                    form_driver(my_form, REQ_END_LINE);
+                    form_driver_wrap(form, REQ_NEXT_FIELD);
+                    form_driver_wrap(form, REQ_END_LINE);
                     break;
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(my_form, REQ_PREV_FIELD);
-                    form_driver(my_form, REQ_END_LINE);
+                    form_driver_wrap(form, REQ_PREV_FIELD);
+                    form_driver_wrap(form, REQ_END_LINE);
                     break;
 
                 case KEY_BACKSPACE:
-                    form_driver(my_form, REQ_PREV_CHAR);
-                    form_driver(my_form, REQ_DEL_CHAR);
-                    form_driver(my_form, REQ_END_LINE);
+                    form_driver_wrap(form, REQ_PREV_CHAR);
+                    form_driver_wrap(form, REQ_DEL_CHAR);
+                    form_driver_wrap(form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_DC:
-                    form_driver(my_form, REQ_PREV_CHAR);
-                    form_driver(my_form, REQ_DEL_CHAR);
-                    form_driver(my_form, REQ_END_LINE);
+                    form_driver_wrap(form, REQ_PREV_CHAR);
+                    form_driver_wrap(form, REQ_DEL_CHAR);
+                    form_driver_wrap(form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -400,35 +414,35 @@ static void edit_tcpudp(struct vrmr_portdata *port_ptr)
 
                 default:
                     // If this is a normal character, it gets printed
-                    form_driver(my_form, ch);
+                    form_driver_wrap(form, ch);
                     break;
             }
         }
 
         /* set current field to prev */
         prev = cur;
-        cur = current_field(my_form);
+        cur = current_field(form);
 
         /* draw and set cursor */
-        wrefresh(new_portrange_win);
-        pos_form_cursor(my_form);
+        wrefresh(win);
+        pos_form_cursor(form);
     }
 
     /* store input in pointer */
-    port_ptr->src_low = atoi(field_buffer(TCPUDPSec.src_lo_fld, 0));
-    port_ptr->src_high = atoi(field_buffer(TCPUDPSec.src_hi_fld, 0));
-    port_ptr->dst_low = atoi(field_buffer(TCPUDPSec.dst_lo_fld, 0));
-    port_ptr->dst_high = atoi(field_buffer(TCPUDPSec.dst_hi_fld, 0));
+    port_ptr->src_low = atoi(field_buffer(portrange_tcpudp_ctx.src_lo_fld, 0));
+    port_ptr->src_high = atoi(field_buffer(portrange_tcpudp_ctx.src_hi_fld, 0));
+    port_ptr->dst_low = atoi(field_buffer(portrange_tcpudp_ctx.dst_lo_fld, 0));
+    port_ptr->dst_high = atoi(field_buffer(portrange_tcpudp_ctx.dst_hi_fld, 0));
 
     /* cleanup */
-    unpost_form(my_form);
-    free_form(my_form);
-    for (i = 0; i < 4; i++) {
+    unpost_form(form);
+    free_form(form);
+    for (int i = 0; i < 4; i++) {
         free_field(fields[i]);
     }
     free(fields);
-    del_panel(my_panels[0]);
-    destroy_win(new_portrange_win);
+    del_panel(panel);
+    destroy_win(win);
     status_print(status_win, gettext("Ready."));
     update_panels();
     doupdate();
@@ -779,13 +793,13 @@ static void edit_icmp(struct vrmr_portdata *port_ptr)
     fields = (FIELD **)calloc(2 + 1, sizeof(FIELD *));
     vrmr_fatal_alloc("calloc", fields);
 
-    ICMPSec.typefld = (fields[0] = new_field(1, 3, 2, 5, 0, 0));
+    ICMPSec.typefld = (fields[0] = new_field_wrap(1, 3, 2, 5, 0, 0));
     if (port_ptr->dst_low >= 0 && port_ptr->dst_low <= 255) {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->dst_low);
         set_field_buffer_wrap(ICMPSec.typefld, 0, port_str);
     }
 
-    ICMPSec.codefld = (fields[1] = new_field(1, 3, 2, 12, 0, 0));
+    ICMPSec.codefld = (fields[1] = new_field_wrap(1, 3, 2, 12, 0, 0));
     if (port_ptr->dst_high >= 0 && port_ptr->dst_high <= 16) {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->dst_high);
         set_field_buffer_wrap(ICMPSec.codefld, 0, port_str);
@@ -853,27 +867,27 @@ static void edit_icmp(struct vrmr_portdata *port_ptr)
             case 10: // enter
             case 9:  // tab
 
-                form_driver(my_form, REQ_NEXT_FIELD);
-                form_driver(my_form, REQ_END_LINE);
+                form_driver_wrap(my_form, REQ_NEXT_FIELD);
+                form_driver_wrap(my_form, REQ_END_LINE);
                 break;
 
             case KEY_UP:
 
-                form_driver(my_form, REQ_PREV_FIELD);
-                form_driver(my_form, REQ_END_LINE);
+                form_driver_wrap(my_form, REQ_PREV_FIELD);
+                form_driver_wrap(my_form, REQ_END_LINE);
                 break;
 
             case KEY_BACKSPACE:
-                form_driver(my_form, REQ_PREV_CHAR);
-                form_driver(my_form, REQ_DEL_CHAR);
-                form_driver(my_form, REQ_END_LINE);
+                form_driver_wrap(my_form, REQ_PREV_CHAR);
+                form_driver_wrap(my_form, REQ_DEL_CHAR);
+                form_driver_wrap(my_form, REQ_END_LINE);
                 break;
 
             case 127:
             case KEY_DC:
-                form_driver(my_form, REQ_PREV_CHAR);
-                form_driver(my_form, REQ_DEL_CHAR);
-                form_driver(my_form, REQ_END_LINE);
+                form_driver_wrap(my_form, REQ_PREV_CHAR);
+                form_driver_wrap(my_form, REQ_DEL_CHAR);
+                form_driver_wrap(my_form, REQ_END_LINE);
                 break;
 
             case 27:
@@ -893,7 +907,7 @@ static void edit_icmp(struct vrmr_portdata *port_ptr)
             default:
                 /* If this is a normal character, it gets printed */
                 if (isdigit(ch)) {
-                    form_driver(my_form, ch);
+                    form_driver_wrap(my_form, ch);
                 }
                 break;
         }
@@ -1805,41 +1819,41 @@ static void edit_service_init(
 
     /* active */
     ServiceSec.activelabelfld = (sersec_ctx.edit_service.fields[field_num++] =
-                                         new_field(1, 10, 2, 0, 0, 0));
+                                         new_field_wrap(1, 10, 2, 0, 0, 0));
     set_field_buffer_wrap(ServiceSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(ServiceSec.activelabelfld, O_ACTIVE);
 
     ServiceSec.activefld = (sersec_ctx.edit_service.fields[field_num++] =
-                                    new_field(1, 3, 3, 1, 0, 0));
+                                    new_field_wrap(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(
             ServiceSec.activefld, 0, ser_ptr->active ? STR_YES : STR_NO);
 
     /* broadcast */
     ServiceSec.broadcastlabelfld =
             (sersec_ctx.edit_service.fields[field_num++] =
-                            new_field(1, 16, 5, 0, 0, 0));
+                            new_field_wrap(1, 16, 5, 0, 0, 0));
     set_field_buffer_wrap(
             ServiceSec.broadcastlabelfld, 0, gettext("Broadcast"));
     field_opts_off(ServiceSec.broadcastlabelfld, O_ACTIVE);
 
     ServiceSec.broadcastfld = (sersec_ctx.edit_service.fields[field_num++] =
-                                       new_field(1, 3, 6, 1, 0, 0));
+                                       new_field_wrap(1, 3, 6, 1, 0, 0));
     set_field_buffer_wrap(
             ServiceSec.broadcastfld, 0, ser_ptr->broadcast ? STR_YES : STR_NO);
 
     /* helper */
     ServiceSec.helperlabelfld = (sersec_ctx.edit_service.fields[field_num++] =
-                                         new_field(1, 16, 2, 16, 0, 0));
+                                         new_field_wrap(1, 16, 2, 16, 0, 0));
     set_field_buffer_wrap(
             ServiceSec.helperlabelfld, 0, gettext("Protocol helper"));
     field_opts_off(ServiceSec.helperlabelfld, O_ACTIVE);
 
     ServiceSec.helperfld = (sersec_ctx.edit_service.fields[field_num++] =
-                                    new_field(1, 32, 3, 17, 0, 0));
+                                    new_field_wrap(1, 32, 3, 17, 0, 0));
     set_field_buffer_wrap(ServiceSec.helperfld, 0, ser_ptr->helper);
 
     ServiceSec.commentlabelfld = (sersec_ctx.edit_service.fields[field_num++] =
-                                          new_field(1, 16, 8, 0, 0, 0));
+                                          new_field_wrap(1, 16, 8, 0, 0, 0));
     set_field_buffer_wrap(ServiceSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(ServiceSec.commentlabelfld, O_ACTIVE);
 
@@ -1854,12 +1868,12 @@ static void edit_service_init(
 
     ServiceSec.commentfld =
             (sersec_ctx.edit_service.fields[field_num++] =
-                            new_field(comment_y, comment_x, 9, 1, 0, 0));
+                            new_field_wrap(comment_y, comment_x, 9, 1, 0, 0));
     set_field_buffer_wrap(ServiceSec.commentfld, 0, sersec_ctx.comment);
 
     ServiceSec.norangewarningfld =
             (sersec_ctx.edit_service.fields[field_num++] =
-                            new_field(1, 48, 14, 1, 0, 0));
+                            new_field_wrap(1, 48, 14, 1, 0, 0));
     set_field_buffer_wrap(ServiceSec.norangewarningfld, 0,
             gettext("Warning: no port(range)s defined!"));
     field_opts_off(ServiceSec.norangewarningfld, O_VISIBLE | O_ACTIVE);
@@ -1867,7 +1881,7 @@ static void edit_service_init(
 
     ServiceSec.portrangesfld =
             (sersec_ctx.edit_service.fields[field_num++] =
-                            new_field(portranges_lines, 48, 17, 1, 0, 0));
+                            new_field_wrap(portranges_lines, 48, 17, 1, 0, 0));
     field_opts_off(ServiceSec.portrangesfld, O_ACTIVE);
     set_field_just(ServiceSec.portrangesfld, JUSTIFY_CENTER);
 
@@ -2031,16 +2045,18 @@ static int edit_service(
                     case 10: // enter
                     case 9:  // tab
 
-                        form_driver(
+                        form_driver_wrap(
                                 sersec_ctx.edit_service.form, REQ_NEXT_FIELD);
-                        form_driver(sersec_ctx.edit_service.form, REQ_END_LINE);
+                        form_driver_wrap(
+                                sersec_ctx.edit_service.form, REQ_END_LINE);
                         break;
 
                     case KEY_UP:
 
-                        form_driver(
+                        form_driver_wrap(
                                 sersec_ctx.edit_service.form, REQ_PREV_FIELD);
-                        form_driver(sersec_ctx.edit_service.form, REQ_END_LINE);
+                        form_driver_wrap(
+                                sersec_ctx.edit_service.form, REQ_END_LINE);
                         break;
 
                     case KEY_F(12):

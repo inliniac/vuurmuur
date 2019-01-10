@@ -80,21 +80,22 @@ static void edit_genconfig_init(
     vrmr_fatal_alloc("calloc", config_section.fields);
 
     /* external programs */
-    GenConfig.iptableslocfld = (config_section.fields[0] = new_field(
+    GenConfig.iptableslocfld = (config_section.fields[0] = new_field_wrap(
                                         1, 64, 1, 1, 0, 0)); /* iptables */
     GenConfig.iptablesrestorelocfld =
-            (config_section.fields[1] = new_field(1, 64, 3, 1, 0, 0)); /*  */
-    GenConfig.ip6tableslocfld = (config_section.fields[2] = new_field(
+            (config_section.fields[1] =
+                            new_field_wrap(1, 64, 3, 1, 0, 0)); /*  */
+    GenConfig.ip6tableslocfld = (config_section.fields[2] = new_field_wrap(
                                          1, 64, 5, 1, 0, 0)); /* ip6tables */
     GenConfig.ip6tablesrestorelocfld =
-            (config_section.fields[3] = new_field(1, 64, 7, 1, 0, 0));
-    GenConfig.tclocfld =
-            (config_section.fields[4] = new_field(1, 64, 9, 1, 0, 0)); /*  */
+            (config_section.fields[3] = new_field_wrap(1, 64, 7, 1, 0, 0));
+    GenConfig.tclocfld = (config_section.fields[4] =
+                                  new_field_wrap(1, 64, 9, 1, 0, 0)); /*  */
     /* Config file permissions */
-    GenConfig.max_permission = (config_section.fields[5] = new_field(1, 4, 11,
-                                        1, 0, 0)); /* max_permissions */
-    GenConfig.sysctllocfld =
-            (config_section.fields[6] = new_field(1, 64, 13, 1, 0, 0)); /*  */
+    GenConfig.max_permission = (config_section.fields[5] = new_field_wrap(1, 4,
+                                        11, 1, 0, 0)); /* max_permissions */
+    GenConfig.sysctllocfld = (config_section.fields[6] = new_field_wrap(
+                                      1, 64, 13, 1, 0, 0)); /*  */
 
     /* terminate */
     config_section.fields[config_section.n_fields] = NULL;
@@ -325,27 +326,27 @@ int edit_genconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(config_section.form, REQ_NEXT_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_NEXT_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(config_section.form, REQ_PREV_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -358,7 +359,7 @@ int edit_genconfig(struct vrmr_config *conf)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(config_section.form, ch);
+                    form_driver_wrap(config_section.form, ch);
                     break;
             }
         }
@@ -395,9 +396,9 @@ static void edit_intconfig_init(
     vrmr_fatal_alloc("calloc", config_section.fields);
 
     IntConfig.dynchkfld =
-            (config_section.fields[0] = new_field(1, 1, 1, 1, 0, 0));
+            (config_section.fields[0] = new_field_wrap(1, 1, 1, 1, 0, 0));
     IntConfig.dynchkintfld =
-            (config_section.fields[1] = new_field(1, 4, 3, 20, 0, 0));
+            (config_section.fields[1] = new_field_wrap(1, 4, 3, 20, 0, 0));
     /* terminate */
     config_section.fields[config_section.n_fields] = NULL;
 
@@ -532,27 +533,27 @@ static int edit_intconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(config_section.form, REQ_NEXT_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_NEXT_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(config_section.form, REQ_PREV_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -565,7 +566,7 @@ static int edit_intconfig(struct vrmr_config *conf)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(config_section.form, ch);
+                    form_driver_wrap(config_section.form, ch);
                     break;
             }
         }
@@ -602,11 +603,11 @@ static void edit_modconfig_init(
 
     /* */
     ModConfig.modprobefld =
-            (config_section.fields[0] = new_field(1, 64, 2, 1, 0, 0));
+            (config_section.fields[0] = new_field_wrap(1, 64, 2, 1, 0, 0));
     ModConfig.loadmodulesfld =
-            (config_section.fields[1] = new_field(1, 1, 4, 2, 0, 0));
+            (config_section.fields[1] = new_field_wrap(1, 1, 4, 2, 0, 0));
     ModConfig.waittimefld =
-            (config_section.fields[2] = new_field(1, 5, 6, 1, 0, 0));
+            (config_section.fields[2] = new_field_wrap(1, 5, 6, 1, 0, 0));
 
     /* terminate */
     config_section.fields[config_section.n_fields] = NULL;
@@ -753,27 +754,27 @@ static int edit_modconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(config_section.form, REQ_NEXT_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_NEXT_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(config_section.form, REQ_PREV_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -786,7 +787,7 @@ static int edit_modconfig(struct vrmr_config *conf)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(config_section.form, ch);
+                    form_driver_wrap(config_section.form, ch);
                     break;
             }
         }
@@ -821,13 +822,13 @@ static void edit_plugconfig_init(
             (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
 
     /* backends */
-    PlugConfig.servbackfld = (config_section.fields[0] = new_field(
+    PlugConfig.servbackfld = (config_section.fields[0] = new_field_wrap(
                                       1, 16, 1, 1, 0, 0)); /* servbackend */
-    PlugConfig.zonebackfld = (config_section.fields[1] = new_field(
+    PlugConfig.zonebackfld = (config_section.fields[1] = new_field_wrap(
                                       1, 16, 3, 1, 0, 0)); /* zonebackend */
-    PlugConfig.ifacbackfld = (config_section.fields[2] = new_field(
+    PlugConfig.ifacbackfld = (config_section.fields[2] = new_field_wrap(
                                       1, 16, 5, 1, 0, 0)); /* ifacbackend */
-    PlugConfig.rulebackfld = (config_section.fields[3] = new_field(
+    PlugConfig.rulebackfld = (config_section.fields[3] = new_field_wrap(
                                       1, 16, 7, 1, 0, 0)); /* rulebackend */
     /* terminate */
     config_section.fields[config_section.n_fields] = NULL;
@@ -964,27 +965,27 @@ static int edit_plugconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(config_section.form, REQ_NEXT_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_NEXT_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(config_section.form, REQ_PREV_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -997,7 +998,7 @@ static int edit_plugconfig(struct vrmr_config *conf)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(config_section.form, ch);
+                    form_driver_wrap(config_section.form, ch);
                     break;
             }
         }
@@ -1034,18 +1035,18 @@ static void edit_conconfig_init(
             (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
 
     /* fields */
-    ConConfig.usesynlimitfld = (config_section.fields[0] = new_field(1, 1, 3, 2,
-                                        0, 0)); /* log logblocklist */
-    ConConfig.synlimitfld = (config_section.fields[1] = new_field(
+    ConConfig.usesynlimitfld = (config_section.fields[0] = new_field_wrap(1, 1,
+                                        3, 2, 0, 0)); /* log logblocklist */
+    ConConfig.synlimitfld = (config_section.fields[1] = new_field_wrap(
                                      1, 8, 5, 1, 0, 0)); /* SYN-limit */
-    ConConfig.synburstfld = (config_section.fields[2] = new_field(
+    ConConfig.synburstfld = (config_section.fields[2] = new_field_wrap(
                                      1, 8, 7, 1, 0, 0)); /* SYN-limit-burst */
 
-    ConConfig.useudplimitfld = (config_section.fields[3] = new_field(1, 1, 10,
-                                        2, 0, 0)); /* log logblocklist */
-    ConConfig.udplimitfld = (config_section.fields[4] = new_field(
+    ConConfig.useudplimitfld = (config_section.fields[3] = new_field_wrap(1, 1,
+                                        10, 2, 0, 0)); /* log logblocklist */
+    ConConfig.udplimitfld = (config_section.fields[4] = new_field_wrap(
                                      1, 8, 12, 1, 0, 0)); /* UDP-limit */
-    ConConfig.udpburstfld = (config_section.fields[5] = new_field(
+    ConConfig.udpburstfld = (config_section.fields[5] = new_field_wrap(
                                      1, 8, 14, 1, 0, 0)); /* UDP-limit-burst */
 
     config_section.fields[config_section.n_fields] = NULL;
@@ -1279,27 +1280,27 @@ static int edit_conconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(config_section.form, REQ_NEXT_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_NEXT_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(config_section.form, REQ_PREV_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -1312,7 +1313,7 @@ static int edit_conconfig(struct vrmr_config *conf)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(config_section.form, ch);
+                    form_driver_wrap(config_section.form, ch);
                     break;
             }
         }
@@ -1350,19 +1351,19 @@ static void edit_vcconfig_init(int height, int width, int starty, int startx)
 
     /* fields */
     VcConfig.newrule_logfld =
-            (config_section.fields[0] = new_field(1, 1, 2, 23, 0, 0));
+            (config_section.fields[0] = new_field_wrap(1, 1, 2, 23, 0, 0));
     VcConfig.newrule_loglimitfld =
-            (config_section.fields[1] = new_field(1, 3, 2, 66, 0, 0));
+            (config_section.fields[1] = new_field_wrap(1, 3, 2, 66, 0, 0));
     VcConfig.logview_bufsizefld =
-            (config_section.fields[2] = new_field(1, 6, 5, 52, 0, 0));
+            (config_section.fields[2] = new_field_wrap(1, 6, 5, 52, 0, 0));
     VcConfig.advancedmodefld =
-            (config_section.fields[3] = new_field(1, 1, 6, 53, 0, 0));
+            (config_section.fields[3] = new_field_wrap(1, 1, 6, 53, 0, 0));
     VcConfig.mainmenu_statusfld =
-            (config_section.fields[4] = new_field(1, 1, 7, 53, 0, 0));
+            (config_section.fields[4] = new_field_wrap(1, 1, 7, 53, 0, 0));
     VcConfig.backgroundfld =
-            (config_section.fields[5] = new_field(1, 1, 8, 53, 0, 0));
+            (config_section.fields[5] = new_field_wrap(1, 1, 8, 53, 0, 0));
     VcConfig.iptrafvollocfld =
-            (config_section.fields[6] = new_field(1, 64, 11, 1, 0, 0));
+            (config_section.fields[6] = new_field_wrap(1, 64, 11, 1, 0, 0));
     config_section.fields[config_section.n_fields] = NULL;
 
     /* create win & pan */
@@ -1584,27 +1585,27 @@ int edit_vcconfig(void)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(config_section.form, REQ_NEXT_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_NEXT_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(config_section.form, REQ_PREV_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -1617,7 +1618,7 @@ int edit_vcconfig(void)
                 default:
                     /* If this is a normal character, it gets printed into the
                      * field */
-                    form_driver(config_section.form, ch);
+                    form_driver_wrap(config_section.form, ch);
                     break;
             }
         }
@@ -1659,35 +1660,36 @@ static void edit_logconfig_init(
             (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
 
     /* fields */
-    LogConfig.rule_nflogfld = (config_section.fields[0] = new_field(
+    LogConfig.rule_nflogfld = (config_section.fields[0] = new_field_wrap(
                                        1, 1, 1, 26, 0, 0)); /* rule_nflog */
-    LogConfig.nfgrpfld = (config_section.fields[1] =
-                                  new_field(1, 3, 1, 60, 0, 0)); /* nfgrp */
+    LogConfig.nfgrpfld = (config_section.fields[1] = new_field_wrap(
+                                  1, 3, 1, 60, 0, 0)); /* nfgrp */
 
-    LogConfig.logdirfld = (config_section.fields[2] = new_field(
+    LogConfig.logdirfld = (config_section.fields[2] = new_field_wrap(
                                    1, 64, 4, 1, 0, 0)); /* vuurmuur_logdir */
-    LogConfig.loglevelfld = (config_section.fields[3] = new_field(
+    LogConfig.loglevelfld = (config_section.fields[3] = new_field_wrap(
                                      1, 8, 6, 1, 0, 0)); /* loglevel */
-    LogConfig.systemlogfld = (config_section.fields[4] = new_field(
+    LogConfig.systemlogfld = (config_section.fields[4] = new_field_wrap(
                                       1, 64, 8, 1, 0, 0)); /* systemlog */
 
-    LogConfig.logpolicyfld = (config_section.fields[5] = new_field(
+    LogConfig.logpolicyfld = (config_section.fields[5] = new_field_wrap(
                                       1, 1, 10, 61, 0, 0)); /* log policy */
     LogConfig.logpolicylimitfld =
-            (config_section.fields[6] = new_field(
+            (config_section.fields[6] = new_field_wrap(
                      1, 3, 11, 60, 0, 0)); /* log policy limit */
-    LogConfig.logtcpoptionsfld = (config_section.fields[7] = new_field(1, 1, 12,
-                                          61, 0, 0)); /* log tcp options */
-    LogConfig.logblocklistfld = (config_section.fields[8] = new_field(1, 1, 13,
-                                         61, 0, 0)); /* log logblocklist */
+    LogConfig.logtcpoptionsfld =
+            (config_section.fields[7] = new_field_wrap(
+                     1, 1, 12, 61, 0, 0)); /* log tcp options */
+    LogConfig.logblocklistfld = (config_section.fields[8] = new_field_wrap(1, 1,
+                                         13, 61, 0, 0)); /* log logblocklist */
 
-    LogConfig.loginvalidfld = (config_section.fields[9] = new_field(1, 1, 14,
-                                       61, 0, 0)); /* log logblocklist */
-    LogConfig.lognosynfld = (config_section.fields[10] = new_field(1, 1, 15, 61,
-                                     0, 0)); /* log logblocklist */
-    LogConfig.logprobesfld = (config_section.fields[11] = new_field(
+    LogConfig.loginvalidfld = (config_section.fields[9] = new_field_wrap(1, 1,
+                                       14, 61, 0, 0)); /* log logblocklist */
+    LogConfig.lognosynfld = (config_section.fields[10] = new_field_wrap(1, 1,
+                                     15, 61, 0, 0)); /* log logblocklist */
+    LogConfig.logprobesfld = (config_section.fields[11] = new_field_wrap(
                                       1, 1, 16, 61, 0, 0)); /* log logprobes */
-    LogConfig.logfragfld = (config_section.fields[12] = new_field(
+    LogConfig.logfragfld = (config_section.fields[12] = new_field_wrap(
                                     1, 1, 17, 61, 0, 0)); /* log logblocklist */
 
     config_section.fields[config_section.n_fields] = NULL;
@@ -2061,27 +2063,27 @@ int edit_logconfig(struct vrmr_config *conf)
                 case 10: // enter
                 case 9:  // tab
                     // Go to next field
-                    form_driver(config_section.form, REQ_NEXT_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_NEXT_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_UP:
                     // Go to previous field
-                    form_driver(config_section.form, REQ_PREV_FIELD);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_FIELD);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case 127:
                 case KEY_BACKSPACE:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_DC:
-                    form_driver(config_section.form, REQ_PREV_CHAR);
-                    form_driver(config_section.form, REQ_DEL_CHAR);
-                    form_driver(config_section.form, REQ_END_LINE);
+                    form_driver_wrap(config_section.form, REQ_PREV_CHAR);
+                    form_driver_wrap(config_section.form, REQ_DEL_CHAR);
+                    form_driver_wrap(config_section.form, REQ_END_LINE);
                     break;
 
                 case KEY_F(12):
@@ -2095,7 +2097,7 @@ int edit_logconfig(struct vrmr_config *conf)
                 default:
                     // If this is a normal character, it gets printed into the
                     // field
-                    form_driver(config_section.form, ch);
+                    form_driver_wrap(config_section.form, ch);
                     break;
             }
         }
@@ -2207,8 +2209,8 @@ static void VrEditConntrack(struct vrmr_config *conf)
             switch (ch) {
                 case KEY_DOWN:
                 case 10: // enter
-                    form_driver(form->f, REQ_NEXT_FIELD);
-                    form_driver(form->f, REQ_BEG_LINE);
+                    form_driver_wrap(form->f, REQ_NEXT_FIELD);
+                    form_driver_wrap(form->f, REQ_BEG_LINE);
                     break;
                 case 27:
                 case 'q':

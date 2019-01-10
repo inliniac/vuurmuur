@@ -378,7 +378,8 @@ int readnflog(void)
     rv = nflog_handle_packet(h, buf, rv);
     if (rv != 0) {
         if (errno != 0)
-            vrmr_debug(NONE, "nflog_handle_packet() returned %d: %s", rv, strerror(errno));
+            vrmr_debug(NONE, "nflog_handle_packet() returned %d: %s", rv,
+                    strerror(errno));
         else
             vrmr_debug(LOW, "nflog_handle_packet() returned %d", rv);
         return (2); /* invalid record */

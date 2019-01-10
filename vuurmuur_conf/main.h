@@ -343,6 +343,7 @@ int check_box(int status, char *title, char *description);
 void set_field_buffer_wrap(FIELD *, int, const char *);
 FIELD *new_field_wrap(
         int rows, int cols, int frow, int fcol, int nrow, int nbuf);
+int form_driver_wrap(FORM *form, int key);
 
 int filter_input_box(struct vrmr_filter *);
 

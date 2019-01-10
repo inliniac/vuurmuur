@@ -39,12 +39,12 @@ static int edit_sysopt_init(
             (FIELD **)calloc(syssec_ctx.n_fields + 1, sizeof(FIELD *));
 
     // create the fields
-    syssec_ctx.fields[0] = new_field(1, 1, 1, 2, 0, 1); // syn-flood
+    syssec_ctx.fields[0] = new_field_wrap(1, 1, 1, 2, 0, 1); // syn-flood
     set_field_buffer_wrap(syssec_ctx.fields[0], 1, "s");
     set_field_buffer_wrap(
             syssec_ctx.fields[0], 0, conf->protect_syncookie ? "X" : " ");
 
-    syssec_ctx.fields[1] = new_field(1, 1, 3, 2, 0, 1); // echo-broadcast
+    syssec_ctx.fields[1] = new_field_wrap(1, 1, 3, 2, 0, 1); // echo-broadcast
     set_field_buffer_wrap(syssec_ctx.fields[1], 1, "e");
     set_field_buffer_wrap(
             syssec_ctx.fields[1], 0, conf->protect_echobroadcast ? "X" : " ");
@@ -194,29 +194,29 @@ int edit_sysopt(struct vrmr_config *conf)
             case 10: // enter
             case 9:  // tab
                 // Go to next field
-                form_driver(syssec_ctx.form, REQ_NEXT_FIELD);
+                form_driver_wrap(syssec_ctx.form, REQ_NEXT_FIELD);
                 // Go to the end of the present buffer
                 // Leaves nicely at the last character
-                form_driver(syssec_ctx.form, REQ_END_LINE);
+                form_driver_wrap(syssec_ctx.form, REQ_END_LINE);
                 break;
 
             case KEY_UP:
                 // Go to previous field
-                form_driver(syssec_ctx.form, REQ_PREV_FIELD);
-                form_driver(syssec_ctx.form, REQ_END_LINE);
+                form_driver_wrap(syssec_ctx.form, REQ_PREV_FIELD);
+                form_driver_wrap(syssec_ctx.form, REQ_END_LINE);
                 break;
 
             case 127:
             case KEY_BACKSPACE:
-                form_driver(syssec_ctx.form, REQ_PREV_CHAR);
-                form_driver(syssec_ctx.form, REQ_DEL_CHAR);
-                form_driver(syssec_ctx.form, REQ_END_LINE);
+                form_driver_wrap(syssec_ctx.form, REQ_PREV_CHAR);
+                form_driver_wrap(syssec_ctx.form, REQ_DEL_CHAR);
+                form_driver_wrap(syssec_ctx.form, REQ_END_LINE);
                 break;
 
             case KEY_DC:
-                form_driver(syssec_ctx.form, REQ_PREV_CHAR);
-                form_driver(syssec_ctx.form, REQ_DEL_CHAR);
-                form_driver(syssec_ctx.form, REQ_END_LINE);
+                form_driver_wrap(syssec_ctx.form, REQ_PREV_CHAR);
+                form_driver_wrap(syssec_ctx.form, REQ_DEL_CHAR);
+                form_driver_wrap(syssec_ctx.form, REQ_END_LINE);
                 break;
 
             case 32: {
@@ -228,7 +228,7 @@ int edit_sysopt(struct vrmr_config *conf)
                         set_field_buffer_wrap(cur, 0, "X");
                     }
                 } else {
-                    form_driver(syssec_ctx.form, ch);
+                    form_driver_wrap(syssec_ctx.form, ch);
                 }
                 break;
             }

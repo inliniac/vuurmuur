@@ -40,70 +40,70 @@ int nav_field_comment(FORM *form, int key)
         case KEY_F(12):
         case 27: // esc:
 
-            form_driver(form,
+            form_driver_wrap(form,
                     REQ_NEXT_FIELD); // this is to make sure the field is saved
             return (-1);
 
         case 32: // space
-            form_driver(form, key);
+            form_driver_wrap(form, key);
             break;
         case 10: // enter
             // go line-by-line trough the field, when reaching the end, go to
             // next field.
-            if (form_driver(form, REQ_NEXT_LINE) < 0) {
-                form_driver(form, REQ_NEXT_FIELD);
+            if (form_driver_wrap(form, REQ_NEXT_LINE) < 0) {
+                form_driver_wrap(form, REQ_NEXT_FIELD);
             }
-            form_driver(form, REQ_BEG_LINE);
+            form_driver_wrap(form, REQ_BEG_LINE);
             break;
         case KEY_DOWN:
             // move down in the field, until we reach the end,
             // them move to the next field
-            if (form_driver(form, REQ_DOWN_CHAR) < 0) {
-                form_driver(form, REQ_NEXT_FIELD);
-                form_driver(form, REQ_BEG_LINE);
+            if (form_driver_wrap(form, REQ_DOWN_CHAR) < 0) {
+                form_driver_wrap(form, REQ_NEXT_FIELD);
+                form_driver_wrap(form, REQ_BEG_LINE);
             }
             break;
         case KEY_UP:
             // move up in the field, until we reach the end,
             // them move to the previous field
-            if (form_driver(form, REQ_UP_CHAR) < 0) {
-                form_driver(form, REQ_PREV_FIELD);
-                form_driver(form, REQ_BEG_LINE);
+            if (form_driver_wrap(form, REQ_UP_CHAR) < 0) {
+                form_driver_wrap(form, REQ_PREV_FIELD);
+                form_driver_wrap(form, REQ_BEG_LINE);
             }
             break;
         case KEY_RIGHT:
-            if (form_driver(form, REQ_RIGHT_CHAR) < 0) {
-                if (form_driver(form, REQ_DOWN_CHAR) < 0)
-                    form_driver(form, REQ_BEG_FIELD);
+            if (form_driver_wrap(form, REQ_RIGHT_CHAR) < 0) {
+                if (form_driver_wrap(form, REQ_DOWN_CHAR) < 0)
+                    form_driver_wrap(form, REQ_BEG_FIELD);
                 else
-                    form_driver(form, REQ_BEG_LINE);
+                    form_driver_wrap(form, REQ_BEG_LINE);
             }
             break;
         case KEY_LEFT:
-            if (form_driver(form, REQ_LEFT_CHAR) < 0) {
-                if (form_driver(form, REQ_UP_CHAR) < 0)
-                    form_driver(form, REQ_END_FIELD);
+            if (form_driver_wrap(form, REQ_LEFT_CHAR) < 0) {
+                if (form_driver_wrap(form, REQ_UP_CHAR) < 0)
+                    form_driver_wrap(form, REQ_END_FIELD);
                 else
-                    form_driver(form, REQ_END_LINE);
+                    form_driver_wrap(form, REQ_END_LINE);
             }
             break;
         case 127: // backspace
         case KEY_BACKSPACE:
-            form_driver(form, REQ_PREV_CHAR);
-            form_driver(form, REQ_DEL_CHAR);
+            form_driver_wrap(form, REQ_PREV_CHAR);
+            form_driver_wrap(form, REQ_DEL_CHAR);
             break;
         case KEY_DC: // delete
-            form_driver(form, REQ_DEL_CHAR);
+            form_driver_wrap(form, REQ_DEL_CHAR);
             break;
         case KEY_HOME: // doesn't seem to work in my kde (3.1.2) setup
-            form_driver(form, REQ_BEG_LINE);
+            form_driver_wrap(form, REQ_BEG_LINE);
             break;
         case KEY_END:
-            form_driver(form, REQ_END_LINE);
+            form_driver_wrap(form, REQ_END_LINE);
             break;
         default:
             // If this is a normal character, it gets printed
-            form_driver(form, key);
+            form_driver_wrap(form, key);
             break;
     }
 
@@ -112,8 +112,7 @@ int nav_field_comment(FORM *form, int key)
 
 int nav_field_simpletext(FORM *form, int key)
 {
-    //    int ch = 0;
-
+    vrmr_debug(LOW, "key %d", key);
     switch (key) {
         case 9: /* tab */
             return (-1);
@@ -123,108 +122,62 @@ int nav_field_simpletext(FORM *form, int key)
         case KEY_F(10): /* f10 */
         case KEY_F(12): /* f12 for help */
         case 27:        /* esc */
-
-            form_driver(form,
+            form_driver_wrap(form,
                     REQ_NEXT_FIELD); // this is to make sure the field is saved
-            form_driver(
+            form_driver_wrap(
                     form, REQ_PREV_FIELD); /* But we don't want to move down */
             return (-1);
 
         case 32: // space
-            form_driver(form, key);
+            form_driver_wrap(form, key);
             break;
         case KEY_DOWN:
         case 10: // enter
-            form_driver(form, REQ_NEXT_FIELD);
-            form_driver(form, REQ_BEG_LINE);
+        {
+            form_driver_wrap(form, REQ_NEXT_FIELD);
+            form_driver_wrap(form, REQ_BEG_LINE);
             break;
+        }
         case KEY_UP:
-            form_driver(form, REQ_PREV_FIELD);
-            form_driver(form, REQ_BEG_LINE);
+            form_driver_wrap(form, REQ_PREV_FIELD);
+            form_driver_wrap(form, REQ_BEG_LINE);
             break;
         case KEY_RIGHT:
-            if (form_driver(form, REQ_RIGHT_CHAR) < 0) {
-                /*              ch = */
-                form_driver(form, REQ_SCR_FCHAR);
-                /*
-                                if(ch == E_REQUEST_DENIED)
-                                    status_print(status_win, "form_driver
-                   (right): %d, E_REQUEST_DENIED", ch); else if(ch ==
-                   E_INVALID_FIELD) status_print(status_win, "form_driver
-                   (right): %d, E_INVALID_FIELD", ch); else if(ch ==
-                   E_UNKNOWN_COMMAND) status_print(status_win, "form_driver
-                   (right): %d, E_UNKNOWN_COMMAND", ch); else if(ch ==
-                   E_NOT_POSTED) status_print(status_win, "form_driver (right):
-                   %d, E_NOT_POSTED", ch); else if(ch == E_BAD_STATE)
-                                    status_print(status_win, "form_driver
-                   (right): %d, E_BAD_STATE", ch); else if(ch == E_BAD_ARGUMENT)
-                                    status_print(status_win, "form_driver
-                   (right): %d, E_BAD_ARGUMENT", ch); else if(ch ==
-                   E_SYSTEM_ERROR) status_print(status_win, "form_driver
-                   (right): %d, E_SYSTEM_ERROR", ch); else if(ch == E_OK)
-                                    status_print(status_win, "form_driver
-                   (right): %d, E_OK", ch); else status_print(status_win,
-                   "form_driver (right): %d, unknown", ch);
-                            */
+            if (form_driver_wrap(form, REQ_RIGHT_CHAR) < 0) {
+                form_driver_wrap(form, REQ_SCR_FCHAR);
             }
 
             break;
 
         case KEY_LEFT:
-            if (form_driver(form, REQ_LEFT_CHAR) < 0) {
-                /*              ch = */
-                form_driver(form, REQ_SCR_BCHAR);
-                /*
-                                if(ch == E_REQUEST_DENIED)
-                                    status_print(status_win, "form_driver
-                   (left): %d, E_REQUEST_DENIED", ch); else if(ch ==
-                   E_INVALID_FIELD) status_print(status_win, "form_driver
-                   (left): %d, E_INVALID_FIELD", ch); else if(ch ==
-                   E_UNKNOWN_COMMAND) status_print(status_win, "form_driver
-                   (left): %d, E_UNKNOWN_COMMAND", ch); else if(ch ==
-                   E_NOT_POSTED) status_print(status_win, "form_driver (left):
-                   %d, E_NOT_POSTED", ch); else if(ch == E_BAD_STATE)
-                                    status_print(status_win, "form_driver
-                   (left): %d, E_BAD_STATE", ch); else if(ch == E_BAD_ARGUMENT)
-                                    status_print(status_win, "form_driver
-                   (left): %d, E_BAD_ARGUMENT", ch); else if(ch ==
-                   E_SYSTEM_ERROR) status_print(status_win, "form_driver (left):
-                   %d, E_SYSTEM_ERROR", ch); else if(ch == E_OK)
-                                    status_print(status_win, "form_driver
-                   (left): %d, E_OK", ch); else status_print(status_win,
-                   "form_driver (left): %d, unknown", ch);
-                */
+            if (form_driver_wrap(form, REQ_LEFT_CHAR) < 0) {
+                form_driver_wrap(form, REQ_SCR_BCHAR);
             }
-
-            // status_print(status_win, "form_driver (left): %d", ch);
             break;
 
         case 127: // backspace
         case KEY_BACKSPACE:
-            form_driver(form, REQ_PREV_CHAR);
-            form_driver(form, REQ_DEL_CHAR);
+            form_driver_wrap(form, REQ_PREV_CHAR);
+            form_driver_wrap(form, REQ_DEL_CHAR);
             break;
         case KEY_DC:
-            form_driver(form, REQ_DEL_CHAR);
+            form_driver_wrap(form, REQ_DEL_CHAR);
             break;
         case KEY_HOME: // doesn't seem to work in my kde (3.1.2) setup
-            form_driver(form, REQ_BEG_LINE);
+            form_driver_wrap(form, REQ_BEG_LINE);
             break;
         case KEY_END:
-            form_driver(form, REQ_END_LINE);
+            form_driver_wrap(form, REQ_END_LINE);
             break;
         default:
             // If this is a normal character, it gets printed
-            form_driver(form, key);
+            form_driver_wrap(form, key);
             break;
     }
 
     return (0);
 }
 
-/*
-
-*/
 int nav_field_yesno(FORM *form, int key)
 {
     switch (key) {

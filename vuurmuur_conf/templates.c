@@ -201,7 +201,7 @@ char *input_box(size_t length, char *title, char *description)
             height, width, starty, startx, title, vccnf.color_win);
     my_panels[0] = new_panel(ib_win);
     fields = (FIELD **)calloc(1 + 1, sizeof(FIELD *));
-    fields[0] = new_field(
+    fields[0] = new_field_wrap(
             1, (int)length - 1, 3, (int)(((width - length) / 2) - 2), 0, 0);
     set_field_back(fields[0], vccnf.color_win_rev);
     field_opts_off(fields[0], O_AUTOSKIP);
@@ -226,24 +226,24 @@ char *input_box(size_t length, char *title, char *description)
             case KEY_F(10):
             case 10: // enter
                 // Go to next field
-                form_driver(my_form, REQ_NEXT_FIELD);
-                form_driver(my_form, REQ_END_LINE);
+                form_driver_wrap(my_form, REQ_NEXT_FIELD);
+                form_driver_wrap(my_form, REQ_END_LINE);
                 quit = 1;
                 break;
             case KEY_BACKSPACE:
             case 127:
-                form_driver(my_form, REQ_PREV_CHAR);
-                form_driver(my_form, REQ_DEL_CHAR);
-                form_driver(my_form, REQ_END_LINE);
+                form_driver_wrap(my_form, REQ_PREV_CHAR);
+                form_driver_wrap(my_form, REQ_DEL_CHAR);
+                form_driver_wrap(my_form, REQ_END_LINE);
                 break;
             case KEY_DC:
-                form_driver(my_form, REQ_PREV_CHAR);
-                form_driver(my_form, REQ_DEL_CHAR);
-                form_driver(my_form, REQ_END_LINE);
+                form_driver_wrap(my_form, REQ_PREV_CHAR);
+                form_driver_wrap(my_form, REQ_DEL_CHAR);
+                form_driver_wrap(my_form, REQ_END_LINE);
                 break;
             default:
                 // If this is a normal character, it gets printed
-                form_driver(my_form, ch);
+                form_driver_wrap(my_form, ch);
                 break;
         }
     }
@@ -760,11 +760,40 @@ void set_field_buffer_wrap(FIELD *field, int bufnum, const char *value)
     }
 }
 
+/* wrapper around new field to make sure O_ACTIVE and O_AUTOSKIP are
+ * always set. In some conditions that are unclear to me, a very small
+ * screen will create fields w/o these set. */
 FIELD *new_field_wrap(
         int rows, int cols, int frow, int fcol, int nrow, int nbuf)
 {
     FIELD *f = new_field(rows, cols, frow, fcol, nrow, nbuf);
     if (f == NULL)
         return (NULL);
+    field_opts_on(f, (O_ACTIVE | O_AUTOSKIP));
     return (f);
+}
+
+int form_driver_wrap(FORM *form, int key)
+{
+    const int ch = form_driver(form, key);
+    if (ch == E_OK)
+        return E_OK;
+
+    if (ch == E_REQUEST_DENIED)
+        vrmr_debug(NONE, "form_driver (%d): %d, E_REQUEST_DENIED", key, ch);
+    else if (ch == E_INVALID_FIELD)
+        vrmr_debug(NONE, "form_driver (%d): %d, E_INVALID_FIELD", key, ch);
+    else if (ch == E_UNKNOWN_COMMAND)
+        vrmr_debug(NONE, "form_driver (%d): %d, E_UNKNOWN_COMMAND", key, ch);
+    else if (ch == E_NOT_POSTED)
+        vrmr_debug(NONE, "form_driver (%d): %d, E_NOT_POSTED", key, ch);
+    else if (ch == E_BAD_STATE)
+        vrmr_debug(NONE, "form_driver (%d): %d, E_BAD_STATE", key, ch);
+    else if (ch == E_BAD_ARGUMENT)
+        vrmr_debug(NONE, "form_driver (%d): %d, E_BAD_ARGUMENT", key, ch);
+    else if (ch == E_SYSTEM_ERROR)
+        vrmr_debug(NONE, "form_driver (%d): %d, E_SYSTEM_ERROR", key, ch);
+    else
+        vrmr_debug(NONE, "form_driver (%d): %d, unknown", key, ch);
+    return ch;
 }

@@ -306,72 +306,72 @@ static int status_section_init(
     }
 
     /* create the fields */
-    statsec_ctx.fields[0] = new_field(1, 5, 4, 13, 0, 1);
+    statsec_ctx.fields[0] = new_field_wrap(1, 5, 4, 13, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[0], 1, "ld_s");
-    statsec_ctx.fields[1] = new_field(1, 5, 4, 19, 0, 1);
+    statsec_ctx.fields[1] = new_field_wrap(1, 5, 4, 19, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[1], 1, "ld_m");
-    statsec_ctx.fields[2] = new_field(1, 5, 4, 25, 0, 1);
+    statsec_ctx.fields[2] = new_field_wrap(1, 5, 4, 25, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[2], 1, "ld_l");
 
-    statsec_ctx.fields[3] = new_field(1, 6, 4, 43, 0, 1);
+    statsec_ctx.fields[3] = new_field_wrap(1, 6, 4, 43, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[3], 1, "mem_t");
-    statsec_ctx.fields[4] = new_field(1, 6, 4, 51, 0, 1);
+    statsec_ctx.fields[4] = new_field_wrap(1, 6, 4, 51, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[4], 1, "mem_f");
-    statsec_ctx.fields[5] = new_field(1, 6, 4, 59, 0, 1);
+    statsec_ctx.fields[5] = new_field_wrap(1, 6, 4, 59, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[5], 1, "mem_c");
-    statsec_ctx.fields[6] = new_field(1, 6, 4, 67, 0, 1);
+    statsec_ctx.fields[6] = new_field_wrap(1, 6, 4, 67, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[6], 1, "mem_b");
 
-    statsec_ctx.fields[7] = new_field(1, 4, 1, 61, 0, 1);
+    statsec_ctx.fields[7] = new_field_wrap(1, 4, 1, 61, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[7], 1, "up_d");
-    statsec_ctx.fields[8] = new_field(1, 2, 1, 66, 0, 1);
+    statsec_ctx.fields[8] = new_field_wrap(1, 2, 1, 66, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[8], 1, "uh");
-    statsec_ctx.fields[9] = new_field(1, 2, 1, 69, 0, 1);
+    statsec_ctx.fields[9] = new_field_wrap(1, 2, 1, 69, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[9], 1, "um");
-    statsec_ctx.fields[10] = new_field(1, 2, 1, 72, 0, 1);
+    statsec_ctx.fields[10] = new_field_wrap(1, 2, 1, 72, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[10], 1, "us");
 
-    statsec_ctx.fields[11] = new_field(1, 6, 6, 23, 0, 1);
+    statsec_ctx.fields[11] = new_field_wrap(1, 6, 6, 23, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[11], 1, "con_t");
-    statsec_ctx.fields[12] = new_field(1, 6, 7, 23, 0, 1);
+    statsec_ctx.fields[12] = new_field_wrap(1, 6, 7, 23, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[12], 1, "con_u");
-    statsec_ctx.fields[13] = new_field(1, 6, 6, 41, 0, 1);
+    statsec_ctx.fields[13] = new_field_wrap(1, 6, 6, 41, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[13], 1, "con_o");
 
-    statsec_ctx.fields[14] = new_field(1, 6, 6, 59, 0, 1);
+    statsec_ctx.fields[14] = new_field_wrap(1, 6, 6, 59, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[14], 1, "con_c");
-    statsec_ctx.fields[15] = new_field(1, 6, 7, 59, 0, 1);
+    statsec_ctx.fields[15] = new_field_wrap(1, 6, 7, 59, 0, 1);
     set_field_buffer_wrap(statsec_ctx.fields[15], 1, "con_m");
 
     /* create iface stats fields */
     for (ifacs = 0, ifac_fields = 16; ifacs < ifac_num; ifacs++) {
         statsec_ctx.fields[ifac_fields] =
-                new_field(1, 8, (int)(ifac_start + ifacs), 13, 0, 1);
+                new_field_wrap(1, 8, (int)(ifac_start + ifacs), 13, 0, 1);
         set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "recv_s");
         ifac_fields++;
 
         statsec_ctx.fields[ifac_fields] =
-                new_field(1, 8, (int)(ifac_start + ifacs), 22, 0, 1);
+                new_field_wrap(1, 8, (int)(ifac_start + ifacs), 22, 0, 1);
         set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "send_s");
         ifac_fields++;
 
         statsec_ctx.fields[ifac_fields] =
-                new_field(1, 10, (int)(ifac_start + ifacs), 31, 0, 1);
+                new_field_wrap(1, 10, (int)(ifac_start + ifacs), 31, 0, 1);
         set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "rcv_ti");
         ifac_fields++;
 
         statsec_ctx.fields[ifac_fields] =
-                new_field(1, 10, (int)(ifac_start + ifacs), 42, 0, 1);
+                new_field_wrap(1, 10, (int)(ifac_start + ifacs), 42, 0, 1);
         set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "snd_to");
         ifac_fields++;
 
         statsec_ctx.fields[ifac_fields] =
-                new_field(1, 10, (int)(ifac_start + ifacs), 53, 0, 1);
+                new_field_wrap(1, 10, (int)(ifac_start + ifacs), 53, 0, 1);
         set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "rcv_tf");
         ifac_fields++;
 
         statsec_ctx.fields[ifac_fields] =
-                new_field(1, 10, (int)(ifac_start + ifacs), 64, 0, 1);
+                new_field_wrap(1, 10, (int)(ifac_start + ifacs), 64, 0, 1);
         set_field_buffer_wrap(statsec_ctx.fields[ifac_fields], 1, "snd_tf");
         ifac_fields++;
     }

@@ -376,58 +376,58 @@ static void trafvol_section_init(
 
         /* interface name */
         traf_vol_section.fields[ifac_fields] =
-                new_field(1, 15, toprow, 0, 0, 1);
+                new_field_wrap(1, 15, toprow, 0, 0, 1);
         set_field_buffer_wrap(
                 traf_vol_section.fields[ifac_fields], 1, "ifacname");
         ifac_fields++;
 
         traf_vol_section.fields[ifac_fields] =
-                new_field(1, 5, toprow, 16, 0, 1);
+                new_field_wrap(1, 5, toprow, 16, 0, 1);
         set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "t-in");
         ifac_fields++;
 
         traf_vol_section.fields[ifac_fields] =
-                new_field(1, 5, toprow, 22, 0, 1);
+                new_field_wrap(1, 5, toprow, 22, 0, 1);
         set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "t-ou");
         ifac_fields++;
 
         traf_vol_section.fields[ifac_fields] =
-                new_field(1, 5, toprow, 28, 0, 1);
+                new_field_wrap(1, 5, toprow, 28, 0, 1);
         set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "y-in");
         ifac_fields++;
 
         traf_vol_section.fields[ifac_fields] =
-                new_field(1, 5, toprow, 34, 0, 1);
+                new_field_wrap(1, 5, toprow, 34, 0, 1);
         set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "y-ou");
         ifac_fields++;
 
         traf_vol_section.fields[ifac_fields] =
-                new_field(1, 5, toprow, 40, 0, 1);
+                new_field_wrap(1, 5, toprow, 40, 0, 1);
         set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "7-in");
         ifac_fields++;
 
         traf_vol_section.fields[ifac_fields] =
-                new_field(1, 5, toprow, 46, 0, 1);
+                new_field_wrap(1, 5, toprow, 46, 0, 1);
         set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "7-ou");
         ifac_fields++;
 
         traf_vol_section.fields[ifac_fields] =
-                new_field(1, 5, toprow, 52, 0, 1);
+                new_field_wrap(1, 5, toprow, 52, 0, 1);
         set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "t-in");
         ifac_fields++;
 
         traf_vol_section.fields[ifac_fields] =
-                new_field(1, 5, toprow, 58, 0, 1);
+                new_field_wrap(1, 5, toprow, 58, 0, 1);
         set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "t-ou");
         ifac_fields++;
 
         traf_vol_section.fields[ifac_fields] =
-                new_field(1, 5, toprow, 64, 0, 1);
+                new_field_wrap(1, 5, toprow, 64, 0, 1);
         set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "l-in");
         ifac_fields++;
 
         traf_vol_section.fields[ifac_fields] =
-                new_field(1, 5, toprow, 70, 0, 1);
+                new_field_wrap(1, 5, toprow, 70, 0, 1);
         set_field_buffer_wrap(traf_vol_section.fields[ifac_fields], 1, "l-ou");
         ifac_fields++;
     }
