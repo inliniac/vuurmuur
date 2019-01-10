@@ -3436,16 +3436,10 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe ALL");
 
-        if (conf->rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s %s "
-                    "--nflog-group %u",
-                    limit, logprefix, loglevel, conf->nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags ALL NONE %s -j LOG %s %s %s",
-                    limit, logprefix, loglevel, log_tcp_options);
-        }
+        snprintf(cmd, sizeof(cmd),
+                "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s "
+                "--nflog-group %u",
+                limit, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3472,17 +3466,10 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe SYN-FIN");
 
-        if (conf->rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j NFLOG %s "
-                    "%s --nflog-group %u",
-                    limit, logprefix, loglevel, conf->nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j LOG %s %s "
-                    "%s",
-                    limit, logprefix, loglevel, log_tcp_options);
-        }
+        snprintf(cmd, sizeof(cmd),
+                "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j NFLOG %s "
+                "--nflog-group %u",
+                limit, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3510,17 +3497,10 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe SYN-RST");
 
-        if (conf->rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j NFLOG %s "
-                    "%s --nflog-group %u",
-                    limit, logprefix, loglevel, conf->nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j LOG %s %s "
-                    "%s",
-                    limit, logprefix, loglevel, log_tcp_options);
-        }
+        snprintf(cmd, sizeof(cmd),
+                "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j NFLOG %s "
+                "--nflog-group %u",
+                limit, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3548,17 +3528,10 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe FIN-RST");
 
-        if (conf->rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j NFLOG %s "
-                    "%s --nflog-group %u",
-                    limit, logprefix, loglevel, conf->nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j LOG %s %s "
-                    "%s",
-                    limit, logprefix, loglevel, log_tcp_options);
-        }
+        snprintf(cmd, sizeof(cmd),
+                "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j NFLOG %s "
+                "--nflog-group %u",
+                limit, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3586,16 +3559,10 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe FIN");
 
-        if (conf->rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j NFLOG %s %s "
-                    "--nflog-group %u",
-                    limit, logprefix, loglevel, conf->nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j LOG %s %s %s",
-                    limit, logprefix, loglevel, log_tcp_options);
-        }
+        snprintf(cmd, sizeof(cmd),
+                "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j NFLOG %s "
+                "--nflog-group %u",
+                limit, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3622,16 +3589,10 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe PSH");
 
-        if (conf->rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j NFLOG %s %s "
-                    "--nflog-group %u",
-                    limit, logprefix, loglevel, conf->nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j LOG %s %s %s",
-                    limit, logprefix, loglevel, log_tcp_options);
-        }
+        snprintf(cmd, sizeof(cmd),
+                "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j NFLOG %s "
+                "--nflog-group %u",
+                limit, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3658,16 +3619,10 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe URG");
 
-        if (conf->rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j NFLOG %s %s "
-                    "--nflog-group %u",
-                    limit, logprefix, loglevel, conf->nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j LOG %s %s %s",
-                    limit, logprefix, loglevel, log_tcp_options);
-        }
+        snprintf(cmd, sizeof(cmd),
+                "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j NFLOG %s "
+                "--nflog-group %u",
+                limit, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3694,18 +3649,11 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "no SYN");
 
-        if (conf->rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp ! --syn %s NEW %s -j NFLOG %s %s "
-                    "--nflog-group %u",
-                    create_state_string(conf, ipv, iptcap), limit, logprefix,
-                    loglevel, conf->nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd),
-                    "-p tcp -m tcp ! --syn %s NEW %s -j LOG %s %s %s",
-                    create_state_string(conf, ipv, iptcap), limit, logprefix,
-                    loglevel, log_tcp_options);
-        }
+        snprintf(cmd, sizeof(cmd),
+                "-p tcp -m tcp ! --syn %s NEW %s -j NFLOG %s "
+                "--nflog-group %u",
+                create_state_string(conf, ipv, iptcap), limit, logprefix,
+                conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3736,14 +3684,8 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_NOTSET, "DROP", "FRAG");
 
-            if (conf->rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd),
-                        "-f %s -j NFLOG %s %s --nflog-group %u", limit,
-                        logprefix, loglevel, conf->nfgrp);
-            } else {
-                snprintf(cmd, sizeof(cmd), "-f %s -j LOG %s %s %s", limit,
-                        logprefix, loglevel, log_tcp_options);
-            }
+            snprintf(cmd, sizeof(cmd), "-f %s -j NFLOG %s --nflog-group %u",
+                    limit, logprefix, conf->nfgrp);
 
             if (process_rule(
                         conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
@@ -3794,16 +3736,10 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_INPUT, "DROP", "in INVALID");
 
-            if (conf->rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd),
-                        "%s INVALID %s -j NFLOG %s %s --nflog-group %u",
-                        create_state_string(conf, ipv, iptcap), limit,
-                        logprefix, loglevel, conf->nfgrp);
-            } else {
-                snprintf(cmd, sizeof(cmd), "%s INVALID %s -j LOG %s %s %s",
-                        create_state_string(conf, ipv, iptcap), limit,
-                        logprefix, loglevel, log_tcp_options);
-            }
+            snprintf(cmd, sizeof(cmd),
+                    "%s INVALID %s -j NFLOG %s --nflog-group %u",
+                    create_state_string(conf, ipv, iptcap), limit, logprefix,
+                    conf->nfgrp);
 
             if (process_rule(
                         conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
@@ -3824,16 +3760,10 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_OUTPUT, "DROP", "out INVALID");
 
-            if (conf->rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd),
-                        "%s INVALID %s -j NFLOG %s %s --nflog-group %u",
-                        create_state_string(conf, ipv, iptcap), limit,
-                        logprefix, loglevel, conf->nfgrp);
-            } else {
-                snprintf(cmd, sizeof(cmd), "%s INVALID %s -j LOG %s %s %s",
-                        create_state_string(conf, ipv, iptcap), limit,
-                        logprefix, loglevel, log_tcp_options);
-            }
+            snprintf(cmd, sizeof(cmd),
+                    "%s INVALID %s -j NFLOG %s --nflog-group %u",
+                    create_state_string(conf, ipv, iptcap), limit, logprefix,
+                    conf->nfgrp);
 
             if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0,
                         0) < 0)
@@ -3854,16 +3784,10 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_FORWARD, "DROP", "fw INVALID");
 
-            if (conf->rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd),
-                        "%s INVALID %s -j NFLOG %s %s --nflog-group %u",
-                        create_state_string(conf, ipv, iptcap), limit,
-                        logprefix, loglevel, conf->nfgrp);
-            } else {
-                snprintf(cmd, sizeof(cmd), "%s INVALID %s -j LOG %s %s %s",
-                        create_state_string(conf, ipv, iptcap), limit,
-                        logprefix, loglevel, log_tcp_options);
-            }
+            snprintf(cmd, sizeof(cmd),
+                    "%s INVALID %s -j NFLOG %s --nflog-group %u",
+                    create_state_string(conf, ipv, iptcap), limit, logprefix,
+                    conf->nfgrp);
 
             if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0,
                         0) < 0)
@@ -3942,13 +3866,8 @@ static int pre_rules_blocklist_ipv4(struct vrmr_config *conf,
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_INPUT, "DROP", "BLOCKED");
 
-        if (conf->rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
-                    limit, logprefix, loglevel, conf->nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s", limit, logprefix,
-                    loglevel, log_tcp_options);
-        }
+        snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s --nflog-group %u", limit,
+                logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, VRMR_IPV4, TB_FILTER, CH_BLOCKTARGET,
                     cmd, 0, 0) < 0)
@@ -4599,17 +4518,11 @@ int update_synlimit_rules(struct vrmr_config *conf,
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_INPUT, "DROP", "SYNLIMIT reach.");
 
-        if (conf->rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd),
-                    "-m limit --limit 1/s --limit-burst 2 "
-                    "-j NFLOG %s %s --nflog-group %u",
-                    logprefix, loglevel, conf->nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd),
-                    "-m limit --limit 1/s --limit-burst 2 "
-                    "-j LOG %s %s %s",
-                    logprefix, loglevel, log_tcp_options);
-        }
+        snprintf(cmd, sizeof(cmd),
+                "-m limit --limit 1/s --limit-burst 2 "
+                "-j NFLOG %s --nflog-group %u",
+                logprefix, conf->nfgrp);
+
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_SYNLIMITTARGET, cmd,
                     0, 0) < 0)
             retval = -1;
@@ -4686,17 +4599,10 @@ int update_udplimit_rules(struct vrmr_config *conf,
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_INPUT, "DROP", "UDPLIMIT reach.");
 
-        if (conf->rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd),
-                    "-m limit --limit 1/s --limit-burst 2 "
-                    "-j NFLOG %s %s --nflog-group %u",
-                    logprefix, loglevel, conf->nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd),
-                    "-m limit --limit 1/s --limit-burst 2 "
-                    "-j LOG %s %s %s",
-                    logprefix, loglevel, log_tcp_options);
-        }
+        snprintf(cmd, sizeof(cmd),
+                "-m limit --limit 1/s --limit-burst 2 "
+                "-j NFLOG %s --nflog-group %u",
+                logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_UDPLIMITTARGET, cmd,
                     0, 0) < 0)
@@ -4769,13 +4675,8 @@ int post_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_INPUT, "DROP", "in policy");
 
-            if (conf->rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
-                        my_limit, logprefix, loglevel, conf->nfgrp);
-            } else {
-                snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s", my_limit,
-                        logprefix, loglevel, log_tcp_options);
-            }
+            snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s --nflog-group %u",
+                    my_limit, logprefix, conf->nfgrp);
 
             if (process_rule(
                         conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
@@ -4785,13 +4686,8 @@ int post_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_OUTPUT, "DROP", "out policy");
 
-            if (conf->rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
-                        my_limit, logprefix, loglevel, conf->nfgrp);
-            } else {
-                snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s", my_limit,
-                        logprefix, loglevel, log_tcp_options);
-            }
+            snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s --nflog-group %u",
+                    my_limit, logprefix, conf->nfgrp);
 
             if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0,
                         0) < 0)
@@ -4801,13 +4697,9 @@ int post_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_FORWARD, "DROP", "fw policy");
 
-            if (conf->rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
-                        my_limit, logprefix, loglevel, conf->nfgrp);
-            } else {
-                snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s", my_limit,
-                        logprefix, loglevel, log_tcp_options);
-            }
+            snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s --nflog-group %u",
+                    my_limit, logprefix, conf->nfgrp);
+
             if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0,
                         0) < 0)
                 retval = -1;
@@ -4918,21 +4810,13 @@ static int create_interface_rpfilter_rules(struct vrmr_config *conf,
             "DROP", "%s", "rpfilter");
 
     /* log rule string */
-    if (conf->rule_nflog == 1) {
-        snprintf(cmd, sizeof(cmd),
-                "%s -m rpfilter --invert %s -j NFLOG %s %s --nflog-group %u",
-                input_device, my_limit, logprefix, loglevel, conf->nfgrp);
-    } else {
-        snprintf(cmd, sizeof(cmd), "%s -m rpfilter --invert %s -j LOG %s %s %s",
-                input_device, my_limit, logprefix, loglevel, log_tcp_options);
-    }
+    snprintf(cmd, sizeof(cmd),
+            "%s -m rpfilter --invert %s -j NFLOG %s --nflog-group %u",
+            input_device, my_limit, logprefix, conf->nfgrp);
 
     if (conf->vrmr_check_iptcaps == FALSE ||
             (iptcap->table_raw && iptcap->match_rpfilter &&
-                    ((conf->rule_nflog == 0 && iptcap->target_log == TRUE) ||
-                            (conf->rule_nflog == 1 &&
-                                    iptcap->target_nflog == TRUE)))) {
-
+                    iptcap->target_nflog == TRUE)) {
         if (process_rule(conf, ruleset, VRMR_IPV4, TB_RAW, CH_PREROUTING, cmd,
                     0, 0) < 0)
             return (-1);
@@ -5139,22 +5023,13 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
                     create->danger.source);
 
             /* log rule string */
-            if (conf->rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd),
-                        "-s %s/%s -d %s/255.255.255.255 %s -j NFLOG %s %s "
-                        "--nflog-group %u",
-                        create->danger.source_ip.ipaddress,
-                        create->danger.source_ip.netmask,
-                        from_if_ptr->ipv4.ipaddress, my_limit, logprefix,
-                        loglevel, conf->nfgrp);
-            } else {
-                snprintf(cmd, sizeof(cmd),
-                        "-s %s/%s -d %s/255.255.255.255 %s -j LOG %s %s %s",
-                        create->danger.source_ip.ipaddress,
-                        create->danger.source_ip.netmask,
-                        from_if_ptr->ipv4.ipaddress, my_limit, logprefix,
-                        loglevel, log_tcp_options);
-            }
+            snprintf(cmd, sizeof(cmd),
+                    "-s %s/%s -d %s/255.255.255.255 %s -j NFLOG %s "
+                    "--nflog-group %u",
+                    create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask,
+                    from_if_ptr->ipv4.ipaddress, my_limit, logprefix,
+                    conf->nfgrp);
 
             if (process_rule(conf, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF,
                         cmd, 0, 0) < 0)
@@ -5178,22 +5053,13 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
                     create->danger.source);
 
             /* log rule string */
-            if (conf->rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd),
-                        "-s %s/255.255.255.255 -d %s/%s %s -j NFLOG %s %s "
-                        "--nflog-group %u",
-                        from_if_ptr->ipv4.ipaddress,
-                        create->danger.source_ip.ipaddress,
-                        create->danger.source_ip.netmask, my_limit, logprefix,
-                        loglevel, conf->nfgrp);
-            } else {
-                snprintf(cmd, sizeof(cmd),
-                        "-s %s/255.255.255.255 -d %s/%s %s -j LOG %s %s %s",
-                        from_if_ptr->ipv4.ipaddress,
-                        create->danger.source_ip.ipaddress,
-                        create->danger.source_ip.netmask, my_limit, logprefix,
-                        loglevel, log_tcp_options);
-            }
+            snprintf(cmd, sizeof(cmd),
+                    "-s %s/255.255.255.255 -d %s/%s %s -j NFLOG %s "
+                    "--nflog-group %u",
+                    from_if_ptr->ipv4.ipaddress,
+                    create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask, my_limit, logprefix,
+                    conf->nfgrp);
 
             if (process_rule(conf, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF,
                         cmd, 0, 0) < 0)
@@ -5219,18 +5085,11 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
                     create->danger.source);
 
             /* log rule string */
-            if (conf->rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd),
-                        "%s -s %s/%s %s -j NFLOG %s %s --nflog-group %u",
-                        input_device, create->danger.source_ip.ipaddress,
-                        create->danger.source_ip.netmask, my_limit, logprefix,
-                        loglevel, conf->nfgrp);
-            } else {
-                snprintf(cmd, sizeof(cmd), "%s -s %s/%s %s -j LOG %s %s %s",
-                        input_device, create->danger.source_ip.ipaddress,
-                        create->danger.source_ip.netmask, my_limit, logprefix,
-                        loglevel, log_tcp_options);
-            }
+            snprintf(cmd, sizeof(cmd),
+                    "%s -s %s/%s %s -j NFLOG %s --nflog-group %u", input_device,
+                    create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask, my_limit, logprefix,
+                    conf->nfgrp);
             if (process_rule(conf, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF,
                         cmd, 0, 0) < 0)
                 return (-1);
@@ -5253,18 +5112,11 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
                     create->danger.source);
 
             /* log rule string */
-            if (conf->rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd),
-                        "%s -d %s/%s %s -j NFLOG %s %s --nflog-group %u",
-                        output_device, create->danger.source_ip.ipaddress,
-                        create->danger.source_ip.netmask, my_limit, logprefix,
-                        loglevel, conf->nfgrp);
-            } else {
-                snprintf(cmd, sizeof(cmd), "%s -d %s/%s %s -j LOG %s %s %s",
-                        output_device, create->danger.source_ip.ipaddress,
-                        create->danger.source_ip.netmask, my_limit, logprefix,
-                        loglevel, log_tcp_options);
-            }
+            snprintf(cmd, sizeof(cmd),
+                    "%s -d %s/%s %s -j NFLOG %s --nflog-group %u",
+                    output_device, create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask, my_limit, logprefix,
+                    conf->nfgrp);
 
             if (process_rule(conf, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF,
                         cmd, 0, 0) < 0)

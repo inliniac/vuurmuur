@@ -1611,7 +1611,7 @@ int edit_vcconfig(void)
 }
 
 struct {
-    FIELD *rule_nflogfld, *nfgrpfld, *logdirfld, *loglevelfld, *systemlogfld,
+    FIELD *nfgrpfld, *logdirfld, *loglevelfld,
 
             *logpolicyfld, *logpolicylimitfld, *logtcpoptionsfld,
             *logblocklistfld,
@@ -1626,41 +1626,37 @@ static void edit_logconfig_init(
     int rows = 0, cols = 0;
     char limit_string[4] = "";
 
-    config_section.n_fields = 13;
+    config_section.n_fields = 11;
     config_section.fields =
             (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
 
     /* fields */
-    LogConfig.rule_nflogfld = (config_section.fields[0] = new_field_wrap(
-                                       1, 1, 1, 26, 0, 0)); /* rule_nflog */
-    LogConfig.nfgrpfld = (config_section.fields[1] = new_field_wrap(
+    LogConfig.nfgrpfld = (config_section.fields[0] = new_field_wrap(
                                   1, 3, 1, 60, 0, 0)); /* nfgrp */
 
-    LogConfig.logdirfld = (config_section.fields[2] = new_field_wrap(
+    LogConfig.logdirfld = (config_section.fields[1] = new_field_wrap(
                                    1, 64, 4, 1, 0, 0)); /* vuurmuur_logdir */
-    LogConfig.loglevelfld = (config_section.fields[3] = new_field_wrap(
+    LogConfig.loglevelfld = (config_section.fields[2] = new_field_wrap(
                                      1, 8, 6, 1, 0, 0)); /* loglevel */
-    LogConfig.systemlogfld = (config_section.fields[4] = new_field_wrap(
-                                      1, 64, 8, 1, 0, 0)); /* systemlog */
 
-    LogConfig.logpolicyfld = (config_section.fields[5] = new_field_wrap(
+    LogConfig.logpolicyfld = (config_section.fields[3] = new_field_wrap(
                                       1, 1, 10, 61, 0, 0)); /* log policy */
     LogConfig.logpolicylimitfld =
-            (config_section.fields[6] = new_field_wrap(
+            (config_section.fields[4] = new_field_wrap(
                      1, 3, 11, 60, 0, 0)); /* log policy limit */
     LogConfig.logtcpoptionsfld =
-            (config_section.fields[7] = new_field_wrap(
+            (config_section.fields[5] = new_field_wrap(
                      1, 1, 12, 61, 0, 0)); /* log tcp options */
-    LogConfig.logblocklistfld = (config_section.fields[8] = new_field_wrap(1, 1,
+    LogConfig.logblocklistfld = (config_section.fields[6] = new_field_wrap(1, 1,
                                          13, 61, 0, 0)); /* log logblocklist */
 
-    LogConfig.loginvalidfld = (config_section.fields[9] = new_field_wrap(1, 1,
+    LogConfig.loginvalidfld = (config_section.fields[7] = new_field_wrap(1, 1,
                                        14, 61, 0, 0)); /* log logblocklist */
-    LogConfig.lognosynfld = (config_section.fields[10] = new_field_wrap(1, 1,
-                                     15, 61, 0, 0)); /* log logblocklist */
-    LogConfig.logprobesfld = (config_section.fields[11] = new_field_wrap(
+    LogConfig.lognosynfld = (config_section.fields[8] = new_field_wrap(1, 1, 15,
+                                     61, 0, 0)); /* log logblocklist */
+    LogConfig.logprobesfld = (config_section.fields[9] = new_field_wrap(
                                       1, 1, 16, 61, 0, 0)); /* log logprobes */
-    LogConfig.logfragfld = (config_section.fields[12] = new_field_wrap(
+    LogConfig.logfragfld = (config_section.fields[10] = new_field_wrap(
                                     1, 1, 17, 61, 0, 0)); /* log logblocklist */
 
     config_section.fields[config_section.n_fields] = NULL;
@@ -1672,8 +1668,6 @@ static void edit_logconfig_init(
     vrmr_fatal_if_null(config_section.panel[0]);
 
     /* fill the fields */
-    set_field_buffer_wrap(
-            LogConfig.rule_nflogfld, 0, conf->rule_nflog ? "X" : " ");
     if (conf->nfgrp > 0) {
         (void)snprintf(limit_string, sizeof(limit_string), "%u", conf->nfgrp);
         set_field_buffer_wrap(LogConfig.nfgrpfld, 0, limit_string);
@@ -1681,7 +1675,6 @@ static void edit_logconfig_init(
     set_field_buffer_wrap(
             LogConfig.logdirfld, 0, conf->vuurmuur_logdir_location);
     set_field_buffer_wrap(LogConfig.loglevelfld, 0, conf->loglevel);
-    set_field_buffer_wrap(LogConfig.systemlogfld, 0, conf->systemlog_location);
     set_field_buffer_wrap(
             LogConfig.logpolicyfld, 0, conf->log_policy ? "X" : " ");
     if (conf->log_policy_limit > 0) {
@@ -1706,7 +1699,6 @@ static void edit_logconfig_init(
         field_opts_off(config_section.fields[i], O_AUTOSKIP);
         set_field_status(config_section.fields[i], FALSE);
     }
-    set_field_back(LogConfig.rule_nflogfld, vccnf.color_win);
     set_field_back(LogConfig.logpolicyfld, vccnf.color_win);
     set_field_back(LogConfig.logtcpoptionsfld, vccnf.color_win);
     set_field_back(LogConfig.logblocklistfld, vccnf.color_win);
@@ -1727,19 +1719,13 @@ static void edit_logconfig_init(
     post_form(config_section.form);
 
     /* print labels */
-    mvwprintw(config_section.win, 2, 2, gettext("Use NFLOG"));
-    mvwprintw(config_section.win, 2, 27, "[");
-    mvwprintw(config_section.win, 2, 29, "]");
-
     mvwprintw(config_section.win, 2, 32, gettext("Netfilter Group"));
 
     mvwprintw(config_section.win, 4, 2,
             gettext("Vuurmuur logfiles location (full path):"));
     mvwprintw(config_section.win, 6, 2,
-            gettext("Loglevel (for use with syslog, requires vuurmuur "
+            gettext("Loglevel (for use with LOG, requires vuurmuur "
                     "restart):"));
-    mvwprintw(config_section.win, 8, 2,
-            gettext("Logfile containing IPtables/Netfilter logs:"));
 
     mvwprintw(config_section.win, 11, 2,
             gettext("Log the default policy? (DROP):"));
@@ -1833,28 +1819,8 @@ static int edit_logconfig_save(struct vrmr_config *conf)
                     field_buffer(config_section.fields[i], 0),
                     sizeof(conf->loglevel));
 
-            vrmr_audit("'log level' %s '%s'.", STR_IS_NOW_SET_TO,
-                    conf->systemlog_location);
-        } else if (config_section.fields[i] == LogConfig.systemlogfld) {
-            /* systemlog */
-            copy_field2buf(conf->systemlog_location,
-                    field_buffer(config_section.fields[i], 0),
-                    sizeof(conf->systemlog_location));
-
-            vrmr_sanitize_path(
-                    conf->systemlog_location, StrLen(conf->systemlog_location));
-
-            vrmr_audit("'systemlog location' %s '%s'.", STR_IS_NOW_SET_TO,
-                    conf->systemlog_location);
-        } else if (config_section.fields[i] == LogConfig.rule_nflogfld) {
-            /* nflog */
-            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
-                conf->rule_nflog = 1;
-            else
-                conf->rule_nflog = 0;
-
-            vrmr_audit("'rule_nflog' %s '%s'.", STR_IS_NOW_SET_TO,
-                    conf->rule_nflog ? STR_YES : STR_NO);
+            vrmr_audit(
+                    "'log level' %s '%s'.", STR_IS_NOW_SET_TO, conf->loglevel);
         } else if (config_section.fields[i] == LogConfig.nfgrpfld) {
             /* NF group*/
             copy_field2buf(limit_string,
@@ -1998,7 +1964,6 @@ int edit_logconfig(struct vrmr_config *conf)
         int ch = wgetch(config_section.win);
         int not_defined = 0;
         if (cur == LogConfig.logdirfld || cur == LogConfig.loglevelfld ||
-                cur == LogConfig.systemlogfld ||
                 cur == LogConfig.logpolicylimitfld ||
                 cur == LogConfig.nfgrpfld) {
             not_defined = !(nav_field_simpletext(config_section.form, ch));
@@ -2008,8 +1973,7 @@ int edit_logconfig(struct vrmr_config *conf)
                    cur == LogConfig.loginvalidfld ||
                    cur == LogConfig.lognosynfld ||
                    cur == LogConfig.logprobesfld ||
-                   cur == LogConfig.logfragfld ||
-                   cur == LogConfig.rule_nflogfld) {
+                   cur == LogConfig.logfragfld) {
             not_defined = !(nav_field_toggleX(config_section.form, ch));
         } else {
             not_defined = 1;

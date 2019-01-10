@@ -498,7 +498,6 @@ struct vrmr_config {
 
     char rules_location[64];
 
-    char rule_nflog;
     char nfgrp;
 
     /* logfile locations */
@@ -511,9 +510,6 @@ struct vrmr_config {
     char trafficlog_location[VRMR_LOG_PATH_SIZE];
     char connnewlog_location[VRMR_LOG_PATH_SIZE];
     char connlog_location[VRMR_LOG_PATH_SIZE];
-
-    char systemlog_location[64]; /* location to the log where syslog puts the
-                                    iptables messages */
 
     char loglevel_cmdline; /* was the loglevel set by the command line? 0: no,
                               1: yes */

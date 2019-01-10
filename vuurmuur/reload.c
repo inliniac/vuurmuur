@@ -62,8 +62,6 @@ static int apply_changes_ruleset(struct vrmr_ctx *vctx, struct vrmr_regex *reg)
         /* reapply the cmdline overrides. Fixes #67. */
         cmdline_override_config(&vctx->conf);
     }
-    /* loglevel */
-    create_loglevel_string(&vctx->conf, loglevel, sizeof(loglevel));
     /* tcp options */
     create_logtcpoptions_string(
             &vctx->conf, log_tcp_options, sizeof(log_tcp_options));

@@ -301,19 +301,19 @@ int main(int argc, char *argv[])
 
     /* Setup nflog after vrmr_init_config as and logging as we need &conf in
      * subscribe_nflog() */
-        vrmr_debug(NONE, "Setting up nflog");
-        if (subscribe_nflog(&vctx.conf, &logrule) < 0) {
-            vrmr_error(-1, "Error", "could not set up nflog subscription");
-            exit(EXIT_FAILURE);
-        }
-        if (conntrack_subscribe(&logconn) < 0) {
-            vrmr_error(-1, "Error", "could not set up conntrack subscription");
-            exit(EXIT_FAILURE);
-        }
-        if (conntrack_open_logs(&vctx.conf) != 0) {
-            vrmr_error(-1, "Error", "could not open connection log files");
-            exit(EXIT_FAILURE);
-        }
+    vrmr_debug(NONE, "Setting up nflog");
+    if (subscribe_nflog(&vctx.conf, &logrule) < 0) {
+        vrmr_error(-1, "Error", "could not set up nflog subscription");
+        exit(EXIT_FAILURE);
+    }
+    if (conntrack_subscribe(&logconn) < 0) {
+        vrmr_error(-1, "Error", "could not set up conntrack subscription");
+        exit(EXIT_FAILURE);
+    }
+    if (conntrack_open_logs(&vctx.conf) != 0) {
+        vrmr_error(-1, "Error", "could not open connection log files");
+        exit(EXIT_FAILURE);
+    }
 
     if (vrmr_backends_load(&vctx.conf, &vctx) < 0) {
         vrmr_error(-1, "Error", "loading plugins failed, bailing out.");
@@ -520,11 +520,10 @@ int main(int argc, char *argv[])
                 vrmr_error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
             }
-            vrmr_shm_update_progress(
-                    sem_id, &shm_table->reload_progress, 92);
+            vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 92);
             if (conntrack_open_logs(&vctx.conf) != 0) {
-                vrmr_error(-1, "Error",
-                        "could not re-open connection log files");
+                vrmr_error(
+                        -1, "Error", "could not re-open connection log files");
                 exit(EXIT_FAILURE);
             }
             vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 95);

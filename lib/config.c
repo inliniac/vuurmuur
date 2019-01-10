@@ -1007,32 +1007,6 @@ int vrmr_init_config(struct vrmr_config *cnf)
     } else
         return (VRMR_CNF_E_UNKNOWN_ERR);
 
-    /* RULE_NFLOG */
-    result = vrmr_ask_configfile(
-            cnf, "RULE_NFLOG", answer, cnf->configfile, sizeof(answer));
-    if (result == 1) {
-        /* ok, found */
-        if (strcasecmp(answer, "yes") == 0) {
-            cnf->rule_nflog = TRUE;
-        } else if (strcasecmp(answer, "no") == 0) {
-            cnf->rule_nflog = FALSE;
-        } else {
-            vrmr_warning("Warning",
-                    "'%s' is not a valid value for option RULE_NFLOG.", answer);
-            cnf->rule_nflog = VRMR_DEFAULT_RULE_NFLOG;
-
-            retval = VRMR_CNF_W_ILLEGAL_VAR;
-        }
-    } else if (result == 0) {
-        vrmr_warning("Warning",
-                "Variable RULE_NFLOG not found in '%s'. Using default.",
-                cnf->configfile);
-        cnf->rule_nflog = VRMR_DEFAULT_RULE_NFLOG;
-
-        retval = VRMR_CNF_W_MISSING_VAR;
-    } else
-        return (VRMR_CNF_E_UNKNOWN_ERR);
-
     /* NFGRP */
     result = vrmr_ask_configfile(
             cnf, "NFGRP", answer, cnf->configfile, sizeof(answer));
@@ -1378,35 +1352,6 @@ int vrmr_init_config(struct vrmr_config *cnf)
         } else
             return (VRMR_CNF_E_UNKNOWN_ERR);
     }
-
-    /* systemlog */
-    result = vrmr_ask_configfile(cnf, "SYSTEMLOG", cnf->systemlog_location,
-            cnf->configfile, sizeof(cnf->systemlog_location));
-    if (result == 1) {
-        /* ok */
-        if (cnf->verbose_out == TRUE && debug_level >= LOW)
-            vrmr_info("Info", "Using '%s' as systemlogfile.",
-                    cnf->systemlog_location);
-    } else if (result == 0) {
-        vrmr_warning("Warning",
-                "Variable SYSTEMLOG not found in '%s', using default value "
-                "(%s).",
-                cnf->configfile, VRMR_DEFAULT_SYSTEMLOG_LOCATION);
-        if (strlcpy(cnf->systemlog_location, VRMR_DEFAULT_SYSTEMLOG_LOCATION,
-                    sizeof(cnf->systemlog_location)) >=
-                sizeof(cnf->systemlog_location)) {
-            vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow");
-            return (VRMR_CNF_E_UNKNOWN_ERR);
-        }
-
-        retval = VRMR_CNF_W_MISSING_VAR;
-        // TODO: check if location really exists
-    } else
-        return (VRMR_CNF_E_UNKNOWN_ERR);
-
-    vrmr_sanitize_path(
-            cnf->systemlog_location, sizeof(cnf->systemlog_location));
 
     /* get the logfile dir */
     result = vrmr_ask_configfile(cnf, "LOGDIR", cnf->vuurmuur_logdir_location,
@@ -1762,18 +1707,13 @@ int vrmr_write_configfile(char *file_location, struct vrmr_config *cfg)
     fprintf(fp, "OLD_CREATE_METHOD=\"%s\"\n\n",
             cfg->old_rulecreation_method ? "Yes" : "No");
 
-    fprintf(fp, "# Will we be using NFLOG logging?\n");
-    fprintf(fp, "RULE_NFLOG=\"%s\"\n\n", cfg->rule_nflog ? "Yes" : "No");
     fprintf(fp, "# netfilter group (only applicable when RULE_NFLOG=\"Yes\"\n");
     fprintf(fp, "NFGRP=\"%u\"\n\n", cfg->nfgrp);
     fprintf(fp,
             "# The directory where the logs will be written to (full path).\n");
     fprintf(fp, "LOGDIR=\"%s\"\n\n", cfg->vuurmuur_logdir_location);
-    fprintf(fp, "# The logfile where the kernel writes the logs to e.g. "
-                "/var/log/messages (full path).\n");
-    fprintf(fp, "SYSTEMLOG=\"%s\"\n\n", cfg->systemlog_location);
     fprintf(fp, "# The loglevel to use when logging traffic. For use with "
-                "syslog.\n");
+                "syslog with the explicit LOG rules.\n");
     fprintf(fp, "LOGLEVEL=\"%s\"\n\n", cfg->loglevel);
 
     fprintf(fp, "# Check the dynamic interfaces for changes?\n");

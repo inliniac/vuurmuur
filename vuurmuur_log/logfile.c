@@ -723,69 +723,6 @@ int parse_ipt_logline(char *logline, size_t logline_len, char *sscanf_str,
     return (1);
 }
 
-static int stat_logfile(const char *path, struct stat *logstat)
-{
-    assert(path);
-
-    if (lstat(path, logstat) == -1) {
-        vrmr_error(
-                -1, VR_ERR, "lstat() on %s failed: %s", path, strerror(errno));
-        return (-1);
-    }
-
-    vrmr_debug(NONE, "file '%s' statted.", path);
-    return (0);
-}
-
-static int compare_logfile_stats(struct file_mon *filemon)
-{
-    assert(filemon);
-
-    if (filemon->old_file.st_size != filemon->new_file.st_size) {
-        if (filemon->new_file.st_size == 0) {
-            vrmr_debug(LOW, "after reopening the systemlog the file is empty. "
-                            "Probably rotated.");
-        } else if (filemon->old_file.st_size < filemon->new_file.st_size) {
-            filemon->windback =
-                    filemon->new_file.st_size - filemon->old_file.st_size;
-            vrmr_debug(LOW,
-                    "while reopening the logfile %ld bytes were added to it.",
-                    filemon->windback);
-        } else if (filemon->old_file.st_size > filemon->new_file.st_size) {
-            vrmr_warning(VR_WARN, "possible logfile tampering detected! Please "
-                                  "inspect the logfile.");
-        }
-    } else {
-        vrmr_debug(HIGH,
-                "after reopening the systemlog the files are of equal size.");
-    }
-
-    return (0);
-}
-
-static int close_syslog(const struct vrmr_config *conf, FILE **system_log,
-        /*@null@*/ struct file_mon *filemon)
-{
-    int retval = 0;
-
-    if (filemon != NULL) {
-        vrmr_debug(NONE, "Calling stat_logfile");
-        (void)stat_logfile(conf->systemlog_location, &filemon->old_file);
-        vrmr_debug(NONE, "Done stat_logfile");
-    }
-
-    if (fclose(*system_log) < 0) {
-        vrmr_error(-1, "Error", "closing the iptableslog '%s' failed: %s.",
-                conf->systemlog_location, strerror(errno));
-        retval = -1;
-    }
-
-    *system_log = NULL;
-
-    vrmr_debug(NONE, "Closed syslog");
-    return (retval);
-}
-
 static int close_vuurmuurlog(
         const struct vrmr_config *conf, FILE **vuurmuur_log)
 {
@@ -829,30 +766,6 @@ FILE *open_logfile(
     return (fp);
 }
 
-int open_syslog(const struct vrmr_config *cnf, FILE **system_log)
-{
-    /* open the system log */
-    if (!(*system_log = fopen(cnf->systemlog_location, "r"))) {
-        vrmr_error(-1, "Error", "the systemlog '%s' could not be opened: %s",
-                cnf->systemlog_location, strerror(errno));
-        return (-1);
-    }
-
-    /* listen at the end of the file */
-    if (fseek(*system_log, (off_t)0, SEEK_END) == -1) {
-        vrmr_error(-1, "Error",
-                "attaching to the end of the logfile failed: %s",
-                strerror(errno));
-
-        /* close the systemlog again */
-        (void)fclose(*system_log);
-        *system_log = NULL;
-        return (-1);
-    }
-
-    return (0);
-}
-
 int open_vuurmuurlog(const struct vrmr_config *cnf, FILE **vuurmuur_log)
 {
     /* open the vuurmuur logfile */
@@ -861,71 +774,6 @@ int open_vuurmuurlog(const struct vrmr_config *cnf, FILE **vuurmuur_log)
                 cnf->trafficlog_location, strerror(errno));
         return (-1);
     }
-    return (0);
-}
-
-int reopen_syslog(const struct vrmr_config *cnf, FILE **system_log)
-{
-    int waiting = 0;
-    char done = 0;
-    struct file_mon filemon;
-
-    /* clear */
-    memset(&filemon, 0, sizeof(filemon));
-
-    vrmr_debug(NONE, "Reopening syslog files");
-
-    /* close the logfiles */
-    (void)close_syslog(cnf, system_log, &filemon);
-
-    /*
-        re-open the log, try for 5 minutes
-    */
-    while (done == 0 && waiting < 300) {
-        (void)stat_logfile(cnf->systemlog_location, &filemon.new_file);
-        (void)compare_logfile_stats(&filemon);
-
-        if (!(*system_log = fopen(cnf->systemlog_location, "r"))) {
-            vrmr_debug(LOW, "Re-opening iptableslog '%s' failed: %s.",
-                    cnf->systemlog_location, strerror(errno));
-
-            /* sleep and increase waitcounter */
-            sleep(3);
-            waiting += 3;
-        } else {
-            /* we're done: reset waitcounter */
-            waiting = 0;
-            done = 1;
-        }
-    }
-
-    /* check if have successfully reopened the file */
-    if (*system_log == NULL) {
-        vrmr_error(-1, "Error",
-                "after 5 minutes of trying the iptableslog could still not be "
-                "opened.");
-        *system_log = NULL;
-        return (-1);
-    }
-
-    /* listen at the end of the file */
-    int result = fseek(*system_log, (off_t)filemon.windback * -1, SEEK_END);
-    if (result == -1) {
-        vrmr_error(-1, "Error",
-                "attaching to the end of the logfile failed: %s",
-                strerror(errno));
-
-        /* close the log */
-        if (fclose(*system_log) < 0)
-            vrmr_error(-1, "Error", "closing the iptableslog '%s' failed: %s.",
-                    cnf->systemlog_location, strerror(errno));
-
-        *system_log = NULL;
-
-        return (-1);
-    }
-
-    vrmr_debug(NONE, "Reopened syslog files");
     return (0);
 }
 

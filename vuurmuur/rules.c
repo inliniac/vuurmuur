@@ -27,27 +27,6 @@
 #define TB_MANGLE "-t mangle"
 #define TB_NAT "-t nat"
 
-void create_loglevel_string(
-        struct vrmr_config *cnf, char *resultstr, size_t size)
-{
-    assert(resultstr && cnf);
-
-    memset(resultstr, 0, size);
-
-    if (cnf->rule_nflog == 0) {
-        if (strcmp(cnf->loglevel, "") != 0) {
-            /* create the loglevel string */
-            if (snprintf(resultstr, size, "--log-level %s", cnf->loglevel) >=
-                    (int)size) {
-                vrmr_error(-1, "Error", "buffer overrun");
-                return;
-            }
-        }
-    } else
-        vrmr_debug(NONE, "did not add --log-level because we're in nflog mode");
-    return;
-}
-
 void create_logtcpoptions_string(
         struct vrmr_config *cnf, char *resultstr, size_t size)
 {
@@ -66,8 +45,9 @@ void create_logtcpoptions_string(
     return;
 }
 
-void create_logprefix_string(struct vrmr_config *conf, char *resultstr,
-        size_t size, int ruletype, char *action, char *userprefix, ...)
+void create_logprefix_string(struct vrmr_config *conf ATTR_UNUSED,
+        char *resultstr, size_t size, int ruletype, char *action,
+        char *userprefix, ...)
 {
     char str[33] = "", tmp_str[33] = "";
     va_list ap;
@@ -113,11 +93,7 @@ void create_logprefix_string(struct vrmr_config *conf, char *resultstr,
     va_end(ap);
 
     /* create the prefix */
-    if (conf->rule_nflog == 1) {
-        snprintf(resultstr, size, "--nflog-prefix \"%s \"", str);
-    } else {
-        snprintf(resultstr, size, "--log-prefix \"%s \"", str);
-    }
+    snprintf(resultstr, size, "--nflog-prefix \"%s \"", str);
 
     vrmr_debug(HIGH, "str: '%s', resultstr: '%s'.", str, resultstr);
     return;
@@ -828,14 +804,8 @@ static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
                 create->ruletype, action, "%s", create->option.logprefix);
 
         /* create the action */
-        if (conf->rule_nflog == 1) {
-            snprintf(rule->action, sizeof(rule->action),
-                    "NFLOG %s %s --nflog-group %u", logprefix, loglevel,
-                    conf->nfgrp);
-        } else {
-            snprintf(rule->action, sizeof(rule->action), "LOG %s %s %s",
-                    logprefix, loglevel, log_tcp_options);
-        }
+        snprintf(rule->action, sizeof(rule->action),
+                "NFLOG %s --nflog-group %u", logprefix, conf->nfgrp);
 
         /* set ip and netmask */
         if (rule->ipv == VRMR_IPV4) {
@@ -902,14 +872,8 @@ static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
                     create->ruletype, action, "%s", create->option.logprefix);
 
             /* action */
-            if (conf->rule_nflog == 1) {
-                snprintf(rule->action, sizeof(rule->action),
-                        "NFLOG %s %s --nflog-group %u", logprefix, loglevel,
-                        conf->nfgrp);
-            } else {
-                snprintf(rule->action, sizeof(rule->action), "LOG %s %s %s",
-                        logprefix, loglevel, log_tcp_options);
-            }
+            snprintf(rule->action, sizeof(rule->action),
+                    "NFLOG %s --nflog-group %u", logprefix, conf->nfgrp);
 
             /* set ip and netmask */
             (void)strlcpy(
@@ -973,14 +937,14 @@ static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
                         "-m limit --limit %u/%s", limit, unit);
         }
         int s;
-        if (conf->rule_nflog == 1) {
+        if (strncasecmp(create->action, "NFLOG", 5) == 0) {
             s = snprintf(
                     rule->action, sizeof(rule->action), "NFLOG %s", logprefix);
         } else {
             s = snprintf(rule->action, sizeof(rule->action), "%s %s",
                     create->action, logprefix);
         }
-        if (s == (int)sizeof(rule->action)) {
+        if (s >= (int)sizeof(rule->action)) {
             vrmr_error(-1, VR_INTERR, "creating rule action failed.");
             return (-1);
         }

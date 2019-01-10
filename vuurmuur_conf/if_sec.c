@@ -1319,8 +1319,7 @@ static int edit_interface(
                  cur == IfSec.icmpredirectfld || cur == IfSec.sendredirectfld ||
                  cur == IfSec.rpfilterfld || cur == IfSec.logmartiansfld) {
             not_defined = !(nav_field_toggleX(ifsec_ctx.edit.form, ch));
-        } else if (cur == IfSec.ipaddressfld ||
-                   cur == IfSec.ip6addressfld) {
+        } else if (cur == IfSec.ipaddressfld || cur == IfSec.ip6addressfld) {
             not_defined = !(nav_field_simpletext(ifsec_ctx.edit.form, ch));
         } else if (cur == IfSec.devicefld && ch == 0x20) {
             struct vrmr_list iflist;
@@ -1337,8 +1336,7 @@ static int edit_interface(
                 const char *cur_ptr = (char *)field_buffer(cur, 0);
                 char *ptr;
                 if ((ptr = selectbox(gettext("Device"),
-                                gettext("Select device"), x,
-                                devs, 1, cur_ptr))) {
+                             gettext("Select device"), x, devs, 1, cur_ptr))) {
                     set_field_buffer_wrap(cur, 0, ptr);
                     free(ptr);
                 }

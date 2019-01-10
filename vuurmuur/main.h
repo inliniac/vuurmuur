@@ -70,7 +70,6 @@
 #define VR_WARN "Warning"
 
 char version_string[128];
-char loglevel[32];        /* --log-level warning */
 char log_tcp_options[18]; /* --log-tcp-options */
 
 struct rule_scratch {
@@ -272,7 +271,6 @@ extern char **environ;
 struct cmd_line cmdline;
 
 /* rules.c */
-void create_loglevel_string(struct vrmr_config *, char *, size_t);
 void create_logprefix_string(
         struct vrmr_config *conf, char *, size_t, int, char *, char *, ...);
 void create_logtcpoptions_string(struct vrmr_config *, char *, size_t);
