@@ -187,9 +187,7 @@ int main(int argc, char *argv[])
     char line_in[1024] = "";
     char line_out[1024] = "";
     size_t line_in_len = 0;
-
     int result,
-
             /*  variable for counting how long we are waiting
                 for the next line in 1/10th of a second.
             */
@@ -218,7 +216,6 @@ int main(int argc, char *argv[])
     /* shm, sem stuff */
     int shm_id;
     int reload = 0;
-
     char quit = 0;
 
     snprintf(version_string, sizeof(version_string),
@@ -298,7 +295,6 @@ int main(int argc, char *argv[])
                 /* print version */
                 fprintf(stdout, "Vuurmuur_log %s\n", version_string);
                 fprintf(stdout, "%s\n", VUURMUUR_COPYRIGHT);
-
                 exit(EXIT_SUCCESS);
         }
     }

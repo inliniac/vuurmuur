@@ -173,17 +173,17 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
             struct ip6_hdr *ip6h = (struct ip6_hdr *)payload;
 #endif
             if (payload_len >= (int)sizeof(struct iphdr) && iph->version == 4) {
-                vrmr_debug(NONE, "IPv4");
+                vrmr_debug(LOW, "IPv4");
                 hw_protocol = ETH_P_IP;
 #ifdef IPV6_ENABLED
             } else if (payload_len >= (int)sizeof(struct ip6_hdr) &&
                        ((ip6h->ip6_vfc & 0xf0) >> 4) == 6) {
-                vrmr_debug(NONE, "IPv6");
+                vrmr_debug(LOW, "IPv6");
                 hw_protocol = ETH_P_IPV6;
 #endif
             }
 
-            vrmr_debug(NONE, "hw_protocol 0x%04X", hw_protocol);
+            vrmr_debug(LOW, "hw_protocol 0x%04X", hw_protocol);
         }
 
         switch (hw_protocol) {
@@ -233,7 +233,7 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
             }
             case ETH_P_IPV6: {
 #ifdef IPV6_ENABLED
-                vrmr_debug(NONE, "hw proto said IPv6, lets try to decode.");
+                vrmr_debug(LOW, "hw proto said IPv6, lets try to decode.");
 
                 if (payload_len < (int)sizeof(struct ip6_hdr))
                     break;
@@ -289,7 +289,7 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
 
                 log_record->ipv6 = 1;
 
-                vrmr_debug(NONE, "IPV6 %s -> %s (%u)", log_record->src_ip,
+                vrmr_debug(LOW, "IPV6 %s -> %s (%u)", log_record->src_ip,
                         log_record->dst_ip, log_record->protocol);
 #endif /* IPV6_ENABLED */
                 break;
