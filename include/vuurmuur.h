@@ -496,8 +496,6 @@ struct vrmr_config {
     char blocklist_location[64];
     char log_blocklist;
 
-    char rules_location[64];
-
     char nfgrp;
 
     /* logfile locations */
@@ -593,8 +591,6 @@ struct vrmr_zones {
 struct vrmr_rules {
     /* the list with rules */
     struct vrmr_list list;
-
-    char old_rulesfile_used;
 
     /* list of chain names that are defined by the rules */
     struct vrmr_list custom_chain_list;

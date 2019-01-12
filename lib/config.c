@@ -524,49 +524,6 @@ int vrmr_init_config(struct vrmr_config *cnf)
     } else
         return (VRMR_CNF_E_UNKNOWN_ERR);
 
-    result = vrmr_ask_configfile(cnf, "RULESFILE", cnf->rules_location,
-            cnf->configfile, sizeof(cnf->rules_location));
-    if (result == 1) {
-        if (cnf->rules_location[0] == '\0') {
-            /* assemble it */
-            snprintf(tmpbuf, sizeof(tmpbuf), "%s/vuurmuur/rules.conf",
-                    cnf->etcdir);
-            /* copy back */
-            if (strlcpy(cnf->rules_location, tmpbuf,
-                        sizeof(cnf->rules_location)) >=
-                    sizeof(cnf->rules_location)) {
-                vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                        "string overflow");
-                return (VRMR_CNF_E_UNKNOWN_ERR);
-            }
-        } else if (cnf->rules_location[0] != '/') {
-            /* assemble it */
-            snprintf(tmpbuf, sizeof(tmpbuf), "%s/vuurmuur/%s", cnf->etcdir,
-                    cnf->rules_location);
-            /* copy back */
-            if (strlcpy(cnf->rules_location, tmpbuf,
-                        sizeof(cnf->rules_location)) >=
-                    sizeof(cnf->rules_location)) {
-                vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                        "string overflow");
-                return (VRMR_CNF_E_UNKNOWN_ERR);
-            }
-        }
-    } else if (result == 0) {
-        /* assemble it */
-        snprintf(tmpbuf, sizeof(tmpbuf), "%s/vuurmuur/rules.conf", cnf->etcdir);
-        /* copy back */
-        if (strlcpy(cnf->rules_location, tmpbuf, sizeof(cnf->rules_location)) >=
-                sizeof(cnf->rules_location)) {
-            vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow");
-            return (VRMR_CNF_E_UNKNOWN_ERR);
-        }
-    } else
-        return (VRMR_CNF_E_UNKNOWN_ERR);
-
-    vrmr_sanitize_path(cnf->rules_location, sizeof(cnf->rules_location));
-
     result = vrmr_ask_configfile(cnf, "BLOCKLISTFILE", cnf->blocklist_location,
             cnf->configfile, sizeof(cnf->blocklist_location));
     if (result == 1) {
@@ -1607,8 +1564,6 @@ int vrmr_write_configfile(char *file_location, struct vrmr_config *cfg)
     fprintf(fp, "INTERFACES_BACKEND=\"%s\"\n\n", cfg->ifac_backend_name);
     fprintf(fp, "RULES_BACKEND=\"%s\"\n\n", cfg->rule_backend_name);
 
-    fprintf(fp, "# Location of the rulesfile (full path).\n");
-    fprintf(fp, "RULESFILE=\"%s\"\n\n", cfg->rules_location);
     fprintf(fp, "# Location of the blocklistfile (full path).\n");
     fprintf(fp, "BLOCKLISTFILE=\"%s\"\n\n", cfg->blocklist_location);
 

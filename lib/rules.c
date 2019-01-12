@@ -598,10 +598,10 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
          0: ok
         -1: error
 */
-int vrmr_rules_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
-        struct vrmr_rules *rules, struct vrmr_regex *reg)
+int vrmr_rules_init_list(struct vrmr_ctx *vctx,
+        struct vrmr_config *cfg ATTR_UNUSED, struct vrmr_rules *rules,
+        struct vrmr_regex *reg)
 {
-    FILE *fp = NULL;
     int retval = 0;
     char line[VRMR_MAX_RULE_LENGTH] = "";
     struct vrmr_rule *rule_ptr = NULL;
@@ -620,144 +620,68 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
         so it's the users responsibility to free memory. */
     vrmr_list_setup(&rules->list, NULL);
 
-    vrmr_debug(MEDIUM, "rules_location: '%s'", cfg->rules_location);
+    /* see if the rulesfile already exists in the backend */
+    while (vctx->rf->list(vctx->rule_backend, rule_name, &type,
+                   VRMR_BT_RULES) != NULL) {
+        vrmr_debug(MEDIUM, "loading rules: '%s', type: %d", rule_name, type);
 
-    /* open the rulesfile */
-    if ((fp = fopen(cfg->rules_location, "r"))) {
-        rules->old_rulesfile_used = TRUE;
+        if (strcmp(rule_name, "rules") == 0)
+            rules_found = TRUE;
+    }
 
-        vrmr_debug(HIGH, "opening rulesfile succeded.");
-
-        /* run trough the file */
-        while (fgets(line, (int)sizeof(line), fp) != NULL) {
-            vrmr_debug(HIGH, "strlen(line) = %d", (int)strlen(line));
-
-            /* check if the line is a comment */
-            // TODO what? what? what?
-            if ((strlen(line) <= 1) || (line[0] == '#')) {
-                vrmr_debug(HIGH,
-                        "skipping line because its a comment or its empty.");
-            }
-            /* no comment */
-            else {
-                /* alloc memory for the rule */
-                if (!(rule_ptr = vrmr_rule_malloc())) {
-                    vrmr_error(-1, "Internal Error",
-                            "vrmr_rule_malloc() failed: %s", strerror(errno));
-                    return (-1);
-                }
-
-                /* parse the line. We don't really care if it fails, we just
-                 * ignore it. */
-                if (vrmr_rules_parse_line(line, rule_ptr, reg) < 0) {
-                    vrmr_debug(NONE, "parsing rule failed: %s", line);
-                } else {
-                    /* protect rules are no longer supported in the main rules
-                     * list */
-                    if (rule_ptr->action == VRMR_AT_PROTECT) {
-                        if (protect_warning_shown == FALSE) {
-                            vrmr_warning("Warning",
-                                    "please note that the protect rules (e.g. "
-                                    "anti-spoof) have been changed. Please "
-                                    "recheck your networks and interfaces.");
-                            protect_warning_shown = TRUE;
-                        }
-
-                        free(rule_ptr);
-                        rule_ptr = NULL;
-                    } else {
-                        /* append to the rules list */
-                        if (!(vrmr_list_append(&rules->list, rule_ptr))) {
-                            vrmr_error(-1, "Internal Error",
-                                    "vrmr_list_append() failed");
-                            return (-1);
-                        }
-
-                        /* set the rule number */
-                        rule_ptr->number = count;
-                        count++;
-                    }
-                }
-            }
-        }
-
-        vrmr_info("Info", "%d rules loaded.", count - 1);
-
-        if (fclose(fp) < 0) {
-            vrmr_error(-1, "Error", "closing rules file failed: %s",
-                    strerror(errno));
-            retval = -1;
+    if (rules_found == FALSE) {
+        if (vctx->rf->add(vctx->rule_backend, "rules", VRMR_TYPE_RULE) < 0) {
+            vrmr_error(-1, "Internal Error", "rf->add() failed");
+            return (-1);
         }
     }
-    /* try to use the backend instead of the flat file */
-    else {
-        rules->old_rulesfile_used = FALSE;
 
-        /* see if the rulesfile already exists in the backend */
-        while (vctx->rf->list(vctx->rule_backend, rule_name, &type,
-                       VRMR_BT_RULES) != NULL) {
-            vrmr_debug(
-                    MEDIUM, "loading rules: '%s', type: %d", rule_name, type);
-
-            if (strcmp(rule_name, "rules") == 0)
-                rules_found = TRUE;
+    while ((vctx->rf->ask(vctx->rule_backend, "rules", "RULE", line,
+                   sizeof(line), VRMR_TYPE_RULE, 1)) == 1) {
+        /* check if the line is a comment */
+        // TODO what? what? what?
+        if ((strlen(line) <= 1) || (line[0] == '#')) {
+            vrmr_debug(MEDIUM,
+                    "skipping line because its a comment or its empty.");
         }
-
-        if (rules_found == FALSE) {
-            if (vctx->rf->add(vctx->rule_backend, "rules", VRMR_TYPE_RULE) <
-                    0) {
-                vrmr_error(-1, "Internal Error", "rf->add() failed");
+        /* no comment */
+        else {
+            /* alloc memory for the rule */
+            if (!(rule_ptr = vrmr_rule_malloc())) {
+                vrmr_error(-1, "Internal Error",
+                        "vrmr_rule_malloc() failed: %s", strerror(errno));
                 return (-1);
             }
-        }
 
-        while ((vctx->rf->ask(vctx->rule_backend, "rules", "RULE", line,
-                       sizeof(line), VRMR_TYPE_RULE, 1)) == 1) {
-            /* check if the line is a comment */
-            // TODO what? what? what?
-            if ((strlen(line) <= 1) || (line[0] == '#')) {
-                vrmr_debug(MEDIUM,
-                        "skipping line because its a comment or its empty.");
-            }
-            /* no comment */
-            else {
-                /* alloc memory for the rule */
-                if (!(rule_ptr = vrmr_rule_malloc())) {
-                    vrmr_error(-1, "Internal Error",
-                            "vrmr_rule_malloc() failed: %s", strerror(errno));
-                    return (-1);
-                }
-
-                /* parse the line. We don't really care if it fails, we just
-                 * ignore it. */
-                if (vrmr_rules_parse_line(line, rule_ptr, reg) < 0) {
-                    vrmr_debug(NONE, "parsing rule failed: %s", line);
-                } else {
-                    /* protect rules are no longer supported in the main rules
-                     * list */
-                    if (rule_ptr->action == VRMR_AT_PROTECT) {
-                        if (protect_warning_shown == FALSE) {
-                            vrmr_warning("Warning",
-                                    "please note that the protect rules (e.g. "
-                                    "anti-spoof) have been changed. Please "
-                                    "recheck your networks and interfaces.");
-                            protect_warning_shown = TRUE;
-                        }
-
-                        free(rule_ptr);
-                        rule_ptr = NULL;
-                    } else {
-                        /* append to the rules list */
-                        if (!(vrmr_list_append(&rules->list, rule_ptr))) {
-                            vrmr_error(-1, "Internal Error",
-                                    "vrmr_list_append() failed");
-                            return (-1);
-                        }
-
-                        /* set the rule number */
-                        rule_ptr->number = count;
-                        count++;
+            /* parse the line. We don't really care if it fails, we just
+             * ignore it. */
+            if (vrmr_rules_parse_line(line, rule_ptr, reg) < 0) {
+                vrmr_debug(NONE, "parsing rule failed: %s", line);
+            } else {
+                /* protect rules are no longer supported in the main rules
+                 * list */
+                if (rule_ptr->action == VRMR_AT_PROTECT) {
+                    if (protect_warning_shown == FALSE) {
+                        vrmr_warning("Warning",
+                                "please note that the protect rules (e.g. "
+                                "anti-spoof) have been changed. Please "
+                                "recheck your networks and interfaces.");
+                        protect_warning_shown = TRUE;
                     }
+
+                    free(rule_ptr);
+                    rule_ptr = NULL;
+                } else {
+                    /* append to the rules list */
+                    if (!(vrmr_list_append(&rules->list, rule_ptr))) {
+                        vrmr_error(-1, "Internal Error",
+                                "vrmr_list_append() failed");
+                        return (-1);
+                    }
+
+                    /* set the rule number */
+                    rule_ptr->number = count;
+                    count++;
                 }
             }
         }
@@ -1263,70 +1187,9 @@ char *vrmr_rules_assemble_rule(struct vrmr_rule *rule_ptr)
     return (line);
 }
 
-/*
-    TODO: mask! it should we only read/write for owner root, and nothing to the
-   others
-*/
-static int rules_write_file(const struct vrmr_config *cnf,
-        struct vrmr_rules *rules, const char *rulesfile_location)
-{
-    FILE *fp = NULL;
-    int retval = 0;
-    struct vrmr_list_node *d_node = NULL;
-    char *line = NULL;
-    struct vrmr_rule *rule_ptr = NULL;
-
-    assert(rulesfile_location && rules);
-
-    /* open the rulesfile */
-    if (!(fp = vrmr_rules_file_open(cnf, rulesfile_location, "w+", 0))) {
-        vrmr_error(-1, "Error", "opening rulesfile '%s' failed: %s",
-                rulesfile_location, strerror(errno));
-        return (-1);
-    }
-
-    vrmr_debug(LOW, "number of rules %d.", rules->list.len);
-
-    /* starting banner */
-    fprintf(fp, "# Vuurmuur configfile, do not place comments in it, for they "
-                "will be overwritten\n");
-
-    /* loop trough the list */
-    for (d_node = rules->list.top; d_node; d_node = d_node->next) {
-        if (!(rule_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer");
-
-            (void)vrmr_rules_file_close(fp, rulesfile_location);
-            return (-1);
-        }
-
-        if (!(line = vrmr_rules_assemble_rule(rule_ptr))) {
-            vrmr_error(-1, "Internal Error", "assembling rule failed");
-
-            (void)vrmr_rules_file_close(fp, rulesfile_location);
-            return (-1);
-        }
-
-        /* now print the rule to the file */
-        fprintf(fp, "%s", line);
-
-        free(line);
-        line = NULL;
-    }
-
-    /* print the end-of-file so we know all went fine */
-    fprintf(fp, "# end of file\n");
-    fflush(fp);
-
-    /* close the rulesfile */
-    retval = vrmr_rules_file_close(fp, rulesfile_location);
-    return (retval);
-}
-
 int vrmr_rules_save_list(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         struct vrmr_config *cnf)
 {
-    int result = 0;
     char *line = NULL, eline[1024] = "";
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_rule *rule_ptr = NULL;
@@ -1334,57 +1197,51 @@ int vrmr_rules_save_list(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
     assert(cnf && rules);
 
-    if (rules->old_rulesfile_used == TRUE) {
-        result = rules_write_file(cnf, rules, cnf->rules_location);
-        if (result < 0)
+    /* empty list, so clear all */
+    if (rules->list.len == 0) {
+        if (vctx->rf->tell(vctx->rule_backend, "rules", "RULE", "", 1,
+                    VRMR_TYPE_RULE) < 0) {
+            vrmr_error(-1, "Internal Error", "rf->tell() failed");
             return (-1);
+        }
     } else {
-        /* empty list, so clear all */
-        if (rules->list.len == 0) {
-            if (vctx->rf->tell(vctx->rule_backend, "rules", "RULE", "", 1,
-                        VRMR_TYPE_RULE) < 0) {
+        overwrite = TRUE;
+
+        /* loop trough the list */
+        for (d_node = rules->list.top; d_node; d_node = d_node->next) {
+            if (!(rule_ptr = d_node->data)) {
+                vrmr_error(-1, "Internal Error", "NULL pointer");
+                return (-1);
+            }
+
+            if (!(line = vrmr_rules_assemble_rule(rule_ptr))) {
+                vrmr_error(-1, "Internal Error",
+                        "vrmr_rules_assemble_rule() failed");
+                return (-1);
+            }
+
+            if (line[strlen(line) - 1] == '\n')
+                line[strlen(line) - 1] = '\0';
+
+            strlcpy(eline, line, sizeof(eline));
+
+            free(line);
+            line = NULL;
+
+            /* encode */
+            if (vrmr_rules_encode_rule(eline, sizeof(eline)) < 0) {
+                vrmr_error(-1, "Internal Error", "encode rule failed");
+                return (-1);
+            }
+
+            /* write to the backend */
+            if (vctx->rf->tell(vctx->rule_backend, "rules", "RULE", eline,
+                        overwrite, VRMR_TYPE_RULE) < 0) {
                 vrmr_error(-1, "Internal Error", "rf->tell() failed");
                 return (-1);
             }
-        } else {
-            overwrite = TRUE;
 
-            /* loop trough the list */
-            for (d_node = rules->list.top; d_node; d_node = d_node->next) {
-                if (!(rule_ptr = d_node->data)) {
-                    vrmr_error(-1, "Internal Error", "NULL pointer");
-                    return (-1);
-                }
-
-                if (!(line = vrmr_rules_assemble_rule(rule_ptr))) {
-                    vrmr_error(-1, "Internal Error",
-                            "vrmr_rules_assemble_rule() failed");
-                    return (-1);
-                }
-
-                if (line[strlen(line) - 1] == '\n')
-                    line[strlen(line) - 1] = '\0';
-
-                strlcpy(eline, line, sizeof(eline));
-
-                free(line);
-                line = NULL;
-
-                /* encode */
-                if (vrmr_rules_encode_rule(eline, sizeof(eline)) < 0) {
-                    vrmr_error(-1, "Internal Error", "encode rule failed");
-                    return (-1);
-                }
-
-                /* write to the backend */
-                if (vctx->rf->tell(vctx->rule_backend, "rules", "RULE", eline,
-                            overwrite, VRMR_TYPE_RULE) < 0) {
-                    vrmr_error(-1, "Internal Error", "rf->tell() failed");
-                    return (-1);
-                }
-
-                overwrite = FALSE;
-            }
+            overwrite = FALSE;
         }
     }
 
