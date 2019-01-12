@@ -433,12 +433,6 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
                                     "created: NFLOG not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_log == FALSE &&
-                   strncmp(rule->action, "LOG", 3) == 0) {
-            vrmr_warning("Warning", "input rule not "
-                                    "created: LOG not supported by "
-                                    "this system.");
-            return (0); /* this is not an error */
         } else if (iptcap->target_reject == FALSE &&
                    strncmp(rule->action, "REJECT", 6) == 0) {
             vrmr_warning("Warning", "input rule not "
@@ -889,12 +883,6 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
                    strcmp(rule->action, "NEWNFLOG") == 0) {
             vrmr_warning("Warning", "output rule not "
                                     "created: NFLOG not supported by "
-                                    "this system.");
-            return (0); /* this is not an error */
-        } else if (iptcap->target_log == FALSE &&
-                   strncmp(rule->action, "LOG", 3) == 0) {
-            vrmr_warning("Warning", "output rule not "
-                                    "created: LOG not supported by "
                                     "this system.");
             return (0); /* this is not an error */
         } else if (iptcap->target_reject == FALSE &&
@@ -1348,12 +1336,6 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
                    strcmp(rule->action, "NEWNFLOG") == 0) {
             vrmr_warning("Warning", "forward rule not "
                                     "created: NFLOG not supported by "
-                                    "this system.");
-            return (0); /* this is not an error */
-        } else if (iptcap->target_log == FALSE &&
-                   strncmp(rule->action, "LOG", 3) == 0) {
-            vrmr_warning("Warning", "forward rule not "
-                                    "created: LOG not supported by "
                                     "this system.");
             return (0); /* this is not an error */
         } else if (iptcap->target_reject == FALSE &&
@@ -2502,12 +2484,6 @@ int create_rule_input_broadcast(struct vrmr_config *conf,
                                     "created: NFLOG not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_log == FALSE &&
-                   strncmp(rule->action, "LOG", 3) == 0) {
-            vrmr_warning("Warning", "input rule not "
-                                    "created: LOG not supported by "
-                                    "this system.");
-            return (0); /* this is not an error */
         } else if (iptcap->target_reject == FALSE &&
                    strncmp(rule->action, "REJECT", 6) == 0) {
             vrmr_warning("Warning", "input rule not "
@@ -2613,12 +2589,6 @@ int create_rule_output_broadcast(struct vrmr_config *conf,
                    strcmp(rule->action, "NEWNFLOG") == 0) {
             vrmr_warning("Warning", "output rule not "
                                     "created: NFLOG not supported by "
-                                    "this system.");
-            return (0); /* this is not an error */
-        } else if (iptcap->target_log == FALSE &&
-                   strncmp(rule->action, "LOG", 3) == 0) {
-            vrmr_warning("Warning", "output rule not "
-                                    "created: LOG not supported by "
                                     "this system.");
             return (0); /* this is not an error */
         } else if (iptcap->target_reject == FALSE &&
@@ -3431,8 +3401,8 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
     vrmr_debug(LOW, "Setting up stealth scan protection...");
 
     /* ALL NONE */
-    if (conf->log_probes == TRUE &&
-            (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)) {
+    if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                            iptcap->target_nflog == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe ALL");
 
@@ -3461,8 +3431,8 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         retval = -1;
 
     /* SYN - FIN */
-    if (conf->log_probes == TRUE &&
-            (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)) {
+    if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                            iptcap->target_nflog == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe SYN-FIN");
 
@@ -3492,8 +3462,8 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         retval = -1;
 
     /* SYN - RST */
-    if (conf->log_probes == TRUE &&
-            (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)) {
+    if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                            iptcap->target_nflog == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe SYN-RST");
 
@@ -3523,8 +3493,8 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         retval = -1;
 
     /* FIN - RST */
-    if (conf->log_probes == TRUE &&
-            (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)) {
+    if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                            iptcap->target_nflog == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe FIN-RST");
 
@@ -3554,8 +3524,8 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         retval = -1;
 
     /* ACK - FIN */
-    if (conf->log_probes == TRUE &&
-            (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)) {
+    if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                            iptcap->target_nflog == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe FIN");
 
@@ -3584,8 +3554,8 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         retval = -1;
 
     /* ACK - PSH */
-    if (conf->log_probes == TRUE &&
-            (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)) {
+    if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                            iptcap->target_nflog == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe PSH");
 
@@ -3614,8 +3584,8 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         retval = -1;
 
     /* ACK - URG */
-    if (conf->log_probes == TRUE &&
-            (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)) {
+    if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                            iptcap->target_nflog == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe URG");
 
@@ -3644,8 +3614,8 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
         retval = -1;
 
     /* New tcp but no SYN */
-    if (conf->log_no_syn == TRUE &&
-            (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)) {
+    if (conf->log_no_syn == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                            iptcap->target_nflog == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "no SYN");
 
@@ -3680,7 +3650,7 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
     */
     if (ipv == VRMR_IPV4) {
         if (conf->log_frag == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                              iptcap->target_log == TRUE)) {
+                                              iptcap->target_nflog == TRUE)) {
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_NOTSET, "DROP", "FRAG");
 
@@ -3731,8 +3701,9 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
         /*
            invalid input
          */
-        if (conf->log_invalid == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                                 iptcap->target_log == TRUE)) {
+        if (conf->log_invalid == TRUE &&
+                (conf->vrmr_check_iptcaps == FALSE ||
+                        iptcap->target_nflog == TRUE)) {
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_INPUT, "DROP", "in INVALID");
 
@@ -3755,8 +3726,9 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
         /*
            invalid output
          */
-        if (conf->log_invalid == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                                 iptcap->target_log == TRUE)) {
+        if (conf->log_invalid == TRUE &&
+                (conf->vrmr_check_iptcaps == FALSE ||
+                        iptcap->target_nflog == TRUE)) {
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_OUTPUT, "DROP", "out INVALID");
 
@@ -3779,8 +3751,9 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
         /*
            invalid forward
          */
-        if (conf->log_invalid == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                                 iptcap->target_log == TRUE)) {
+        if (conf->log_invalid == TRUE &&
+                (conf->vrmr_check_iptcaps == FALSE ||
+                        iptcap->target_nflog == TRUE)) {
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_FORWARD, "DROP", "fw INVALID");
 
@@ -3861,8 +3834,8 @@ static int pre_rules_blocklist_ipv4(struct vrmr_config *conf,
         (void)vrmr_pipe_command(conf, cmd, VRMR_PIPE_QUIET);
     }
 
-    if (conf->log_blocklist == TRUE &&
-            (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)) {
+    if (conf->log_blocklist == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                               iptcap->target_nflog == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_INPUT, "DROP", "BLOCKED");
 
@@ -4317,9 +4290,9 @@ int pre_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
 
     /* check cap */
     if (conf->vrmr_check_iptcaps == TRUE) {
-        if (iptcap->target_log == FALSE) {
+        if (iptcap->target_nflog == FALSE) {
             vrmr_warning("Warning", "not creating logrules. "
-                                    "LOG-target not supported by system.");
+                                    "NFLOG-target not supported by system.");
         } else {
             if (iptcap->match_limit == FALSE) {
                 vrmr_warning("Warning",
@@ -4514,7 +4487,7 @@ int update_synlimit_rules(struct vrmr_config *conf,
         retval = -1;
 
     /* the log rule */
-    if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE) {
+    if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nflog == TRUE) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_INPUT, "DROP", "SYNLIMIT reach.");
 
@@ -4595,7 +4568,7 @@ int update_udplimit_rules(struct vrmr_config *conf,
         retval = -1;
 
     /* the log rule */
-    if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE) {
+    if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nflog == TRUE) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_INPUT, "DROP", "UDPLIMIT reach.");
 
@@ -4644,7 +4617,7 @@ int post_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
     /* do we want to log the default policy? */
     if (conf->log_policy == TRUE) {
         /* cap */
-        if (conf->vrmr_check_iptcaps == TRUE && iptcap->target_log == FALSE) {
+        if (conf->vrmr_check_iptcaps == TRUE && iptcap->target_nflog == FALSE) {
             vrmr_warning("Warning",
                     "not creating policy logging "
                     "rules. LOG-target not supported by system.");
@@ -5016,7 +4989,7 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
     /* virtual oldstyle */
     if (from_if_ptr->device_virtual_oldstyle == TRUE) {
         /* create the log rule */
-        if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE) {
+        if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nflog == TRUE) {
             /* create the logprefix string */
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_NOTSET, "DROP", "%s %s", create->danger.type,
@@ -5046,7 +5019,7 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
             return (-1);
 
         /* create the log rule */
-        if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE) {
+        if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nflog == TRUE) {
             /* create the logprefix string */
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_INPUT, "DROP", "%s %s", create->danger.type,
@@ -5078,7 +5051,7 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
     /* normal interface */
     else {
         /* create the log rule */
-        if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE) {
+        if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nflog == TRUE) {
             /* create the logprefix string */
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_NOTSET, "DROP", "%s %s", create->danger.type,
@@ -5105,7 +5078,7 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
             return (-1);
 
         /* create the log rule */
-        if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE) {
+        if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nflog == TRUE) {
             /* create the logprefix string */
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_INPUT, "DROP", "%s %s", create->danger.type,

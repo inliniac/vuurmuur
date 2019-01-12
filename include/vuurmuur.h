@@ -903,8 +903,7 @@ struct vrmr_rule_cache {
                          12345678901234567890123456789 (121)
                           */
 
-    int ruletype;   /* type of rule: input, output, forward, masq etc. */
-    int ruleaction; /* type of action: append, insert */
+    int ruletype; /* type of rule: input, output, forward, masq etc. */
 
     struct vrmr_danger_info danger;
 
@@ -1098,7 +1097,6 @@ struct vrmr_iptcaps {
     char target_dnat;
 
     char target_reject;
-    char target_log;
     char target_nflog;
     char target_redirect;
     char target_mark;
@@ -1354,7 +1352,7 @@ enum vrmr_actiontypes
     VRMR_AT_ACCEPT,   /* ACCEPT */
     VRMR_AT_DROP,     /* DROP */
     VRMR_AT_REJECT,   /* REJECT */
-    VRMR_AT_LOG,      /* LOG */
+    VRMR_AT_LOG,      /* LOG (only NEW state), uses NFLOG */
     VRMR_AT_PORTFW,   /* DNAT+ACCEPT( or QUEUE) */
     VRMR_AT_REDIRECT, /* REDIRECT+ACCEPT( or QUEUE) */
     VRMR_AT_SNAT,     /* SNAT */
@@ -1363,7 +1361,7 @@ enum vrmr_actiontypes
     VRMR_AT_DNAT,     /* DNAT */
     VRMR_AT_BOUNCE,   /* DNAT+SNAT */
     VRMR_AT_NFQUEUE,  /* NFQUEUE */
-    VRMR_AT_NFLOG,    /* NFLOG */
+    VRMR_AT_NFLOG,    /* NFLOG entire connection */
 
     /* special for networks and interfaces */
     VRMR_AT_PROTECT,

@@ -91,13 +91,15 @@ static int determine_action(struct vrmr_config *cfg, char *query, char *action,
             return (-1);
         }
     } else if (action_type == VRMR_AT_LOG) {
-        (void)strlcpy(action, "LOG", size);
+        (void)snprintf(action, size, "NFLOG --nflog-group %u", cfg->nfgrp);
 
         /* when action is LOG, the log option must not be set */
         option->rule_log = FALSE;
 
         vrmr_debug(MEDIUM, "set option->rule_log "
-                           "to FALSE because action is LOG.");
+                           "to FALSE because action is (NF)LOG.");
+    } else if (action_type == VRMR_AT_NFLOG) {
+        (void)strlcpy(action, "NEWNFLOG", size);
     } else if (action_type == VRMR_AT_MASQ) {
         (void)strlcpy(action, "MASQUERADE", size);
     } else if (action_type == VRMR_AT_SNAT) {
@@ -109,8 +111,6 @@ static int determine_action(struct vrmr_config *cfg, char *query, char *action,
         (void)strlcpy(action, "NEWNFQUEUE", size);
         if (broadcast)
             (void)strlcpy(action, "NFQUEUE", size);
-    } else if (action_type == VRMR_AT_NFLOG) {
-        (void)strlcpy(action, "NEWNFLOG", size);
     } else {
         vrmr_error(-1, "Error", "unknown action '%s'", query);
         return (-1);

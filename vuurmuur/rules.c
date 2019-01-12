@@ -918,14 +918,8 @@ static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
                 snprintf(rule->limit, sizeof(rule->limit),
                         "-m limit --limit %u/%s", limit, unit);
         }
-        int s;
-        if (strncasecmp(create->action, "NFLOG", 5) == 0) {
-            s = snprintf(
-                    rule->action, sizeof(rule->action), "NFLOG %s", logprefix);
-        } else {
-            s = snprintf(rule->action, sizeof(rule->action), "%s %s",
-                    create->action, logprefix);
-        }
+        int s = snprintf(rule->action, sizeof(rule->action), "%s %s",
+                create->action, logprefix);
         if (s >= (int)sizeof(rule->action)) {
             vrmr_error(-1, VR_INTERR, "creating rule action failed.");
             return (-1);

@@ -1791,7 +1791,7 @@ static int edit_logconfig_save(struct vrmr_config *conf)
             if (vrmr_config_check_logdir(conf->vuurmuur_logdir_location) < 0) {
                 retval = -1;
             } else {
-                /* print a warning about apply changes won't work for loglevel
+                /* print a warning about apply changes won't work for logdir
                  */
                 vrmr_warning(VR_WARN,
                         gettext("changing the logdir requires applying changes "
@@ -2171,8 +2171,6 @@ static void view_caps_init(int height, int width, int starty, int startx,
 
     mvwprintw(config_section.win, 2, 27, "Targets");
     if (iptcap->proc_net_targets) {
-        mvwprintw(config_section.win, 4, 27, "LOG\t\t%s",
-                iptcap->target_log ? STR_YES : STR_NO);
         mvwprintw(config_section.win, 5, 27, "REJECT\t%s",
                 iptcap->target_reject ? STR_YES : STR_NO);
         mvwprintw(config_section.win, 8, 27, "SNAT\t\t%s",

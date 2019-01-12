@@ -1129,20 +1129,6 @@ int vrmr_load_iptcaps(
                 iptcap->target_reject = TRUE;
         }
 
-        /* LOG target */
-        result = iptcap_check_cap(
-                cnf, proc_net_target, "LOG", "ipt_LOG", load_modules);
-        if (result == 1)
-            iptcap->target_log = TRUE;
-        else {
-            iptcap->target_log = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_target, "LOG", "xt_LOG", load_modules);
-            if (result == 1)
-                iptcap->target_log = TRUE;
-        }
-
         /* NFLOG target */
         result = iptcap_check_cap(
                 cnf, proc_net_target, "NFLOG", "xt_NFLOG", load_modules);
@@ -1263,7 +1249,6 @@ int vrmr_load_iptcaps(
         }
 
         iptcap->target_reject = TRUE;
-        iptcap->target_log = TRUE;
         iptcap->target_nfqueue = TRUE;
 
         if (iptcap->table_mangle == TRUE) {
