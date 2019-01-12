@@ -1313,23 +1313,6 @@ int vrmr_init_config(struct vrmr_config *cnf)
     } else
         return (VRMR_CNF_E_UNKNOWN_ERR);
 
-    /* check if the configfile value is overridden by the commandline */
-    if (cnf->loglevel_cmdline == FALSE) {
-        result = vrmr_ask_configfile(cnf, "LOGLEVEL", cnf->loglevel,
-                cnf->configfile, sizeof(cnf->loglevel));
-        if (result == 1) {
-            // ok
-            if (cnf->verbose_out == TRUE && debug_level >= LOW)
-                vrmr_info("Info", "Loglevel is '%s'.", cnf->loglevel);
-        } else if (result == 0) {
-            vrmr_warning("Warning", "Variable LOGLEVEL not found in the "
-                                    "configfile, using default value.");
-            memset(cnf->loglevel, 0, sizeof(cnf->loglevel));
-            retval = VRMR_CNF_W_MISSING_VAR;
-        } else
-            return (VRMR_CNF_E_UNKNOWN_ERR);
-    }
-
     /* get the logfile dir */
     result = vrmr_ask_configfile(cnf, "LOGDIR", cnf->vuurmuur_logdir_location,
             cnf->configfile, sizeof(cnf->vuurmuur_logdir_location));
@@ -1483,9 +1466,6 @@ int vrmr_reload_config(struct vrmr_config *old_cnf)
     if (vrmr_pre_init_config(&new_cnf) < 0)
         return (VRMR_CNF_E_UNKNOWN_ERR);
 
-    /* loglevel can be overrided by commandline */
-    new_cnf.loglevel_cmdline = old_cnf->loglevel_cmdline;
-
     /* verbose out can only be set on the commandline */
     new_cnf.verbose_out = old_cnf->verbose_out;
 
@@ -1505,17 +1485,6 @@ int vrmr_reload_config(struct vrmr_config *old_cnf)
     if ((retval = vrmr_init_config(&new_cnf)) >= VRMR_CNF_OK) {
         /* rule creation method is not allowed to change */
         new_cnf.old_rulecreation_method = old_cnf->old_rulecreation_method;
-
-        /* in old_create_method mode, loglevel is not allowed to change at
-         * runtime, and neigther log_tcp_options */
-        if (new_cnf.old_rulecreation_method == TRUE) {
-            if (strlcpy(new_cnf.loglevel, old_cnf->loglevel,
-                        sizeof(new_cnf.loglevel)) >= sizeof(new_cnf.loglevel)) {
-                vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                        "string overflow");
-                return (VRMR_CNF_E_UNKNOWN_ERR);
-            }
-        }
 
         /* copy the data to the old struct */
         memcpy(old_cnf, &new_cnf, sizeof(new_cnf));
@@ -1688,9 +1657,6 @@ int vrmr_write_configfile(char *file_location, struct vrmr_config *cfg)
     fprintf(fp,
             "# The directory where the logs will be written to (full path).\n");
     fprintf(fp, "LOGDIR=\"%s\"\n\n", cfg->vuurmuur_logdir_location);
-    fprintf(fp, "# The loglevel to use when logging traffic. For use with "
-                "syslog with the explicit LOG rules.\n");
-    fprintf(fp, "LOGLEVEL=\"%s\"\n\n", cfg->loglevel);
 
     fprintf(fp, "# Check the dynamic interfaces for changes?\n");
     fprintf(fp, "DYN_INT_CHECK=\"%s\"\n\n",

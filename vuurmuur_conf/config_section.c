@@ -1611,7 +1611,7 @@ int edit_vcconfig(void)
 }
 
 struct {
-    FIELD *nfgrpfld, *logdirfld, *loglevelfld,
+    FIELD *nfgrpfld, *logdirfld,
 
             *logpolicyfld, *logpolicylimitfld,
             *logblocklistfld,
@@ -1626,7 +1626,7 @@ static void edit_logconfig_init(
     int rows = 0, cols = 0;
     char limit_string[4] = "";
 
-    config_section.n_fields = 10;
+    config_section.n_fields = 9;
     config_section.fields =
             (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
 
@@ -1636,24 +1636,22 @@ static void edit_logconfig_init(
 
     LogConfig.logdirfld = (config_section.fields[1] = new_field_wrap(
                                    1, 64, 4, 1, 0, 0)); /* vuurmuur_logdir */
-    LogConfig.loglevelfld = (config_section.fields[2] = new_field_wrap(
-                                     1, 8, 6, 1, 0, 0)); /* loglevel */
 
-    LogConfig.logpolicyfld = (config_section.fields[3] = new_field_wrap(
+    LogConfig.logpolicyfld = (config_section.fields[2] = new_field_wrap(
                                       1, 1, 10, 61, 0, 0)); /* log policy */
     LogConfig.logpolicylimitfld =
-            (config_section.fields[4] = new_field_wrap(
+            (config_section.fields[3] = new_field_wrap(
                      1, 3, 11, 60, 0, 0)); /* log policy limit */
-    LogConfig.logblocklistfld = (config_section.fields[5] = new_field_wrap(1, 1,
+    LogConfig.logblocklistfld = (config_section.fields[4] = new_field_wrap(1, 1,
                                          13, 61, 0, 0)); /* log logblocklist */
 
-    LogConfig.loginvalidfld = (config_section.fields[6] = new_field_wrap(1, 1,
+    LogConfig.loginvalidfld = (config_section.fields[5] = new_field_wrap(1, 1,
                                        14, 61, 0, 0)); /* log logblocklist */
-    LogConfig.lognosynfld = (config_section.fields[7] = new_field_wrap(1, 1, 15,
+    LogConfig.lognosynfld = (config_section.fields[6] = new_field_wrap(1, 1, 15,
                                      61, 0, 0)); /* log logblocklist */
-    LogConfig.logprobesfld = (config_section.fields[8] = new_field_wrap(
+    LogConfig.logprobesfld = (config_section.fields[7] = new_field_wrap(
                                       1, 1, 16, 61, 0, 0)); /* log logprobes */
-    LogConfig.logfragfld = (config_section.fields[9] = new_field_wrap(
+    LogConfig.logfragfld = (config_section.fields[8] = new_field_wrap(
                                     1, 1, 17, 61, 0, 0)); /* log logblocklist */
 
     config_section.fields[config_section.n_fields] = NULL;
@@ -1671,7 +1669,6 @@ static void edit_logconfig_init(
     }
     set_field_buffer_wrap(
             LogConfig.logdirfld, 0, conf->vuurmuur_logdir_location);
-    set_field_buffer_wrap(LogConfig.loglevelfld, 0, conf->loglevel);
     set_field_buffer_wrap(
             LogConfig.logpolicyfld, 0, conf->log_policy ? "X" : " ");
     if (conf->log_policy_limit > 0) {
@@ -1807,14 +1804,6 @@ static int edit_logconfig_save(struct vrmr_config *conf)
                 vrmr_audit("'logdir location' %s '%s'.", STR_IS_NOW_SET_TO,
                         conf->vuurmuur_logdir_location);
             }
-        } else if (config_section.fields[i] == LogConfig.loglevelfld) {
-            /* loglevel */
-            copy_field2buf(conf->loglevel,
-                    field_buffer(config_section.fields[i], 0),
-                    sizeof(conf->loglevel));
-
-            vrmr_audit(
-                    "'log level' %s '%s'.", STR_IS_NOW_SET_TO, conf->loglevel);
         } else if (config_section.fields[i] == LogConfig.nfgrpfld) {
             /* NF group*/
             copy_field2buf(limit_string,
@@ -1948,7 +1937,7 @@ int edit_logconfig(struct vrmr_config *conf)
 
         int ch = wgetch(config_section.win);
         int not_defined = 0;
-        if (cur == LogConfig.logdirfld || cur == LogConfig.loglevelfld ||
+        if (cur == LogConfig.logdirfld ||
                 cur == LogConfig.logpolicylimitfld ||
                 cur == LogConfig.nfgrpfld) {
             not_defined = !(nav_field_simpletext(config_section.form, ch));

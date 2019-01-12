@@ -511,10 +511,6 @@ struct vrmr_config {
     char connnewlog_location[VRMR_LOG_PATH_SIZE];
     char connlog_location[VRMR_LOG_PATH_SIZE];
 
-    char loglevel_cmdline; /* was the loglevel set by the command line? 0: no,
-                              1: yes */
-    char loglevel[8];      /* 'warning' is the maximum */
-
     /* backend */
     char serv_backend_name[32];
     char zone_backend_name[32];

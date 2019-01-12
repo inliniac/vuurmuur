@@ -64,13 +64,6 @@ void cmdline_override_config(struct vrmr_config *conf)
         vrmr_debug(NONE, "overriding configfile from commandline to %s.",
                 conf->configfile);
     }
-
-    if (cmdline.loglevel_set == TRUE) {
-        strlcpy(cmdline.loglevel, conf->loglevel, sizeof(cmdline.loglevel));
-        conf->loglevel_cmdline = TRUE;
-        vrmr_debug(NONE, "overriding verbose_out from loglevel to %s.",
-                conf->loglevel);
-    }
 }
 
 int sysctl_exec(struct vrmr_config *cnf, char *key, char *value, int bash_out)

@@ -95,7 +95,6 @@ int main(int argc, char *argv[])
             {"verbose", no_argument, NULL, 'v'},
             {"foreground", no_argument, NULL, 'n'},
             {"configfile", required_argument, NULL, 'c'},
-            {"loglevel", required_argument, NULL, 'L'},
             {"clear-vuurmuur", no_argument, NULL, 'C'},
             {"killme", no_argument, NULL, 'K'},
             {"clear-all", no_argument, NULL, 'F'},
@@ -179,24 +178,6 @@ int main(int argc, char *argv[])
                 vrmr_debug_level = debug_level;
 
                 fprintf(stdout, "vuurmuur: debug level: %d\n", debug_level);
-                break;
-
-            case 'L':
-
-                vctx.conf.loglevel_cmdline = TRUE;
-
-                /* loglevel */
-                if (strlcpy(vctx.conf.loglevel, optarg,
-                            sizeof(vctx.conf.loglevel)) >
-                        sizeof(vctx.conf.loglevel)) {
-                    fprintf(stdout,
-                            "Error: loglevel (-L): argument too long (max: "
-                            "%d).\n",
-                            (int)sizeof(vctx.conf.loglevel) - 1);
-                    exit(EXIT_FAILURE);
-                }
-
-                cmdline.loglevel_set = TRUE;
                 break;
 
             case 'b':
@@ -810,8 +791,6 @@ static void print_help(void)
     fprintf(stdout, "-l\t\t\tdeprecated version of the -D option\n");
     fprintf(stdout,
             "-D, --daemon\t\tvuurmuur starts and goes into daemon-mode.\n");
-    fprintf(stdout,
-            "-L, --loglevel\t\tspecify the loglevel for use with syslog.\n");
     fprintf(stdout, "-K, --killme\t\tkill running daemon.\n");
     fprintf(stdout, "-v, --verbose\t\tverbose mode.\n");
     fprintf(stdout, "-n, --foreground\tfor use with -D, it goes into the loop "

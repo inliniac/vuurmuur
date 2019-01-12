@@ -91,10 +91,7 @@ static int determine_action(struct vrmr_config *cfg, char *query, char *action,
             return (-1);
         }
     } else if (action_type == VRMR_AT_LOG) {
-        if (strcmp(cfg->loglevel, "") == 0)
-            (void)strlcpy(action, "LOG", size);
-        else
-            snprintf(action, size, "LOG --log-level %s", cfg->loglevel);
+        (void)strlcpy(action, "LOG", size);
 
         /* when action is LOG, the log option must not be set */
         option->rule_log = FALSE;

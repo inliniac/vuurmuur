@@ -246,8 +246,6 @@ struct cmd_line {
     char verbose_out;
     char configfile_set;
     char configfile[256];
-    char loglevel_set;
-    char loglevel[8];
 
     /* local settings */
     char keep_file;
