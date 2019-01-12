@@ -62,9 +62,6 @@ static int apply_changes_ruleset(struct vrmr_ctx *vctx, struct vrmr_regex *reg)
         /* reapply the cmdline overrides. Fixes #67. */
         cmdline_override_config(&vctx->conf);
     }
-    /* tcp options */
-    create_logtcpoptions_string(
-            &vctx->conf, log_tcp_options, sizeof(log_tcp_options));
 
     vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 10);
 

@@ -1066,29 +1066,6 @@ int vrmr_init_config(struct vrmr_config *cnf)
     } else
         return (VRMR_CNF_E_UNKNOWN_ERR);
 
-    /* LOG_TCP_OPTIONS */
-    result = vrmr_ask_configfile(
-            cnf, "LOG_TCP_OPTIONS", answer, cnf->configfile, sizeof(answer));
-    if (result == 1) {
-        /* ok, found */
-        if (strcasecmp(answer, "yes") == 0) {
-            cnf->log_tcp_options = TRUE;
-        } else if (strcasecmp(answer, "no") == 0) {
-            cnf->log_tcp_options = FALSE;
-        } else {
-            vrmr_warning("Warning",
-                    "'%s' is not a valid value for option LOG_TCP_OPTIONS.",
-                    answer);
-            cnf->log_tcp_options = VRMR_DEFAULT_LOG_TCP_OPTIONS;
-
-            retval = VRMR_CNF_W_ILLEGAL_VAR;
-        }
-    } else if (result == 0) {
-        /* no warning or whatever */
-        cnf->log_tcp_options = VRMR_DEFAULT_LOG_TCP_OPTIONS;
-    } else
-        return (VRMR_CNF_E_UNKNOWN_ERR);
-
     /* PROTECT_SYNCOOKIES */
     result = vrmr_ask_configfile(
             cnf, "PROTECT_SYNCOOKIE", answer, cnf->configfile, sizeof(answer));
@@ -1538,7 +1515,6 @@ int vrmr_reload_config(struct vrmr_config *old_cnf)
                         "string overflow");
                 return (VRMR_CNF_E_UNKNOWN_ERR);
             }
-            new_cnf.log_tcp_options = old_cnf->log_tcp_options;
         }
 
         /* copy the data to the old struct */
@@ -1741,13 +1717,6 @@ int vrmr_write_configfile(char *file_location, struct vrmr_config *cfg)
     fprintf(fp, "LOG_PROBES=\"%s\"\n\n", cfg->log_probes ? "Yes" : "No");
     fprintf(fp, "# LOG_FRAG enables/disables logging of fragmented packets.\n");
     fprintf(fp, "LOG_FRAG=\"%s\"\n\n", cfg->log_frag ? "Yes" : "No");
-
-    fprintf(fp, "# LOG_TCP_OPTIONS controls the logging of tcp options. This "
-                "is.\n");
-    fprintf(fp, "# not used by Vuurmuur itself. PSAD 1.4.x uses it for "
-                "OS-detection.\n");
-    fprintf(fp, "LOG_TCP_OPTIONS=\"%s\"\n\n",
-            cfg->log_tcp_options ? "Yes" : "No");
 
     fprintf(fp, "# DROP_INVALID enables/disables dropping of packets marked "
                 "INVALID by conntrack.\n");

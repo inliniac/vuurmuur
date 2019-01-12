@@ -1613,7 +1613,7 @@ int edit_vcconfig(void)
 struct {
     FIELD *nfgrpfld, *logdirfld, *loglevelfld,
 
-            *logpolicyfld, *logpolicylimitfld, *logtcpoptionsfld,
+            *logpolicyfld, *logpolicylimitfld,
             *logblocklistfld,
 
             *loginvalidfld, *lognosynfld, *logprobesfld, *logfragfld;
@@ -1626,7 +1626,7 @@ static void edit_logconfig_init(
     int rows = 0, cols = 0;
     char limit_string[4] = "";
 
-    config_section.n_fields = 11;
+    config_section.n_fields = 10;
     config_section.fields =
             (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
 
@@ -1644,19 +1644,16 @@ static void edit_logconfig_init(
     LogConfig.logpolicylimitfld =
             (config_section.fields[4] = new_field_wrap(
                      1, 3, 11, 60, 0, 0)); /* log policy limit */
-    LogConfig.logtcpoptionsfld =
-            (config_section.fields[5] = new_field_wrap(
-                     1, 1, 12, 61, 0, 0)); /* log tcp options */
-    LogConfig.logblocklistfld = (config_section.fields[6] = new_field_wrap(1, 1,
+    LogConfig.logblocklistfld = (config_section.fields[5] = new_field_wrap(1, 1,
                                          13, 61, 0, 0)); /* log logblocklist */
 
-    LogConfig.loginvalidfld = (config_section.fields[7] = new_field_wrap(1, 1,
+    LogConfig.loginvalidfld = (config_section.fields[6] = new_field_wrap(1, 1,
                                        14, 61, 0, 0)); /* log logblocklist */
-    LogConfig.lognosynfld = (config_section.fields[8] = new_field_wrap(1, 1, 15,
+    LogConfig.lognosynfld = (config_section.fields[7] = new_field_wrap(1, 1, 15,
                                      61, 0, 0)); /* log logblocklist */
-    LogConfig.logprobesfld = (config_section.fields[9] = new_field_wrap(
+    LogConfig.logprobesfld = (config_section.fields[8] = new_field_wrap(
                                       1, 1, 16, 61, 0, 0)); /* log logprobes */
-    LogConfig.logfragfld = (config_section.fields[10] = new_field_wrap(
+    LogConfig.logfragfld = (config_section.fields[9] = new_field_wrap(
                                     1, 1, 17, 61, 0, 0)); /* log logblocklist */
 
     config_section.fields[config_section.n_fields] = NULL;
@@ -1683,8 +1680,6 @@ static void edit_logconfig_init(
         set_field_buffer_wrap(LogConfig.logpolicylimitfld, 0, limit_string);
     }
     set_field_buffer_wrap(
-            LogConfig.logtcpoptionsfld, 0, conf->log_tcp_options ? "X" : " ");
-    set_field_buffer_wrap(
             LogConfig.logblocklistfld, 0, conf->log_blocklist ? "X" : " ");
     set_field_buffer_wrap(
             LogConfig.loginvalidfld, 0, conf->log_invalid ? "X" : " ");
@@ -1700,7 +1695,6 @@ static void edit_logconfig_init(
         set_field_status(config_section.fields[i], FALSE);
     }
     set_field_back(LogConfig.logpolicyfld, vccnf.color_win);
-    set_field_back(LogConfig.logtcpoptionsfld, vccnf.color_win);
     set_field_back(LogConfig.logblocklistfld, vccnf.color_win);
     set_field_back(LogConfig.loginvalidfld, vccnf.color_win);
     set_field_back(LogConfig.lognosynfld, vccnf.color_win);
@@ -1737,7 +1731,7 @@ static void edit_logconfig_init(
                     "limit):"));
 
     mvwprintw(config_section.win, 13, 2,
-            gettext("Log TCP options (for use with PSAD):"));
+            gettext("Log TCP options:"));
     mvwprintw(config_section.win, 13, 62, "[");
     mvwprintw(config_section.win, 13, 64, "]");
 
@@ -1875,15 +1869,6 @@ static int edit_logconfig_save(struct vrmr_config *conf)
                 vrmr_audit("'log policy limit' %s '%u'.", STR_IS_NOW_SET_TO,
                         conf->log_policy_limit);
             }
-        } else if (config_section.fields[i] == LogConfig.logtcpoptionsfld) {
-            /* log policy */
-            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
-                conf->log_tcp_options = 1;
-            else
-                conf->log_tcp_options = 0;
-
-            vrmr_audit("'log TCP options' %s '%s'.", STR_IS_NOW_SET_TO,
-                    conf->log_tcp_options ? STR_YES : STR_NO);
         } else if (config_section.fields[i] == LogConfig.logblocklistfld) {
             /* log policy */
             if (field_buffer(config_section.fields[i], 0)[0] == 'X')
@@ -1968,7 +1953,6 @@ int edit_logconfig(struct vrmr_config *conf)
                 cur == LogConfig.nfgrpfld) {
             not_defined = !(nav_field_simpletext(config_section.form, ch));
         } else if (cur == LogConfig.logpolicyfld ||
-                   cur == LogConfig.logtcpoptionsfld ||
                    cur == LogConfig.logblocklistfld ||
                    cur == LogConfig.loginvalidfld ||
                    cur == LogConfig.lognosynfld ||

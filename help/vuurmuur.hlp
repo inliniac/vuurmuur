@@ -80,10 +80,6 @@ If none of the traffic rules match the traffic, the traffic will be handled by
 the default policy, which is DROP. Here logging of the default policy can be
 enabled. Also, a limit per second on this logging can be set.
 
-The 'Log TCP options' setting is not used by Vuurmuur itself but is intended for
-use with the PSAD portscan detector. This option enables PSAD to perform passive
-OS fingerprinting.
-
 If an item on the BlockList attempts to generate some traffic this is logged by
 default. The 'log blocklist' option allows you to disable this.
 

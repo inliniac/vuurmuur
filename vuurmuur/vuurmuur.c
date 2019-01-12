@@ -363,10 +363,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* tcp options */
-    create_logtcpoptions_string(
-            &vctx.conf, log_tcp_options, sizeof(log_tcp_options));
-
     /* after the config we can remove the rules if we need to */
     if (clear_vuurmuur_rules == TRUE) {
         if (clear_vuurmuur_iptables_rules(&vctx.conf) < 0) {

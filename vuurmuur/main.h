@@ -273,7 +273,6 @@ struct cmd_line cmdline;
 /* rules.c */
 void create_logprefix_string(
         struct vrmr_config *conf, char *, size_t, int, char *, char *, ...);
-void create_logtcpoptions_string(struct vrmr_config *, char *, size_t);
 
 int oldrules_create_custom_chains(struct vrmr_rules *, struct vrmr_config *);
 

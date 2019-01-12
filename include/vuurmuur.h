@@ -540,8 +540,6 @@ struct vrmr_config {
     unsigned int log_policy_limit;
     unsigned int log_policy_burst;
 
-    char log_tcp_options; /* log tcp options for PSAD */
-
     char log_invalid; /* log invalid */
     char log_no_syn;  /* log no syn */
     char log_probes;  /* log probes */

@@ -27,24 +27,6 @@
 #define TB_MANGLE "-t mangle"
 #define TB_NAT "-t nat"
 
-void create_logtcpoptions_string(
-        struct vrmr_config *cnf, char *resultstr, size_t size)
-{
-    assert(resultstr && cnf);
-
-    memset(resultstr, 0, size);
-
-    if (cnf->log_tcp_options == 1) {
-        /* create the loglevel string */
-        if (snprintf(resultstr, size, "--log-tcp-options") >= (int)size) {
-            vrmr_error(-1, "Error", "buffer overrun");
-            return;
-        }
-    }
-
-    return;
-}
-
 void create_logprefix_string(struct vrmr_config *conf ATTR_UNUSED,
         char *resultstr, size_t size, int ruletype, char *action,
         char *userprefix, ...)
