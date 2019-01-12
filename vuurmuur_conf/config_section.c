@@ -1613,8 +1613,7 @@ int edit_vcconfig(void)
 struct {
     FIELD *nfgrpfld, *logdirfld,
 
-            *logpolicyfld, *logpolicylimitfld,
-            *logblocklistfld,
+            *logpolicyfld, *logpolicylimitfld, *logblocklistfld,
 
             *loginvalidfld, *lognosynfld, *logprobesfld, *logfragfld;
 } LogConfig;
@@ -1629,6 +1628,7 @@ static void edit_logconfig_init(
     config_section.n_fields = 9;
     config_section.fields =
             (FIELD **)calloc(config_section.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_if_null(config_section.fields);
 
     /* fields */
     LogConfig.nfgrpfld = (config_section.fields[0] = new_field_wrap(
@@ -1638,23 +1638,27 @@ static void edit_logconfig_init(
                                    1, 64, 4, 1, 0, 0)); /* vuurmuur_logdir */
 
     LogConfig.logpolicyfld = (config_section.fields[2] = new_field_wrap(
-                                      1, 1, 10, 61, 0, 0)); /* log policy */
+                                      1, 1, 6, 61, 0, 0)); /* log policy */
     LogConfig.logpolicylimitfld =
             (config_section.fields[3] = new_field_wrap(
-                     1, 3, 11, 60, 0, 0)); /* log policy limit */
+                     1, 3, 7, 60, 0, 0)); /* log policy limit */
     LogConfig.logblocklistfld = (config_section.fields[4] = new_field_wrap(1, 1,
-                                         13, 61, 0, 0)); /* log logblocklist */
+                                         8, 61, 0, 0)); /* log logblocklist */
 
     LogConfig.loginvalidfld = (config_section.fields[5] = new_field_wrap(1, 1,
-                                       14, 61, 0, 0)); /* log logblocklist */
-    LogConfig.lognosynfld = (config_section.fields[6] = new_field_wrap(1, 1, 15,
+                                       9, 61, 0, 0)); /* log logblocklist */
+    LogConfig.lognosynfld = (config_section.fields[6] = new_field_wrap(1, 1, 10,
                                      61, 0, 0)); /* log logblocklist */
     LogConfig.logprobesfld = (config_section.fields[7] = new_field_wrap(
-                                      1, 1, 16, 61, 0, 0)); /* log logprobes */
+                                      1, 1, 11, 61, 0, 0)); /* log logprobes */
     LogConfig.logfragfld = (config_section.fields[8] = new_field_wrap(
-                                    1, 1, 17, 61, 0, 0)); /* log logblocklist */
+                                    1, 1, 12, 61, 0, 0)); /* log logblocklist */
 
     config_section.fields[config_section.n_fields] = NULL;
+
+    set_field_type(LogConfig.nfgrpfld, TYPE_INTEGER, 0, 1, 999);
+    // blanks the field when using a 0 setting, so disable
+    // set_field_type(LogConfig.logpolicylimitfld, TYPE_INTEGER, 0, 0, 999);
 
     config_section.win = create_newwin(height, width, starty, startx,
             gettext("Edit Config: Logging"), vccnf.color_win);
@@ -1710,54 +1714,46 @@ static void edit_logconfig_init(
     post_form(config_section.form);
 
     /* print labels */
-    mvwprintw(config_section.win, 2, 32, gettext("Netfilter Group"));
+    mvwprintw(config_section.win, 2, 2, gettext("Netfilter Group"));
 
     mvwprintw(config_section.win, 4, 2,
             gettext("Vuurmuur logfiles location (full path):"));
-    mvwprintw(config_section.win, 6, 2,
-            gettext("Loglevel (for use with LOG, requires vuurmuur "
-                    "restart):"));
 
-    mvwprintw(config_section.win, 11, 2,
+    mvwprintw(config_section.win, 7, 2,
             gettext("Log the default policy? (DROP):"));
-    mvwprintw(config_section.win, 11, 62, "[");
-    mvwprintw(config_section.win, 11, 64, "]");
+    mvwprintw(config_section.win, 7, 62, "[");
+    mvwprintw(config_section.win, 7, 64, "]");
 
-    mvwprintw(config_section.win, 12, 2,
+    mvwprintw(config_section.win, 8, 2,
             gettext("Limit of the number of logs per second (0 for no "
                     "limit):"));
 
-    mvwprintw(config_section.win, 13, 2,
-            gettext("Log TCP options:"));
-    mvwprintw(config_section.win, 13, 62, "[");
-    mvwprintw(config_section.win, 13, 64, "]");
-
     /* TRANSLATORS: max 55 chars */
-    mvwprintw(config_section.win, 14, 2, gettext("Log blocklist violations:"));
-    mvwprintw(config_section.win, 14, 62, "[");
-    mvwprintw(config_section.win, 14, 64, "]");
+    mvwprintw(config_section.win, 9, 2, gettext("Log blocklist violations:"));
+    mvwprintw(config_section.win, 9, 62, "[");
+    mvwprintw(config_section.win, 9, 64, "]");
 
     /* TRANSLATORS: max 55 chars, don't translate 'INVALID' */
-    mvwprintw(config_section.win, 15, 2,
+    mvwprintw(config_section.win, 10, 2,
             gettext("Log packets with state INVALID:"));
-    mvwprintw(config_section.win, 15, 62, "[");
-    mvwprintw(config_section.win, 15, 64, "]");
+    mvwprintw(config_section.win, 10, 62, "[");
+    mvwprintw(config_section.win, 10, 64, "]");
 
     /* TRANSLATORS: max 55 chars */
-    mvwprintw(config_section.win, 16, 2,
+    mvwprintw(config_section.win, 11, 2,
             gettext("Log new TCP packets with no SYN flag set:"));
-    mvwprintw(config_section.win, 16, 62, "[");
-    mvwprintw(config_section.win, 16, 64, "]");
+    mvwprintw(config_section.win, 11, 62, "[");
+    mvwprintw(config_section.win, 11, 64, "]");
 
     /* TRANSLATORS: max 55 chars */
-    mvwprintw(config_section.win, 17, 2, gettext("Log scan probe packets:"));
-    mvwprintw(config_section.win, 17, 62, "[");
-    mvwprintw(config_section.win, 17, 64, "]");
+    mvwprintw(config_section.win, 12, 2, gettext("Log scan probe packets:"));
+    mvwprintw(config_section.win, 12, 62, "[");
+    mvwprintw(config_section.win, 12, 64, "]");
 
     /* TRANSLATORS: max 55 chars */
-    mvwprintw(config_section.win, 18, 2, gettext("Log Fragments:"));
-    mvwprintw(config_section.win, 18, 62, "[");
-    mvwprintw(config_section.win, 18, 64, "]");
+    mvwprintw(config_section.win, 13, 2, gettext("Log Fragments:"));
+    mvwprintw(config_section.win, 13, 62, "[");
+    mvwprintw(config_section.win, 13, 64, "]");
 }
 
 static int edit_logconfig_save(struct vrmr_config *conf)
@@ -1811,9 +1807,9 @@ static int edit_logconfig_save(struct vrmr_config *conf)
                     sizeof(limit_string));
 
             result = atoi(limit_string);
-            if (result < 0 || result > 999) {
+            if (result < 1 || result > 999) {
                 vrmr_error(
-                        -1, VR_ERR, gettext("NF group must be between 0-999."));
+                        -1, VR_ERR, gettext("NF group must be between 1-999."));
 
                 /* restore the field */
                 if (conf->nfgrp > 0) {
@@ -1937,8 +1933,7 @@ int edit_logconfig(struct vrmr_config *conf)
 
         int ch = wgetch(config_section.win);
         int not_defined = 0;
-        if (cur == LogConfig.logdirfld ||
-                cur == LogConfig.logpolicylimitfld ||
+        if (cur == LogConfig.logdirfld || cur == LogConfig.logpolicylimitfld ||
                 cur == LogConfig.nfgrpfld) {
             not_defined = !(nav_field_simpletext(config_section.form, ch));
         } else if (cur == LogConfig.logpolicyfld ||
