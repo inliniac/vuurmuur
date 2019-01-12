@@ -615,9 +615,6 @@ int vrmr_init_config(struct vrmr_config *cnf)
     vrmr_sanitize_path(
             cnf->blocklist_location, sizeof(cnf->blocklist_location));
 
-    /* old create */
-    cnf->old_rulecreation_method = FALSE;
-
     /* DYN_INT_CHECK */
     result = vrmr_ask_configfile(
             cnf, "DYN_INT_CHECK", answer, cnf->configfile, sizeof(answer));
@@ -1483,9 +1480,6 @@ int vrmr_reload_config(struct vrmr_config *old_cnf)
 
     /* reload the configfile */
     if ((retval = vrmr_init_config(&new_cnf)) >= VRMR_CNF_OK) {
-        /* rule creation method is not allowed to change */
-        new_cnf.old_rulecreation_method = old_cnf->old_rulecreation_method;
-
         /* copy the data to the old struct */
         memcpy(old_cnf, &new_cnf, sizeof(new_cnf));
     }
@@ -1644,13 +1638,6 @@ int vrmr_write_configfile(char *file_location, struct vrmr_config *cfg)
     fprintf(fp, "LOAD_MODULES=\"%s\"\n\n", cfg->load_modules ? "Yes" : "No");
     fprintf(fp, "# Wait after loading a module in 1/10th of a second\n");
     fprintf(fp, "MODULES_WAIT_TIME=\"%u\"\n\n", cfg->modules_wait_time);
-
-    fprintf(fp, "# If set to yes, each rule will be loaded into the system "
-                "individually using\n");
-    fprintf(fp,
-            "# iptables. Otherwise iptables-restore will be used (yes/no).\n");
-    fprintf(fp, "OLD_CREATE_METHOD=\"%s\"\n\n",
-            cfg->old_rulecreation_method ? "Yes" : "No");
 
     fprintf(fp, "# netfilter group (only applicable when RULE_NFLOG=\"Yes\"\n");
     fprintf(fp, "NFGRP=\"%u\"\n\n", cfg->nfgrp);

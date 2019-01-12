@@ -546,9 +546,6 @@ struct vrmr_config {
     unsigned int dynamic_changes_interval; /* check every x seconds for changes
                                               in the dynamic interfaces */
 
-    char old_rulecreation_method; /* 0: off, 1: on: if on we use iptables else
-                                     iptables-restore */
-
     char load_modules;              /* load modules if needed? 1: yes, 0: no */
     unsigned int modules_wait_time; /* time to wait in 1/10 th of a second */
 

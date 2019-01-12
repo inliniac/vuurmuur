@@ -169,11 +169,6 @@ static int apply_changes_ruleset(struct vrmr_ctx *vctx, struct vrmr_regex *reg)
 
 int apply_changes(struct vrmr_ctx *vctx, struct vrmr_regex *reg)
 {
-    if (vctx->conf.old_rulecreation_method == TRUE) {
-        vrmr_error(-1, "Internal Error", "old_rulecreation_method == TRUE");
-        return (-1);
-    }
-
     return (apply_changes_ruleset(vctx, reg));
 }
 

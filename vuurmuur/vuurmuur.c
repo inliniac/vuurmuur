@@ -327,21 +327,16 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
 #endif
-        /* if we are going to use the iptables-restore command, check it */
-        if (vctx.conf.old_rulecreation_method == FALSE) {
-            if (!vrmr_check_iptablesrestore_command(&vctx.conf,
-                        vctx.conf.iptablesrestore_location,
-                        VRMR_IPTCHK_VERBOSE)) {
-                exit(EXIT_FAILURE);
-            }
-#ifdef IPV6_ENABLED
-            if (!vrmr_check_ip6tablesrestore_command(&vctx.conf,
-                        vctx.conf.ip6tablesrestore_location,
-                        VRMR_IPTCHK_VERBOSE)) {
-                exit(EXIT_FAILURE);
-            }
-#endif
+        if (!vrmr_check_iptablesrestore_command(&vctx.conf,
+                    vctx.conf.iptablesrestore_location, VRMR_IPTCHK_VERBOSE)) {
+            exit(EXIT_FAILURE);
         }
+#ifdef IPV6_ENABLED
+        if (!vrmr_check_ip6tablesrestore_command(&vctx.conf,
+                    vctx.conf.ip6tablesrestore_location, VRMR_IPTCHK_VERBOSE)) {
+            exit(EXIT_FAILURE);
+        }
+#endif
     }
 
     /* after the config we can remove the rules if we need to */
@@ -457,8 +452,7 @@ int main(int argc, char *argv[])
         vrmr_rules_print_list(&vctx.rules);
 
     /* now create the rules */
-    if (vctx.conf.old_rulecreation_method == TRUE ||
-            vctx.conf.bash_out == TRUE) {
+    if (vctx.conf.bash_out == TRUE) {
         /* call with create_prerules == 1 */
         if (create_all_rules(&vctx, 1) != 0) {
             vrmr_error(-1, "Error", "creating rules failed.");

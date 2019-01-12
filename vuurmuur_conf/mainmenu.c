@@ -539,24 +539,22 @@ static void mm_check_status_config(
         }
     }
 
-    if (conf->old_rulecreation_method == 0) {
-        if (strcmp(conf->iptablesrestore_location, "") == 0) {
+    if (strcmp(conf->iptablesrestore_location, "") == 0) {
+        vuurmuur_status.config = -1;
+        queue_status_msg(status_list, vuurmuur_status.config,
+                gettext("- The path to the 'iptables-restore'-command is "
+                        "not yet specified. Please do so in the 'Vuurmuur "
+                        "Config' section\n"));
+    } else {
+        if (!vrmr_check_iptablesrestore_command(
+                    conf, conf->iptablesrestore_location, VRMR_IPTCHK_QUIET)) {
             vuurmuur_status.config = -1;
             queue_status_msg(status_list, vuurmuur_status.config,
-                    gettext("- The path to the 'iptables-restore'-command is "
-                            "not yet specified. Please do so in the 'Vuurmuur "
-                            "Config' section\n"));
-        } else {
-            if (!vrmr_check_iptablesrestore_command(conf,
-                        conf->iptablesrestore_location, VRMR_IPTCHK_QUIET)) {
-                vuurmuur_status.config = -1;
-                queue_status_msg(status_list, vuurmuur_status.config,
-                        gettext("- The path to the 'iptables-restore'-command "
-                                "seems to be wrong. There was an error while "
-                                "testing it. Please check it in your system "
-                                "and correct it in the 'Vuurmuur Config' "
-                                "section\n"));
-            }
+                    gettext("- The path to the 'iptables-restore'-command "
+                            "seems to be wrong. There was an error while "
+                            "testing it. Please check it in your system "
+                            "and correct it in the 'Vuurmuur Config' "
+                            "section\n"));
         }
     }
 
@@ -579,24 +577,22 @@ static void mm_check_status_config(
         }
     }
 
-    if (conf->old_rulecreation_method == 0) {
-        if (strcmp(conf->ip6tablesrestore_location, "") == 0) {
+    if (strcmp(conf->ip6tablesrestore_location, "") == 0) {
+        vuurmuur_status.config = -1;
+        queue_status_msg(status_list, vuurmuur_status.config,
+                gettext("- The path to the 'ip6tables-restore'-command is "
+                        "not yet specified. Please do so in the 'Vuurmuur "
+                        "Config' section\n"));
+    } else {
+        if (!vrmr_check_ip6tablesrestore_command(
+                    conf, conf->ip6tablesrestore_location, VRMR_IPTCHK_QUIET)) {
             vuurmuur_status.config = -1;
             queue_status_msg(status_list, vuurmuur_status.config,
-                    gettext("- The path to the 'ip6tables-restore'-command is "
-                            "not yet specified. Please do so in the 'Vuurmuur "
-                            "Config' section\n"));
-        } else {
-            if (!vrmr_check_ip6tablesrestore_command(conf,
-                        conf->ip6tablesrestore_location, VRMR_IPTCHK_QUIET)) {
-                vuurmuur_status.config = -1;
-                queue_status_msg(status_list, vuurmuur_status.config,
-                        gettext("- The path to the 'ip6tables-restore'-command "
-                                "seems to be wrong. There was an error while "
-                                "testing it. Please check it in your system "
-                                "and correct it in the 'Vuurmuur Config' "
-                                "section\n"));
-            }
+                    gettext("- The path to the 'ip6tables-restore'-command "
+                            "seems to be wrong. There was an error while "
+                            "testing it. Please check it in your system "
+                            "and correct it in the 'Vuurmuur Config' "
+                            "section\n"));
         }
     }
 #endif
