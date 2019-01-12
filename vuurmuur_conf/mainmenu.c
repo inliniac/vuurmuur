@@ -22,79 +22,10 @@
 
 static char last_vuurmuur_result = 1;
 static char last_vuurmuur_log_result = 1;
-/* make sure we ask these questions only once */
-static char blocklist_convert_question_asked = FALSE;
 
 static void mm_check_status_zones(
         /*@null@*/ struct vrmr_list *, struct vrmr_zones *);
 static void mm_check_status_services(struct vrmr_services *);
-
-static int convert_blocklistfile_to_backend(struct vrmr_ctx *vctx,
-        struct vrmr_blocklist *blocklist, struct vrmr_config *cnf)
-{
-    char path[96] = "";
-    char rule_name[32] = "";
-    int result = 0;
-    int type = 0;
-    char blocklist_found = FALSE;
-
-    /* first, lets save the list to the backend. For this we call
-       blocklist_save_list, but before this, we need to set
-       rules->old_rulesfile_used to FALSE. */
-    blocklist->old_blocklistfile_used = FALSE;
-
-    /* before we can save, we might need to add the rulesfile to the backend,
-       before this we check if the rulesfile exists in the backend */
-    while (vctx->rf->list(vctx->rule_backend, rule_name, &type,
-                   VRMR_BT_RULES) != NULL) {
-        vrmr_debug(MEDIUM, "loading rules: '%s', type: %d", rule_name, type);
-
-        if (strcmp(rule_name, "blocklist") == 0)
-            blocklist_found = TRUE;
-    }
-
-    if (blocklist_found == FALSE) {
-        if (vctx->rf->add(vctx->rule_backend, "blocklist", VRMR_TYPE_RULE) <
-                0) {
-            vrmr_error(-1, VR_INTERR, "rf->add() failed");
-            return (-1);
-        }
-    }
-
-    /* call vrmr_rules_save_list */
-    if (vrmr_blocklist_save_list(vctx, cnf, blocklist) < 0) {
-        vrmr_error(-1, VR_ERR, gettext("saving blocklist failed"));
-        return (-1);
-    }
-
-    /* safety check */
-    if (cnf->blocklist_location[0] == '\0' ||
-            StrLen(cnf->blocklist_location) == 0 ||
-            cnf->blocklist_location[0] == ' ') {
-        vrmr_error(-1, VR_ERR,
-                gettext("cannot rename blocklistfile because its location is "
-                        "not set"));
-        return (-1);
-    }
-
-    vrmr_debug(NONE, "cnf->blocklist_location = '%s'", cnf->blocklist_location);
-
-    /* now that we filled the backend, we can rename the old rulesfile to
-     * rules.conf.bak */
-    snprintf(path, sizeof(path), "%s.convert-bak", cnf->blocklist_location);
-
-    vrmr_debug(NONE, "path = '%s'", path);
-
-    /* rename the file now */
-    result = rename(cnf->blocklist_location, path);
-    if (result != 0) {
-        vrmr_error(-1, VR_ERR, gettext("renaming '%s' to '%s' failed: %s."),
-                cnf->blocklist_location, path, strerror(errno));
-        return (-1);
-    }
-
-    return (0);
-}
 
 static int mm_select_logfile(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
         struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
@@ -1496,30 +1427,6 @@ int main_menu(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 cmd_choices_n, cmd_choices);
 
         status_print(status_win, gettext("Ready."));
-
-        /* blocklist conversion */
-        if (blocklist->old_blocklistfile_used == TRUE &&
-                blocklist_convert_question_asked == FALSE) {
-            if ((confirm(gettext("Convert BlockList"),
-                         gettext("Convert the BlockList to the new format "
-                                 "(recommended)?"),
-                         vccnf.color_win_note,
-                         vccnf.color_win_note_rev | A_BOLD, 1) == 1)) {
-                if (convert_blocklistfile_to_backend(
-                            vctx, blocklist, &vctx->conf) < 0) {
-                    vrmr_warning(
-                            VR_WARN, gettext("converting BlockList failed."));
-                } else {
-                    status_print(status_win,
-                            gettext("BlockList converted successfully."));
-                }
-            }
-
-            blocklist_convert_question_asked = TRUE;
-        } else {
-            /* for in the status window */
-            status_print(status_win, gettext("Ready."));
-        }
 
         /* get user input */
         ch = wgetch(mainmenu_win);

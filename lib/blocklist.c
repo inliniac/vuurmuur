@@ -285,64 +285,11 @@ int vrmr_blocklist_rem_one(struct vrmr_zones *zones,
     return (-1);
 }
 
-/*  blocklist_read_file
-
-    if 'load_ips' is set to 1 the ipaddresses of the hosts and the groups will
-    be loaded, otherwise just the name in the file
-*/
-static int blocklist_read_file(struct vrmr_config *cfg,
-        struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
-        char load_ips, char no_refcnt)
+int vrmr_blocklist_init_list(struct vrmr_ctx *vctx,
+        struct vrmr_config *cfg ATTR_UNUSED, struct vrmr_zones *zones,
+        struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt)
 {
-    FILE *fp = NULL;
     char line[128] = "";
-
-    assert(zones && blocklist);
-
-    vrmr_debug(HIGH, "load_ips: %c, no_refcnt: %c.", load_ips, no_refcnt);
-
-    /* open the blocklist-file */
-    if (!(fp = vuurmuur_fopen(cfg, cfg->blocklist_location, "r"))) {
-        vrmr_error(-1, "Error", "opening blockfile '%s' failed: %s",
-                cfg->blocklist_location, strerror(errno));
-        return (-1);
-    }
-
-    /* read the file */
-    while (fgets(line, (int)sizeof(line), fp) != NULL) {
-        size_t len = strlen(line);
-        if (len > 0 && line[0] != '#') {
-            /* cut of the newline */
-            if (line[len - 1] == '\n')
-                line[len - 1] = '\0';
-
-            /* add it to the list */
-            if (vrmr_blocklist_add_one(
-                        zones, blocklist, load_ips, no_refcnt, line) < 0) {
-                vrmr_error(-1, "Error", "adding to the blocklist failed");
-                (void)fclose(fp);
-                return (-1);
-            }
-        }
-    }
-
-    if (fclose(fp) < 0) {
-        vrmr_error(
-                -1, "Error", "closing blockfile failed: %s", strerror(errno));
-        return (-1);
-    }
-
-    vrmr_info("Info", "added %d items to the blocklist.", blocklist->list.len);
-    return (0);
-}
-
-int vrmr_blocklist_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
-        struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
-        char load_ips, char no_refcnt)
-{
-    FILE *fp = NULL;
-    char line[128] = "";
-    int result = 0;
     size_t len = 0;
     char value[128] = "";
     char rule_name[32] = "";
@@ -357,61 +304,41 @@ int vrmr_blocklist_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
     /* setup the blocklist */
     vrmr_list_setup(&blocklist->list, free);
 
-    /* open the blocklist-file */
-    if ((fp = fopen(cfg->blocklist_location, "r"))) {
-        (void)fclose(fp);
+    /* see if the blocklist already exists in the backend */
+    while (vctx->rf->list(vctx->rule_backend, rule_name, &type,
+                   VRMR_BT_RULES) != NULL) {
+        vrmr_debug(MEDIUM, "loading rules: '%s', type: %d", rule_name, type);
 
-        vrmr_debug(MEDIUM, "old_blocklistfile_used == TRUE");
+        if (strcmp(rule_name, "blocklist") == 0)
+            blocklist_found = TRUE;
+    }
 
-        blocklist->old_blocklistfile_used = TRUE;
-
-        result =
-                blocklist_read_file(cfg, zones, blocklist, load_ips, no_refcnt);
-        if (result < 0)
+    if (blocklist_found == FALSE) {
+        if (vctx->rf->add(vctx->rule_backend, "blocklist", VRMR_TYPE_RULE) <
+                0) {
+            vrmr_error(-1, "Internal Error", "rf->add() failed");
             return (-1);
-    } else {
-        vrmr_debug(MEDIUM, "old_blocklistfile_used == FALSE");
-
-        blocklist->old_blocklistfile_used = FALSE;
-
-        /* see if the blocklist already exists in the backend */
-        while (vctx->rf->list(vctx->rule_backend, rule_name, &type,
-                       VRMR_BT_RULES) != NULL) {
-            vrmr_debug(
-                    MEDIUM, "loading rules: '%s', type: %d", rule_name, type);
-
-            if (strcmp(rule_name, "blocklist") == 0)
-                blocklist_found = TRUE;
         }
+    }
 
-        if (blocklist_found == FALSE) {
-            if (vctx->rf->add(vctx->rule_backend, "blocklist", VRMR_TYPE_RULE) <
-                    0) {
-                vrmr_error(-1, "Internal Error", "rf->add() failed");
-                return (-1);
-            }
-        }
+    while ((vctx->rf->ask(vctx->rule_backend, "blocklist", "RULE", line,
+                   sizeof(line), VRMR_TYPE_RULE, 1)) == 1) {
+        len = strlen(line);
+        if (len == 0 || line[0] == '#')
+            continue;
 
-        while ((vctx->rf->ask(vctx->rule_backend, "blocklist", "RULE", line,
-                       sizeof(line), VRMR_TYPE_RULE, 1)) == 1) {
-            len = strlen(line);
-            if (len == 0 || line[0] == '#')
-                continue;
+        /* cut of the newline */
+        if (line[len - 1] == '\n')
+            line[len - 1] = '\0';
 
-            /* cut of the newline */
-            if (line[len - 1] == '\n')
-                line[len - 1] = '\0';
-
-            if (strncmp(line, "block", 5) == 0) {
-                sscanf(line, "block %120s", value);
-                if (strlen(value) > 0) {
-                    /* add it to the list */
-                    if (vrmr_blocklist_add_one(zones, blocklist, load_ips,
-                                no_refcnt, value) < 0) {
-                        vrmr_error(
-                                -1, "Error", "adding to the blocklist failed");
-                        return (-1);
-                    }
+        if (strncmp(line, "block", 5) == 0) {
+            sscanf(line, "block %120s", value);
+            if (strlen(value) > 0) {
+                /* add it to the list */
+                if (vrmr_blocklist_add_one(
+                            zones, blocklist, load_ips, no_refcnt, value) < 0) {
+                    vrmr_error(-1, "Error", "adding to the blocklist failed");
+                    return (-1);
                 }
             }
         }
@@ -420,48 +347,9 @@ int vrmr_blocklist_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
     return (0);
 }
 
-static int blocklist_write_file(
-        struct vrmr_config *cfg, struct vrmr_list *block_list)
+int vrmr_blocklist_save_list(struct vrmr_ctx *vctx,
+        struct vrmr_config *cfg ATTR_UNUSED, struct vrmr_blocklist *blocklist)
 {
-    struct vrmr_list_node *d_node = NULL;
-    char *itemname = NULL;
-    int retval = 0;
-    FILE *fp = NULL;
-
-    assert(block_list);
-
-    /* open the blockfile */
-    if (!(fp = fopen(cfg->blocklist_location, "w+"))) {
-        vrmr_error(-1, "Error", "opening blocklistfile '%s' failed: %s",
-                cfg->blocklist_location, strerror(errno));
-        return (-1);
-    }
-
-    fprintf(fp, "# BlockList for Vuurmuur\n");
-    fprintf(fp, "#\n");
-    fprintf(fp, "# put a list ipaddresses, hosts and groups to be blocked,\n");
-    fprintf(fp, "# one per line.\n");
-
-    for (d_node = block_list->top; d_node; d_node = d_node->next) {
-        if (!(itemname = d_node->data))
-            continue;
-
-        fprintf(fp, "block %s\n", itemname);
-    }
-
-    /* print the end-of-file so we know all went fine */
-    fprintf(fp, "# end of file\n");
-    fflush(fp);
-
-    /* close the rulesfile */
-    retval = fclose(fp);
-    return (retval);
-}
-
-int vrmr_blocklist_save_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
-        struct vrmr_blocklist *blocklist)
-{
-    int result = 0;
     char *line = NULL;
     int overwrite = 0;
     struct vrmr_list_node *d_node = NULL;
@@ -469,42 +357,36 @@ int vrmr_blocklist_save_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
 
     assert(blocklist);
 
-    if (blocklist->old_blocklistfile_used == TRUE) {
-        result = blocklist_write_file(cfg, &blocklist->list);
-        if (result < 0)
+    /* empty list, so clear all */
+    if (blocklist->list.len == 0) {
+        if (vctx->rf->tell(vctx->rule_backend, "blocklist", "RULE", "", 1,
+                    VRMR_TYPE_RULE) < 0) {
+            vrmr_error(-1, "Internal Error", "rf->tell() failed");
             return (-1);
+        }
     } else {
-        /* empty list, so clear all */
-        if (blocklist->list.len == 0) {
-            if (vctx->rf->tell(vctx->rule_backend, "blocklist", "RULE", "", 1,
-                        VRMR_TYPE_RULE) < 0) {
+        overwrite = 1;
+
+        /* loop trough the list */
+        for (d_node = blocklist->list.top; d_node; d_node = d_node->next) {
+            if (!(line = d_node->data)) {
+                vrmr_error(-1, "Internal Error", "NULL pointer");
+                return (-1);
+            }
+
+            if (line[strlen(line) - 1] == '\n')
+                line[strlen(line) - 1] = '\0';
+
+            snprintf(rule_str, sizeof(rule_str), "block %s", line);
+
+            /* write to the backend */
+            if (vctx->rf->tell(vctx->rule_backend, "blocklist", "RULE",
+                        rule_str, overwrite, VRMR_TYPE_RULE) < 0) {
                 vrmr_error(-1, "Internal Error", "rf->tell() failed");
                 return (-1);
             }
-        } else {
-            overwrite = 1;
 
-            /* loop trough the list */
-            for (d_node = blocklist->list.top; d_node; d_node = d_node->next) {
-                if (!(line = d_node->data)) {
-                    vrmr_error(-1, "Internal Error", "NULL pointer");
-                    return (-1);
-                }
-
-                if (line[strlen(line) - 1] == '\n')
-                    line[strlen(line) - 1] = '\0';
-
-                snprintf(rule_str, sizeof(rule_str), "block %s", line);
-
-                /* write to the backend */
-                if (vctx->rf->tell(vctx->rule_backend, "blocklist", "RULE",
-                            rule_str, overwrite, VRMR_TYPE_RULE) < 0) {
-                    vrmr_error(-1, "Internal Error", "rf->tell() failed");
-                    return (-1);
-                }
-
-                overwrite = 0;
-            }
+            overwrite = 0;
         }
     }
 

@@ -372,7 +372,6 @@ int vrmr_init_config(struct vrmr_config *cnf)
     int retval = VRMR_CNF_OK, result = 0;
     char answer[32] = "";
     FILE *fp = NULL;
-    char tmpbuf[512] = "";
     int debug_level = 0;
 
     assert(cnf);
@@ -523,54 +522,6 @@ int vrmr_init_config(struct vrmr_config *cnf)
         //              cnf->configfile, VRMR_DEFAULT_BACKEND);
     } else
         return (VRMR_CNF_E_UNKNOWN_ERR);
-
-    result = vrmr_ask_configfile(cnf, "BLOCKLISTFILE", cnf->blocklist_location,
-            cnf->configfile, sizeof(cnf->blocklist_location));
-    if (result == 1) {
-        /* ok, found */
-        if (cnf->blocklist_location[0] == '\0') {
-            /* assemble it */
-            snprintf(tmpbuf, sizeof(tmpbuf), "%s/vuurmuur/blocked.list",
-                    cnf->etcdir);
-            /* copy back */
-            if (strlcpy(cnf->blocklist_location, tmpbuf,
-                        sizeof(cnf->blocklist_location)) >=
-                    sizeof(cnf->blocklist_location)) {
-                vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                        "string overflow");
-                return (VRMR_CNF_E_UNKNOWN_ERR);
-            }
-        } else if (strlen(cnf->blocklist_location) > 0 &&
-                   cnf->blocklist_location[0] != '/') {
-            /* not a fullpath, so assemble it */
-            snprintf(tmpbuf, sizeof(tmpbuf), "%s/vuurmuur/%s", cnf->etcdir,
-                    cnf->blocklist_location);
-            /* copy back */
-            if (strlcpy(cnf->blocklist_location, tmpbuf,
-                        sizeof(cnf->blocklist_location)) >=
-                    sizeof(cnf->blocklist_location)) {
-                vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                        "string overflow");
-                return (VRMR_CNF_E_UNKNOWN_ERR);
-            }
-        }
-    } else if (result == 0) {
-        /* assemble it */
-        snprintf(tmpbuf, sizeof(tmpbuf), "%s/vuuurmuur/%s", cnf->etcdir,
-                "blocked.list");
-        /* copy back */
-        if (strlcpy(cnf->blocklist_location, tmpbuf,
-                    sizeof(cnf->blocklist_location)) >=
-                sizeof(cnf->blocklist_location)) {
-            vrmr_error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
-                    "string overflow");
-            return (VRMR_CNF_E_UNKNOWN_ERR);
-        }
-    } else
-        return (VRMR_CNF_E_UNKNOWN_ERR);
-
-    vrmr_sanitize_path(
-            cnf->blocklist_location, sizeof(cnf->blocklist_location));
 
     /* DYN_INT_CHECK */
     result = vrmr_ask_configfile(
@@ -1563,9 +1514,6 @@ int vrmr_write_configfile(char *file_location, struct vrmr_config *cfg)
     fprintf(fp, "ZONES_BACKEND=\"%s\"\n\n", cfg->zone_backend_name);
     fprintf(fp, "INTERFACES_BACKEND=\"%s\"\n\n", cfg->ifac_backend_name);
     fprintf(fp, "RULES_BACKEND=\"%s\"\n\n", cfg->rule_backend_name);
-
-    fprintf(fp, "# Location of the blocklistfile (full path).\n");
-    fprintf(fp, "BLOCKLISTFILE=\"%s\"\n\n", cfg->blocklist_location);
 
     fprintf(fp, "# Location of the sysctl-command (full path).\n");
     fprintf(fp, "SYSCTL=\"%s\"\n\n", cfg->sysctl_location);

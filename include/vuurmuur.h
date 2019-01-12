@@ -493,10 +493,9 @@ struct vrmr_config {
 
     char tc_location[128];
 
-    char blocklist_location[64];
-    char log_blocklist;
-
     char nfgrp;
+
+    char log_blocklist;
 
     /* logfile locations */
     char vuurmuur_logdir_location[64];
