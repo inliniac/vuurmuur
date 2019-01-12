@@ -2,11 +2,8 @@
 
 # Which plugin to use for which type of data.
 SERVICES_BACKEND="textdir"
-
 ZONES_BACKEND="textdir"
-
 INTERFACES_BACKEND="textdir"
-
 RULES_BACKEND="textdir"
 
 # Location of the sysctl-command (full path).
@@ -17,9 +14,6 @@ IPTABLES="/sbin/iptables"
 
 # Location of the iptables-restore-command (full path).
 IPTABLES_RESTORE="/sbin/iptables-restore"
-
-# Location of the conntrack-command (full path).
-CONNTRACK="/usr/sbin/conntrack"
 
 # Location of the tc-command (full path).
 TC="/sbin/tc"
@@ -39,19 +33,8 @@ LOAD_MODULES="Yes"
 # Wait after loading a module in 1/10th of a second
 MODULES_WAIT_TIME="0"
 
-# If set to yes, each rule will be loaded into the system individually using
-# iptables. Otherwise iptables-restore will be used (yes/no).
-OLD_CREATE_METHOD="No"
-
 # The directory where the logs will be written to (full path).
 LOGDIR="/var/log/vuurmuur"
-
-# The logfile where the kernel writes the logs to e.g. /var/log/messages
-# (full path).
-SYSTEMLOG="/var/log/messages"
-
-# The loglevel to use when logging traffic. For use with syslog.
-LOGLEVEL="info"
 
 # Check the dynamic interfaces for changes?
 DYN_INT_CHECK="No"
@@ -87,9 +70,6 @@ PROTECT_SYNCOOKIE="Yes"
 
 # Ignore echo-broadcasts? (yes/no)
 PROTECT_ECHOBROADCAST="Yes"
-
-# Will we be using NFLOG logging?
-RULE_NFLOG="Yes"
 
 # netfilter group (only applicable when RULE_NFLOG="Yes"
 NFGRP="9"
