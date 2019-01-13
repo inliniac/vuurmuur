@@ -403,19 +403,19 @@ struct vrprint {
     const char *logger;
 
     /* print error. Head may be null. */
-    int (*error)(int errorcode, char *head, char *fmt, ...);
+    int (*error)(int errorcode, const char *head, char *fmt, ...);
     char errorlog[VRMR_LOG_PATH_SIZE];
 
     /* print warning */
-    int (*warning)(char *head, char *fmt, ...);
+    int (*warning)(const char *head, char *fmt, ...);
     /* no location, warning is put in info and error */
 
     /* print info */
-    int (*info)(char *head, char *fmt, ...);
+    int (*info)(const char *head, char *fmt, ...);
     char infolog[VRMR_LOG_PATH_SIZE];
 
     /* print debug */
-    int (*debug)(char *head, char *fmt, ...);
+    int (*debug)(const char *head, char *fmt, ...);
     char debuglog[VRMR_LOG_PATH_SIZE];
 
     /* the username used in the auditlog */
@@ -1677,21 +1677,21 @@ int vrmr_blocklist_save_list(
     log.c
 */
 int vrmr_logprint(char *logfile, char *logstring);
-int vrmr_logprint_error(int errorlevel, char *head, char *fmt, ...);
-int vrmr_logprint_warning(char *head, char *fmt, ...);
-int vrmr_logprint_info(char *head, char *fmt, ...);
+int vrmr_logprint_error(int errorlevel, const char *head, char *fmt, ...);
+int vrmr_logprint_warning(const char *head, char *fmt, ...);
+int vrmr_logprint_info(const char *head, char *fmt, ...);
 int vrmr_logprint_audit(char *fmt, ...);
-int vrmr_logprint_debug(char *head, char *fmt, ...);
-int vrmr_stdoutprint_debug(char *head, char *fmt, ...);
-int vrmr_stdoutprint_info(char *head, char *fmt, ...);
+int vrmr_logprint_debug(const char *head, char *fmt, ...);
+int vrmr_stdoutprint_debug(const char *head, char *fmt, ...);
+int vrmr_stdoutprint_info(const char *head, char *fmt, ...);
 int vrmr_stdoutprint_audit(char *fmt, ...);
-int vrmr_stdoutprint_warning(char *head, char *fmt, ...);
-int vrmr_stdoutprint_error(int errorlevel, char *head, char *fmt, ...);
-int vrmr_logstdoutprint_debug(char *head, char *fmt, ...);
-int vrmr_logstdoutprint_info(char *head, char *fmt, ...);
+int vrmr_stdoutprint_warning(const char *head, char *fmt, ...);
+int vrmr_stdoutprint_error(int errorlevel, const char *head, char *fmt, ...);
+int vrmr_logstdoutprint_debug(const char *head, char *fmt, ...);
+int vrmr_logstdoutprint_info(const char *head, char *fmt, ...);
 int vrmr_logstdoutprint_audit(char *fmt, ...);
-int vrmr_logstdoutprint_warning(char *head, char *fmt, ...);
-int vrmr_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...);
+int vrmr_logstdoutprint_warning(const char *head, char *fmt, ...);
+int vrmr_logstdoutprint_error(int errorlevel, const char *head, char *fmt, ...);
 
 int vrmr_log_record_build_line(
         struct vrmr_log_record *log_record, char *outline, size_t size);

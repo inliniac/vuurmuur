@@ -86,7 +86,7 @@ int sysctl_exec(struct vrmr_config *cnf, char *key, char *value, int bash_out)
     return 0;
 }
 
-int logprint_error_bash(int errorlevel, char *head, char *fmt, ...)
+int logprint_error_bash(int errorlevel, const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
@@ -110,7 +110,7 @@ int logprint_error_bash(int errorlevel, char *head, char *fmt, ...)
     return (0);
 }
 
-int logprint_warning_bash(char *head, char *fmt, ...)
+int logprint_warning_bash(const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
@@ -132,7 +132,7 @@ int logprint_warning_bash(char *head, char *fmt, ...)
     return (0);
 }
 
-int logprint_info_bash(char *head, char *fmt, ...)
+int logprint_info_bash(const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",

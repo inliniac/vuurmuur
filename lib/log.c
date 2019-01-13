@@ -63,7 +63,7 @@ int vrmr_logprint(char *logfile, char *logstring)
     return (retval);
 }
 
-int vrmr_logprint_error(int errorlevel, char *head, char *fmt, ...)
+int vrmr_logprint_error(int errorlevel, const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
@@ -86,7 +86,7 @@ int vrmr_logprint_error(int errorlevel, char *head, char *fmt, ...)
     return (0);
 }
 
-int vrmr_logprint_warning(char *head, char *fmt, ...)
+int vrmr_logprint_warning(const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
@@ -107,7 +107,7 @@ int vrmr_logprint_warning(char *head, char *fmt, ...)
     return (0);
 }
 
-int vrmr_logprint_info(char *head, char *fmt, ...)
+int vrmr_logprint_info(const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
@@ -145,7 +145,7 @@ int vrmr_logprint_audit(char *fmt, ...)
     return (0);
 }
 
-int vrmr_logprint_debug(char *head, char *fmt, ...)
+int vrmr_logprint_debug(const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
@@ -168,7 +168,7 @@ int vrmr_logprint_debug(char *head, char *fmt, ...)
     return (0);
 }
 
-int vrmr_stdoutprint_error(int errorlevel, char *head, char *fmt, ...)
+int vrmr_stdoutprint_error(int errorlevel, const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "";
@@ -183,7 +183,7 @@ int vrmr_stdoutprint_error(int errorlevel, char *head, char *fmt, ...)
     return (0);
 }
 
-int vrmr_stdoutprint_warning(char *head, char *fmt, ...)
+int vrmr_stdoutprint_warning(const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "";
@@ -198,7 +198,7 @@ int vrmr_stdoutprint_warning(char *head, char *fmt, ...)
     return (0);
 }
 
-int vrmr_stdoutprint_info(char *head, char *fmt, ...)
+int vrmr_stdoutprint_info(const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "";
@@ -228,7 +228,7 @@ int vrmr_stdoutprint_audit(char *fmt, ...)
     return (0);
 }
 
-int vrmr_stdoutprint_debug(char *head, char *fmt, ...)
+int vrmr_stdoutprint_debug(const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "";
@@ -247,7 +247,7 @@ int vrmr_stdoutprint_debug(char *head, char *fmt, ...)
     return (0);
 }
 
-int vrmr_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
+int vrmr_logstdoutprint_error(int errorlevel, const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
@@ -273,7 +273,7 @@ int vrmr_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
     return (0);
 }
 
-int vrmr_logstdoutprint_warning(char *head, char *fmt, ...)
+int vrmr_logstdoutprint_warning(const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
@@ -297,7 +297,7 @@ int vrmr_logstdoutprint_warning(char *head, char *fmt, ...)
     return (0);
 }
 
-int vrmr_logstdoutprint_info(char *head, char *fmt, ...)
+int vrmr_logstdoutprint_info(const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
@@ -343,7 +343,7 @@ int vrmr_logstdoutprint_audit(char *fmt, ...)
     return (0);
 }
 
-int vrmr_logstdoutprint_debug(char *head, char *fmt, ...)
+int vrmr_logstdoutprint_debug(const char *head, char *fmt, ...)
 {
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",

@@ -358,9 +358,9 @@ void send_hup_to_vuurmuurlog(void);
 void cmdline_override_config(struct vrmr_config *conf);
 int sysctl_exec(struct vrmr_config *cnf, char *key, char *value, int bash_out);
 
-int logprint_error_bash(int errorlevel, char *head, char *fmt, ...);
-int logprint_warning_bash(char *head, char *fmt, ...);
-int logprint_info_bash(char *head, char *fmt, ...);
+int logprint_error_bash(int errorlevel, const char *head, char *fmt, ...);
+int logprint_warning_bash(const char *head, char *fmt, ...);
+int logprint_info_bash(const char *head, char *fmt, ...);
 
 /* reload.c */
 int apply_changes(struct vrmr_ctx *vctx, struct vrmr_regex *);

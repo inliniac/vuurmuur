@@ -284,7 +284,7 @@ end:
     return (result_ptr);
 }
 
-int vuumuurconf_print_warning(char *title, char *fmt, ...)
+int vuumuurconf_print_warning(const char *title, char *fmt, ...)
 {
     va_list ap;
     char long_str[512] = "";
@@ -327,7 +327,7 @@ int vuumuurconf_print_warning(char *title, char *fmt, ...)
     return (0);
 }
 
-int vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
+int vuumuurconf_print_error(int error_no, const char *title, char *fmt, ...)
 {
     va_list ap;
     char long_str[512] = "";
@@ -369,7 +369,7 @@ int vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
     return (0);
 }
 
-int vuumuurconf_print_info(char *title ATTR_UNUSED, char *fmt, ...)
+int vuumuurconf_print_info(const char *title ATTR_UNUSED, char *fmt, ...)
 {
     va_list ap;
     char long_str[512] = "";

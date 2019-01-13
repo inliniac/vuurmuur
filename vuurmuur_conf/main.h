@@ -332,9 +332,9 @@ int write_rulesfile(char *, struct vrmr_rules *);
 int confirm(
         char *title, char *text, chtype forecolor, chtype backcolor, int def);
 char *input_box(size_t length, const char *title, const char *description);
-int vuumuurconf_print_error(int error_no, char *title, char *fmt, ...);
-int vuumuurconf_print_warning(char *title, char *fmt, ...);
-int vuumuurconf_print_info(char *title, char *fmt, ...);
+int vuumuurconf_print_error(int error_no, const char *title, char *fmt, ...);
+int vuumuurconf_print_warning(const char *title, char *fmt, ...);
+int vuumuurconf_print_info(const char *title, char *fmt, ...);
 char *selectbox(char *title, char *text, size_t n_choices, char **choices,
         unsigned int cols, char *);
 int status_print(WINDOW *local_win, /*@null@*/ char *fmt, ...);
