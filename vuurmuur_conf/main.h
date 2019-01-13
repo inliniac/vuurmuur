@@ -516,12 +516,12 @@ void VrShapeIface(struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
     do {                                                                       \
         char _vrmr_msg[2048];                                                  \
         char _vrmr_loc[512];                                                   \
-        char _vrmr_line[2048];                                                 \
+        char _vrmr_line[2048 + 512];                                           \
                                                                                \
-        snprintf(_vrmr_msg, 2048, __VA_ARGS__);                                \
-        snprintf(_vrmr_loc, sizeof(_vrmr_loc), "[%s:%d:%s]", __FILE__,         \
+        (void)snprintf(_vrmr_msg, sizeof(_vrmr_msg), __VA_ARGS__);             \
+        (void)snprintf(_vrmr_loc, sizeof(_vrmr_loc), "[%s:%d:%s]", __FILE__,   \
                 __LINE__, __func__);                                           \
-        snprintf(_vrmr_line, sizeof(_vrmr_line), "%s %s", _vrmr_loc,           \
+        (void)snprintf(_vrmr_line, sizeof(_vrmr_line), "%s %s", _vrmr_loc,     \
                 _vrmr_msg);                                                    \
                                                                                \
         vrmr_error(EXIT_FAILURE, gettext("Fatal Error"), "%s", _vrmr_line);    \

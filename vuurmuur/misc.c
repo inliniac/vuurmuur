@@ -96,8 +96,10 @@ int logprint_error_bash(int errorlevel, char *head, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel,
-            long_str);
+    if (snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel,
+                long_str) >= (int)sizeof(prnt_str)) {
+        return (-1);
+    }
 
     /* print in the error log */
     vrmr_logprint(vrprint.errorlog, prnt_str);
@@ -118,7 +120,10 @@ int logprint_warning_bash(char *head, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
+    if (snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str) >=
+            (int)sizeof(prnt_str)) {
+        return (-1);
+    }
 
     /* now print in the warning log */
     vrmr_logprint(vrprint.infolog, prnt_str);
@@ -137,7 +142,10 @@ int logprint_info_bash(char *head, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
+    if (snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str) >=
+            (int)sizeof(prnt_str)) {
+        return (-1);
+    }
 
     vrmr_logprint(vrprint.infolog, prnt_str);
     /* finally the bash out */

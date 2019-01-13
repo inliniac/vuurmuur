@@ -174,7 +174,7 @@
 
 #define VRMR_DEFAULT_MAX_PERMISSION 0700 /* default only allow user rwx */
 
-#define VRMR_MAX_LOGRULE_SIZE 512
+#define VRMR_MAX_LOGRULE_SIZE 8192
 #define VRMR_MAX_PIPE_COMMAND 512   /* maximum lenght of the pipe command */
 #define VRMR_MAX_RULECOMMENT_LEN 64 /* length in characters (for widec) */
 
@@ -422,37 +422,37 @@ extern int vrmr_debug_level;
 #define vrmr_debug(lvl, ...)                                                   \
     do {                                                                       \
         if (vrmr_debug_level >= (lvl)) {                                       \
-            char _vrmr_msg[2048];                                              \
+            char _vrmr_msg[8192];                                              \
             char _vrmr_loc[512];                                               \
                                                                                \
-            snprintf(_vrmr_msg, 2048, __VA_ARGS__);                            \
-            snprintf(_vrmr_loc, sizeof(_vrmr_loc), "[%s:%d:%s]", __FILE__,     \
-                    __LINE__, __func__);                                       \
+            (void)snprintf(_vrmr_msg, sizeof(_vrmr_msg), __VA_ARGS__);         \
+            (void)snprintf(_vrmr_loc, sizeof(_vrmr_loc), "[%s:%d:%s]",         \
+                    __FILE__, __LINE__, __func__);                             \
             (void)vrprint.debug(_vrmr_loc, _vrmr_msg);                         \
         }                                                                      \
     } while (0)
 
 #define vrmr_audit(...)                                                        \
     do {                                                                       \
-        char _vrmr_msg[2048];                                                  \
-        snprintf(_vrmr_msg, 2048, __VA_ARGS__);                                \
+        char _vrmr_msg[8192];                                                  \
+        (void)snprintf(_vrmr_msg, sizeof(_vrmr_msg), __VA_ARGS__);             \
         (void)vrprint.audit("%s", _vrmr_msg);                                  \
     } while (0)
 
 #define vrmr_info(title, ...)                                                  \
     do {                                                                       \
-        char _vrmr_msg[2048];                                                  \
+        char _vrmr_msg[8192];                                                  \
                                                                                \
-        snprintf(_vrmr_msg, 2048, __VA_ARGS__);                                \
+        (void)snprintf(_vrmr_msg, sizeof(_vrmr_msg), __VA_ARGS__);             \
         (void)vrprint.info((title), "%s", _vrmr_msg);                          \
     } while (0)
 
 #define vrmr_warning(title, ...)                                               \
     do {                                                                       \
-        char _vrmr_msg[2048];                                                  \
+        char _vrmr_msg[8192];                                                  \
         char _vrmr_loc[512];                                                   \
                                                                                \
-        snprintf(_vrmr_msg, 2048, __VA_ARGS__);                                \
+        (void)snprintf(_vrmr_msg, sizeof(_vrmr_msg), __VA_ARGS__);             \
         snprintf(_vrmr_loc, sizeof(_vrmr_loc), "%s:%d:%s", __FILE__, __LINE__, \
                 __func__);                                                     \
         (void)vrprint.warning((title), "%s (in: %s)", _vrmr_msg, _vrmr_loc);   \
@@ -460,10 +460,10 @@ extern int vrmr_debug_level;
 
 #define vrmr_error(code, title, ...)                                           \
     do {                                                                       \
-        char _vrmr_msg[2048];                                                  \
+        char _vrmr_msg[8192];                                                  \
         char _vrmr_loc[512];                                                   \
                                                                                \
-        snprintf(_vrmr_msg, 2048, __VA_ARGS__);                                \
+        (void)snprintf(_vrmr_msg, sizeof(_vrmr_msg), __VA_ARGS__);             \
         snprintf(_vrmr_loc, sizeof(_vrmr_loc), "%s:%d:%s", __FILE__, __LINE__, \
                 __func__);                                                     \
         (void)vrprint.error(                                                   \

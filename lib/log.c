@@ -73,8 +73,10 @@ int vrmr_logprint_error(int errorlevel, char *head, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel,
-            long_str);
+    if (snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel,
+                long_str) >= (int)sizeof(prnt_str)) {
+        return (-1);
+    }
 
     /* print in the error log */
     vrmr_logprint(vrprint.errorlog, prnt_str);
@@ -94,7 +96,10 @@ int vrmr_logprint_warning(char *head, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
+    if (snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str) >=
+            (int)sizeof(prnt_str)) {
+        return (-1);
+    }
 
     /* now print in the warning log */
     vrmr_logprint(vrprint.infolog, prnt_str);
@@ -112,7 +117,10 @@ int vrmr_logprint_info(char *head, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
+    if (snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str) >=
+            (int)sizeof(prnt_str)) {
+        return (-1);
+    }
 
     vrmr_logprint(vrprint.infolog, prnt_str);
     return (0);
@@ -128,7 +136,10 @@ int vrmr_logprint_audit(char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    snprintf(prnt_str, sizeof(prnt_str), "%s : %s", vrprint.username, long_str);
+    if (snprintf(prnt_str, sizeof(prnt_str), "%s : %s", vrprint.username,
+                long_str) >= (int)sizeof(prnt_str)) {
+        return (-1);
+    }
 
     vrmr_logprint(vrprint.auditlog, prnt_str);
     return (0);
@@ -144,11 +155,14 @@ int vrmr_logprint_debug(char *head, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    if (head != NULL)
-        snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
-    else
+    if (head != NULL) {
+        if (snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str) >=
+                (int)sizeof(prnt_str)) {
+            return (-1);
+        }
+    } else {
         (void)strlcpy(prnt_str, long_str, sizeof(prnt_str));
-
+    }
     /* print in the debug log */
     vrmr_logprint(vrprint.debuglog, prnt_str);
     return (0);
@@ -243,8 +257,10 @@ int vrmr_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel,
-            long_str);
+    if (snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel,
+                long_str) >= (int)sizeof(prnt_str)) {
+        return (-1);
+    }
 
     /* print in the error log */
     vrmr_logprint(vrprint.errorlog, prnt_str);
@@ -267,7 +283,10 @@ int vrmr_logstdoutprint_warning(char *head, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
+    if (snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str) >=
+            (int)sizeof(prnt_str)) {
+        return (-1);
+    }
 
     /* now print in the warning log */
     vrmr_logprint(vrprint.infolog, prnt_str);
@@ -288,7 +307,10 @@ int vrmr_logstdoutprint_info(char *head, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
+    if (snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str) >=
+            (int)sizeof(prnt_str)) {
+        return (-1);
+    }
 
     vrmr_logprint(vrprint.infolog, prnt_str);
 
@@ -308,7 +330,10 @@ int vrmr_logstdoutprint_audit(char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    snprintf(prnt_str, sizeof(prnt_str), "%s : %s", vrprint.username, long_str);
+    if (snprintf(prnt_str, sizeof(prnt_str), "%s : %s", vrprint.username,
+                long_str) >= (int)sizeof(prnt_str)) {
+        return (-1);
+    }
 
     vrmr_logprint(vrprint.auditlog, prnt_str);
 
@@ -328,11 +353,14 @@ int vrmr_logstdoutprint_debug(char *head, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    if (head != NULL)
-        snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
-    else
+    if (head != NULL) {
+        if (snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str) >=
+                (int)sizeof(prnt_str)) {
+            return (-1);
+        }
+    } else {
         (void)strlcpy(prnt_str, long_str, sizeof(prnt_str));
-
+    }
     /* print in the debug log */
     vrmr_logprint(vrprint.debuglog, prnt_str);
 
