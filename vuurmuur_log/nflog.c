@@ -79,7 +79,7 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
 {
     struct nfulnl_msg_packet_hdr *ph;
     char *hwhdr;
-    char macstr[20];
+    char macstr[18]; // 17 + nul
     void *protoh;
     struct tcphdr *tcph;
     struct udphdr *udph;
@@ -116,10 +116,10 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
         hwhdr = nflog_get_msg_packet_hwhdr(nfa);
         if (hwhdr != NULL) {
             mac2str(hwhdr, macstr, sizeof(macstr));
-            snprintf(log_record->dst_mac, sizeof(log_record->dst_mac), "(%s)",
+            snprintf(log_record->dst_mac, sizeof(log_record->dst_mac), "(%17s)",
                     macstr);
             mac2str(hwhdr + 6, macstr, sizeof(macstr));
-            snprintf(log_record->src_mac, sizeof(log_record->src_mac), "(%s)",
+            snprintf(log_record->src_mac, sizeof(log_record->src_mac), "(%17s)",
                     macstr);
         }
     }
