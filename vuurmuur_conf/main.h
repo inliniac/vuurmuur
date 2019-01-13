@@ -274,7 +274,7 @@ int utf8_mode;
 void print_in_middle(WINDOW *win, int starty, int startx, int width,
         char *string, chtype color);
 WINDOW *create_newwin(int height, int width, int starty, int startx,
-        /*@null@*/ char *title, chtype ch);
+        /*@null@*/ const char *title, chtype ch);
 void destroy_win(WINDOW *local_win);
 int startup_screen(struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_zones *,
         struct vrmr_services *, struct vrmr_interfaces *,
@@ -331,7 +331,7 @@ int write_rulesfile(char *, struct vrmr_rules *);
 */
 int confirm(
         char *title, char *text, chtype forecolor, chtype backcolor, int def);
-char *input_box(size_t length, char *title, char *description);
+char *input_box(size_t length, const char *title, const char *description);
 int vuumuurconf_print_error(int error_no, char *title, char *fmt, ...);
 int vuumuurconf_print_warning(char *title, char *fmt, ...);
 int vuumuurconf_print_info(char *title, char *fmt, ...);

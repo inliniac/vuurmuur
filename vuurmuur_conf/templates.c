@@ -161,7 +161,7 @@ int confirm(
     return (retval);
 }
 
-char *input_box(size_t length, char *title, char *description)
+char *input_box(size_t length, const char *title, const char *description)
 {
     WINDOW *ib_win = NULL;
     PANEL *my_panels[1];

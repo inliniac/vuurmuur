@@ -20,9 +20,6 @@
 
 #include "main.h"
 
-#include <sys/types.h>
-#include <sys/signal.h>
-
 static void print_help(void);
 
 /*

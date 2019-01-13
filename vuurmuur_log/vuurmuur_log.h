@@ -41,10 +41,6 @@
 #define PIDFILE "/var/run/vuurmuur_log.pid"
 #define SVCNAME "vuurmuur_log"
 
-#ifndef HOST_NAME_MAX
-#define HOST_NAME_MAX 255
-#endif
-
 /* the line starts at position 0 */
 #define LINE_START 0
 

@@ -199,8 +199,10 @@ int main(int argc, char *argv[])
             utf8_mode = 1;
     }
 
+#ifdef ENABLE_NLS
     bindtextdomain("vuurmuur", xstr(VRMR_LOCALEDIR));
     textdomain("vuurmuur");
+#endif
 
     /* process commandline options */
     while ((optch = getopt_long(argc, argv, optstring, long_options,
@@ -460,7 +462,7 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width,
     Returns a pointer to the window or NULL in case of failure.
 */
 WINDOW *create_newwin(
-        int height, int width, int starty, int startx, char *title, chtype ch)
+        int height, int width, int starty, int startx, const char *title, chtype ch)
 {
     WINDOW *local_win = NULL;
     size_t memsize = 0, screensize = 0;

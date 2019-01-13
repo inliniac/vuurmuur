@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <string.h>
@@ -63,6 +64,14 @@
  */
 #define xstr(s) str(s)
 #define str(s) #s
+
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX 255
+#endif
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 /* debuglevels */
 #define HIGH 3
