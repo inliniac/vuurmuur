@@ -366,7 +366,7 @@ struct vrmr_shm_table {
     int sem_id;
 
     struct {
-        char name[96];
+        char name[256];
         pid_t pid;
         int connected;
 
@@ -1818,7 +1818,8 @@ int vrmr_conntrack_ct2lr(
 int vrmr_conn_kill_connection_api(const int family, const char *src_ip,
         const char *dst_ip, uint16_t sp, uint16_t dp, uint8_t protocol);
 bool vrmr_conn_check_api(void);
-int vrmr_conn_count_connections_api(int *tcp, int *udp, int *other);
+int vrmr_conn_count_connections_api(
+        uint32_t *tcp, uint32_t *udp, uint32_t *other);
 
 /*
     linked list
@@ -1861,8 +1862,8 @@ void vrmr_filter_cleanup(struct vrmr_filter *filter);
 /*
     util.c
 */
-char *vrmr_get_string(char *fmt, ...);
-char *vrmr_get_len_string(size_t max, char *fmt, ...);
+char *vrmr_get_string(const char *fmt, ...);
+char *vrmr_get_len_string(size_t max, const char *fmt, ...);
 
 /*
  * shape.c

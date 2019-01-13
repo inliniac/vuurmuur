@@ -842,8 +842,8 @@ static void edit_icmp(struct vrmr_portdata *port_ptr)
                 if (cur_field == ICMPSec.typefld) {
                     result = icmp_choose_type();
                     if (result >= 0) {
-                        (void)snprintf(
-                                icmp_type, sizeof(icmp_type), "%d", result);
+                        (void)snprintf(icmp_type, sizeof(icmp_type), "%u",
+                                (uint8_t)result);
                         set_field_buffer_wrap(cur_field, 0, icmp_type);
                     }
                 } else {
@@ -852,7 +852,7 @@ static void edit_icmp(struct vrmr_portdata *port_ptr)
 
                     result = icmp_choose_code(atoi(icmp_type));
                     if (result >= 0) {
-                        (void)snprintf(icmp_code, sizeof(icmp_code), "%d",
+                        (void)snprintf(icmp_code, sizeof(icmp_code), "%u",
                                 (uint8_t)result);
                         set_field_buffer_wrap(cur_field, 0, icmp_code);
                     }
@@ -993,8 +993,8 @@ static int edit_serv_portranges_new(
     char str[64] = "";
 
     /* select protocol setup */
-    char *choice_ptr = NULL,
-         *choices[] = {"TCP", "UDP", "ICMP", "GRE", "AH", "ESP", "Other"};
+    char *choice_ptr = NULL;
+    const char *choices[] = {"TCP", "UDP", "ICMP", "GRE", "AH", "ESP", "Other"};
     size_t n_choices = 7;
 
     struct vrmr_portdata portrange_s = {0, 0, 0, 0, 0};
@@ -1432,10 +1432,10 @@ static void edit_serv_portranges(
     int quit = 0, reload = 0, ch;
     ITEM *cur = NULL;
     /* top menu */
-    char *key_choices[] = {"F12", "INS", "RET", "DEL", "F10"};
+    const char *key_choices[] = {"F12", "INS", "RET", "DEL", "F10"};
     int key_choices_n = 5;
-    char *cmd_choices[] = {gettext("help"), gettext("new"), gettext("edit"),
-            gettext("del"), gettext("back")};
+    const char *cmd_choices[] = {gettext("help"), gettext("new"),
+            gettext("edit"), gettext("del"), gettext("back")};
     int cmd_choices_n = 5;
 
     /* safety */
@@ -1957,9 +1957,9 @@ static int edit_service(
     int quit = 0, retval = 0;
     struct vrmr_service *ser_ptr = NULL;
     FIELD *cur = NULL, *prev = NULL;
-    char *key_choices[] = {"F12", "F6", "F10"};
+    const char *key_choices[] = {"F12", "F6", "F10"};
     int key_choices_n = 3;
-    char *cmd_choices[] = {
+    const char *cmd_choices[] = {
             gettext("help"), gettext("portranges"), gettext("back")};
     int cmd_choices_n = 3;
 
@@ -2260,10 +2260,11 @@ void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
     char *new_name_ptr = NULL, save_ser_name[VRMR_MAX_SERVICE] = "";
     ITEM *cur = NULL;
     /* top menu */
-    char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "F10"};
+    const char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "F10"};
     int key_choices_n = 6;
-    char *cmd_choices[] = {gettext("help"), gettext("new"), gettext("del"),
-            gettext("rename"), gettext("edit"), gettext("back")};
+    const char *cmd_choices[] = {gettext("help"), gettext("new"),
+            gettext("del"), gettext("rename"), gettext("edit"),
+            gettext("back")};
     int cmd_choices_n = 6;
 
     /* safety */

@@ -33,8 +33,8 @@
 
     returns 1 if yes, 0 if no
 */
-int confirm(
-        char *title, char *text, chtype forecolor, chtype backcolor, int def)
+int confirm(const char *title, const char *text, chtype forecolor,
+        chtype backcolor, int def)
 {
     int retval = 0;
     ITEM **menu_items;
@@ -44,7 +44,7 @@ int confirm(
     ITEM *cur;
 
     int height = 7, width = 25, startx = 5, starty = 5, max_x = 0, max_y = 0;
-    char *choices[] = {STR_YES, STR_NO};
+    const char *choices[] = {STR_YES, STR_NO};
 
     size_t n_choices = 2, i = 0;
 
@@ -392,8 +392,9 @@ int vuumuurconf_print_info(const char *title ATTR_UNUSED, char *fmt, ...)
 
     the user must free the selection
 */
-char *selectbox(char *title, char *text, size_t n_choices, char **choices,
-        unsigned int cols, /*@null@*/ char *set_to_name)
+char *selectbox(const char *title, const char *text, size_t n_choices,
+        const char **choices, unsigned int cols,
+        /*@null@*/ const char *set_to_name)
 {
     ITEM **menu_items = NULL, *cur = NULL, *first_item = NULL;
     MENU *confirm_menu;
@@ -645,7 +646,7 @@ char *selectbox(char *title, char *text, size_t n_choices, char **choices,
     return (select_ptr);
 }
 
-int status_print(WINDOW *local_win, char *fmt, ...)
+int status_print(WINDOW *local_win, const char *fmt, ...)
 {
     va_list ap;
     char long_str[256] = ""; /*  this must be bigger than the

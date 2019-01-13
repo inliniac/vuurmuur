@@ -145,10 +145,10 @@ static int count_host_udp_conn(int *udp_count, int *udp_list_count)
 }
 #endif
 
-static int count_conntrack_conn(
-        int *conntrack_count, int *tcp_count, int *udp_count, int *other_count)
+static int count_conntrack_conn(uint32_t *conntrack_count, uint32_t *tcp_count,
+        uint32_t *udp_count, uint32_t *other_count)
 {
-    int tot = 0, tcp = 0, udp = 0, other = 0;
+    uint32_t tot = 0, tcp = 0, udp = 0, other = 0;
 
     if (vrmr_conn_count_connections_api(&tcp, &udp, &other) < 0)
         return (-1);
@@ -163,7 +163,7 @@ static int count_conntrack_conn(
     return (0);
 }
 
-static int get_conntrack_max(int *conntrack_max)
+static int get_conntrack_max(uint32_t *conntrack_max)
 {
     FILE *fp = NULL;
     char proc_ip_conntrack_max[] = "/proc/sys/net/ipv4/ip_conntrack_max",
@@ -180,7 +180,7 @@ static int get_conntrack_max(int *conntrack_max)
     if (fgets(line, (int)sizeof(line), fp) != NULL) {
         int v = atoi(line);
         if (v >= 0 && v < 2000000000) {
-            *conntrack_max = v;
+            *conntrack_max = (uint32_t)v;
         }
     }
 
@@ -192,12 +192,14 @@ static int get_conntrack_max(int *conntrack_max)
 
     Gets the info about the memory status of the system.
 
+    Memory in kilobytes.
+
     Returncodes:
          0: ok
         -1: error
 */
-static int get_meminfo(
-        int *mem_total, int *mem_free, int *mem_cached, int *mem_buffers)
+static int get_meminfo(uint32_t *mem_total, uint32_t *mem_free,
+        uint32_t *mem_cached, uint32_t *mem_buffers)
 {
     FILE *fp = NULL;
     char proc_meminfo[] = "/proc/meminfo", line[128], variable[64], value[64];
@@ -252,11 +254,8 @@ static int get_system_uptime(
     if (fclose(fp) < 0)
         return (-1);
 
-    if (day < 0)
-        day = 0;
-    else if (day > 9999)
-        day = 9999;
-
+    if (!(day >= 0 && day <= 9999))
+        day = -1;
     if (!(hour >= 0 && hour <= 24))
         hour = -1;
     if (!(min >= 0 && min <= 59))
@@ -268,7 +267,6 @@ static int get_system_uptime(
     snprintf(s_hour, 3, "%02d", hour);
     snprintf(s_minute, 3, "%02d", min);
     snprintf(s_second, 3, "%02d", sec);
-
     return (0);
 }
 
@@ -641,16 +639,14 @@ static void status_section_destroy(void)
 int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
 {
     FIELD *cur = NULL;
-    int quit = 0, ch = 0;
-
+    int quit = 0;
     int y = 0;
+    unsigned int cur_interface = 0;
 
-    unsigned int i = 0, cur_interface = 0;
-
-    int conntrack_conn_max = 0, conntrack_conn_total = 0,
-        conntrack_conn_tcp = 0, conntrack_conn_udp = 0,
-        conntrack_conn_other = 0, mem_total = 0, mem_free = 0, mem_cached = 0,
-        mem_bufferd = 0;
+    uint32_t conntrack_conn_max = 0, conntrack_conn_total = 0,
+             conntrack_conn_tcp = 0, conntrack_conn_udp = 0,
+             conntrack_conn_other = 0;
+    uint32_t mem_total = 0, mem_free = 0, mem_cached = 0, mem_bufferd = 0;
 
     char hostname[60] = "", load_str[6] = "", mem_str[7] = "",
          interfacename[32] = "", upt_day[5] = "", upt_hour[3] = "",
@@ -719,15 +715,15 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
     int slept_so_far = 1000000; /* time slept since last update */
 
     /* top menu */
-    char *key_choices[] = {"F12", "F10"};
+    const char *key_choices[] = {"F12", "F10"};
     int key_choices_n = 2;
-    char *cmd_choices[] = {gettext("help"), gettext("back")};
+    const char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
 
     // first create our shadow list
     vrmr_list_setup(&shadow_list, free);
 
-    for (i = 0; i < interfaces->list.len; i++) {
+    for (unsigned int i = 0; i < interfaces->list.len; i++) {
         if (!(shadow_ptr = malloc(sizeof(struct shadow_ifac_))))
             return (-1);
 
@@ -774,8 +770,10 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
     /* get the maximum connections */
     if (get_conntrack_max(&conntrack_conn_max) < 0)
         (void)snprintf(conn_max, sizeof(conn_max), gettext("error"));
-    else
-        (void)snprintf(conn_max, sizeof(conn_max), "%6d", conntrack_conn_max);
+    else {
+        conntrack_conn_max = MIN(conntrack_conn_max, 999999);
+        (void)snprintf(conn_max, sizeof(conn_max), "%6u", conntrack_conn_max);
+    }
 
     draw_top_menu(top_win, gettext("System Status"), key_choices_n, key_choices,
             cmd_choices_n, cmd_choices);
@@ -818,14 +816,10 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
                 snprintf(conn_udp, sizeof(conn_udp), gettext("error"));
                 snprintf(conn_other, sizeof(conn_other), gettext("error"));
             } else {
-                if (conntrack_conn_total > 999999)
-                    conntrack_conn_total = 999999;
-                if (conntrack_conn_tcp > 999999)
-                    conntrack_conn_tcp = 999999;
-                if (conntrack_conn_udp > 999999)
-                    conntrack_conn_udp = 999999;
-                if (conntrack_conn_other > 999999)
-                    conntrack_conn_other = 999999;
+                conntrack_conn_total = MIN(conntrack_conn_total, 999999);
+                conntrack_conn_tcp = MIN(conntrack_conn_tcp, 999999);
+                conntrack_conn_udp = MIN(conntrack_conn_udp, 999999);
+                conntrack_conn_other = MIN(conntrack_conn_other, 999999);
 
                 snprintf(conn_total, sizeof(conn_total), "%6d",
                         conntrack_conn_total);
@@ -836,8 +830,8 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
             }
 
             /* loop trough the fields and update the information */
-            for (i = 0; i < (unsigned int)statsec_ctx.n_fields; i++) {
-                cur = statsec_ctx.fields[i];
+            for (size_t i = 0; i < statsec_ctx.n_fields; i++) {
+                FIELD *cur = statsec_ctx.fields[i];
 
                 if (strncmp(field_buffer(cur, 1), "ld_s", 4) == 0) {
                     if (load_s > 2 && load_s < 5)
@@ -870,18 +864,24 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_l);
                     set_field_buffer_wrap(cur, 0, load_str);
                 } else if (strncmp(field_buffer(cur, 1), "mem_t", 5) == 0) {
-                    snprintf(mem_str, sizeof(mem_str), "%6d", mem_total / 1024);
+                    uint32_t mem = (uint32_t)(mem_total / 1024);
+                    mem = MIN(mem, 999999UL);
+                    snprintf(mem_str, sizeof(mem_str), "%6u", mem);
                     set_field_buffer_wrap(cur, 0, mem_str);
                 } else if (strncmp(field_buffer(cur, 1), "mem_f", 5) == 0) {
-                    snprintf(mem_str, sizeof(mem_str), "%6d", mem_free / 1024);
+                    uint32_t mem = (uint32_t)(mem_free / 1024);
+                    mem = MIN(mem, 999999UL);
+                    snprintf(mem_str, sizeof(mem_str), "%6u", mem);
                     set_field_buffer_wrap(cur, 0, mem_str);
                 } else if (strncmp(field_buffer(cur, 1), "mem_c", 5) == 0) {
-                    snprintf(
-                            mem_str, sizeof(mem_str), "%6d", mem_cached / 1024);
+                    uint32_t mem = (uint32_t)(mem_cached / 1024);
+                    mem = MIN(mem, 999999UL);
+                    snprintf(mem_str, sizeof(mem_str), "%6u", mem);
                     set_field_buffer_wrap(cur, 0, mem_str);
                 } else if (strncmp(field_buffer(cur, 1), "mem_b", 5) == 0) {
-                    snprintf(mem_str, sizeof(mem_str), "%6d",
-                            mem_bufferd / 1024);
+                    uint32_t mem = (uint32_t)(mem_bufferd / 1024);
+                    mem = MIN(mem, 999999UL);
+                    snprintf(mem_str, sizeof(mem_str), "%6u", mem);
                     set_field_buffer_wrap(cur, 0, mem_str);
                 } else if (strncmp(field_buffer(cur, 1), "up_d", 4) == 0) {
                     set_field_buffer_wrap(cur, 0, upt_day);
@@ -1044,7 +1044,8 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
                 }
 
                 /* set the fields to the form */
-                for (i = cur_interface; i < (unsigned int)statsec_ctx.n_fields;
+                size_t i;
+                for (i = cur_interface; i < statsec_ctx.n_fields;
                         i++) {
                     cur = statsec_ctx.fields[i];
 
@@ -1094,7 +1095,7 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
         }
 
         /* process the keyboard input */
-        ch = wgetch(statsec_ctx.win);
+        int ch = wgetch(statsec_ctx.win);
         switch (ch) {
             /* quit */
             case 27:

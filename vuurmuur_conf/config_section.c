@@ -1492,9 +1492,9 @@ int edit_vcconfig(void)
     FIELD *cur = NULL, *prev = NULL;
 
     /* top menu */
-    char *key_choices[] = {"F12", "F10"};
+    const char *key_choices[] = {"F12", "F10"};
     int key_choices_n = 2;
-    char *cmd_choices[] = {gettext("help"), gettext("back")};
+    const char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
 
     /* window dimentions */
@@ -2229,9 +2229,10 @@ static int view_caps(struct vrmr_config *conf)
     struct vrmr_iptcaps iptcap;
     char reload = 0;
     /* top menu */
-    char *key_choices[] = {"F12", "F5", "F10"};
+    const char *key_choices[] = {"F12", "F5", "F10"};
     int key_choices_n = 3;
-    char *cmd_choices[] = {gettext("help"), gettext("probe"), gettext("back")};
+    const char *cmd_choices[] = {
+            gettext("help"), gettext("probe"), gettext("back")};
     int cmd_choices_n = 3;
 
     /* window dimentions */
@@ -2422,9 +2423,10 @@ static int view_ip6_caps(struct vrmr_config *conf)
     struct vrmr_iptcaps iptcap;
     char reload = 0;
     /* top menu */
-    char *key_choices[] = {"F12", "F5", "F10"};
+    const char *key_choices[] = {"F12", "F5", "F10"};
     int key_choices_n = 3;
-    char *cmd_choices[] = {gettext("help"), gettext("probe"), gettext("back")};
+    const char *cmd_choices[] = {
+            gettext("help"), gettext("probe"), gettext("back")};
     int cmd_choices_n = 3;
 
     /* window dimentions */
@@ -2534,7 +2536,7 @@ int config_menu(struct vrmr_config *conf)
     // menu
     char *choice_ptr = NULL;
 
-    char *choices[] = {VROPT_GENERAL, VROPT_CONNECTIONS, VROPT_INTERFACES,
+    const char *choices[] = {VROPT_GENERAL, VROPT_CONNECTIONS, VROPT_INTERFACES,
             VROPT_SYSPROT, VROPT_CONNTRACK, VROPT_LOGGING, VROPT_MODULES,
             VROPT_PLUGINS, VROPT_CAPS,
 #ifdef IPV6_ENABLED
@@ -2549,9 +2551,9 @@ int config_menu(struct vrmr_config *conf)
             " ", NULL};
 
     /* top menu */
-    char *key_choices[] = {"F12", "F10"};
+    const char *key_choices[] = {"F12", "F10"};
     int key_choices_n = 2;
-    char *cmd_choices[] = {gettext("help"), gettext("back")};
+    const char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
 
     int x = 50, y = 9 + (int)n_choices, startx = 0, starty = 0, maxx = 0,

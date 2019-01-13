@@ -504,9 +504,9 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     struct vrmr_zone *zone_ptr = NULL;
     int height, width, startx, starty;
     FIELD *cur = NULL, *prev = NULL;
-    char *key_choices[] = {"F12", "F10"};
+    const char *key_choices[] = {"F12", "F10"};
     int key_choices_n = 2;
-    char *cmd_choices[] = {gettext("help"), gettext("back")};
+    const char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
 
     vrmr_fatal_if_null(name);
@@ -988,10 +988,10 @@ static int zones_section_menu_hosts(struct vrmr_ctx *vctx,
     char *vrmr_new_zone_ptr = NULL, *temp_ptr = NULL, *cur_zonename_ptr = NULL;
     ITEM *cur = NULL;
     /* top menu */
-    char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "e", "F10"};
+    const char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "e", "F10"};
     int key_choices_n = 7;
-    char *cmd_choices[] = {gettext("help"), gettext("new"), gettext("del"),
-            gettext("rename"), gettext("open"), gettext("edit"),
+    const char *cmd_choices[] = {gettext("help"), gettext("new"),
+            gettext("del"), gettext("rename"), gettext("open"), gettext("edit"),
             gettext("back")};
     int cmd_choices_n = 7;
 
@@ -1500,8 +1500,8 @@ static void edit_zone_group_members_newmem(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, struct vrmr_zone *group_ptr)
 {
     struct vrmr_list_node *d_node = NULL;
-    char **choices, *choice_ptr = NULL,
-                    search_name[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
+    const char **choices;
+    char *choice_ptr = NULL, search_name[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
     size_t n_choices = 0, i = 0;
     struct vrmr_zone *zonelist_ptr = NULL;
     int result = 0;
@@ -1928,9 +1928,9 @@ static int edit_zone_group(
     int quit = 0;
     FIELD *cur = NULL, *prev = NULL;
     /* top menu */
-    char *key_choices[] = {"F12", "F6", "F10"};
+    const char *key_choices[] = {"F12", "F6", "F10"};
     int key_choices_n = 3;
-    char *cmd_choices[] = {
+    const char *cmd_choices[] = {
             gettext("help"), gettext("members"), gettext("back")};
     int cmd_choices_n = 3;
 
@@ -2260,10 +2260,10 @@ static void zones_section_menu_groups(struct vrmr_ctx *vctx,
     char *vrmr_new_zone_ptr = NULL, *temp_ptr = NULL, *cur_zonename_ptr = NULL;
     ITEM *cur = NULL;
     /* top menu */
-    char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "e", "F10"};
+    const char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "e", "F10"};
     int key_choices_n = 7;
-    char *cmd_choices[] = {gettext("help"), gettext("new"), gettext("del"),
-            gettext("rename"), gettext("open"), gettext("edit"),
+    const char *cmd_choices[] = {gettext("help"), gettext("new"),
+            gettext("del"), gettext("rename"), gettext("open"), gettext("edit"),
             gettext("back")};
     int cmd_choices_n = 7;
 
@@ -2848,7 +2848,8 @@ static int edit_zone_network_interfaces_newiface(struct vrmr_ctx *vctx,
         struct vrmr_interfaces *interfaces, struct vrmr_zone *zone_ptr)
 {
     struct vrmr_list_node *d_node = NULL;
-    char **choices, *choice_ptr = NULL;
+    const char **choices;
+    char *choice_ptr = NULL;
     size_t n_choices = 0, i = 0;
     struct vrmr_interface *iface_ptr = NULL;
     int result = 0;
@@ -4125,9 +4126,9 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     struct vrmr_zone *zone_ptr = NULL;
     int height = 0, width = 0, startx = 0, starty = 0;
     FIELD *cur = NULL, *prev = NULL;
-    char *key_choices[] = {"F12", "F6", "F10"};
+    const char *key_choices[] = {"F12", "F6", "F10"};
     int key_choices_n = 3;
-    char *cmd_choices[] = {
+    const char *cmd_choices[] = {
             gettext("help"), gettext("interfaces"), gettext("back")};
     int cmd_choices_n = 3;
 
@@ -4479,16 +4480,16 @@ static void zones_section_menu_networks(struct vrmr_ctx *vctx,
     int ch, quit = 0, reload = 0, result = 0;
     size_t size = 0;
     char *vrmr_new_zone_ptr = NULL, *zonename_ptr = NULL,
-         *cur_zonename_ptr = NULL,
-         *choices[] = {gettext("Hosts"), gettext("Groups"), gettext("Network")},
-         *temp_ptr = NULL, *choice_ptr = NULL;
+         *cur_zonename_ptr = NULL, *temp_ptr = NULL, *choice_ptr = NULL;
+    const char *choices[] = {
+            gettext("Hosts"), gettext("Groups"), gettext("Network")};
     ITEM *cur = NULL;
 
     /* top menu */
-    char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "e", "F10"};
+    const char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "e", "F10"};
     int key_choices_n = 7;
-    char *cmd_choices[] = {gettext("help"), gettext("new"), gettext("del"),
-            gettext("rename"), gettext("open"), gettext("edit"),
+    const char *cmd_choices[] = {gettext("help"), gettext("new"),
+            gettext("del"), gettext("rename"), gettext("open"), gettext("edit"),
             gettext("back")};
     int cmd_choices_n = 7;
 
@@ -5051,9 +5052,9 @@ static int edit_zone_zone(
     struct vrmr_zone *zone_ptr = NULL;
     int height, width, startx, starty;
     FIELD *cur = NULL, *prev = NULL;
-    char *key_choices[] = {"F12", "F10"};
+    const char *key_choices[] = {"F12", "F10"};
     int key_choices_n = 2;
-    char *cmd_choices[] = {gettext("help"), gettext("back")};
+    const char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
 
     vrmr_fatal_if_null(name);
@@ -5298,10 +5299,10 @@ int zones_section(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     ITEM *cur = NULL;
 
     /* top menu */
-    char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "e", "F10"};
+    const char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "e", "F10"};
     int key_choices_n = 7;
-    char *cmd_choices[] = {gettext("help"), gettext("new"), gettext("del"),
-            gettext("rename"), gettext("open"), gettext("edit"),
+    const char *cmd_choices[] = {gettext("help"), gettext("new"),
+            gettext("del"), gettext("rename"), gettext("open"), gettext("edit"),
             gettext("back")};
     int cmd_choices_n = 7;
 
@@ -5668,9 +5669,10 @@ static void zones_blocklist_destroy(void)
 int zones_blocklist_add_one(
         struct vrmr_blocklist *blocklist, struct vrmr_zones *zones)
 {
-    char *new_ipaddress = NULL,
-         *choices[] = {gettext("IPAddress"), gettext("Host"), gettext("Group")},
-         *choice_ptr = NULL, choice_type = 0, **zone_choices;
+    char *new_ipaddress = NULL, *choice_ptr = NULL, choice_type = 0;
+    const char *choices[] = {
+            gettext("IPAddress"), gettext("Host"), gettext("Group")};
+    const char **zone_choices;
     size_t i = 0;
     char changes = TRUE;
     struct vrmr_zone *zone_ptr = NULL;
@@ -5794,9 +5796,9 @@ int zones_blocklist(struct vrmr_ctx *vctx, struct vrmr_blocklist *blocklist,
     char *itemname = NULL, saveitemname[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
     ITEM *cur = NULL;
     /* top menu */
-    char *key_choices[] = {"F12", "INS", "DEL", "F10"};
+    const char *key_choices[] = {"F12", "INS", "DEL", "F10"};
     int key_choices_n = 4;
-    char *cmd_choices[] = {
+    const char *cmd_choices[] = {
             gettext("help"), gettext("new"), gettext("del"), gettext("back")};
     int cmd_choices_n = 4;
 

@@ -896,14 +896,15 @@ static int count_cb(enum nf_conntrack_msg_type type ATTR_UNUSED,
     return NFCT_CB_CONTINUE;
 }
 
-int vrmr_conn_count_connections_api(int *tcp, int *udp, int *other)
+int vrmr_conn_count_connections_api(
+        uint32_t *tcp, uint32_t *udp, uint32_t *other)
 {
     int retval = 0;
     struct count_cb_ctx ctx = {.tcp = 0, .udp = 0, .other = 0};
 
-    *tcp = -1;
-    *udp = -1;
-    *other = -1;
+    *tcp = 0;
+    *udp = 0;
+    *other = 0;
 
     struct nf_conntrack *ct = nfct_new();
     if (ct == NULL) {

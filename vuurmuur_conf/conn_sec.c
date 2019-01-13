@@ -629,13 +629,13 @@ int connections_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     int slept_so_far = 1000000; /* time slept since last update */
 
     /* top menu */
-    char *key_choices[] = {"F12", "m",
+    const char *key_choices[] = {"F12", "m",
 
             "i", "c",
 
             "g", "u", "f", "a", "d", "F10"};
     int key_choices_n = 10;
-    char *cmd_choices[] = {gettext("help"), gettext("manage"),
+    const char *cmd_choices[] = {gettext("help"), gettext("manage"),
 
             gettext("in/out/fw"), gettext("connect"),
 

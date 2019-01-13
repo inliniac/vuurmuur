@@ -38,15 +38,15 @@ static int mm_select_logfile(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     WINDOW *mainmenu_win;
     PANEL *menu_panels[1];
     /* top menu */
-    char *key_choices[] = {"F10"};
+    const char *key_choices[] = {"F10"};
     int key_choices_n = 1;
-    char *cmd_choices[] = {gettext("back")};
+    const char *cmd_choices[] = {gettext("back")};
     int cmd_choices_n = 1;
 
     /* menu */
     char *choice_ptr = NULL;
 
-    char *choices[] = {"Traffic.log", "Connections.log", "ConnNew.log",
+    const char *choices[] = {"Traffic.log", "Connections.log", "ConnNew.log",
             "Vuurmuur.log", "Audit.log", "Error.log", "Debug.log",
             gettext("Back"), NULL};
 
@@ -270,7 +270,8 @@ static void mm_shm_connect_vuurmuurlog(void)
 }
 
 static void queue_status_msg(
-        /*@null@*/ struct vrmr_list *status_list, int status, char *fmt, ...)
+        /*@null@*/ struct vrmr_list *status_list, int status, const char *fmt,
+        ...)
 {
     char line[512] = "";
     va_list ap;
@@ -1255,14 +1256,14 @@ int main_menu(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     char draw_status = vccnf.draw_status;
 
     // this are the menu items
-    char *choices[] = {MM_ITEM_RULES, MM_ITEM_BLOCKLIST, MM_ITEM_ZONES,
+    const char *choices[] = {MM_ITEM_RULES, MM_ITEM_BLOCKLIST, MM_ITEM_ZONES,
             MM_ITEM_INTERFACES, MM_ITEM_SERVICES, MM_ITEM_VRCONFIG,
             MM_ITEM_LOGVIEW, MM_ITEM_STATUS, MM_ITEM_CONNECTIONS,
             MM_ITEM_TRAFVOL, MM_ITEM_SETTINGS, MM_ITEM_APPLYCHANGES,
             MM_ITEM_ABOUT, MM_ITEM_QUIT, NULL};
 
     // with their descriptions
-    char *descriptions[] = {"(F9) ", "(b)  ",
+    const char *descriptions[] = {"(F9) ", "(b)  ",
 
             "(F7) ", "     ", "(F8) ",
 
@@ -1276,9 +1277,9 @@ int main_menu(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
             "(F10)", NULL};
 
-    char *key_choices[] = {"F12"};
+    const char *key_choices[] = {"F12"};
     int key_choices_n = 1;
-    char *cmd_choices[] = {gettext("help")};
+    const char *cmd_choices[] = {gettext("help")};
     int cmd_choices_n = 1;
 
     int x = 0, y = 0, startx = 0, starty = 0, maxx = 0, maxy = 0;

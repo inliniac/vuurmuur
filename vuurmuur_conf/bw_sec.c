@@ -91,8 +91,8 @@ static void bandwidth_store(struct vrmr_list *list, int year, int month,
          0: ok, but no data
          1: ok
 */
-static int bandwidth_get_iface(struct vrmr_config *conf, char *device, int year,
-        int month, int start_day, int days, char only_total,
+static int bandwidth_get_iface(struct vrmr_config *conf, char *device,
+        unsigned int year, int month, int start_day, int days, char only_total,
         struct vrmr_list *list)
 {
     char bw_buf[512] = "", sect_buf[32] = "", sect_buf_stripped[32] = "",
@@ -132,6 +132,8 @@ static int bandwidth_get_iface(struct vrmr_config *conf, char *device, int year,
     /* safety */
     vrmr_fatal_if_null(device);
     vrmr_fatal_if_null(list);
+    vrmr_fatal_if(year > 9999);
+    vrmr_fatal_if(!(month >= 1 && month <= 12));
 
     vrmr_debug(LOW, "looking for data for '%s'.", device);
 
@@ -144,7 +146,7 @@ static int bandwidth_get_iface(struct vrmr_config *conf, char *device, int year,
     /* setup the list */
     vrmr_list_setup(list, free);
 
-    snprintf(cmd_year_str, sizeof(cmd_year_str), "%d", year);
+    snprintf(cmd_year_str, sizeof(cmd_year_str), "%u", year);
     snprintf(cmd_month_str, sizeof(cmd_month_str), "%d", month);
     snprintf(cmd_start_day_str, sizeof(cmd_start_day_str), "%d", start_day);
 
@@ -600,9 +602,9 @@ int trafvol_section(
     int slept_so_far = 10000000; /* time slept since last update */
 
     /* top menu */
-    char *key_choices[] = {"F12", "F10"};
+    const char *key_choices[] = {"F12", "F10"};
     int key_choices_n = 2;
-    char *cmd_choices[] = {gettext("help"), gettext("back")};
+    const char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
 
     if (interfaces->list.len == 0) {

@@ -76,8 +76,8 @@ static void setup_topmenu(WINDOW *local_win)
     wattroff(local_win, vccnf.color_bgd | A_BOLD);
 }
 
-void draw_top_menu(WINDOW *local_win, char *title, int key_n, char **keys,
-        int cmd_n, char **cmds)
+void draw_top_menu(WINDOW *local_win, const char *title, int key_n,
+        const char **keys, int cmd_n, const char **cmds)
 {
     int pos = 2, i = 0;
 

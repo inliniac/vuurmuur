@@ -51,8 +51,10 @@ char *list_textdir(
     /* services */
     if (type == VRMR_BT_SERVICES) {
         /* set the dir location */
-        snprintf(dir_location, sizeof(dir_location), "%s/services",
-                tb->textdirlocation);
+        if (snprintf(dir_location, sizeof(dir_location), "%s/services",
+                    tb->textdirlocation) >= (int)sizeof(dir_location)) {
+            return (NULL);
+        }
 
         /* the loop */
         while (!done) {
@@ -115,8 +117,10 @@ char *list_textdir(
     /* interfaces */
     else if (type == VRMR_BT_INTERFACES) {
         // set the dirlocation
-        snprintf(dir_location, sizeof(dir_location), "%s/interfaces",
-                tb->textdirlocation);
+        if (snprintf(dir_location, sizeof(dir_location), "%s/interfaces",
+                    tb->textdirlocation) >= (int)sizeof(dir_location)) {
+            return (NULL);
+        }
 
         while (done == 0) {
             // check if already open, if not: open it
@@ -199,8 +203,10 @@ char *list_textdir(
     /* rules */
     else if (type == VRMR_BT_RULES) {
         /* set the dirlocation */
-        snprintf(dir_location, sizeof(dir_location), "%s/rules",
-                tb->textdirlocation);
+        if (snprintf(dir_location, sizeof(dir_location), "%s/rules",
+                    tb->textdirlocation) >= (int)sizeof(dir_location)) {
+            return (NULL);
+        }
 
         while (done == 0) {
             /* check if already open, if not: open it */
@@ -271,8 +277,10 @@ char *list_textdir(
     } else if (type == VRMR_BT_ZONES) {
         while (!done) {
             // this is the base dir
-            snprintf(dir_location, sizeof(dir_location), "%s/zones",
-                    tb->textdirlocation);
+            if (snprintf(dir_location, sizeof(dir_location), "%s/zones",
+                        tb->textdirlocation) >= (int)sizeof(dir_location)) {
+                return (NULL);
+            }
 
             if (tb->host_p != NULL) {
                 vrmr_debug(HIGH, "getting a hostname.");
@@ -408,9 +416,12 @@ char *list_textdir(
                                 HIGH, "network name: %s.", dir_entry_p->d_name);
 
                         // open the hostdir
-                        snprintf(hostdir_location, sizeof(hostdir_location),
-                                "%s/%s/hosts", netdir_location,
-                                dir_entry_p->d_name);
+                        if (snprintf(hostdir_location, sizeof(hostdir_location),
+                                    "%s/%s/hosts", netdir_location,
+                                    dir_entry_p->d_name) >=
+                                (int)sizeof(hostdir_location)) {
+                            return (NULL);
+                        }
                         vrmr_debug(HIGH, "opening host dir: %s.",
                                 hostdir_location);
 
@@ -420,9 +431,12 @@ char *list_textdir(
                                 vuurmuur_tryopendir(tb->cfg, hostdir_location);
 
                         /* open the groupdir */
-                        snprintf(groupdir_location, sizeof(groupdir_location),
-                                "%s/%s/groups", netdir_location,
-                                dir_entry_p->d_name);
+                        if (snprintf(groupdir_location,
+                                    sizeof(groupdir_location), "%s/%s/groups",
+                                    netdir_location, dir_entry_p->d_name) >=
+                                (int)sizeof(groupdir_location)) {
+                            return (NULL);
+                        }
                         vrmr_debug(HIGH, "opening group dir: %s.",
                                 groupdir_location);
 
@@ -487,9 +501,12 @@ char *list_textdir(
                         vrmr_debug(HIGH, "zone name: %s.", dir_entry_p->d_name);
 
                         // open the networkdir
-                        snprintf(netdir_location, sizeof(netdir_location),
-                                "%s/%s/networks", dir_location,
-                                dir_entry_p->d_name);
+                        if (snprintf(netdir_location, sizeof(netdir_location),
+                                    "%s/%s/networks", dir_location,
+                                    dir_entry_p->d_name) >=
+                                (int)sizeof(netdir_location)) {
+                            return (NULL);
+                        }
                         vrmr_debug(HIGH, "opening: %s.", netdir_location);
 
                         /* this is allowed to fail, if it does, is will be NULL,

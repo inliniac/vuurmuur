@@ -1266,10 +1266,10 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     int result = 0;
     char update_filter = 1; /* do it on start*/
 
-    char *key_choices[] = {"F12", "INS", "DEL", "RET", "m", "f", "F10"};
+    const char *key_choices[] = {"F12", "INS", "DEL", "RET", "m", "f", "F10"};
     int key_choices_n = 7;
-    char *cmd_choices[] = {gettext("help"), gettext("new"), gettext("del"),
-            gettext("edit"), gettext("move"), gettext("filter"),
+    const char *cmd_choices[] = {gettext("help"), gettext("new"),
+            gettext("del"), gettext("edit"), gettext("move"), gettext("filter"),
             gettext("back")};
     int cmd_choices_n = 7;
     struct vrmr_list_node *d_node = NULL;
@@ -2731,7 +2731,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
     char redirect_port[6] = "", loglimit_string[4] = "", nfmark_string[9] = "",
          nfqueuenum_string[6] = "0", nflognum_string[6] = "0";
     int height, width, startx, starty, max_height;
-    char *action_choices[] =
+    const char *action_choices[] =
             {
                     "Accept",
                     "Drop",
@@ -2747,14 +2747,13 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                     "Chain",
                     "Bounce",
             },
-         *action_ptr = NULL,
-         *reject_types[] = {"icmp-net-unreachable", "icmp-host-unreachable",
-                 "icmp-proto-unreachable", "icmp-port-unreachable",
-                 "icmp-net-prohibited", "icmp-host-prohibited", "tcp-reset"},
-         *reject_ptr = NULL;
+               *reject_types[] = {"icmp-net-unreachable",
+                       "icmp-host-unreachable", "icmp-proto-unreachable",
+                       "icmp-port-unreachable", "icmp-net-prohibited",
+                       "icmp-host-prohibited", "tcp-reset"};
     char select_choice[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
     size_t action_choices_n = 13, reject_types_n = 7;
-    char **zone_choices, **choices, *choice_ptr, **service_choices;
+    char *choice_ptr;
     size_t zone_choices_n = 0, service_choices_n = 0, n_choices = 0;
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_zone *zone_ptr = NULL, *network_ptr = NULL;
@@ -2765,9 +2764,9 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
     struct vrmr_rule_cache tmp_ruledata;
     char window_title[32] = "";
 
-    char *key_choices[] = {"F12", "F5", "F6", "F10"};
+    const char *key_choices[] = {"F12", "F5", "F6", "F10"};
     int key_choices_n = 4;
-    char *cmd_choices[] = {gettext("help"), gettext("advanced"),
+    const char *cmd_choices[] = {gettext("help"), gettext("advanced"),
             gettext("shaping"), gettext("back")};
     int cmd_choices_n = 4;
 
@@ -3762,6 +3761,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                         copy_field2buf(select_choice, field_buffer(cur, 0),
                                 sizeof(select_choice));
 
+                        char *action_ptr;
                         /* ask the user about the new action */
                         if ((action_ptr = selectbox(gettext("Action"),
                                      gettext("Select action"), action_choices_n,
@@ -3794,7 +3794,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                         zone_choices_n +=
                                 3; /* for firewall, firewall(any) and any */
 
-                        zone_choices = calloc(zone_choices_n + 1,
+                        const char **zone_choices = calloc(zone_choices_n + 1,
                                 VRMR_VRMR_MAX_HOST_NET_ZONE);
                         vrmr_fatal_alloc("calloc", zone_choices);
 
@@ -3842,7 +3842,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                     } else if (cur == rule_fields.service_fld_ptr) {
                         service_choices_n = services->list.len + 1;
 
-                        service_choices =
+                        const char **service_choices =
                                 calloc(service_choices_n + 1, sizeof(char *));
                         vrmr_fatal_alloc("calloc", service_choices);
 
@@ -3875,6 +3875,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                         copy_field2buf(select_choice, field_buffer(cur, 0),
                                 sizeof(select_choice));
 
+                        char *reject_ptr;
                         if ((reject_ptr = selectbox(gettext("Reject type"),
                                      gettext("Select reject type"),
                                      reject_types_n, reject_types, 1,
@@ -3949,7 +3950,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                                 n_choices = interfaces_list->len + 1;
 
                                 /* get some mem */
-                                choices = calloc(
+                                const char **choices = calloc(
                                         n_choices + 1, VRMR_MAX_INTERFACE);
                                 vrmr_fatal_alloc("calloc", choices);
 
@@ -4059,7 +4060,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                                 n_choices = interfaces_list->len + 1;
 
                                 /* get some mem */
-                                choices = calloc(
+                                const char **choices = calloc(
                                         n_choices + 1, VRMR_MAX_INTERFACE);
                                 vrmr_fatal_alloc("calloc", choices);
 
@@ -4114,7 +4115,8 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                             n_choices = interfaces_list->len;
 
                             /* get some mem */
-                            choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE);
+                            const char **choices =
+                                    calloc(n_choices + 1, VRMR_MAX_INTERFACE);
                             vrmr_fatal_alloc("calloc", choices);
 
                             /* load the interfaces */
@@ -4147,14 +4149,13 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                             free(choices);
                         }
                     } else if (cur == rule_fields.limit_unit_fld_ptr) {
-                        char *limit_unit_choices[] =
-                                {
-                                        "Sec",
-                                        "Min",
-                                        "Hour",
-                                        "Day",
-                                },
-                             *limit_unit_ptr = NULL;
+                        const char *limit_unit_choices[] = {
+                                "Sec",
+                                "Min",
+                                "Hour",
+                                "Day",
+                        };
+                        char *limit_unit_ptr = NULL;
                         size_t limit_unit_choices_n = 4;
 
                         copy_field2buf(select_choice, field_buffer(cur, 0),

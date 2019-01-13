@@ -272,7 +272,7 @@ int utf8_mode;
     main
 */
 void print_in_middle(WINDOW *win, int starty, int startx, int width,
-        char *string, chtype color);
+        const char *string, chtype color);
 WINDOW *create_newwin(int height, int width, int starty, int startx,
         /*@null@*/ const char *title, chtype ch);
 void destroy_win(WINDOW *local_win);
@@ -288,7 +288,8 @@ void setup_colors(void);
 /*
     topmenu
 */
-void draw_top_menu(WINDOW *, char *, int, char **, int, char **);
+void draw_top_menu(
+        WINDOW *, const char *, int, const char **, int, const char **);
 
 /*
     services section
@@ -329,16 +330,16 @@ int write_rulesfile(char *, struct vrmr_rules *);
 /*
     templates
 */
-int confirm(
-        char *title, char *text, chtype forecolor, chtype backcolor, int def);
+int confirm(const char *title, const char *text, chtype forecolor,
+        chtype backcolor, int def);
 char *input_box(size_t length, const char *title, const char *description);
 int vuumuurconf_print_error(int error_no, const char *title, char *fmt, ...);
 int vuumuurconf_print_warning(const char *title, char *fmt, ...);
 int vuumuurconf_print_info(const char *title, char *fmt, ...);
-char *selectbox(char *title, char *text, size_t n_choices, char **choices,
-        unsigned int cols, char *);
-int status_print(WINDOW *local_win, /*@null@*/ char *fmt, ...);
-int check_box(int status, char *title, char *description);
+char *selectbox(const char *title, const char *text, size_t n_choices,
+        const char **choices, unsigned int cols, const char *);
+int status_print(WINDOW *local_win, /*@null@*/ const char *fmt, ...);
+int check_box(int status, const char *title, const char *description);
 /* fixes */
 void set_field_buffer_wrap(FIELD *, int, const char *);
 FIELD *new_field_wrap(
@@ -392,9 +393,9 @@ int connections_section(struct vrmr_ctx *, struct vrmr_config *,
 /*
     help/status
 */
-void print_help(char *part);
+void print_help(const char *part);
 void print_status(void);
-int read_helpline(struct vrmr_list *help_list, char *line);
+int read_helpline(struct vrmr_list *help_list, const char *line);
 void setup_statuslist(void);
 
 /*

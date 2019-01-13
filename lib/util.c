@@ -21,29 +21,19 @@
 #include "config.h"
 #include "vuurmuur.h"
 
-char *vrmr_get_string(char *fmt, ...)
+char *vrmr_get_string(const char *fmt, ...)
 {
     va_list ap;
     char str[2048] = "";
-    char *ptr = NULL;
-    size_t len = 0;
 
     va_start(ap, fmt);
     vsnprintf(str, sizeof(str), fmt, ap);
     va_end(ap);
 
-    len = strlen(str) + 1;
-
-    ptr = malloc(len);
-    if (ptr == NULL)
-        return (NULL);
-
-    strlcpy(ptr, str, len);
-
-    return (ptr);
+    return (strdup(str));
 }
 
-char *vrmr_get_len_string(size_t max, char *fmt, ...)
+char *vrmr_get_len_string(size_t max, const char *fmt, ...)
 {
     va_list ap;
     char str[2048] = "";

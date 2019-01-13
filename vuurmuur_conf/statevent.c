@@ -99,13 +99,13 @@ struct stat_event_ctx {
     // build menu func?
 
     /* GUI names and texts */
-    char *title_str;
-    char *options_str;
-    char *warn_no_data_str;
+    const char *title_str;
+    const char *options_str;
+    const char *warn_no_data_str;
 
     /* GUI helpfiles */
-    char *help_overview; /* menu with connections/logs overview */
-    char *help_actions;  /* actions menu */
+    const char *help_overview; /* menu with connections/logs overview */
+    const char *help_actions;  /* actions menu */
 
     /* data storage */
     struct vrmr_list list;
@@ -394,17 +394,17 @@ static void statevent_interactivemenu_conn(struct vrmr_ctx *vctx,
     struct vrmr_gui_menu *menu = NULL;
     int ch = 0;
     int menu_items = 10;
-    char *str = NULL;
+    const char *str = NULL;
     const int width = 70;
     /* top menu */
-    char *key_choices[] = {"F12", "F10"};
+    const char *key_choices[] = {"F12", "F10"};
     int key_choices_n = 2;
-    char *cmd_choices[] = {gettext("help"), gettext("back")};
+    const char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
     struct stat_event_conn *con = (struct stat_event_conn *)gen_ptr;
     struct conntrack *privct = NULL;
     char ungroup_conns = FALSE;
-    char *title = gettext("Manage Connection");
+    const char *title = gettext("Manage Connection");
 
     /* if needed get our own private ungrouped ct */
     if (connreq->group_conns == TRUE) {
@@ -657,15 +657,15 @@ static void statevent_interactivemenu_log(struct vrmr_ctx *vctx,
     char *str = NULL;
     const int width = 70;
     /* top menu */
-    char *key_choices[] = {"F12", "F10"};
+    const char *key_choices[] = {"F12", "F10"};
     int key_choices_n = 2;
-    char *cmd_choices[] = {gettext("help"), gettext("back")};
+    const char *cmd_choices[] = {gettext("help"), gettext("back")};
     int cmd_choices_n = 2;
     struct stat_event_log *log = (struct stat_event_log *)gen_ptr;
 
     struct conntrack *ctr = NULL;
     struct vrmr_conntrack_request connreq;
-    char *title = gettext("Manage Log");
+    const char *title = gettext("Manage Log");
 
     /* number labels */
     char *nums[9] = {"1", "2", "3", "4", "5", "6", "7", "8", NULL};
@@ -940,9 +940,10 @@ static int statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     struct stat_event_generic *gen_ptr = NULL;
 
     /* top menu */
-    char *key_choices[] = {"F12", "enter", "F10"};
+    const char *key_choices[] = {"F12", "enter", "F10"};
     int key_choices_n = 3;
-    char *cmd_choices[] = {gettext("help"), ctl->options_str, gettext("back")};
+    const char *cmd_choices[] = {
+            gettext("help"), ctl->options_str, gettext("back")};
     int cmd_choices_n = 3;
 
     /* print a warning if we have no data */

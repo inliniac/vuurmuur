@@ -430,7 +430,7 @@ int main(int argc, char *argv[])
 }
 
 void print_in_middle(WINDOW *win, int starty, int startx, int width,
-        char *string, chtype color)
+        const char *string, chtype color)
 {
     int length, x, y;
     float temp;
@@ -461,8 +461,8 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width,
 
     Returns a pointer to the window or NULL in case of failure.
 */
-WINDOW *create_newwin(
-        int height, int width, int starty, int startx, const char *title, chtype ch)
+WINDOW *create_newwin(int height, int width, int starty, int startx,
+        const char *title, chtype ch)
 {
     WINDOW *local_win = NULL;
     size_t memsize = 0, screensize = 0;

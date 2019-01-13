@@ -50,7 +50,7 @@ static void free_helpword(void *ptr)
 }
 
 /* parse a line from the helpfile */
-int read_helpline(struct vrmr_list *help_list, char *line)
+int read_helpline(struct vrmr_list *help_list, const char *line)
 {
     char oneword[512] = "";
     size_t i = 0;
@@ -160,7 +160,7 @@ int read_wide_helpline(struct vrmr_list *help_list, wchar_t *line)
 }
 #endif /* USE_WIDEC */
 
-static int read_helpfile(struct vrmr_list *help_list, char *part)
+static int read_helpfile(struct vrmr_list *help_list, const char *part)
 {
     char line[128] = "";
     FILE *fp = NULL;
@@ -246,8 +246,11 @@ int read_wide_helpfile(struct vrmr_list *help_list, wchar_t *part)
           'ru' use 'vuurmuur-ru.UTF-8.hlp', for 'pt_BR' use
           'vuurmuur-pt_BR.UTF-8.hlp'
         */
-        snprintf(helpfile, sizeof(helpfile), "%s/%s", vccnf.helpfile_location,
-                gettext("vuurmuur.UTF-8.hlp"));
+        if (snprintf(helpfile, sizeof(helpfile), "%s/%s",
+                    vccnf.helpfile_location,
+                    gettext("vuurmuur.UTF-8.hlp")) >= (int)sizeof(helpfile)) {
+            return (-1);
+        }
         vrmr_sanitize_path(helpfile, sizeof(helpfile));
 
         /* open the file */
@@ -268,8 +271,11 @@ int read_wide_helpfile(struct vrmr_list *help_list, wchar_t *part)
            'ru' use 'vuurmuur-ru.hlp', for 'pt_BR' use
            'vuurmuur-pt_BR.hlp'
          */
-        snprintf(helpfile, sizeof(helpfile), "%s/%s", vccnf.helpfile_location,
-                gettext("vuurmuur.hlp"));
+        if (snprintf(helpfile, sizeof(helpfile), "%s/%s",
+                    vccnf.helpfile_location,
+                    gettext("vuurmuur.hlp")) >= (int)sizeof(helpfile)) {
+            return (-1);
+        }
         vrmr_sanitize_path(helpfile, sizeof(helpfile));
 
         /* open the file */
@@ -281,8 +287,10 @@ int read_wide_helpfile(struct vrmr_list *help_list, wchar_t *part)
                     helpfile, strerror(errno));
 
             /* language helpfile does not exist, try to fall back to default */
-            snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
-                    vccnf.helpfile_location);
+            if (snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
+                        vccnf.helpfile_location) >= (int)sizeof(helpfile)) {
+                return (-1);
+            }
             vrmr_sanitize_path(helpfile, sizeof(helpfile));
 
             if (!(fp = fopen(helpfile, "r"))) {
@@ -574,7 +582,7 @@ static void do_wide_print(WINDOW *printwin, struct vrmr_list *list,
 }
 #endif /* USE_WIDEC */
 
-static void print_list(struct vrmr_list *list, char *title, int height,
+static void print_list(struct vrmr_list *list, const char *title, int height,
         int width, int starty, int startx, char utf8 ATTR_UNUSED)
 {
     WINDOW *boxwin = NULL, *printwin = NULL;
@@ -696,7 +704,7 @@ static void print_list(struct vrmr_list *list, char *title, int height,
     return;
 }
 
-void print_help(char *part)
+void print_help(const char *part)
 {
     struct vrmr_list HelpList;
     int max_height = 0, max_width = 0, height = 0, width = 0, startx = 0,
@@ -795,11 +803,11 @@ void print_about(void)
     struct vrmr_list about_list;
 
     /* top menu */
-    char *key_choices[] = {"F10"};
+    const char *key_choices[] = {"F10"};
     int key_choices_n = 1;
-    char *cmd_choices[] = {gettext("back")};
+    const char *cmd_choices[] = {gettext("back")};
     int cmd_choices_n = 1;
-    char about_version_string[sizeof(version_string)];
+    char about_version_string[sizeof(version_string) + 16];
 
     /* create the about version string */
     snprintf(about_version_string, sizeof(about_version_string),

@@ -183,7 +183,7 @@ void VrDelWin(struct vrmr_gui_win *win)
     free(win);
 }
 
-int VrWinSetTitle(struct vrmr_gui_win *win, char *title)
+int VrWinSetTitle(struct vrmr_gui_win *win, const char *title)
 {
     size_t len = StrLen(title);
     size_t printstart = 0;
@@ -281,7 +281,8 @@ void VrDelMenu(struct vrmr_gui_menu *menu)
     free(menu);
 }
 
-int VrMenuAddItem(struct vrmr_gui_menu *menu, char *name, char *desc)
+int VrMenuAddItem(
+        struct vrmr_gui_menu *menu, const char *name, const char *desc)
 {
     if (menu->cur_item >= menu->nitems) {
         vrmr_error(-1, VR_ERR, "menu full: all %u items already added",
@@ -312,7 +313,7 @@ int VrMenuAddItem(struct vrmr_gui_menu *menu, char *name, char *desc)
     return (0);
 }
 
-int VrMenuAddSepItem(struct vrmr_gui_menu *menu, char *desc)
+int VrMenuAddSepItem(struct vrmr_gui_menu *menu, const char *desc)
 {
     if (menu->cur_item >= menu->nitems) {
         vrmr_error(-1, VR_ERR, "menu full: all %u items already added",
@@ -489,7 +490,7 @@ void VrFormUnPost(struct vrmr_gui_form *form)
 
 static void VrFormStoreField(struct vrmr_gui_form *form,
         enum vrmr_gui_form_field_types type, chtype cp, int h, int w,
-        int toprow, int leftcol, const char *name, char *value_str,
+        int toprow, int leftcol, const char *name, const char *value_str,
         int value_bool)
 {
     struct vrmr_gui_form_field *fld = malloc(sizeof(*fld));
@@ -517,7 +518,7 @@ static void VrFormStoreField(struct vrmr_gui_form *form,
 }
 
 void VrFormAddTextField(struct vrmr_gui_form *form, int height, int width,
-        int toprow, int leftcol, chtype cp, char *name, char *value)
+        int toprow, int leftcol, chtype cp, const char *name, const char *value)
 {
     vrmr_fatal_if((int)StrLen(name) > width);
     VrFormStoreField(form, VRMR_GUI_FORM_FIELD_TYPE_TEXT, cp, height, width,
@@ -525,14 +526,14 @@ void VrFormAddTextField(struct vrmr_gui_form *form, int height, int width,
 }
 
 void VrFormAddLabelField(struct vrmr_gui_form *form, int height, int width,
-        int toprow, int leftcol, chtype cp, char *value)
+        int toprow, int leftcol, chtype cp, const char *value)
 {
     VrFormStoreField(form, VRMR_GUI_FORM_FIELD_TYPE_LABEL, cp, height, width,
             toprow, leftcol, NULL, value, 0);
 }
 
 void VrFormAddCheckboxField(struct vrmr_gui_form *form, int toprow, int leftcol,
-        chtype cp, char *name, char enabled)
+        chtype cp, const char *name, char enabled)
 {
     int height = 1;
     int width = 1;

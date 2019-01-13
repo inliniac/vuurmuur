@@ -602,18 +602,18 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     char traffic_log = FALSE;
 
     /* top menu */
-    char *key_choices[] = {"F12", "m", "s", "f", "p", "c", "1-7", "F10"};
+    const char *key_choices[] = {"F12", "m", "s", "f", "p", "c", "1-7", "F10"};
     int key_choices_n = 8;
-    char *cmd_choices[] = {gettext("help"), gettext("manage"),
+    const char *cmd_choices[] = {gettext("help"), gettext("manage"),
             gettext("search"), gettext("filter"), gettext("pause"),
             gettext("clear"), gettext("hide"), gettext("back")};
     int cmd_choices_n = 8;
 
     /* nt = no trafficlog: hide "1-7 hide" and manage options for
      * non-trafficlogs */
-    char *nt_key_choices[] = {"F12", "s", "f", "p", "c", "F10"};
+    const char *nt_key_choices[] = {"F12", "s", "f", "p", "c", "F10"};
     int nt_key_choices_n = 6;
-    char *nt_cmd_choices[] = {gettext("help"), gettext("search"),
+    const char *nt_cmd_choices[] = {gettext("help"), gettext("search"),
             gettext("filter"), gettext("pause"), gettext("clear"),
             gettext("back")};
     int nt_cmd_choices_n = 6;

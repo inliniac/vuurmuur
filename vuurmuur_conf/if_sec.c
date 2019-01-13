@@ -1202,9 +1202,9 @@ static int edit_interface(
     char quit = 0, advanced_mode = vccnf.advanced_mode;
 
     /* top menu */
-    char *key_choices[] = {"F12", "F5", "F6", "F7", "F10"};
+    const char *key_choices[] = {"F12", "F5", "F6", "F7", "F10"};
     int key_choices_n = 5;
-    char *cmd_choices[] = {gettext("help"), gettext("advanced"),
+    const char *cmd_choices[] = {gettext("help"), gettext("advanced"),
             gettext("shaping"), gettext("tcpmss"), gettext("back")};
     int cmd_choices_n = 5;
     int retval = 0;
@@ -1325,7 +1325,7 @@ static int edit_interface(
             struct vrmr_list iflist;
             vrmr_list_setup(&iflist, free);
             if (vrmr_get_devices(&iflist) == 0) {
-                char **devs = calloc(iflist.len + 1, sizeof(char *));
+                const char **devs = calloc(iflist.len + 1, sizeof(char *));
                 vrmr_fatal_alloc("calloc", devs);
 
                 int x = 0;
@@ -1783,10 +1783,11 @@ void interfaces_section(struct vrmr_ctx *vctx,
     ITEM *cur = NULL;
 
     /* top menu */
-    char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "F10"};
+    const char *key_choices[] = {"F12", "INS", "DEL", "r", "RET", "F10"};
     int key_choices_n = 6;
-    char *cmd_choices[] = {gettext("help"), gettext("new"), gettext("del"),
-            gettext("rename"), gettext("edit"), gettext("back")};
+    const char *cmd_choices[] = {gettext("help"), gettext("new"),
+            gettext("del"), gettext("rename"), gettext("edit"),
+            gettext("back")};
     int cmd_choices_n = 6;
 
     result = init_interfaces_section(interfaces);
