@@ -3691,92 +3691,84 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
     char logprefix[64] = "";
 
+    if (!conf->conntrack_invalid_drop) {
+        if (conf->bash_out == TRUE)
+            fprintf(stdout,
+                    "# dropping of INVALID packets disabled in config...\n");
+        return (0);
+    }
+
     if (conf->bash_out == TRUE)
         fprintf(stdout, "\n# Drop (and log) packets with state INVALID...\n");
 
     /* create invalid drop rules if config says so */
-    if (conf->invalid_drop_enabled == TRUE) {
-        vrmr_debug(LOW, "Drop (and log) packets with state INVALID...");
+    vrmr_debug(LOW, "Drop (and log) packets with state INVALID...");
 
-        /*
-           invalid input
-         */
-        if (conf->log_invalid == TRUE &&
-                (conf->vrmr_check_iptcaps == FALSE ||
-                        iptcap->target_nflog == TRUE)) {
-            create_logprefix_string(conf, logprefix, sizeof(logprefix),
-                    VRMR_RT_INPUT, "DROP", "in INVALID");
+    /*
+       invalid input
+     */
+    if (conf->log_invalid == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                             iptcap->target_nflog == TRUE)) {
+        create_logprefix_string(conf, logprefix, sizeof(logprefix),
+                VRMR_RT_INPUT, "DROP", "in INVALID");
 
-            snprintf(cmd, sizeof(cmd),
-                    "%s INVALID %s -j NFLOG %s --nflog-group %u",
-                    create_state_string(conf, ipv, iptcap), limit, logprefix,
-                    conf->nfgrp);
+        snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s --nflog-group %u",
+                create_state_string(conf, ipv, iptcap), limit, logprefix,
+                conf->nfgrp);
 
-            if (process_rule(
-                        conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-                retval = -1;
-        }
-
-        snprintf(cmd, sizeof(cmd), "%s INVALID -j DROP",
-                create_state_string(conf, ipv, iptcap));
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
             retval = -1;
+    }
 
-        /*
-           invalid output
-         */
-        if (conf->log_invalid == TRUE &&
-                (conf->vrmr_check_iptcaps == FALSE ||
-                        iptcap->target_nflog == TRUE)) {
-            create_logprefix_string(conf, logprefix, sizeof(logprefix),
-                    VRMR_RT_OUTPUT, "DROP", "out INVALID");
+    snprintf(cmd, sizeof(cmd), "%s INVALID -j DROP",
+            create_state_string(conf, ipv, iptcap));
+    if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
 
-            snprintf(cmd, sizeof(cmd),
-                    "%s INVALID %s -j NFLOG %s --nflog-group %u",
-                    create_state_string(conf, ipv, iptcap), limit, logprefix,
-                    conf->nfgrp);
+    /*
+       invalid output
+     */
+    if (conf->log_invalid == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                             iptcap->target_nflog == TRUE)) {
+        create_logprefix_string(conf, logprefix, sizeof(logprefix),
+                VRMR_RT_OUTPUT, "DROP", "out INVALID");
 
-            if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0,
-                        0) < 0)
-                retval = -1;
-        }
+        snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s --nflog-group %u",
+                create_state_string(conf, ipv, iptcap), limit, logprefix,
+                conf->nfgrp);
 
-        snprintf(cmd, sizeof(cmd), "%s INVALID -j DROP",
-                create_state_string(conf, ipv, iptcap));
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) <
                 0)
             retval = -1;
+    }
 
-        /*
-           invalid forward
-         */
-        if (conf->log_invalid == TRUE &&
-                (conf->vrmr_check_iptcaps == FALSE ||
-                        iptcap->target_nflog == TRUE)) {
-            create_logprefix_string(conf, logprefix, sizeof(logprefix),
-                    VRMR_RT_FORWARD, "DROP", "fw INVALID");
+    snprintf(cmd, sizeof(cmd), "%s INVALID -j DROP",
+            create_state_string(conf, ipv, iptcap));
+    if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
 
-            snprintf(cmd, sizeof(cmd),
-                    "%s INVALID %s -j NFLOG %s --nflog-group %u",
-                    create_state_string(conf, ipv, iptcap), limit, logprefix,
-                    conf->nfgrp);
+    /*
+       invalid forward
+     */
+    if (conf->log_invalid == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
+                                             iptcap->target_nflog == TRUE)) {
+        create_logprefix_string(conf, logprefix, sizeof(logprefix),
+                VRMR_RT_FORWARD, "DROP", "fw INVALID");
 
-            if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0,
-                        0) < 0)
-                retval = -1;
-        }
+        snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s --nflog-group %u",
+                create_state_string(conf, ipv, iptcap), limit, logprefix,
+                conf->nfgrp);
 
-        snprintf(cmd, sizeof(cmd), "%s INVALID -j DROP",
-                create_state_string(conf, ipv, iptcap));
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) <
                 0)
             retval = -1;
-    } else {
-        if (conf->bash_out == TRUE)
-            fprintf(stdout,
-                    "# dropping of INVALID packets disabled in config...\n");
     }
+
+    snprintf(cmd, sizeof(cmd), "%s INVALID -j DROP",
+            create_state_string(conf, ipv, iptcap));
+    if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
 
     return (retval);
 }
@@ -4400,11 +4392,18 @@ int pre_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
         retval = -1;
 #endif
 
-    /* enabling conntrack accounting */
-    if (conf->bash_out)
-        fprintf(stdout, "\n# Enabling conntrack accounting...\n");
-    (void)sysctl_exec(
-            conf, "net.netfilter.nf_conntrack_acct", "1", conf->bash_out);
+    /* conntrack accounting */
+    if (conf->conntrack_accounting) {
+        if (conf->bash_out)
+            fprintf(stdout, "\n# Enabling conntrack accounting...\n");
+        (void)sysctl_exec(
+                conf, "net.netfilter.nf_conntrack_acct", "1", conf->bash_out);
+    } else {
+        if (conf->bash_out)
+            fprintf(stdout, "\n# Disabling conntrack accounting...\n");
+        (void)sysctl_exec(
+                conf, "net.netfilter.nf_conntrack_acct", "0", conf->bash_out);
+    }
 
     /* set up blocklist targets */
     if (pre_rules_blocklist_ipv4(conf, ruleset, iptcap) < 0)

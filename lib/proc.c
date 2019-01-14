@@ -21,7 +21,7 @@
 #include "config.h"
 #include "vuurmuur.h"
 
-int vrmr_read_proc_entry(char *proc_entry, int *value)
+int vrmr_read_proc_entry(const char *proc_entry, int *value)
 {
     int retval = 0, result = 0;
     FILE *fp = NULL;
@@ -65,8 +65,8 @@ int vrmr_read_proc_entry(char *proc_entry, int *value)
     return (retval);
 }
 
-int vrmr_set_proc_entry(
-        struct vrmr_config *cnf, char *proc_entry, int proc_set, char *who)
+int vrmr_set_proc_entry(struct vrmr_config *cnf, const char *proc_entry,
+        int proc_set, const char *who)
 {
     size_t i = 0, j = 0, entry_length = 0;
     int retval = 0;

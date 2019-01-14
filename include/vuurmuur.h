@@ -169,7 +169,9 @@
 #define VRMR_DEFAULT_LOG_PROBES TRUE  /* default we log probes like XMAS */
 #define VRMR_DEFAULT_LOG_FRAG TRUE    /* default we log FRAGMENTED traffic */
 
-#define VRMR_DEFAULT_DROP_INVALID TRUE /* default we drop INVALID traffic */
+#define VRMR_DEFAULT_DROP_INVALID true /* default we drop INVALID traffic */
+#define VRMR_DEFAULT_CONNTRACK_ACCOUNTING                                      \
+    true /* default we enable accounting */
 
 #define VRMR_DEFAULT_PROTECT_SYNCOOKIE                                         \
     TRUE /* default we protect against syn-flooding */
@@ -570,7 +572,8 @@ struct vrmr_config {
     mode_t max_permission;
 
     /* conntrack options */
-    char invalid_drop_enabled;
+    bool conntrack_invalid_drop;
+    bool conntrack_accounting;
 };
 
 struct vrmr_interfaces {
@@ -1621,9 +1624,9 @@ int vrmr_user_get_info(struct vrmr_user *);
 /*
     proc.c
 */
-int vrmr_read_proc_entry(char *proc_entry, int *value);
-int vrmr_set_proc_entry(
-        struct vrmr_config *, char *proc_entry, int proc_set, char *who);
+int vrmr_read_proc_entry(const char *proc_entry, int *value);
+int vrmr_set_proc_entry(struct vrmr_config *, const char *proc_entry,
+        int proc_set, const char *who);
 
 /*
     rules.c

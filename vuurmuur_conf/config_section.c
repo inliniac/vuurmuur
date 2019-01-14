@@ -2021,7 +2021,8 @@ int edit_logconfig(struct vrmr_config *conf)
 /* conntrack settings */
 
 struct edit_conntrack_cnf {
-    char invalid_drop_enabled;
+    bool invalid_drop;
+    bool accounting;
     struct vrmr_config *conf;
 };
 
@@ -2030,7 +2031,8 @@ static int VrEditConntrackSetup(
 {
     vrmr_fatal_if_null(c);
 
-    c->invalid_drop_enabled = conf->invalid_drop_enabled;
+    c->invalid_drop = conf->conntrack_invalid_drop;
+    c->accounting = conf->conntrack_accounting;
     c->conf = conf;
     return (0);
 }
@@ -2041,17 +2043,23 @@ static int VrEditConntrackSave(void *ctx, char *name, char *value)
     int retval = 0;
 
     if (strcmp(name, "S") == 0) {
-        char enabled = 0;
-
-        if (strcmp(value, "X") == 0) {
-            enabled = 1;
-        }
-
-        if (c->invalid_drop_enabled != enabled) {
-            c->conf->invalid_drop_enabled = enabled;
-
+        bool enabled = (strcmp(value, "X") == 0);
+        if (c->invalid_drop != enabled) {
+            c->conf->conntrack_invalid_drop = enabled;
             vrmr_audit("'drop INVALID packet flag' %s '%s'.", STR_IS_NOW_SET_TO,
-                    c->conf->invalid_drop_enabled ? STR_YES : STR_NO);
+                    c->conf->conntrack_invalid_drop ? STR_YES : STR_NO);
+
+            if (vrmr_write_configfile(c->conf->configfile, c->conf) < 0) {
+                vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
+                retval = -1;
+            }
+        }
+    } else if (strcmp(name, "A") == 0) {
+        bool enabled = (strcmp(value, "X") == 0);
+        if (c->accounting != enabled) {
+            c->conf->conntrack_accounting = enabled;
+            vrmr_audit("'accounting' %s '%s'.", STR_IS_NOW_SET_TO,
+                    c->conf->conntrack_accounting ? STR_YES : STR_NO);
 
             if (vrmr_write_configfile(c->conf->configfile, c->conf) < 0) {
                 vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
@@ -2083,7 +2091,11 @@ static void VrEditConntrack(struct vrmr_config *conf)
     VrFormAddLabelField(form, 1, 35, 1, 1, vccnf.color_win,
             gettext("Enable dropping INVALID packets"));
     VrFormAddCheckboxField(
-            form, 1, 38, vccnf.color_win, "S", config.invalid_drop_enabled);
+            form, 1, 38, vccnf.color_win, "S", config.invalid_drop);
+    VrFormAddLabelField(form, 1, 35, 3, 1, vccnf.color_win,
+            gettext("Enable conntrack accounting"));
+    VrFormAddCheckboxField(
+            form, 3, 38, vccnf.color_win, "A", config.accounting);
 
     VrFormConnectToWin(form, win);
     VrFormPost(form);

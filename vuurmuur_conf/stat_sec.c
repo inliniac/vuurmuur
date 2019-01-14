@@ -1045,8 +1045,7 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
 
                 /* set the fields to the form */
                 size_t i;
-                for (i = cur_interface; i < statsec_ctx.n_fields;
-                        i++) {
+                for (i = cur_interface; i < statsec_ctx.n_fields; i++) {
                     cur = statsec_ctx.fields[i];
 
                     if (strncmp(field_buffer(cur, 1), "recv_s", 6) == 0)

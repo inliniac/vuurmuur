@@ -573,20 +573,42 @@ int vrmr_init_config(struct vrmr_config *cnf)
     if (result == 1) {
         /* ok, found */
         if (strcasecmp(answer, "yes") == 0) {
-            cnf->invalid_drop_enabled = TRUE;
+            cnf->conntrack_invalid_drop = true;
         } else if (strcasecmp(answer, "no") == 0) {
-            cnf->invalid_drop_enabled = FALSE;
+            cnf->conntrack_invalid_drop = false;
         } else {
             vrmr_warning("Warning",
                     "'%s' is not a valid value for option DROP_INVALID.",
                     answer);
-            cnf->invalid_drop_enabled = VRMR_DEFAULT_DROP_INVALID;
-
+            cnf->conntrack_invalid_drop = VRMR_DEFAULT_DROP_INVALID;
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
     } else if (result == 0) {
         /* if this is missing, we use the default */
-        cnf->invalid_drop_enabled = VRMR_DEFAULT_DROP_INVALID;
+        cnf->conntrack_invalid_drop = VRMR_DEFAULT_DROP_INVALID;
+    } else
+        return (VRMR_CNF_E_UNKNOWN_ERR);
+
+    /* CONNTRACK_ACCOUNTING */
+    result = vrmr_ask_configfile(cnf, "CONNTRACK_ACCOUNTING", answer,
+            cnf->configfile, sizeof(answer));
+    if (result == 1) {
+        /* ok, found */
+        if (strcasecmp(answer, "yes") == 0) {
+            cnf->conntrack_accounting = true;
+        } else if (strcasecmp(answer, "no") == 0) {
+            cnf->conntrack_accounting = false;
+        } else {
+            vrmr_warning("Warning",
+                    "'%s' is not a valid value for option "
+                    "CONNTRACK_ACCOUNTING.",
+                    answer);
+            cnf->conntrack_accounting = VRMR_DEFAULT_CONNTRACK_ACCOUNTING;
+            retval = VRMR_CNF_W_ILLEGAL_VAR;
+        }
+    } else if (result == 0) {
+        /* if this is missing, we use the default */
+        cnf->conntrack_accounting = VRMR_DEFAULT_CONNTRACK_ACCOUNTING;
     } else
         return (VRMR_CNF_E_UNKNOWN_ERR);
 
@@ -1577,7 +1599,11 @@ int vrmr_write_configfile(char *file_location, struct vrmr_config *cfg)
     fprintf(fp, "# DROP_INVALID enables/disables dropping of packets marked "
                 "INVALID by conntrack.\n");
     fprintf(fp, "DROP_INVALID=\"%s\"\n\n",
-            cfg->invalid_drop_enabled ? "Yes" : "No");
+            cfg->conntrack_invalid_drop ? "Yes" : "No");
+    fprintf(fp, "# CONNTRACK_ACCOUNTING enables/disables conntrack accounting "
+                "as used in connection logging and viewer.\n");
+    fprintf(fp, "CONNTRACK_ACCOUNTING=\"%s\"\n\n",
+            cfg->conntrack_accounting ? "Yes" : "No");
 
     fprintf(fp,
             "# SYN_LIMIT sets the maximum number of SYN-packets per second.\n");
