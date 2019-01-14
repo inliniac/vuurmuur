@@ -985,6 +985,8 @@ static int rulecreate_dst_loop(struct vrmr_config *conf,
     int retval = 0;
     struct vrmr_zone *host_ptr = NULL;
 
+    assert(create);
+
     /* any */
     if (create->to_any == TRUE) {
         /* clear */
@@ -1184,6 +1186,8 @@ static int rulecreate_src_loop(struct vrmr_config *conf,
     int retval = 0;
     struct vrmr_zone *host_ptr = NULL;
 
+    assert(create);
+
     /* any */
     if (create->from_any == TRUE) {
         /* clear */
@@ -1201,8 +1205,7 @@ static int rulecreate_src_loop(struct vrmr_config *conf,
             vrmr_debug(NONE, "source firewall, dest zone");
 
             if (rule->ipv == VRMR_IPV4) {
-                if (rule->to_if_ptr == NULL)
-                    abort();
+                assert(rule->to_if_ptr);
 
                 /* set addresses */
                 (void)strlcpy(rule->ipv4_from.ipaddress,
