@@ -1284,7 +1284,6 @@ int main_menu(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
     int x = 0, y = 0, startx = 0, starty = 0, maxx = 0, maxy = 0;
 
-    int field_num = 0;
     int cols = 0;
     int rows = 0;
 
@@ -1334,6 +1333,7 @@ int main_menu(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
     /* the form for the status */
     if (vccnf.draw_status) {
+        size_t field_num = 0;
         StatusFlds.n_fields = 6;
         StatusFlds.fields =
                 (FIELD **)calloc(StatusFlds.n_fields + 1, sizeof(FIELD *));
@@ -1568,47 +1568,6 @@ int main_menu(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 choice_ptr = strdup("showhelp");
                 vrmr_fatal_alloc("strdup", choice_ptr);
                 break;
-#if 0
-            case KEY_F(1):
-
-                choice_ptr = NULL;
-
-                if(vccnf.win_fore > 0)
-                    vccnf.win_fore--;
-
-                set_colors(&vccnf);
-                break;
-
-            case KEY_F(2):
-
-                choice_ptr = NULL;
-
-                if(vccnf.win_fore < 7)
-                    vccnf.win_fore++;
-
-                set_colors(&vccnf);
-                break;
-
-            case KEY_F(3):
-
-                choice_ptr = NULL;
-
-                if(vccnf.win_back > 0)
-                    vccnf.win_back--;
-
-                set_colors(&vccnf);
-                break;
-
-            case KEY_F(4):
-
-                choice_ptr = NULL;
-
-                if(vccnf.win_back < 7)
-                    vccnf.win_back++;
-
-                set_colors(&vccnf);
-                break;
-#endif
         }
 
         /* now act */
