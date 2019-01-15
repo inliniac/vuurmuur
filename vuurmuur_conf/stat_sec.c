@@ -59,91 +59,6 @@ static int get_sys_load(float *load_s, float *load_m, float *load_l)
         return (-1);
     return (0);
 }
-#if 0
-static int count_host_tcp_conn(int *tcp_count, int *tcp_list_count)
-{
-    FILE    *fp=NULL;
-    char    proc_net_tcp[] = "/proc/net/tcp",
-            line[512];
-    int     i=0;
-
-    int     sl=0;
-    char    localaddr[32],
-            state[3],
-            remoteaddr[32];
-
-    int     tcp_listen=0;
-    
-    if(!(fp = fopen(proc_net_tcp, "r")))
-        return(-1);
-
-    while(fgets(line, (int)sizeof(line), fp) != NULL)
-    {
-        if(i > 0)
-        {
-            sscanf(line, "%d: %s %s %2s", &sl, localaddr, remoteaddr, state);
-
-            if(strcmp(state, "0A") == 0)
-                tcp_listen++;
-            
-        }
-        i++;
-    }
-    i--;
-
-    //vrprint.warning("info", "tcp_listen: %d (%d total).", tcp_listen, i);
-
-    *tcp_count = i;
-    *tcp_list_count = tcp_listen;
-
-    if(fclose(fp) < 0)
-        return(-1);
-
-    return(0);
-}
-
-static int count_host_udp_conn(int *udp_count, int *udp_list_count)
-{
-    FILE    *fp=NULL;
-    char    proc_net_udp[] = "/proc/net/udp",
-            line[512];
-    int     i=0;
-
-    int     sl=0;
-    char    localaddr[32],
-            state[3],
-            remoteaddr[32];
-
-    int     udp_listen=0;
-
-    if(!(fp = fopen(proc_net_udp, "r")))
-        return(-1);
-
-    while(fgets(line, (int)sizeof(line), fp) != NULL)
-    {
-        if(i > 0)
-        {
-            sscanf(line, "%d: %s %s %2s", &sl, localaddr, remoteaddr, state);
-
-            if(strcmp(state, "07") == 0)
-                udp_listen++;
-
-        }
-        i++;
-    }
-    i--;
-
-    //vrprint.warning("info", "udp_listen: %d (%d total).", udp_listen, i);
-
-    *udp_count = i;
-    *udp_list_count = udp_listen;
-
-    if(fclose(fp) < 0)
-        return(-1);
-
-    return(0);
-}
-#endif
 
 static int count_conntrack_conn(uint32_t *conntrack_count, uint32_t *tcp_count,
         uint32_t *udp_count, uint32_t *other_count)
@@ -171,8 +86,8 @@ static int get_conntrack_max(uint32_t *conntrack_max)
          line[16] = "";
 
     /* try to open the conntrack max file */
-    if (!(fp = fopen(proc_ip_conntrack_max, "r"))) {
-        if (!(fp = fopen(proc_nf_conntrack_max, "r"))) {
+    if (!(fp = fopen(proc_nf_conntrack_max, "r"))) {
+        if (!(fp = fopen(proc_ip_conntrack_max, "r"))) {
             return (-1);
         }
     }
@@ -628,6 +543,25 @@ static void status_section_destroy(void)
     doupdate();
 }
 
+static void bytes_to_string(const uint64_t bytes, char *str, size_t size)
+{
+#define M 1048576ULL
+#define B 1073741824ULL
+#define T 1099511627776ULL
+    if ((bytes / B) >= 1000ULL) {
+        snprintf(str, size, "%7.2f T", (double)((double)bytes / (double)T));
+    } else if ((bytes / M) >= 1000) {
+        snprintf(str, size, "%7.2f G", (double)((double)bytes / (double)B));
+    } else if ((bytes / M) < 1) {
+        snprintf(str, size, "%7.2f K", (float)(bytes / 1024));
+    } else {
+        snprintf(str, size, "%7.2f M", (float)(bytes / M));
+    }
+#undef T
+#undef B
+#undef M
+}
+
 /*  status_section
 
     This section shows information about the system.
@@ -934,51 +868,14 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
                         &shadow_ptr->send_net_packets, &shadow_ptr->send_net);
 
                 /* RECV host/firewall */
-                if ((shadow_ptr->recv_host / (1024 * 1024)) >= 1000) {
-                    snprintf(recv_host, sizeof(recv_host), "%7.3f GB",
-                            (float)shadow_ptr->recv_host /
-                                    (1024 * 1024 * 1024));
-                    vrmr_debug(HIGH, "recv_host: '%s'.", recv_host);
-                } else if ((shadow_ptr->recv_host / (1024 * 1024)) < 1)
-                    snprintf(recv_host, sizeof(recv_host), "%7d kb",
-                            (int)shadow_ptr->recv_host / (1024));
-                else
-                    snprintf(recv_host, sizeof(recv_host), "%7.3f MB",
-                            (float)shadow_ptr->recv_host / (1024 * 1024));
-
-                /* SEND host/firewall */
-                if ((shadow_ptr->send_host / (1024 * 1024)) >= 1000)
-                    snprintf(send_host, sizeof(send_host), "%7.3f GB",
-                            (float)shadow_ptr->send_host /
-                                    (1024 * 1024 * 1024));
-                else if ((shadow_ptr->send_host / (1024 * 1024)) < 1)
-                    snprintf(send_host, sizeof(send_host), "%7d kb",
-                            (int)shadow_ptr->send_host / (1024));
-                else
-                    snprintf(send_host, sizeof(send_host), "%7.3f MB",
-                            (float)shadow_ptr->send_host / (1024 * 1024));
-
-                /* RECV net/forward */
-                if ((shadow_ptr->recv_net / (1024 * 1024)) >= 1000)
-                    snprintf(recv_net, sizeof(recv_net), "%7.3f GB",
-                            (float)shadow_ptr->recv_net / (1024 * 1024 * 1024));
-                else if ((shadow_ptr->recv_net / (1024 * 1024)) < 1)
-                    snprintf(recv_net, sizeof(recv_net), "%7d kb",
-                            (int)shadow_ptr->recv_net / (1024));
-                else
-                    snprintf(recv_net, sizeof(recv_net), "%7.3f MB",
-                            (float)shadow_ptr->recv_net / (1024 * 1024));
-
-                /* SEND net/forward */
-                if ((shadow_ptr->send_net / (1024 * 1024)) >= 1000)
-                    snprintf(send_net, sizeof(send_net), "%7.3f GB",
-                            (float)shadow_ptr->send_net / (1024 * 1024 * 1024));
-                else if ((shadow_ptr->send_net / (1024 * 1024)) < 1)
-                    snprintf(send_net, sizeof(send_net), "%7d kb",
-                            (int)shadow_ptr->send_net / (1024));
-                else
-                    snprintf(send_net, sizeof(send_net), "%7.3f MB",
-                            (float)shadow_ptr->send_net / (1024 * 1024));
+                bytes_to_string(
+                        shadow_ptr->recv_host, recv_host, sizeof(recv_host));
+                bytes_to_string(
+                        shadow_ptr->send_host, send_host, sizeof(send_host));
+                bytes_to_string(
+                        shadow_ptr->recv_net, recv_net, sizeof(recv_net));
+                bytes_to_string(
+                        shadow_ptr->send_net, send_net, sizeof(send_net));
 
                 /* store the number of bytes */
                 shadow_ptr->cur_recv_bytes = recv_bytes;
