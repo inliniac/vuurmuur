@@ -761,6 +761,7 @@ void set_field_buffer_wrap(FIELD *field, int bufnum, const char *value)
     }
 }
 
+
 /* wrapper around new field to make sure O_ACTIVE and O_AUTOSKIP are
  * always set. In some conditions that are unclear to me, a very small
  * screen will create fields w/o these set. */
@@ -770,7 +771,13 @@ FIELD *new_field_wrap(
     FIELD *f = new_field(rows, cols, frow, fcol, nrow, nbuf);
     if (f == NULL)
         return (NULL);
-    field_opts_on(f, (O_ACTIVE | O_AUTOSKIP));
+    int set_opts = O_ACTIVE | O_AUTOSKIP;
+#ifdef O_DYNAMIC_JUSTIFY
+    set_opts |= O_DYNAMIC_JUSTIFY;
+#endif
+    field_opts_on(f, set_opts);
+    const int opts = field_opts(f);
+    vrmr_debug(LOW, "field %p opts %x", f, opts);
     return (f);
 }
 
