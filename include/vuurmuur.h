@@ -1652,7 +1652,7 @@ char *vrmr_rules_assemble_rule(struct vrmr_rule *);
 int vrmr_rules_save_list(
         struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_config *);
 int vrmr_rules_get_custom_chains(struct vrmr_rules *);
-int vrmr_rules_chain_in_list(struct vrmr_list *, char *);
+int vrmr_rules_chain_in_list(struct vrmr_list *, const char *);
 int vrmr_rules_get_system_chains(
         struct vrmr_rules *, struct vrmr_config *, int);
 int vrmr_rules_encode_rule(char *, size_t);

@@ -2703,12 +2703,12 @@ struct vrmr_rule *rules_create_protect_rule(char *action, /*@null@*/ char *who,
          0: if not
         -1: error
 */
-int vrmr_rules_chain_in_list(struct vrmr_list *list, char *chainname)
+int vrmr_rules_chain_in_list(struct vrmr_list *list, const char *chain)
 {
-    char *str = NULL;
+    const char *str = NULL;
     struct vrmr_list_node *d_node = NULL;
 
-    assert(list && chainname);
+    assert(list && chain);
 
     for (d_node = list->top; d_node; d_node = d_node->next) {
         if (!(str = d_node->data)) {
@@ -2716,7 +2716,7 @@ int vrmr_rules_chain_in_list(struct vrmr_list *list, char *chainname)
             return (-1);
         }
 
-        if (strcmp(str, chainname) == 0) {
+        if (strcmp(str, chain) == 0) {
             return (1);
         }
     }
@@ -2737,8 +2737,6 @@ int vrmr_rules_get_custom_chains(struct vrmr_rules *rules)
 {
     struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
-    char *str = NULL;
-    size_t size = 0;
 
     assert(rules);
 
@@ -2753,26 +2751,22 @@ int vrmr_rules_get_custom_chains(struct vrmr_rules *rules)
         if (rule_ptr->opt != NULL) {
             if (rule_ptr->opt->chain[0] != '\0') {
                 /* see if the chain is already in our list */
-                if (vrmr_rules_chain_in_list(&rules->custom_chain_list,
-                            rule_ptr->opt->chain) == 0) {
-                    size = strlen(rule_ptr->opt->chain) + 1;
+                if (vrmr_rules_chain_in_list(
+                            &rules->custom_chain_list, rule_ptr->opt->chain)) {
+                    continue;
+                }
+                char *str = strdup(rule_ptr->opt->chain);
+                if (str == NULL) {
+                    vrmr_error(
+                            -1, "Error", "strdup failed: %s", strerror(errno));
+                    return (-1);
+                }
 
-                    str = malloc(size);
-                    if (str == NULL) {
-                        vrmr_error(-1, "Error", "malloc failed: %s",
-                                strerror(errno));
-                        return (-1);
-                    }
-
-                    strlcpy(str, rule_ptr->opt->chain, size);
-
-                    if (vrmr_list_append(&rules->custom_chain_list, str) ==
-                            NULL) {
-                        vrmr_error(-1, "Internal Error",
-                                "vrmr_list_append() failed");
-                        free(str);
-                        return (-1);
-                    }
+                if (vrmr_list_append(&rules->custom_chain_list, str) == NULL) {
+                    vrmr_error(
+                            -1, "Internal Error", "vrmr_list_append() failed");
+                    free(str);
+                    return (-1);
                 }
             }
         }

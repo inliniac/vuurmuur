@@ -705,12 +705,10 @@ static int ruleset_fill_file(struct vrmr_ctx *vctx, struct rule_set *ruleset,
         ruleset_writeprint(ruleset_fd, cmd);
 
         /*
-            BEGIN -- PRE-VUURMUUR-CHAINS feature - by(as).
             Allow to make some specials rules before the Vuurmuur rules kick in.
 
-            Only create if they don't exist.
-            No flushing, the content of these chains is the responsibility of
-           the user.
+            Only create if they don't exist. No flushing, the content of these
+            chains is the responsibility of the user.
         */
 
         /* filter table uses {INPUT,FORWARD,OUTPUT} hooks */
@@ -730,8 +728,6 @@ static int ruleset_fill_file(struct vrmr_ctx *vctx, struct rule_set *ruleset,
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-OUTPUT\n");
             ruleset_writeprint(ruleset_fd, cmd);
         }
-
-        /* END -- PRE-VUURMUUR-CHAINS feature - by(as). */
 
         /* create the custom chains, because some rules will depend on them */
         for (d_node = vctx->rules.custom_chain_list.top; d_node;

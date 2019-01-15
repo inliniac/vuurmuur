@@ -84,7 +84,7 @@ void create_logprefix_string(struct vrmr_config *conf ATTR_UNUSED,
 int oldrules_create_custom_chains(
         struct vrmr_rules *rules, struct vrmr_config *cnf)
 {
-    char *chainname = NULL;
+    const char *chain = NULL;
     struct vrmr_list_node *d_node = NULL;
     char cmd[256] = "";
 
@@ -99,15 +99,14 @@ int oldrules_create_custom_chains(
     }
 
     for (d_node = rules->custom_chain_list.top; d_node; d_node = d_node->next) {
-        if (!(chainname = d_node->data)) {
+        if (!(chain = d_node->data)) {
             vrmr_error(-1, "Internal Error", "NULL pointer");
             return (-1);
         }
 
-        if (vrmr_rules_chain_in_list(&rules->system_chain_filter, chainname) ==
-                0) {
+        if (vrmr_rules_chain_in_list(&rules->system_chain_filter, chain) == 0) {
             snprintf(cmd, sizeof(cmd), "%s -N %s", cnf->iptables_location,
-                    chainname);
+                    chain);
             (void)vrmr_pipe_command(cnf, cmd, VRMR_PIPE_QUIET);
         }
     }
