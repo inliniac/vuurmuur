@@ -1645,7 +1645,7 @@ char *vrmr_rules_assemble_options_string(
     }
 
     if (opt->nfmark > 0) {
-        snprintf(nfmark_string, sizeof(nfmark_string), "%lu", opt->nfmark);
+        snprintf(nfmark_string, sizeof(nfmark_string), "%" PRIu32, opt->nfmark);
 
         if (strlcat(options, "nfmark=\"", sizeof(options)) >= sizeof(options)) {
             vrmr_error(-1, "Internal Error", "string overflow");
@@ -2183,7 +2183,7 @@ static int parse_option(const char *curopt, struct vrmr_rule_options *op)
 
         op->nfmark = strtoul(portstring, (char **)NULL, 10);
 
-        vrmr_debug(MEDIUM, "nfmark: %lu, %s", op->nfmark, portstring);
+        vrmr_debug(MEDIUM, "nfmark: %" PRIu32 ", %s", op->nfmark, portstring);
     }
     /* reject type */
     else if (strncmp(curopt, "rejecttype", strlen("rejecttype")) == 0) {

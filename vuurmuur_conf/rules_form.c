@@ -2955,7 +2955,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
 
     /* enable nfmark option */
     if (rule_ptr->opt != NULL && rule_ptr->opt->nfmark > 0) {
-        snprintf(nfmark_string, sizeof(nfmark_string), "%lu",
+        snprintf(nfmark_string, sizeof(nfmark_string), "%" PRIu32,
                 rule_ptr->opt->nfmark);
         set_field_buffer_wrap(rule_fields.nfmark_fld_ptr, 0, nfmark_string);
     }

@@ -1274,7 +1274,7 @@ static int ruleset_save_interface_counters(
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
-    unsigned long long tmp_ull = 0;
+    uint64_t tmp = 0;
     char acc_chain[32] = "";
 
     assert(interfaces);
@@ -1302,9 +1302,9 @@ static int ruleset_save_interface_counters(
             /* get the real counters from iptables */
             vrmr_get_iface_stats_from_ipt(cfg, iface_ptr->device, "INPUT",
                     &iface_ptr->cnt->input_packets,
-                    &iface_ptr->cnt->input_bytes, &tmp_ull, &tmp_ull);
+                    &iface_ptr->cnt->input_bytes, &tmp, &tmp);
             vrmr_get_iface_stats_from_ipt(cfg, iface_ptr->device, "OUTPUT",
-                    &tmp_ull, &tmp_ull, &iface_ptr->cnt->output_packets,
+                    &tmp, &tmp, &iface_ptr->cnt->output_packets,
                     &iface_ptr->cnt->output_bytes);
             vrmr_get_iface_stats_from_ipt(cfg, iface_ptr->device, "FORWARD",
                     &iface_ptr->cnt->forwardin_packets,
@@ -1313,12 +1313,12 @@ static int ruleset_save_interface_counters(
                     &iface_ptr->cnt->forwardout_bytes);
 
             vrmr_debug(HIGH,
-                    "iface_ptr->cnt->input_packets: %llu, "
-                    "iface_ptr->cnt->input_bytes: %llu.",
+                    "iface_ptr->cnt->input_packets: %" PRIu64 ", "
+                    "iface_ptr->cnt->input_bytes: %" PRIu64 ".",
                     iface_ptr->cnt->input_packets, iface_ptr->cnt->input_bytes);
             vrmr_debug(HIGH,
-                    "iface_ptr->cnt->output_packets: %llu, "
-                    "iface_ptr->cnt->output_bytes: %llu.",
+                    "iface_ptr->cnt->output_packets: %" PRIu64 ", "
+                    "iface_ptr->cnt->output_bytes: %" PRIu64 ".",
                     iface_ptr->cnt->output_packets,
                     iface_ptr->cnt->output_bytes);
 
@@ -1335,8 +1335,8 @@ static int ruleset_save_interface_counters(
                     &iface_ptr->cnt->acc_out_bytes);
 
             vrmr_debug(HIGH,
-                    "iface_ptr->cnt->acc_in_bytes: %llu, "
-                    "iface_ptr->cnt->acc_out_bytes: %llu.",
+                    "iface_ptr->cnt->acc_in_bytes: %" PRIu64 ", "
+                    "iface_ptr->cnt->acc_out_bytes: %" PRIu64 ".",
                     iface_ptr->cnt->acc_in_bytes,
                     iface_ptr->cnt->acc_out_bytes);
         }

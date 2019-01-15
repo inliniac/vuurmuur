@@ -999,9 +999,8 @@ int vrmr_rem_iface_from_zonelist(struct vrmr_list *zonelist)
         -1: error
          1: int not found
 */
-int vrmr_get_iface_stats(const char *iface_name, unsigned long *recv_bytes,
-        unsigned long *recv_packets, unsigned long *trans_bytes,
-        unsigned long *trans_packets)
+int vrmr_get_iface_stats(const char *iface_name, uint32_t *recv_bytes,
+        uint32_t *recv_packets, uint32_t *trans_bytes, uint32_t *trans_packets)
 {
     char proc_net_dev[] = "/proc/net/dev";
     char line[256] = "",
@@ -1139,9 +1138,8 @@ int vrmr_get_iface_stats(const char *iface_name, unsigned long *recv_bytes,
         -1: error
 */
 int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
-        const char *iface_name, const char *chain,
-        unsigned long long *recv_packets, unsigned long long *recv_bytes,
-        unsigned long long *trans_packets, unsigned long long *trans_bytes)
+        const char *iface_name, const char *chain, uint64_t *recv_packets,
+        uint64_t *recv_bytes, uint64_t *trans_packets, uint64_t *trans_bytes)
 {
     char line[256] = "", interface_in[32] = "", interface_out[32] = "",
          command[256] = "", proto[16] = "", target[32] = "", options[16] = "",
@@ -1149,7 +1147,7 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
     FILE *p = NULL;
     int line_count = 0;
 
-    unsigned long long packets = 0, bytes = 0;
+    uint64_t packets = 0, bytes = 0;
     char trans_done = 0, recv_done = 0;
 
     *trans_bytes = 0;
@@ -1181,12 +1179,13 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
         /* we start looking after the first two lines */
         if (line_count >= 4) {
             /*            pack byte tg pr op in ou sr ds */
-            sscanf(line, "%llu %llu %s %s %s %s %s %s %s", &packets, &bytes,
-                    target, proto, options, interface_in, interface_out, source,
-                    dest);
+            sscanf(line, "%" PRIu64 " %" PRIu64 " %s %s %s %s %s %s %s",
+                    &packets, &bytes, target, proto, options, interface_in,
+                    interface_out, source, dest);
 
             vrmr_debug(HIGH,
-                    "%s: tgt %s: iin: %s oin: %s packets: %llu, bytes: %llu",
+                    "%s: tgt %s: iin: %s oin: %s packets: %" PRIu64
+                    ", bytes: %" PRIu64,
                     iface_name, target, interface_in, interface_out, packets,
                     bytes);
 
@@ -1201,7 +1200,8 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
                     *trans_bytes = bytes;
                     trans_done = 1;
 
-                    vrmr_debug(HIGH, "%s: trans: %llu (%llu) (trans done)",
+                    vrmr_debug(HIGH,
+                            "%s: trans: %" PRIu64 " (%" PRIu64 ") (trans done)",
                             iface_name, *trans_bytes, bytes);
                 }
                 /* incoming */
@@ -1211,7 +1211,8 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
                     *recv_bytes = bytes;
                     recv_done = 1;
 
-                    vrmr_debug(HIGH, "%s: recv: %llu (%llu) (recv done)",
+                    vrmr_debug(HIGH,
+                            "%s: recv: %" PRIu64 " (%" PRIu64 ") (recv done)",
                             iface_name, *recv_bytes, bytes);
                 }
             }

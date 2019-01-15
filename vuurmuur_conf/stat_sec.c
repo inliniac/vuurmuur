@@ -543,7 +543,8 @@ static void status_section_destroy(void)
     doupdate();
 }
 
-static void bytes_to_string(const uint64_t bytes, char *str, size_t size)
+static void bytes_to_string(
+        const uint64_t bytes, char *str, size_t size)
 {
 #define M 1048576ULL
 #define B 1073741824ULL
@@ -594,8 +595,7 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
     struct utsname uts_name;
 
     /* the byte counters */
-    unsigned long recv_bytes = 0, trans_bytes = 0, delta_bytes = 0,
-                  speed_bytes = 0;
+    uint32_t recv_bytes = 0, trans_bytes = 0, delta_bytes = 0, speed_bytes = 0;
 
     /* load */
     float load_s = 0,   // 1 min
@@ -606,25 +606,20 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
     struct shadow_ifac_ {
         char calc;
 
-        unsigned long prev_recv_bytes;
-        unsigned long prev_send_bytes;
+        uint64_t prev_recv_bytes;
+        uint64_t prev_send_bytes;
 
-        unsigned long prev_recv_packets;
-        unsigned long prev_send_packets;
+        uint32_t prev_recv_packets;
+        uint32_t prev_send_packets;
 
-        unsigned long cur_recv_bytes;
-        unsigned long cur_send_bytes;
+        uint64_t cur_recv_bytes;
+        uint64_t cur_send_bytes;
 
-        unsigned long cur_recv_packets;
-        unsigned long cur_send_packets;
+        uint32_t cur_recv_packets;
+        uint32_t cur_send_packets;
 
-        unsigned long long send_host, recv_host,
-
-                send_host_packets, recv_host_packets,
-
-                send_net, recv_net,
-
-                send_net_packets, recv_net_packets;
+        uint64_t send_host, recv_host, send_host_packets, recv_host_packets,
+                send_net, recv_net, send_net_packets, recv_net_packets;
 
         /* for the correction of the speed */
         struct timeval begin_tv;
@@ -843,7 +838,7 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
                 shadow_node = shadow_list.top;
                     d_node && y < height - 1;
                     d_node = d_node->next, shadow_node = shadow_node->next) {
-                unsigned long long tmp_ull;
+                uint64_t tmp;
 
                 iface_ptr = d_node->data;
                 shadow_ptr = shadow_node->data;
@@ -859,23 +854,23 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
                 /* get the real counters from iptables */
                 vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "INPUT",
                         &shadow_ptr->recv_host_packets, &shadow_ptr->recv_host,
-                        &tmp_ull, &tmp_ull);
+                        &tmp, &tmp);
                 vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "OUTPUT",
-                        &tmp_ull, &tmp_ull, &shadow_ptr->send_host_packets,
+                        &tmp, &tmp, &shadow_ptr->send_host_packets,
                         &shadow_ptr->send_host);
                 vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "FORWARD",
                         &shadow_ptr->recv_net_packets, &shadow_ptr->recv_net,
                         &shadow_ptr->send_net_packets, &shadow_ptr->send_net);
 
                 /* RECV host/firewall */
-                bytes_to_string(
-                        shadow_ptr->recv_host, recv_host, sizeof(recv_host));
-                bytes_to_string(
-                        shadow_ptr->send_host, send_host, sizeof(send_host));
-                bytes_to_string(
-                        shadow_ptr->recv_net, recv_net, sizeof(recv_net));
-                bytes_to_string(
-                        shadow_ptr->send_net, send_net, sizeof(send_net));
+                bytes_to_string(shadow_ptr->recv_host, recv_host,
+                        sizeof(recv_host));
+                bytes_to_string(shadow_ptr->send_host, send_host,
+                        sizeof(send_host));
+                bytes_to_string(shadow_ptr->recv_net, recv_net,
+                        sizeof(recv_net));
+                bytes_to_string(shadow_ptr->send_net, send_net,
+                        sizeof(send_net));
 
                 /* store the number of bytes */
                 shadow_ptr->cur_recv_bytes = recv_bytes;

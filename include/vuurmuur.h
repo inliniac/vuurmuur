@@ -667,7 +667,7 @@ struct vrmr_rule_options {
     char reject_option;   /* 0 = don't use reject_type, 1 = use reject_type */
     char reject_type[23]; /* icmp-proto-unreachable = 22 + 1 */
 
-    unsigned long nfmark; /* netfilter mark to set */
+    uint32_t nfmark; /* netfilter mark to set */
 
     /* custom chain, for use with the chain action */
     char chain[32];
@@ -719,23 +719,23 @@ struct vrmr_danger_info {
 };
 
 struct vrmr_interface_counters {
-    unsigned long long input_packets;
-    unsigned long long input_bytes;
+    uint64_t input_packets;
+    uint64_t input_bytes;
 
-    unsigned long long output_packets;
-    unsigned long long output_bytes;
+    uint64_t output_packets;
+    uint64_t output_bytes;
 
-    unsigned long long forwardin_packets;
-    unsigned long long forwardin_bytes;
+    uint64_t forwardin_packets;
+    uint64_t forwardin_bytes;
 
-    unsigned long long forwardout_packets;
-    unsigned long long forwardout_bytes;
+    uint64_t forwardout_packets;
+    uint64_t forwardout_bytes;
 
     /* for the accounting rules for IPTrafVol */
-    unsigned long long acc_in_packets;
-    unsigned long long acc_in_bytes;
-    unsigned long long acc_out_packets;
-    unsigned long long acc_out_bytes;
+    uint64_t acc_in_packets;
+    uint64_t acc_in_bytes;
+    uint64_t acc_out_packets;
+    uint64_t acc_out_bytes;
 };
 
 struct vrmr_interface {
@@ -1040,10 +1040,10 @@ struct vrmr_conntrack_entry {
     int direction_status;
 
     char use_acc;
-    unsigned long long to_src_packets;
-    unsigned long long to_src_bytes;
-    unsigned long long to_dst_packets;
-    unsigned long long to_dst_bytes;
+    uint64_t to_src_packets;
+    uint64_t to_src_bytes;
+    uint64_t to_dst_packets;
+    uint64_t to_dst_bytes;
 };
 
 struct vrmr_conntrack_stats {
@@ -1774,12 +1774,11 @@ int vrmr_delete_interface(struct vrmr_ctx *, struct vrmr_interfaces *, char *);
 int vrmr_ins_iface_into_zonelist(
         struct vrmr_list *ifacelist, struct vrmr_list *zonelist);
 int vrmr_rem_iface_from_zonelist(struct vrmr_list *zonelist);
-int vrmr_get_iface_stats(const char *, unsigned long *, unsigned long *,
-        unsigned long *, unsigned long *);
+int vrmr_get_iface_stats(
+        const char *, uint32_t *, uint32_t *, uint32_t *, uint32_t *);
 int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
-        const char *iface_name, const char *chain,
-        unsigned long long *recv_packets, unsigned long long *recv_bytes,
-        unsigned long long *trans_packets, unsigned long long *trans_bytes);
+        const char *iface_name, const char *chain, uint64_t *recv_packets,
+        uint64_t *recv_bytes, uint64_t *trans_packets, uint64_t *trans_bytes);
 int vrmr_validate_interfacename(const char *, regex_t *);
 void vrmr_destroy_interfaceslist(struct vrmr_interfaces *interfaces);
 int vrmr_interfaces_get_rules(
