@@ -410,23 +410,27 @@ static int conn_data_to_entry(const struct vrmr_conntrack_api_entry *cae,
     if ((cae->status & IPS_SEEN_REPLY) == 0) {
         ce->connect_status = VRMR_CONN_CONNECTING;
     } else {
-        switch (cae->tcp_state) {
-            case TCP_CONNTRACK_SYN_SENT:
-            case TCP_CONNTRACK_SYN_SENT2:
-            case TCP_CONNTRACK_SYN_RECV:
-            case TCP_CONNTRACK_NONE:
-                ce->connect_status = VRMR_CONN_CONNECTING;
-                break;
-            case TCP_CONNTRACK_ESTABLISHED:
-                ce->connect_status = VRMR_CONN_CONNECTED;
-                break;
-            case TCP_CONNTRACK_FIN_WAIT:
-            case TCP_CONNTRACK_CLOSE_WAIT:
-            case TCP_CONNTRACK_LAST_ACK:
-            case TCP_CONNTRACK_TIME_WAIT:
-            case TCP_CONNTRACK_CLOSE:
-                ce->connect_status = VRMR_CONN_DISCONNECTING;
-                break;
+        if (cae->protocol != IPPROTO_TCP) {
+            ce->connect_status = VRMR_CONN_CONNECTED;
+        } else {
+            switch (cae->tcp_state) {
+                case TCP_CONNTRACK_SYN_SENT:
+                case TCP_CONNTRACK_SYN_SENT2:
+                case TCP_CONNTRACK_SYN_RECV:
+                case TCP_CONNTRACK_NONE:
+                    ce->connect_status = VRMR_CONN_CONNECTING;
+                    break;
+                case TCP_CONNTRACK_ESTABLISHED:
+                    ce->connect_status = VRMR_CONN_CONNECTED;
+                    break;
+                case TCP_CONNTRACK_FIN_WAIT:
+                case TCP_CONNTRACK_CLOSE_WAIT:
+                case TCP_CONNTRACK_LAST_ACK:
+                case TCP_CONNTRACK_TIME_WAIT:
+                case TCP_CONNTRACK_CLOSE:
+                    ce->connect_status = VRMR_CONN_DISCONNECTING;
+                    break;
+            }
         }
     }
 
