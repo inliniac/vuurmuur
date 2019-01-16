@@ -253,7 +253,7 @@ static int ruleset_check_accounting(char *chain)
         -1: error
 */
 int ruleset_add_rule_to_set(struct vrmr_list *list, char *chain, char *rule,
-        unsigned long long packets, unsigned long long bytes)
+        uint64_t packets, uint64_t bytes)
 {
     size_t size = 0, numbers_size = 0;
     char *line = NULL, numbers[32] = "";
@@ -270,7 +270,7 @@ int ruleset_add_rule_to_set(struct vrmr_list *list, char *chain, char *rule,
 
     /* create the counters */
     if (packets > 0 || bytes > 0) {
-        snprintf(numbers, sizeof(numbers), "[%llu:%llu] ", packets, bytes);
+        snprintf(numbers, sizeof(numbers), "[%"PRIu64":%"PRIu64"] ", packets, bytes);
         numbers_size = strlen(numbers);
     }
 

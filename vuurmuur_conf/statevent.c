@@ -74,10 +74,10 @@ struct stat_event_conn {
 
     /* accounting data */
     char use_acc;
-    unsigned long long to_src_packets;
-    unsigned long long to_src_bytes;
-    unsigned long long to_dst_packets;
-    unsigned long long to_dst_bytes;
+    uint64_t to_src_packets;
+    uint64_t to_src_bytes;
+    uint64_t to_dst_packets;
+    uint64_t to_dst_bytes;
 };
 
 struct stat_event_ctx {

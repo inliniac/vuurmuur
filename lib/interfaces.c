@@ -1016,15 +1016,15 @@ int vrmr_get_iface_stats(const char *iface_name, uint32_t *recv_bytes,
     FILE *fp = NULL;
 
     struct {
-        unsigned long long
+        uint64_t
                 bytes; /* a long because otherwise it would max handle 2gb */
-        unsigned long long packets;
-        unsigned int errors;
-        unsigned int drop;
-        unsigned int fifo;
-        unsigned int frame;
-        unsigned int comp;
-        unsigned int multi;
+        uint64_t packets;
+        uint32_t errors;
+        uint32_t drop;
+        uint32_t fifo;
+        uint32_t frame;
+        uint32_t comp;
+        uint32_t multi;
     } recv = {0, 0, 0, 0, 0, 0, 0, 0}, trans = {0, 0, 0, 0, 0, 0, 0, 0};
 
     /* first reset */
@@ -1067,7 +1067,7 @@ int vrmr_get_iface_stats(const char *iface_name, uint32_t *recv_bytes,
             /* if we have an semicolon at the end (common) */
             if (interface[strlen(interface) - 1] == ':') {
                 int r = sscanf(line,
-                        "%32s %llu %llu %u %u %u %u %u %u %llu %llu %u %u %u "
+                        "%32s %"PRIu64" %"PRIu64" %u %u %u %u %u %u %"PRIu64" %"PRIu64" %u %u %u "
                         "%u %u %u",
                         interface, &recv.bytes, &recv.packets, &recv.errors,
                         &recv.drop, &recv.fifo, &recv.frame, &recv.comp,
@@ -1088,12 +1088,12 @@ int vrmr_get_iface_stats(const char *iface_name, uint32_t *recv_bytes,
                     char *end;
                     recv.bytes = strtoul(bytes_start, &end, 10);
                     if (end) {
-                        vrmr_debug(NONE, "recv.bytes %llu %s", recv.bytes, end);
+                        vrmr_debug(NONE, "recv.bytes %"PRIu64" %s", recv.bytes, end);
                     }
                     char *line_part = line + strlen(interface);
 
                     int y = sscanf(line_part,
-                            "%llu %u %u %u %u %u %u %llu %llu %u %u %u %u %u "
+                            "%"PRIu64" %u %u %u %u %u %u %"PRIu64" %"PRIu64" %u %u %u %u %u "
                             "%u",
                             &recv.packets, &recv.errors, &recv.drop, &recv.fifo,
                             &recv.frame, &recv.comp, &recv.multi, &trans.bytes,

@@ -61,8 +61,8 @@ struct iptables_rule {
     char *table;
     char *chain;
     char cmd[VRMR_MAX_PIPE_COMMAND];
-    unsigned long long packets;
-    unsigned long long bytes;
+    uint64_t packets;
+    uint64_t bytes;
 };
 
 static char *create_state_string(
@@ -213,7 +213,7 @@ static int iptrule_insert(
     functions, not from pre-rules, post-rules, etc.
     */
 static int queue_rule(struct rule_scratch *rule, char *table, char *chain,
-        char *cmd, unsigned long long packets, unsigned long long bytes)
+        char *cmd, uint64_t packets, uint64_t bytes)
 {
     assert(cmd && table && chain && rule);
 
@@ -250,7 +250,7 @@ static int queue_rule(struct rule_scratch *rule, char *table, char *chain,
  */
 static int process_rule(struct vrmr_config *conf,
         /*@null@*/ struct rule_set *ruleset, int ipv, char *table, char *chain,
-        char *cmd, unsigned long long packets, unsigned long long bytes)
+        char *cmd, uint64_t packets, uint64_t bytes)
 {
     assert(cmd && table && chain);
 
@@ -269,7 +269,7 @@ static int process_rule(struct vrmr_config *conf,
         return 0;
     }
 
-    vrmr_debug(HIGH, "packets: %llu, bytes: %llu.", packets, bytes);
+    vrmr_debug(HIGH, "packets: %"PRIu64", bytes: %"PRIu64".", packets, bytes);
 
     if (strcmp(table, TB_FILTER) == 0) {
         if (strcmp(chain, CH_INPUT) == 0)
