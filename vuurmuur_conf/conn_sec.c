@@ -417,16 +417,26 @@ static int print_connection(WINDOW *local_win,
             printline_width = sizeof(printline);
 
         if (cd_ptr->src_port == 0 && cd_ptr->dst_port == 0) {
-            snprintf(printline, printline_width, "%s -> %s (%d)",
+            snprintf(printline, printline_width, "%s -> %s PROTO %u",
                     cd_ptr->src_ip, cd_ptr->dst_ip, cd_ptr->protocol);
         } else if (cd_ptr->cnt > 1) {
-            snprintf(printline, printline_width, "%s -> %s:%d (%d)",
+            snprintf(printline, printline_width, "%s -> %s:%d %s",
                     cd_ptr->src_ip, cd_ptr->dst_ip, cd_ptr->dst_port,
-                    cd_ptr->protocol);
+                    cd_ptr->protocol == IPPROTO_TCP ? "TCP" : "UDP");
         } else {
-            snprintf(printline, printline_width, "%s:%d -> %s:%d (%d)",
-                    cd_ptr->src_ip, cd_ptr->src_port, cd_ptr->dst_ip,
-                    cd_ptr->dst_port, cd_ptr->protocol);
+            if (cd_ptr->protocol == IPPROTO_TCP) {
+                snprintf(printline, printline_width, "%s:%d -> %s:%d TCP state:%s",
+                        cd_ptr->src_ip, cd_ptr->src_port, cd_ptr->dst_ip,
+                        cd_ptr->dst_port, cd_ptr->state_string);
+            } else if (cd_ptr->protocol == IPPROTO_UDP) {
+                snprintf(printline, printline_width, "%s:%d -> %s:%d UDP",
+                        cd_ptr->src_ip, cd_ptr->src_port, cd_ptr->dst_ip,
+                        cd_ptr->dst_port);
+            } else {
+                snprintf(printline, printline_width, "%s:%d -> %s:%d (%d) ",
+                        cd_ptr->src_ip, cd_ptr->src_port, cd_ptr->dst_ip,
+                        cd_ptr->dst_port, cd_ptr->protocol);
+            }
         }
 
         spaceleft = spaceleft - StrLen(printline);
@@ -630,15 +640,11 @@ int connections_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 
     /* top menu */
     const char *key_choices[] = {"F12", "m",
-
             "i", "c",
-
             "g", "u", "f", "a", "d", "F10"};
     int key_choices_n = 10;
     const char *cmd_choices[] = {gettext("help"), gettext("manage"),
-
             gettext("in/out/fw"), gettext("connect"),
-
             gettext("grp"), gettext("unknown ip"), gettext("filter"),
             gettext("account"), gettext("details"), gettext("back")};
     int cmd_choices_n = 10;

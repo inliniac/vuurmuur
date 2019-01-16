@@ -1039,6 +1039,8 @@ struct vrmr_conntrack_entry {
     /* do we use connect_status */
     int direction_status;
 
+    const char *state_string;
+
     char use_acc;
     uint64_t to_src_packets;
     uint64_t to_src_bytes;

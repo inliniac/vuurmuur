@@ -230,6 +230,39 @@ void vrmr_connreq_cleanup(struct vrmr_conntrack_request *connreq)
     memset(connreq, 0, sizeof(struct vrmr_conntrack_request));
 }
 
+static const char *state_to_string(enum tcp_conntrack tcp_state)
+{
+    switch (tcp_state) {
+        case TCP_CONNTRACK_NONE:
+            return "none";
+        case TCP_CONNTRACK_SYN_SENT2:
+            return "syn_sent2";
+        case TCP_CONNTRACK_SYN_SENT:
+            return "syn_sent";
+        case TCP_CONNTRACK_SYN_RECV:
+            return "syn_recv";
+        case TCP_CONNTRACK_ESTABLISHED:
+            return "established";
+        case TCP_CONNTRACK_FIN_WAIT:
+            return "fin_wait";
+        case TCP_CONNTRACK_TIME_WAIT:
+            return "time_wait";
+        case TCP_CONNTRACK_LAST_ACK:
+            return "last_ack";
+        case TCP_CONNTRACK_CLOSE_WAIT:
+            return "close_wait";
+        case TCP_CONNTRACK_CLOSE:
+            return "close";
+        case TCP_CONNTRACK_MAX:
+        case TCP_CONNTRACK_IGNORE:
+        case TCP_CONNTRACK_RETRANS:
+        case TCP_CONNTRACK_UNACK:
+        case TCP_CONNTRACK_TIMEOUT_MAX:
+            return "weird"; //TODO
+    }
+    return "unknown";
+}
+
 struct vrmr_conntrack_api_entry {
     uint32_t status;
     uint8_t family;
@@ -432,6 +465,9 @@ static int conn_data_to_entry(const struct vrmr_conntrack_api_entry *cae,
                     break;
             }
         }
+    }
+    if (cae->protocol == IPPROTO_TCP) {
+        ce->state_string = state_to_string(cae->tcp_state);
     }
 
     if (ce->from != NULL && ce->from->type == VRMR_TYPE_FIREWALL)
