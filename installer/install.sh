@@ -26,7 +26,6 @@ SHAREDDIR=${SHAREDDIR:-"$INSTALLDIR/share"}
 ETCDIR=${ETCDIR:-"/etc"}
 PLUGINDIR=${PLUGINDIR:-"$ETCDIR/vuurmuur/plugins"}
 LOGDIR=${LOGDIR:-"/var/log/vuurmuur/"}
-SYSTEMLOG=${SYSTEMLOG:-"/var/log/messages"}
 if  [ "$(uname -m)" = "x86_64" ] ; then
     LIBDIR=${LIBDIR:-"$INSTALLDIR/lib64"}
 else
@@ -840,9 +839,6 @@ if [ "$INSTALL" = "1" ]; then
             IP6TABLESRESLOC="/sbin/ip6tables-restore"
         fi
 
-        # seek conntrack
-        CONNTRACKLOC="$(which conntrack 2>/dev/null || echo "")"
-
         # seek tc
         TCLOC="$(which tc 2>/dev/null || echo "")"
 
@@ -866,10 +862,8 @@ if [ "$INSTALL" = "1" ]; then
                 -e 's,^\(IPTABLES_RESTORE=\).*,\1"'${IPTABLESRESLOC}'",g' \
                 -e 's,^\(IP6TABLES=\).*,\1"'${IP6TABLESLOC}'",g' \
                 -e 's,^\(IP6TABLES_RESTORE=\).*,\1"'${IP6TABLESRESLOC}'",g' \
-                -e 's,^\(CONNTRACK=\).*,\1"'${CONNTRACKLOC}'",g' \
                 -e 's,^\(TC=\).*,\1"'${TCLOC}'",g' \
                 -e 's,^\(MODPROBE=\).*,\1"'${MODPROBE}'",g' \
-                -e 's,^\(SYSTEMLOG=\).*,\1"'${SYSTEMLOG}'",g' \
                 -e 's,^\(LOGDIR=\).*,\1"'${LOGDIR}'",g' \
                 > ${CONFIGFILE}
         else
