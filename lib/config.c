@@ -192,7 +192,7 @@ int vrmr_check_iptablesrestore_command(
         char *args[] = {iptablesrestore_location, "-h", NULL};
         int r = libvuurmuur_exec_command(
                 cnf, iptablesrestore_location, args, NULL);
-        if (r != 1) {
+        if (r != 0 && r != 1) {
             if (quiet == VRMR_IPTCHK_VERBOSE)
                 vrmr_error(0, "Error",
                         "The path '%s' to the 'iptables-restore'-command seems "
@@ -256,7 +256,7 @@ int vrmr_check_ip6tablesrestore_command(
         char *args[] = {ip6tablesrestore_location, "-h", NULL};
         int r = libvuurmuur_exec_command(
                 cnf, ip6tablesrestore_location, args, NULL);
-        if (r != 1) {
+        if (r != 0 && r != 1) {
             if (quiet == FALSE)
                 vrmr_error(0, "Error",
                         "The path '%s' to the 'ip6tables-restore'-command "
