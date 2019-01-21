@@ -286,6 +286,8 @@ struct vrmr_conntrack_api_entry {
     uint64_t toserver_bytes;
     uint64_t toclient_packets;
     uint64_t toclient_bytes;
+
+    char helper[30];
 };
 
 /*
@@ -483,6 +485,8 @@ static int conn_data_to_entry(const struct vrmr_conntrack_api_entry *cae,
     ce->to_dst_packets = cae->toserver_packets;
     ce->to_dst_bytes = cae->toserver_bytes;
     ce->use_acc = (ce->to_src_packets || ce->to_dst_packets);
+
+    strlcpy(ce->helper, cae->helper, sizeof(ce->helper));
     return (0);
 }
 
@@ -573,6 +577,12 @@ int vrmr_conntrack_ct2ae(uint32_t type ATTR_UNUSED, struct nf_conntrack *ct,
 
     lr->nfmark = nfct_get_attr_u32(ct, ATTR_MARK);
     lr->status = nfct_get_attr_u32(ct, ATTR_STATUS);
+
+    const char *helper = nfct_get_attr(ct, ATTR_HELPER_NAME);
+    if (helper) {
+        strlcpy(lr->helper, helper, sizeof(lr->helper));
+    }
+
     return 1;
 skip:
     return 0;

@@ -47,7 +47,7 @@ static int print_connection(WINDOW *local_win,
         int screen_width, int acct)
 {
     int start_print = 0;
-    char printline[128] = "";
+    char printline[256] = "";
     size_t spaceleft = 0, printline_width = 0;
     char servicename[32] = "";
     char zonename[46] = "";
@@ -426,9 +426,11 @@ static int print_connection(WINDOW *local_win,
         } else {
             if (cd_ptr->protocol == IPPROTO_TCP) {
                 snprintf(printline, printline_width,
-                        "%s:%d -> %s:%d TCP state:%s", cd_ptr->src_ip,
+                        "%s:%d -> %s:%d TCP state:%s %s%s", cd_ptr->src_ip,
                         cd_ptr->src_port, cd_ptr->dst_ip, cd_ptr->dst_port,
-                        cd_ptr->state_string);
+                        cd_ptr->state_string,
+                        strlen(cd_ptr->helper) ? "helper:" : "",
+                        cd_ptr->helper);
             } else if (cd_ptr->protocol == IPPROTO_UDP) {
                 snprintf(printline, printline_width, "%s:%d -> %s:%d UDP",
                         cd_ptr->src_ip, cd_ptr->src_port, cd_ptr->dst_ip,

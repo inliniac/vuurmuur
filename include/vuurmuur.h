@@ -1046,6 +1046,8 @@ struct vrmr_conntrack_entry {
     uint64_t to_src_bytes;
     uint64_t to_dst_packets;
     uint64_t to_dst_bytes;
+
+    char helper[30];
 };
 
 struct vrmr_conntrack_stats {
