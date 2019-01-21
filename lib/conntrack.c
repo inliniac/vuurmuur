@@ -666,6 +666,12 @@ int vrmr_conntrack_ct2lr(
     }
 
     lr->conn_rec.mark = nfct_get_attr_u32(ct, ATTR_MARK);
+
+    const char *helper = nfct_get_attr(ct, ATTR_HELPER_NAME);
+    if (helper) {
+        strlcpy(lr->helper, helper, sizeof(lr->helper));
+    }
+
     return 1;
 skip:
     return 0;

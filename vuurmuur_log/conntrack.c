@@ -193,6 +193,11 @@ static int process_connrecord(struct vrmr_log_record *lr)
         }
 #endif
     }
+    if (strlen(lr->helper)) {
+        char helper[64];
+        snprintf(helper, sizeof(helper), " helper:%s", lr->helper);
+        strlcat(line, helper, sizeof(line));
+    }
 
     if (lr->conn_rec.type == VRMR_LOG_CONN_COMPLETED) {
         fp = g_connections_log_fp;

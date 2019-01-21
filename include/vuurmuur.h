@@ -1467,6 +1467,8 @@ struct vrmr_log_record {
     union {
         struct vrmr_log_conn_record conn_r;
     } lu;
+
+    char helper[30];
 };
 #define conn_rec lu.conn_r
 
