@@ -370,6 +370,9 @@ static int process_rule(struct vrmr_config *conf,
         if (strcmp(chain, CH_PREROUTING) == 0)
             return (ruleset_add_rule_to_set(
                     &ruleset->raw_preroute, chain, cmd, packets, bytes));
+        if (strcmp(chain, CH_OUTPUT) == 0)
+            return (ruleset_add_rule_to_set(
+                    &ruleset->raw_output, chain, cmd, packets, bytes));
     }
 
     /* default case, should never happen */
@@ -464,6 +467,20 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
         return (-1);
 
     create->iptcount.input++;
+
+    /* if CT and raw are available, create a CT rule */
+    if (strcmp(rule->helper, "") != 0 &&
+            (!conf->vrmr_check_iptcaps ||
+                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE))) {
+        snprintf(cmd, sizeof(cmd),
+                "%s %s %s %s %s %s -m connmark --mark 0 -j CT --helper %s",
+                input_device, rule->temp_src, rule->temp_src_port,
+                rule->temp_dst, rule->temp_dst_port, rule->from_mac,
+                rule->helper);
+
+        if (queue_rule(rule, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
+            return (-1);
+    }
 
     if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 ||
             strcasecmp(rule->action, "NEWQUEUE") == 0 ||
@@ -914,6 +931,18 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
 
     /* update rule counter */
     create->iptcount.output++;
+
+    /* if CT and raw are available, create a CT rule */
+    if (strcmp(rule->helper, "") != 0 &&
+            (!conf->vrmr_check_iptcaps ||
+                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE))) {
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -j CT --helper %s",
+                output_device, rule->proto, rule->temp_src, rule->temp_src_port,
+                rule->temp_dst, rule->temp_dst_port, rule->helper);
+
+        if (queue_rule(rule, TB_RAW, CH_OUTPUT, cmd, 0, 0) < 0)
+            return (-1);
+    }
 
     if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 ||
             strcasecmp(rule->action, "NEWQUEUE") == 0 ||
@@ -1370,6 +1399,19 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
         return (-1);
 
     create->iptcount.forward++;
+
+    /* if CT and raw are available, create a CT rule */
+    if (strcmp(rule->helper, "") != 0 &&
+            (!conf->vrmr_check_iptcaps ||
+                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE))) {
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -j CT --helper %s",
+                input_device, rule->proto, rule->temp_src, rule->temp_src_port,
+                rule->temp_dst, rule->temp_dst_port, rule->from_mac,
+                rule->helper);
+
+        if (queue_rule(rule, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
+            return (-1);
+    }
 
     if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 ||
             strcasecmp(rule->action, "NEWQUEUE") == 0 ||

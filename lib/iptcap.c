@@ -1239,6 +1239,31 @@ int vrmr_load_iptcaps(
                 }
             }
         }
+
+        /* raw stuff */
+        if (iptcap->table_raw == TRUE) {
+            /* CT target */
+            result = iptcap_check_cap(
+                    cnf, proc_net_target, "CT", "ipt_CT", load_modules);
+            if (result == 1)
+                iptcap->target_ct = TRUE;
+            else {
+                iptcap->target_ct = FALSE;
+
+                result = iptcap_check_cap(
+                        cnf, proc_net_target, "CT", "xt_CT", load_modules);
+                if (result == 1)
+                    iptcap->target_ct = TRUE;
+                else {
+                    iptcap->target_ct = FALSE;
+
+                    result = iptcap_test_mangle_mark_target(
+                            cnf, cnf->iptables_location);
+                    if (result == 1)
+                        iptcap->target_ct = TRUE;
+                }
+            }
+        }
     } else {
         /* assume yes */
         if (iptcap->table_nat == TRUE) {
@@ -1255,6 +1280,9 @@ int vrmr_load_iptcaps(
             iptcap->target_mark = TRUE;
             iptcap->target_connmark = TRUE;
             iptcap->target_classify = TRUE;
+        }
+        if (iptcap->table_raw == TRUE) {
+            iptcap->target_ct = TRUE;
         }
     }
 
