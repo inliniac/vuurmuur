@@ -543,8 +543,7 @@ static void status_section_destroy(void)
     doupdate();
 }
 
-static void bytes_to_string(
-        const uint64_t bytes, char *str, size_t size)
+static void bytes_to_string(const uint64_t bytes, char *str, size_t size)
 {
 #define M 1048576ULL
 #define B 1073741824ULL
@@ -863,14 +862,14 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
                         &shadow_ptr->send_net_packets, &shadow_ptr->send_net);
 
                 /* RECV host/firewall */
-                bytes_to_string(shadow_ptr->recv_host, recv_host,
-                        sizeof(recv_host));
-                bytes_to_string(shadow_ptr->send_host, send_host,
-                        sizeof(send_host));
-                bytes_to_string(shadow_ptr->recv_net, recv_net,
-                        sizeof(recv_net));
-                bytes_to_string(shadow_ptr->send_net, send_net,
-                        sizeof(send_net));
+                bytes_to_string(
+                        shadow_ptr->recv_host, recv_host, sizeof(recv_host));
+                bytes_to_string(
+                        shadow_ptr->send_host, send_host, sizeof(send_host));
+                bytes_to_string(
+                        shadow_ptr->recv_net, recv_net, sizeof(recv_net));
+                bytes_to_string(
+                        shadow_ptr->send_net, send_net, sizeof(send_net));
 
                 /* store the number of bytes */
                 shadow_ptr->cur_recv_bytes = recv_bytes;

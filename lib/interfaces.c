@@ -1016,8 +1016,7 @@ int vrmr_get_iface_stats(const char *iface_name, uint32_t *recv_bytes,
     FILE *fp = NULL;
 
     struct {
-        uint64_t
-                bytes; /* a long because otherwise it would max handle 2gb */
+        uint64_t bytes; /* a long because otherwise it would max handle 2gb */
         uint64_t packets;
         uint32_t errors;
         uint32_t drop;
@@ -1067,7 +1066,8 @@ int vrmr_get_iface_stats(const char *iface_name, uint32_t *recv_bytes,
             /* if we have an semicolon at the end (common) */
             if (interface[strlen(interface) - 1] == ':') {
                 int r = sscanf(line,
-                        "%32s %"PRIu64" %"PRIu64" %u %u %u %u %u %u %"PRIu64" %"PRIu64" %u %u %u "
+                        "%32s %" PRIu64 " %" PRIu64
+                        " %u %u %u %u %u %u %" PRIu64 " %" PRIu64 " %u %u %u "
                         "%u %u %u",
                         interface, &recv.bytes, &recv.packets, &recv.errors,
                         &recv.drop, &recv.fifo, &recv.frame, &recv.comp,
@@ -1088,12 +1088,14 @@ int vrmr_get_iface_stats(const char *iface_name, uint32_t *recv_bytes,
                     char *end;
                     recv.bytes = strtoul(bytes_start, &end, 10);
                     if (end) {
-                        vrmr_debug(NONE, "recv.bytes %"PRIu64" %s", recv.bytes, end);
+                        vrmr_debug(NONE, "recv.bytes %" PRIu64 " %s",
+                                recv.bytes, end);
                     }
                     char *line_part = line + strlen(interface);
 
                     int y = sscanf(line_part,
-                            "%"PRIu64" %u %u %u %u %u %u %"PRIu64" %"PRIu64" %u %u %u %u %u "
+                            "%" PRIu64 " %u %u %u %u %u %u %" PRIu64 " %" PRIu64
+                            " %u %u %u %u %u "
                             "%u",
                             &recv.packets, &recv.errors, &recv.drop, &recv.fifo,
                             &recv.frame, &recv.comp, &recv.multi, &trans.bytes,

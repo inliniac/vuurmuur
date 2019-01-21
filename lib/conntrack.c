@@ -258,7 +258,7 @@ static const char *state_to_string(enum tcp_conntrack tcp_state)
         case TCP_CONNTRACK_RETRANS:
         case TCP_CONNTRACK_UNACK:
         case TCP_CONNTRACK_TIMEOUT_MAX:
-            return "weird"; //TODO
+            return "weird"; // TODO
     }
     return "unknown";
 }

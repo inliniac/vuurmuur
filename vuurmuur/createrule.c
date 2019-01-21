@@ -269,7 +269,8 @@ static int process_rule(struct vrmr_config *conf,
         return 0;
     }
 
-    vrmr_debug(HIGH, "packets: %"PRIu64", bytes: %"PRIu64".", packets, bytes);
+    vrmr_debug(
+            HIGH, "packets: %" PRIu64 ", bytes: %" PRIu64 ".", packets, bytes);
 
     if (strcmp(table, TB_FILTER) == 0) {
         if (strcmp(chain, CH_INPUT) == 0)

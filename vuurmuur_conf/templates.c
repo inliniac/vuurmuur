@@ -761,7 +761,6 @@ void set_field_buffer_wrap(FIELD *field, int bufnum, const char *value)
     }
 }
 
-
 /* wrapper around new field to make sure O_ACTIVE and O_AUTOSKIP are
  * always set. In some conditions that are unclear to me, a very small
  * screen will create fields w/o these set. */

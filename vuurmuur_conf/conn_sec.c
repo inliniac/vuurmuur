@@ -425,9 +425,10 @@ static int print_connection(WINDOW *local_win,
                     cd_ptr->protocol == IPPROTO_TCP ? "TCP" : "UDP");
         } else {
             if (cd_ptr->protocol == IPPROTO_TCP) {
-                snprintf(printline, printline_width, "%s:%d -> %s:%d TCP state:%s",
-                        cd_ptr->src_ip, cd_ptr->src_port, cd_ptr->dst_ip,
-                        cd_ptr->dst_port, cd_ptr->state_string);
+                snprintf(printline, printline_width,
+                        "%s:%d -> %s:%d TCP state:%s", cd_ptr->src_ip,
+                        cd_ptr->src_port, cd_ptr->dst_ip, cd_ptr->dst_port,
+                        cd_ptr->state_string);
             } else if (cd_ptr->protocol == IPPROTO_UDP) {
                 snprintf(printline, printline_width, "%s:%d -> %s:%d UDP",
                         cd_ptr->src_ip, cd_ptr->src_port, cd_ptr->dst_ip,
@@ -639,14 +640,13 @@ int connections_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     int slept_so_far = 1000000; /* time slept since last update */
 
     /* top menu */
-    const char *key_choices[] = {"F12", "m",
-            "i", "c",
-            "g", "u", "f", "a", "d", "F10"};
+    const char *key_choices[] = {
+            "F12", "m", "i", "c", "g", "u", "f", "a", "d", "F10"};
     int key_choices_n = 10;
     const char *cmd_choices[] = {gettext("help"), gettext("manage"),
-            gettext("in/out/fw"), gettext("connect"),
-            gettext("grp"), gettext("unknown ip"), gettext("filter"),
-            gettext("account"), gettext("details"), gettext("back")};
+            gettext("in/out/fw"), gettext("connect"), gettext("grp"),
+            gettext("unknown ip"), gettext("filter"), gettext("account"),
+            gettext("details"), gettext("back")};
     int cmd_choices_n = 10;
 
     struct conntrack *ct = NULL;

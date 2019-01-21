@@ -270,7 +270,8 @@ int ruleset_add_rule_to_set(struct vrmr_list *list, char *chain, char *rule,
 
     /* create the counters */
     if (packets > 0 || bytes > 0) {
-        snprintf(numbers, sizeof(numbers), "[%"PRIu64":%"PRIu64"] ", packets, bytes);
+        snprintf(numbers, sizeof(numbers), "[%" PRIu64 ":%" PRIu64 "] ",
+                packets, bytes);
         numbers_size = strlen(numbers);
     }
 

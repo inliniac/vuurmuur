@@ -380,8 +380,8 @@ int reload_vrmr_interfaces_check(
 int check_for_changed_dynamic_ips(struct vrmr_interfaces *interfaces);
 
 /* ruleset */
-int ruleset_add_rule_to_set(struct vrmr_list *, char *, char *,
-        uint64_t, uint64_t);
+int ruleset_add_rule_to_set(
+        struct vrmr_list *, char *, char *, uint64_t, uint64_t);
 int load_ruleset(struct vrmr_ctx *);
 
 /* shape */
