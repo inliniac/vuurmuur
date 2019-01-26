@@ -496,8 +496,8 @@ int vrmr_pipe_command(struct vrmr_config *cnf, char *command, char ignore_error)
  *  \retval: -1 if the command failed to start (ie not found)
  *              otherwise the return code of the command.
  */
-int libvuurmuur_exec_command(struct vrmr_config *cnf ATTR_UNUSED, char *path,
-        char *argv[], char *output[])
+int libvuurmuur_exec_command(struct vrmr_config *cnf ATTR_UNUSED,
+        const char *path, const char *argv[], char *output[])
 {
     int retval = 0;
     FILE *fp = NULL;
@@ -544,7 +544,7 @@ int libvuurmuur_exec_command(struct vrmr_config *cnf ATTR_UNUSED, char *path,
         }
 
         /* actually exec the command */
-        execv(path, argv);
+        execv(path, (char **)argv);
 
         /* if we get here, the command didn't exec
          * so kill the child */

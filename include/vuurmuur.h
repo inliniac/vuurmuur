@@ -1096,94 +1096,94 @@ struct vrmr_conntrack_request {
     Iptables Capabilities
 */
 struct vrmr_iptcaps {
-    char proc_net_names;
-    char proc_net_matches;
-    char proc_net_targets;
+    bool proc_net_names;
+    bool proc_net_matches;
+    bool proc_net_targets;
 
-    char conntrack;
+    bool conntrack;
 
     /* names */
-    char table_filter;
-    char table_mangle;
-    char table_nat;
-    char table_raw;
+    bool table_filter;
+    bool table_mangle;
+    bool table_nat;
+    bool table_raw;
 
     /* targets */
-    char target_snat;
-    char target_dnat;
+    bool target_snat;
+    bool target_dnat;
 
-    char target_reject;
-    char target_nflog;
-    char target_redirect;
-    char target_mark;
-    char target_masquerade;
-    char target_classify;
+    bool target_reject;
+    bool target_nflog;
+    bool target_redirect;
+    bool target_mark;
+    bool target_masquerade;
+    bool target_classify;
 
-    char target_nfqueue;
-    char target_connmark;
-    char target_ct;
-    char proc_net_netfilter_nfnetlink_queue;
+    bool target_nfqueue;
+    bool target_connmark;
+    bool target_ct;
+    bool proc_net_netfilter_nfnetlink_queue;
 
-    char target_tcpmss;
+    bool target_tcpmss;
 
     /* matches */
-    char match_tcp;
-    char match_udp;
-    char match_icmp;
+    bool match_tcp;
+    bool match_udp;
+    bool match_icmp;
 
-    char match_mark;
-    char match_state;
-    char match_helper;
-    char match_length;
-    char match_limit;
-    char match_mac;
-    char match_connmark;
-    char match_conntrack;
-    char match_rpfilter;
+    bool match_mark;
+    bool match_state;
+    bool match_helper;
+    bool match_length;
+    bool match_limit;
+    bool match_mac;
+    bool match_connmark;
+    bool match_conntrack;
+    bool match_rpfilter;
 
-    char target_nat_random;
+    bool target_nat_random;
 
     /* IPv6 */
-    char proc_net_ip6_names;
-    char proc_net_ip6_matches;
-    char proc_net_ip6_targets;
+    bool proc_net_ip6_names;
+    bool proc_net_ip6_matches;
+    bool proc_net_ip6_targets;
 
-    /* char conntrack; */
+    bool conntrack_ip6;
 
     /* IPv6 names */
-    char table_ip6_filter;
-    char table_ip6_mangle;
+    bool table_ip6_filter;
+    bool table_ip6_mangle;
     /* there is no NAT table available for IPv6 */
-    char table_ip6_raw;
+    bool table_ip6_raw;
 
     /* IPv6 targets */
     /* No snat, dnat, redirect or masquerade available for IPv6 */
-    char target_ip6_reject;
-    char target_ip6_log;
-    char target_ip6_mark;
-    char target_ip6_classify;
+    bool target_ip6_reject;
+    bool target_ip6_mark;
+    bool target_ip6_classify;
+    bool target_ip6_nflog;
+    bool target_ip6_nfqueue;
+    bool target_ip6_connmark;
+    bool target_ip6_ct;
+    bool proc_net_netfilter_nfnetlink_ip6_queue;
 
-    char target_ip6_nfqueue;
-    char target_ip6_connmark;
-    char proc_net_netfilter_nfnetlink_ip6_queue;
-
-    char target_ip6_tcpmss;
+    bool target_ip6_tcpmss;
 
     /* IPv6 matches */
-    char match_ip6_tcp;
-    char match_ip6_udp;
-    char match_icmp6;
+    bool match_ip6_tcp;
+    bool match_ip6_udp;
+    bool match_icmp6;
 
-    char match_ip6_mark;
-    char match_ip6_state;
-    char match_ip6_helper;
-    char match_ip6_length;
-    char match_ip6_limit;
-    char match_ip6_mac;
+    bool match_ip6_mark;
+    bool match_ip6_state;
+    bool match_ip6_helper;
+    bool match_ip6_length;
+    bool match_ip6_limit;
+    bool match_ip6_mac;
 
-    char match_ip6_connmark;
-    char match_ip6_conntrack;
-    char match_ip6_rpfilter;
+    bool match_ip6_connmark;
+    bool match_ip6_conntrack;
+    bool match_ip6_rpfilter;
 };
 
 /* general datatypes */
@@ -1726,7 +1726,8 @@ FILE *vrmr_rules_file_open(const struct vrmr_config *cnf, const char *path,
         const char *mode, int caller);
 int vrmr_rules_file_close(FILE *file, const char *path);
 int vrmr_pipe_command(struct vrmr_config *, char *, char);
-int libvuurmuur_exec_command(struct vrmr_config *, char *, char **, char **);
+int libvuurmuur_exec_command(
+        struct vrmr_config *, const char *, const char **, char **);
 void vrmr_shm_update_progress(int semid, int *shm_progress, int set_percent);
 pid_t get_vuurmuur_pid(char *vuurmuur_pidfile_location, int *shmid);
 int vrmr_create_tempfile(char *);
@@ -1854,13 +1855,13 @@ int vrmr_list_cleanup(struct vrmr_list *ATTR_NONNULL);
     iptcap.c
 */
 int vrmr_load_iptcaps(
-        struct vrmr_config *ATTR_NONNULL, struct vrmr_iptcaps *, char);
+        struct vrmr_config *ATTR_NONNULL, struct vrmr_iptcaps *, bool);
 int vrmr_check_iptcaps(struct vrmr_config *ATTR_NONNULL,
-        /*@out@*/ struct vrmr_iptcaps *, char);
+        /*@out@*/ struct vrmr_iptcaps *, bool);
 int vrmr_load_ip6tcaps(
-        struct vrmr_config *ATTR_NONNULL, struct vrmr_iptcaps *, char);
+        struct vrmr_config *ATTR_NONNULL, struct vrmr_iptcaps *, bool);
 int vrmr_check_ip6tcaps(struct vrmr_config *ATTR_NONNULL,
-        /*@out@*/ struct vrmr_iptcaps *, char);
+        /*@out@*/ struct vrmr_iptcaps *, bool);
 
 /*
     filter

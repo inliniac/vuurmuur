@@ -32,9 +32,6 @@
 #define VROPT_MODULES gettext("Modules")
 #define VROPT_PLUGINS gettext("Plugins")
 #define VROPT_CAPS gettext("Capabilities")
-#ifdef IPV6_ENABLED
-#define VROPT_IP6_CAPS gettext("IPv6 Capabilities")
-#endif
 
 struct config_section {
     PANEL *panel[1];
@@ -2158,77 +2155,139 @@ static void view_caps_init(int height, int width, int starty, int startx,
     vrmr_fatal_if_null(config_section.panel[0]);
     keypad(config_section.win, TRUE);
 
+#ifdef IPV6_ENABLED
+#define HEADER6 "IPv6"
+#define P6(line, b)                                                            \
+    mvwprintw(config_section.win, (line), 22, "%s", (b) ? STR_YES : STR_NO)
+#define P6_NA(line) mvwprintw(config_section.win, (line), 22, "%s", "N/A");
+#else
+#define HEADER6
+#define P6(line, b)
+#define P6_NA(line)
+#endif
+
     /* print labels */
-    mvwprintw(config_section.win, 2, 4, "Tables");
+    mvwprintw(config_section.win, 2, 3, "Tables      IPv4  %s", HEADER6);
     if (iptcap->proc_net_names) {
-        mvwprintw(config_section.win, 4, 4, "filter\t%s",
+        mvwprintw(config_section.win, 4, 3, "filter\t%s",
                 iptcap->table_filter ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 5, 4, "mangle\t%s",
+        P6(4, iptcap->table_ip6_filter);
+        mvwprintw(config_section.win, 5, 3, "mangle\t%s",
                 iptcap->table_mangle ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 6, 4, "nat\t\t%s",
+        P6(5, iptcap->table_ip6_mangle);
+        mvwprintw(config_section.win, 6, 3, "nat\t\t%s",
                 iptcap->table_nat ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 7, 4, "raw\t\t%s",
+        P6_NA(6);
+        mvwprintw(config_section.win, 7, 3, "raw\t\t%s",
                 iptcap->table_raw ? STR_YES : STR_NO);
+        P6(7, iptcap->table_ip6_raw);
     } else {
-        mvwprintw(config_section.win, 4, 4, gettext("Could not check."));
+        mvwprintw(config_section.win, 4, 3, gettext("Could not check."));
     }
 
-    mvwprintw(config_section.win, 9, 4, "Connection-");
-    mvwprintw(config_section.win, 10, 4, " tracking");
-    mvwprintw(config_section.win, 12, 4, "conntrack\t%s",
+    mvwprintw(config_section.win, 9, 3, "Connection-");
+    mvwprintw(config_section.win, 10, 3, " tracking");
+    mvwprintw(config_section.win, 12, 3, "conntrack\t%s",
             iptcap->conntrack ? STR_YES : STR_NO);
+    P6(12, iptcap->conntrack_ip6);
 
-    mvwprintw(config_section.win, 14, 4, "NAT random\t%s",
+    mvwprintw(config_section.win, 14, 3, "NAT random\t%s",
             iptcap->target_nat_random ? STR_YES : STR_NO);
+    P6_NA(14);
+#undef P6
+#undef P6_NA
 
-    mvwprintw(config_section.win, 2, 27, "Targets");
+    mvwprintw(config_section.win, 2, 28, "Targets    IPv4  %s", HEADER6);
     if (iptcap->proc_net_targets) {
-        mvwprintw(config_section.win, 5, 27, "REJECT\t%s",
+#ifdef IPV6_ENABLED
+#define P6(line, b)                                                            \
+    mvwprintw(config_section.win, (line), 46, "%s", (b) ? STR_YES : STR_NO)
+#define P6_NA(line) mvwprintw(config_section.win, (line), 46, "%s", "N/A");
+#else
+#define P6(line, b)
+#define P6_NA(line)
+#endif
+        mvwprintw(config_section.win, 4, 28, "REJECT\t%s",
                 iptcap->target_reject ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 8, 27, "SNAT\t\t%s",
+        P6(4, iptcap->target_ip6_reject);
+        mvwprintw(config_section.win, 5, 28, "SNAT\t%s",
                 iptcap->target_snat ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 9, 27, "MASQUERADE\t%s",
+        P6_NA(5);
+        mvwprintw(config_section.win, 6, 28, "MASQUERADE\t%s",
                 iptcap->target_masquerade ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 10, 27, "DNAT\t\t%s",
+        P6_NA(6);
+        mvwprintw(config_section.win, 7, 28, "DNAT\t%s",
                 iptcap->target_dnat ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 11, 27, "REDIRECT\t%s",
+        P6_NA(7);
+        mvwprintw(config_section.win, 8, 28, "REDIRECT\t%s",
                 iptcap->target_redirect ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 12, 27, "MARK\t\t%s",
+        P6_NA(8);
+        mvwprintw(config_section.win, 9, 28, "MARK\t%s",
                 iptcap->target_mark ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 13, 27, "CONNMARK\t%s",
+        P6(9, iptcap->target_ip6_mark);
+        mvwprintw(config_section.win, 10, 28, "CONNMARK\t%s",
                 iptcap->target_connmark ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 14, 27, "NFQUEUE\t%s",
+        P6(10, iptcap->target_ip6_connmark);
+        mvwprintw(config_section.win, 11, 28, "NFQUEUE\t%s",
                 iptcap->target_nfqueue ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 15, 27, "CLASSIFY\t%s",
+        P6(11, iptcap->target_ip6_nfqueue);
+        mvwprintw(config_section.win, 12, 28, "CLASSIFY\t%s",
                 iptcap->target_classify ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 16, 27, "TCPMSS\t%s",
+        P6(12, iptcap->target_ip6_classify);
+        mvwprintw(config_section.win, 13, 28, "TCPMSS\t%s",
                 iptcap->target_tcpmss ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 17, 27, "NFLOG\t%s",
+        P6(13, iptcap->target_ip6_tcpmss);
+        mvwprintw(config_section.win, 14, 28, "NFLOG\t%s",
                 iptcap->target_nflog ? STR_YES : STR_NO);
+        P6(14, iptcap->target_ip6_nflog);
+        mvwprintw(config_section.win, 15, 28, "CT\t\t%s",
+                iptcap->target_ct ? STR_YES : STR_NO);
+        P6(15, iptcap->target_ip6_ct);
+#undef P6
+#undef P6_NA
     } else {
-        mvwprintw(config_section.win, 4, 27, gettext("Could not check."));
+        mvwprintw(config_section.win, 4, 28, gettext("Could not check."));
     }
 
-    mvwprintw(config_section.win, 2, 52, "Matches");
+    mvwprintw(config_section.win, 2, 52, "Matches    IPv4  %s", HEADER6);
     if (iptcap->proc_net_matches) {
+#ifdef IPV6_ENABLED
+#define P6(line, b)                                                            \
+    mvwprintw(config_section.win, (line), 70, "%s", (b) ? STR_YES : STR_NO)
+#define P6_NA(line) mvwprintw(config_section.win, (line), 70, "%s", "N/A");
+#else
+#define P6(line, b)
+#define P6_NA(line)
+#endif
         mvwprintw(config_section.win, 4, 52, "state\t%s",
                 iptcap->match_state ? STR_YES : STR_NO);
+        P6(4, iptcap->match_ip6_state);
         mvwprintw(config_section.win, 5, 52, "mac\t\t%s",
                 iptcap->match_mac ? STR_YES : STR_NO);
+        P6(5, iptcap->match_ip6_mac);
         mvwprintw(config_section.win, 6, 52, "mark\t%s",
                 iptcap->match_mark ? STR_YES : STR_NO);
+        P6(6, iptcap->match_ip6_mark);
         mvwprintw(config_section.win, 7, 52, "limit\t%s",
                 iptcap->match_limit ? STR_YES : STR_NO);
+        P6(7, iptcap->match_ip6_limit);
         mvwprintw(config_section.win, 8, 52, "helper\t%s",
                 iptcap->match_helper ? STR_YES : STR_NO);
+        P6(8, iptcap->match_ip6_helper);
         mvwprintw(config_section.win, 9, 52, "length\t%s",
                 iptcap->match_length ? STR_YES : STR_NO);
+        P6(9, iptcap->match_ip6_length);
         mvwprintw(config_section.win, 10, 52, "connmark\t%s",
                 iptcap->match_connmark ? STR_YES : STR_NO);
+        P6(10, iptcap->match_ip6_connmark);
         mvwprintw(config_section.win, 11, 52, "rpfilter\t%s",
                 iptcap->match_rpfilter ? STR_YES : STR_NO);
+        P6(11, iptcap->match_ip6_rpfilter);
         mvwprintw(config_section.win, 12, 52, "conntrack\t%s",
                 iptcap->match_conntrack ? STR_YES : STR_NO);
+        P6(12, iptcap->match_ip6_conntrack);
+#undef P6
+#undef P6_NA
     } else {
         mvwprintw(config_section.win, 4, 52, gettext("Could not check."));
     }
@@ -2260,6 +2319,9 @@ static int view_caps(struct vrmr_config *conf)
 
     /* load iptcaps */
     result = vrmr_load_iptcaps(conf, &iptcap, 0);
+#ifdef IPV6_ENABLED
+    result |= vrmr_load_ip6tcaps(conf, &iptcap, 0);
+#endif
     if (result == -1) {
         vrmr_error(-1, VR_ERR, gettext("checking capabilities failed."));
         return (-1);
@@ -2303,6 +2365,9 @@ static int view_caps(struct vrmr_config *conf)
                             vccnf.color_win_note,
                             vccnf.color_win_note_rev | A_BOLD, 0)) {
                     result = vrmr_load_iptcaps(conf, &iptcap, 1);
+#ifdef IPV6_ENABLED
+                    result |= vrmr_load_ip6tcaps(conf, &iptcap, 1);
+#endif
                     if (result == -1) {
                         vrmr_error(-1, VR_ERR,
                                 gettext("checking capabilities failed."));
@@ -2335,212 +2400,12 @@ static int view_caps(struct vrmr_config *conf)
     return (retval);
 }
 
-#ifdef IPV6_ENABLED
-static void view_ip6_caps_init(int height, int width, int starty, int startx,
-        struct vrmr_iptcaps *iptcap)
-{
-    /* safety */
-    vrmr_fatal_if_null(iptcap);
-
-    config_section.win = create_newwin(height, width, starty, startx,
-            gettext("View IPv6 Capabilities"), vccnf.color_win);
-    vrmr_fatal_if_null(config_section.win);
-    config_section.panel[0] = new_panel(config_section.win);
-    vrmr_fatal_if_null(config_section.panel[0]);
-    keypad(config_section.win, TRUE);
-
-    /* print labels */
-    mvwprintw(config_section.win, 2, 4, "Tables");
-    if (iptcap->proc_net_ip6_names) {
-        mvwprintw(config_section.win, 4, 4, "filter\t%s",
-                iptcap->table_ip6_filter ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 5, 4, "mangle\t%s",
-                iptcap->table_ip6_mangle ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 6, 4, "raw\t\t%s",
-                iptcap->table_ip6_raw ? STR_YES : STR_NO);
-    } else {
-        mvwprintw(config_section.win, 4, 4, gettext("Could not check."));
-    }
-
-    mvwprintw(config_section.win, 8, 4, "Connection-");
-    mvwprintw(config_section.win, 9, 4, " tracking");
-    /* TODO Need to check if this has a ipv6 version */
-    mvwprintw(config_section.win, 11, 4, "conntrack\t%s",
-            iptcap->conntrack ? STR_YES : STR_NO);
-
-    /*
-        mvwprintw(config_section.win, 14, 4, "NAT random\t%s",
-       iptcap->target_nat_random ? STR_YES : STR_NO);
-    */
-
-    mvwprintw(config_section.win, 2, 27, "Targets");
-    if (iptcap->proc_net_ip6_targets) {
-        mvwprintw(config_section.win, 4, 27, "LOG\t\t%s",
-                iptcap->target_ip6_log ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 5, 27, "REJECT\t%s",
-                iptcap->target_ip6_reject ? STR_YES : STR_NO);
-        /*
-                mvwprintw(config_section.win, 8,  27, "SNAT\t\t%s",
-           iptcap->target_snat ? STR_YES : STR_NO);
-           mvwprintw(config_section.win, 9,  27, "MASQUERADE\t%s",
-           iptcap->target_masquerade ? STR_YES : STR_NO);
-           mvwprintw(config_section.win, 10, 27, "DNAT\t\t%s",
-           iptcap->target_dnat ? STR_YES : STR_NO);
-           mvwprintw(config_section.win, 11, 27, "REDIRECT\t%s",
-           iptcap->target_redirect ? STR_YES : STR_NO);
-        */
-        mvwprintw(config_section.win, 12, 27, "MARK\t\t%s",
-                iptcap->target_ip6_mark ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 13, 27, "CONNMARK\t%s",
-                iptcap->target_ip6_connmark ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 14, 27, "NFQUEUE\t%s",
-                iptcap->target_ip6_nfqueue ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 15, 27, "CLASSIFY\t%s",
-                iptcap->target_ip6_classify ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 16, 27, "TCPMSS\t%s",
-                iptcap->target_ip6_tcpmss ? STR_YES : STR_NO);
-    } else {
-        mvwprintw(config_section.win, 4, 27, gettext("Could not check."));
-    }
-
-    mvwprintw(config_section.win, 2, 52, "Matches");
-    if (iptcap->proc_net_ip6_matches) {
-        mvwprintw(config_section.win, 4, 52, "state\t%s",
-                iptcap->match_ip6_state ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 5, 52, "mac\t\t%s",
-                iptcap->match_ip6_mac ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 6, 52, "mark\t%s",
-                iptcap->match_ip6_mark ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 7, 52, "limit\t%s",
-                iptcap->match_ip6_limit ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 8, 52, "helper\t%s",
-                iptcap->match_ip6_helper ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 9, 52, "length\t%s",
-                iptcap->match_ip6_length ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 10, 52, "connmark\t%s",
-                iptcap->match_ip6_connmark ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 11, 52, "rpfilter\t%s",
-                iptcap->match_ip6_rpfilter ? STR_YES : STR_NO);
-        mvwprintw(config_section.win, 12, 52, "conntrack\t%s",
-                iptcap->match_ip6_conntrack ? STR_YES : STR_NO);
-    } else {
-        mvwprintw(config_section.win, 4, 52, gettext("Could not check."));
-    }
-}
-
-static int view_ip6_caps(struct vrmr_config *conf)
-{
-    int ch, retval = 0, quit = 0, result = 0;
-    int height, width, startx, starty, max_height, max_width;
-    struct vrmr_iptcaps iptcap;
-    char reload = 0;
-    /* top menu */
-    const char *key_choices[] = {"F12", "F5", "F10"};
-    int key_choices_n = 3;
-    const char *cmd_choices[] = {
-            gettext("help"), gettext("probe"), gettext("back")};
-    int cmd_choices_n = 3;
-
-    /* window dimentions */
-    getmaxyx(stdscr, max_height, max_width);
-
-    height = 18;
-    width = 76;
-    startx = (max_width - width) / 2;
-    starty = (max_height - height) / 2;
-
-    draw_top_menu(top_win, gettext("IPv6 Capabilities"), key_choices_n,
-            key_choices, cmd_choices_n, cmd_choices);
-
-    /* load iptcaps */
-    memset(&iptcap, 0, sizeof(iptcap));
-    result = vrmr_load_ip6tcaps(conf, &iptcap, 0);
-    if (result == -1) {
-        vrmr_error(-1, VR_ERR, gettext("checking capabilities failed."));
-        return (-1);
-    }
-
-    vrmr_debug(LOW,
-            "iptcap.proc_net_ip6_names %d "
-            "iptcap.proc_net_ip6_matches %d iptcap.proc_net_ip6_targets %d "
-            "iptcap.table_ip6_filter %d iptcap.match_tcp6 %d "
-            "iptcap.match_udp6 %d iptcap.match_icmp6 %d "
-            "iptcap.match_mark6 %d",
-            iptcap.proc_net_ip6_names, iptcap.proc_net_ip6_matches,
-            iptcap.proc_net_ip6_targets, iptcap.table_ip6_filter,
-            iptcap.match_ip6_tcp, iptcap.match_ip6_udp, iptcap.match_icmp6,
-            iptcap.match_ip6_mark);
-
-    /* setup */
-    view_ip6_caps_init(height, width, starty, startx, &iptcap);
-    update_panels();
-    doupdate();
-
-    /* Loop through to get user requests */
-    while (quit == 0) {
-        /* keyboard input */
-        ch = wgetch(config_section.win);
-        switch (ch) {
-            case 27:
-            case KEY_F(10):
-            case 'q':
-            case 'Q':
-
-                quit = 1;
-                break;
-            case KEY_F(5):
-            case 'p':
-            case 'P':
-                if (confirm(gettext("Probe Capabilities"),
-                            gettext("Try to determine capabities? Warning: "
-                                    "this may load iptables modules!"),
-                            vccnf.color_win_note,
-                            vccnf.color_win_note_rev | A_BOLD, 0)) {
-                    result = vrmr_load_ip6tcaps(conf, &iptcap, 1);
-                    if (result == -1) {
-                        vrmr_error(-1, VR_ERR,
-                                gettext("checking capabilities failed."));
-                        return (-1);
-                    }
-                }
-                reload = 1;
-                quit = 1;
-                break;
-
-            case KEY_F(12):
-            case 'h':
-            case 'H':
-            case '?':
-
-                print_help(":[VUURMUUR:CONFIG:CAPABILITIES]:");
-                break;
-        }
-    }
-
-    /* cleanup */
-    del_panel(config_section.panel[0]);
-    destroy_win(config_section.win);
-    update_panels();
-    doupdate();
-
-    if (reload == 1)
-        return (view_ip6_caps(conf));
-
-    return (retval);
-}
-#endif
-
 int config_menu(struct vrmr_config *conf)
 {
-#ifdef IPV6_ENABLED
-    size_t n_choices = 11;
-#else
     size_t n_choices = 10;
-#endif
     size_t i = 0;
-    int ch = 0, quit = 0;
+    int quit = 0;
     ITEM **menu_items = NULL;
-    ITEM *cur = NULL;
     MENU *main_menu = NULL;
     WINDOW *mainmenu_win = NULL;
     PANEL *conf_panels[1];
@@ -2550,17 +2415,10 @@ int config_menu(struct vrmr_config *conf)
 
     const char *choices[] = {VROPT_GENERAL, VROPT_CONNECTIONS, VROPT_INTERFACES,
             VROPT_SYSPROT, VROPT_CONNTRACK, VROPT_LOGGING, VROPT_MODULES,
-            VROPT_PLUGINS, VROPT_CAPS,
-#ifdef IPV6_ENABLED
-            VROPT_IP6_CAPS,
-#endif
-            gettext("Back"), NULL};
+            VROPT_PLUGINS, VROPT_CAPS, gettext("Back"), NULL};
 
-    char *descriptions[] = {" ", " ", " ", " ", " ", " ", " ", " ", " ",
-#ifdef IPV6_ENABLED
-            " ",
-#endif
-            " ", NULL};
+    char *descriptions[] = {
+            " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", NULL};
 
     /* top menu */
     const char *key_choices[] = {"F12", "F10"};
@@ -2608,7 +2466,7 @@ int config_menu(struct vrmr_config *conf)
     while (quit == 0) {
         show_panel(conf_panels[0]);
 
-        ch = wgetch(mainmenu_win);
+        int ch = wgetch(mainmenu_win);
         switch (ch) {
             case 27:
             case 'q':
@@ -2629,12 +2487,13 @@ int config_menu(struct vrmr_config *conf)
             case KEY_RIGHT:
             case 32: // space
             case 10: // enter
-
-                cur = current_item(main_menu);
+            {
+                ITEM *cur = current_item(main_menu);
                 vrmr_fatal_if_null(cur);
                 choice_ptr = strdup((char *)item_name(cur));
                 vrmr_fatal_alloc("strdup", choice_ptr);
                 break;
+            }
         }
 
         if (choice_ptr != NULL) {
@@ -2658,14 +2517,8 @@ int config_menu(struct vrmr_config *conf)
                 edit_plugconfig(conf);
             } else if (strcmp(choice_ptr, VROPT_CAPS) == 0) {
                 view_caps(conf);
-            }
-#ifdef IPV6_ENABLED
-            else if (strcmp(choice_ptr, VROPT_IP6_CAPS) == 0) {
-                view_ip6_caps(conf);
-            }
-#endif
-            else if (strncmp(choice_ptr, gettext("Back"),
-                             StrLen(gettext("Back"))) == 0) {
+            } else if (strncmp(choice_ptr, gettext("Back"),
+                               StrLen(gettext("Back"))) == 0) {
                 quit = 1;
             }
 

@@ -160,7 +160,7 @@ int vrmr_check_iptables_command(
         return (0);
     } else {
         /* now check the command */
-        char *args[] = {iptables_location, "--version", NULL};
+        const char *args[] = {iptables_location, "--version", NULL};
         int r = libvuurmuur_exec_command(cnf, iptables_location, args, NULL);
         if (r != 0) {
             if (quiet == VRMR_IPTCHK_VERBOSE)
@@ -189,7 +189,7 @@ int vrmr_check_iptablesrestore_command(
         return (0);
     } else {
         /* now check the command */
-        char *args[] = {iptablesrestore_location, "-h", NULL};
+        const char *args[] = {iptablesrestore_location, "-h", NULL};
         int r = libvuurmuur_exec_command(
                 cnf, iptablesrestore_location, args, NULL);
         if (r != 0 && r != 1) {
@@ -226,7 +226,7 @@ int vrmr_check_ip6tables_command(
         return (0);
     } else {
         /* now check the command */
-        char *args[] = {ip6tables_location, "--version", NULL};
+        const char *args[] = {ip6tables_location, "--version", NULL};
         int r = libvuurmuur_exec_command(cnf, ip6tables_location, args, NULL);
         if (r != 0) {
             if (quiet == FALSE)
@@ -253,7 +253,7 @@ int vrmr_check_ip6tablesrestore_command(
         return (0);
     } else {
         /* now check the command */
-        char *args[] = {ip6tablesrestore_location, "-h", NULL};
+        const char *args[] = {ip6tablesrestore_location, "-h", NULL};
         int r = libvuurmuur_exec_command(
                 cnf, ip6tablesrestore_location, args, NULL);
         if (r != 0 && r != 1) {
@@ -281,7 +281,7 @@ int vrmr_check_tc_command(
             vrmr_error(0, "Error", "The path to the 'tc'-command was not set");
         return (0);
     } else {
-        char *args[] = {tc_location, "-V", NULL};
+        const char *args[] = {tc_location, "-V", NULL};
         int r = libvuurmuur_exec_command(cnf, tc_location, args, NULL);
         if (r != 0) {
             if (quiet == VRMR_IPTCHK_VERBOSE)

@@ -76,7 +76,7 @@ int sysctl_exec(struct vrmr_config *cnf, char *key, char *value, int bash_out)
     char line[1024];
     snprintf(line, sizeof(line), "%s=%s", key, value);
 
-    char *args[] = {cnf->sysctl_location, "-w", line, NULL};
+    const char *args[] = {cnf->sysctl_location, "-w", line, NULL};
     int result =
             libvuurmuur_exec_command(cnf, cnf->sysctl_location, args, NULL);
     if (result != 0) {

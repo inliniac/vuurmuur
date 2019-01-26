@@ -153,15 +153,16 @@ static int bandwidth_get_iface(struct vrmr_config *conf, char *device,
     /* see if we need to pass the -s option to iptrafvol*/
     if (days > 0) {
         snprintf(cmd_num_days_str, sizeof(cmd_num_days_str), "%d", days);
-        char *args[] = {vccnf.iptrafvol_location, "-d", "-y", cmd_year_str,
-                "-m", cmd_month_str, "-b", cmd_start_day_str, "-s",
-                cmd_num_days_str, NULL};
+        const char *args[] = {vccnf.iptrafvol_location, "-d", "-y",
+                cmd_year_str, "-m", cmd_month_str, "-b", cmd_start_day_str,
+                "-s", cmd_num_days_str, NULL};
         char *outputs[] = {tmpfile, "/dev/null", NULL};
         result = libvuurmuur_exec_command(
                 conf, vccnf.iptrafvol_location, args, outputs);
     } else {
-        char *args[] = {vccnf.iptrafvol_location, "-d", "-y", cmd_year_str,
-                "-m", cmd_month_str, "-b", cmd_start_day_str, NULL};
+        const char *args[] = {vccnf.iptrafvol_location, "-d", "-y",
+                cmd_year_str, "-m", cmd_month_str, "-b", cmd_start_day_str,
+                NULL};
         char *outputs[] = {tmpfile, "/dev/null", NULL};
         result = libvuurmuur_exec_command(
                 conf, vccnf.iptrafvol_location, args, outputs);

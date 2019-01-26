@@ -26,7 +26,8 @@
 #include "config.h"
 #include "vuurmuur.h"
 
-static int iptcap_get_one_cap_from_proc(char *procpath, char *request)
+static int iptcap_get_one_cap_from_proc(
+        const char *procpath, const char *request)
 {
     char line[64] = "";
     FILE *fp = NULL;
@@ -75,12 +76,12 @@ static int iptcap_get_one_cap_from_proc(char *procpath, char *request)
     -1: error
      0: ok
 */
-static int iptcap_load_module(struct vrmr_config *cnf, char *modulename)
+static int iptcap_load_module(struct vrmr_config *cnf, const char *modulename)
 {
     assert(modulename && cnf);
 
     /* now execute the command */
-    char *args[] = {cnf->modprobe_location, "-q", modulename, NULL};
+    const char *args[] = {cnf->modprobe_location, "-q", modulename, NULL};
     int r = libvuurmuur_exec_command(cnf, cnf->modprobe_location, args, NULL);
     if (r != 0) {
         vrmr_debug(LOW, "loading module '%s' failed: modprobe returned %d.",
@@ -93,8 +94,8 @@ static int iptcap_load_module(struct vrmr_config *cnf, char *modulename)
     return (0);
 }
 
-static int iptcap_check_cap(struct vrmr_config *cnf, char *procpath,
-        char *request, char *modulename, char load_module)
+static int iptcap_check_cap(struct vrmr_config *cnf, const char *procpath,
+        const char *request, const char *modulename, char load_module)
 {
     assert(procpath && request && modulename && cnf);
 
@@ -159,10 +160,10 @@ static int iptcap_check_file(char *path)
     return (1);
 }
 
-static int iptcap_create_test_mangle_chain(
-        struct vrmr_config *cnf, char *ipt_loc)
+static int iptcap_create_test_chain(
+        struct vrmr_config *cnf, const char *ipt_loc, const char *table)
 {
-    char *args[] = {ipt_loc, "-t", "mangle", "-N", "VRMRIPTCAP", NULL};
+    const char *args[] = {ipt_loc, "-t", table, "-N", "VRMRIPTCAP", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
     if (r != 0) {
         return -1;
@@ -171,54 +172,22 @@ static int iptcap_create_test_mangle_chain(
     return 0;
 }
 
-static int iptcap_delete_test_mangle_chain(
-        struct vrmr_config *cnf, char *ipt_loc)
-{
-    char *argsF[] = {ipt_loc, "-t", "mangle", "-F", "VRMRIPTCAP", NULL};
-    int r = libvuurmuur_exec_command(cnf, ipt_loc, argsF, NULL);
-    if (r != 0) {
-        vrmr_debug(NONE, "flush failed (ok if chain didn't exist)");
-        return -1;
-    }
-
-    char *argsX[] = {ipt_loc, "-t", "mangle", "-X", "VRMRIPTCAP", NULL};
-    r = libvuurmuur_exec_command(cnf, ipt_loc, argsX, NULL);
-    if (r != 0) {
-        vrmr_debug(NONE, "delete failed");
-        return -1;
-    }
-
-    return 0;
-}
-
-static int iptcap_create_test_filter_chain(
-        struct vrmr_config *cnf, char *ipt_loc)
-{
-    char *args[] = {ipt_loc, "-t", "filter", "-N", "VRMRIPTCAP", NULL};
-    int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
-    if (r != 0) {
-        return -1;
-    }
-
-    return 0;
-}
-
-static int iptcap_delete_test_filter_chain(
-        struct vrmr_config *cnf, char *ipt_loc)
+static int iptcap_delete_test_chain(
+        struct vrmr_config *cnf, const char *ipt_loc, const char *table)
 {
     /* First, flush the chain */
-    char *argsF[] = {ipt_loc, "-t", "filter", "-F", "VRMRIPTCAP", NULL};
+    const char *argsF[] = {ipt_loc, "-t", table, "-F", "VRMRIPTCAP", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, argsF, NULL);
     if (r != 0) {
-        vrmr_debug(LOW, "flush failed (ok if chain didn't exist)");
+        vrmr_debug(LOW, "flush %s failed (ok if chain didn't exist)", table);
         return -1;
     }
 
     /* And then delete the chain */
-    char *argsX[] = {ipt_loc, "-t", "filter", "-X", "VRMRIPTCAP", NULL};
+    const char *argsX[] = {ipt_loc, "-t", table, "-X", "VRMRIPTCAP", NULL};
     r = libvuurmuur_exec_command(cnf, ipt_loc, argsX, NULL);
     if (r != 0) {
-        vrmr_debug(LOW, "delete failed");
+        vrmr_debug(LOW, "delete %s failed", table);
         return -1;
     }
 
@@ -226,21 +195,21 @@ static int iptcap_delete_test_filter_chain(
 }
 
 static int iptcap_test_filter_connmark_match(
-        struct vrmr_config *cnf, char *ipt_loc)
+        struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_create_test_filter_chain failed");
+    if (iptcap_create_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_create_test_chain failed");
         return -1;
     }
 
-    char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m",
+    const char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m",
             "connmark", "--mark", "1", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
     if (r != 0) {
@@ -248,8 +217,8 @@ static int iptcap_test_filter_connmark_match(
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
@@ -257,21 +226,21 @@ static int iptcap_test_filter_connmark_match(
 }
 
 static int iptcap_test_filter_conntrack_match(
-        struct vrmr_config *cnf, char *ipt_loc)
+        struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(cnf, ipt_loc) < 0) {
+    if (iptcap_create_test_chain(cnf, ipt_loc, "filter") < 0) {
         vrmr_debug(NONE, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
-    char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m",
+    const char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m",
             "conntrack", "--ctstate", "NEW", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
     if (r != 0) {
@@ -279,7 +248,7 @@ static int iptcap_test_filter_conntrack_match(
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
         vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
                          "will be ignored");
     }
@@ -291,29 +260,29 @@ static int iptcap_test_filter_conntrack_match(
  *  \brief test rpfilter module in RAW table
  */
 static int iptcap_test_filter_rpfilter_match(
-        struct vrmr_config *cnf, char *ipt_loc)
+        struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "raw") < 0) {
         vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
                          "will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(cnf, ipt_loc) < 0) {
+    if (iptcap_create_test_chain(cnf, ipt_loc, "raw") < 0) {
         vrmr_debug(NONE, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
-    char *args[] = {ipt_loc, "-t", "raw", "-A", "VRMRIPTCAP", "-m", "rpfilter",
-            "--invert", NULL};
+    const char *args[] = {ipt_loc, "-t", "raw", "-A", "VRMRIPTCAP", "-m",
+            "rpfilter", "--invert", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
     if (r != 0) {
         vrmr_debug(NONE, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "raw") < 0) {
         vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
                          "will be ignored");
     }
@@ -321,22 +290,22 @@ static int iptcap_test_filter_rpfilter_match(
     return retval;
 }
 
-static int iptcap_test_filter_connmark_target(
-        struct vrmr_config *cnf, char *ipt_loc)
+static int iptcap_test_mangle_connmark_target(
+        struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "mangle") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_create_test_filter_chain failed");
+    if (iptcap_create_test_chain(cnf, ipt_loc, "mangle") < 0) {
+        vrmr_debug(NONE, "iptcap_create_test_chain failed");
         return -1;
     }
 
-    char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-j",
+    const char *args[] = {ipt_loc, "-t", "mangle", "-A", "VRMRIPTCAP", "-j",
             "CONNMARK", "--set-mark", "1", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
     if (r != 0) {
@@ -344,8 +313,8 @@ static int iptcap_test_filter_connmark_target(
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "mangle") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
@@ -353,60 +322,61 @@ static int iptcap_test_filter_connmark_target(
 }
 
 static int iptcap_test_filter_helper_match(
-        struct vrmr_config *cnf, char *ipt_loc)
+        struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_create_test_filter_chain failed");
+    if (iptcap_create_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_create_test_chain failed");
         return -1;
     }
 
-    char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "helper",
-            "--helper", "ftp", NULL};
+    const char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m",
+            "helper", "--helper", "ftp", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
     if (r != 0) {
         vrmr_debug(NONE, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
     return retval;
 }
 
-static int iptcap_test_filter_mark_match(struct vrmr_config *cnf, char *ipt_loc)
+static int iptcap_test_filter_mark_match(
+        struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_create_test_filter_chain failed");
+    if (iptcap_create_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_create_test_chain failed");
         return -1;
     }
 
-    char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "mark",
-            "--mark", "1", NULL};
+    const char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m",
+            "mark", "--mark", "1", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
     if (r != 0) {
         vrmr_debug(NONE, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
@@ -414,30 +384,30 @@ static int iptcap_test_filter_mark_match(struct vrmr_config *cnf, char *ipt_loc)
 }
 
 static int iptcap_test_mangle_mark_target(
-        struct vrmr_config *cnf, char *ipt_loc)
+        struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
 
-    if (iptcap_delete_test_mangle_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_mangle_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "mangle") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
-    if (iptcap_create_test_mangle_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_create_test_mangle_chain failed");
+    if (iptcap_create_test_chain(cnf, ipt_loc, "mangle") < 0) {
+        vrmr_debug(NONE, "iptcap_create_test_chain failed");
         return -1;
     }
 
-    char *args[] = {ipt_loc, "-t", "mangle", "-A", "VRMRIPTCAP", "-j", "MARK",
-            "--set-mark", "1", NULL};
+    const char *args[] = {ipt_loc, "-t", "mangle", "-A", "VRMRIPTCAP", "-j",
+            "MARK", "--set-mark", "1", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
     if (r != 0) {
         vrmr_debug(NONE, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_mangle_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_mangle_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "mangle") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
@@ -445,21 +415,21 @@ static int iptcap_test_mangle_mark_target(
 }
 
 static int iptcap_test_mangle_classify_target(
-        struct vrmr_config *cnf, char *ipt_loc)
+        struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
 
-    if (iptcap_delete_test_mangle_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_mangle_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "mangle") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
-    if (iptcap_create_test_mangle_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_create_test_mangle_chain failed");
+    if (iptcap_create_test_chain(cnf, ipt_loc, "mangle") < 0) {
+        vrmr_debug(NONE, "iptcap_create_test_chain failed");
         return -1;
     }
 
-    char *args[] = {ipt_loc, "-t", "mangle", "-A", "VRMRIPTCAP", "-j",
+    const char *args[] = {ipt_loc, "-t", "mangle", "-A", "VRMRIPTCAP", "-j",
             "CLASSIFY", "--set-class", "0:0", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
     if (r != 0) {
@@ -467,38 +437,39 @@ static int iptcap_test_mangle_classify_target(
         retval = -1;
     }
 
-    if (iptcap_delete_test_mangle_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_mangle_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "mangle") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
     return retval;
 }
 
-static int iptcap_test_filter_mac_match(struct vrmr_config *cnf, char *ipt_loc)
+static int iptcap_test_filter_mac_match(
+        struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_create_test_filter_chain failed");
+    if (iptcap_create_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_create_test_chain failed");
         return -1;
     }
 
-    char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "mac",
-            "--mac-source", "12:34:56:78:90:ab", NULL};
+    const char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m",
+            "mac", "--mac-source", "12:34:56:78:90:ab", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
     if (r != 0) {
         vrmr_debug(NONE, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
@@ -511,95 +482,63 @@ static int iptcap_test_filter_mac_match(struct vrmr_config *cnf, char *ipt_loc)
  *      cnf.iptables_location or cnf.ip6tables_location for this.
  */
 static int iptcap_test_filter_limit_match(
-        struct vrmr_config *cnf, char *ipt_loc)
+        struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
 
     assert(ipt_loc);
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_create_test_filter_chain failed");
+    if (iptcap_create_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_create_test_chain failed");
         return -1;
     }
 
-    char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "limit",
-            "--limit", "1/s", NULL};
+    const char *args[] = {ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m",
+            "limit", "--limit", "1/s", NULL};
     int r = libvuurmuur_exec_command(cnf, ipt_loc, args, NULL);
     if (r != 0) {
         vrmr_debug(NONE, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(cnf, ipt_loc) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_filter_chain failed, but error "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "filter") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error "
                          "will be ignored");
     }
 
     return retval;
 }
 
-static int iptcap_create_test_nat_chain(struct vrmr_config *cnf)
-{
-    char *args[] = {
-            cnf->iptables_location, "-t", "nat", "-N", "VRMRIPTCAP", NULL};
-    int r = libvuurmuur_exec_command(cnf, cnf->iptables_location, args, NULL);
-    if (r != 0) {
-        return -1;
-    }
-
-    return 0;
-}
-
-static int iptcap_delete_test_nat_chain(struct vrmr_config *cnf)
-{
-    char *argsF[] = {
-            cnf->iptables_location, "-t", "nat", "-F", "VRMRIPTCAP", NULL};
-    int r = libvuurmuur_exec_command(cnf, cnf->iptables_location, argsF, NULL);
-    if (r != 0) {
-        vrmr_debug(NONE, "flush failed (ok if chain didn't exist)");
-        return -1;
-    }
-
-    char *argsX[] = {
-            cnf->iptables_location, "-t", "nat", "-X", "VRMRIPTCAP", NULL};
-    r = libvuurmuur_exec_command(cnf, cnf->iptables_location, argsX, NULL);
-    if (r != 0) {
-        vrmr_debug(NONE, "delete failed");
-        return -1;
-    }
-
-    return 0;
-}
-
-static int iptcap_test_nat_random(struct vrmr_config *cnf)
+static int iptcap_test_nat_random(struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
 
-    if (iptcap_delete_test_nat_chain(cnf) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_nat_chain failed, but error will "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "nat") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error will "
                          "be ignored");
     }
 
-    if (iptcap_create_test_nat_chain(cnf) < 0) {
-        vrmr_debug(NONE, "iptcap_create_test_nat_chain failed");
+    if (iptcap_create_test_chain(cnf, ipt_loc, "nat") < 0) {
+        vrmr_debug(NONE, "iptcap_create_test_chain failed");
         return -1;
     }
 
-    char *args[] = {cnf->iptables_location, "-t", "nat", "-A", "VRMRIPTCAP",
-            "-j", "SNAT", "--to-source", "127.0.0.1", "--random", NULL};
+    const char *args[] = {cnf->iptables_location, "-t", "nat", "-A",
+            "VRMRIPTCAP", "-j", "SNAT", "--to-source", "127.0.0.1", "--random",
+            NULL};
     int r = libvuurmuur_exec_command(cnf, cnf->iptables_location, args, NULL);
     if (r != 0) {
         vrmr_debug(NONE, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_nat_chain(cnf) < 0) {
-        vrmr_debug(NONE, "iptcap_delete_test_nat_chain failed, but error will "
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "nat") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error will "
                          "be ignored");
     }
 
@@ -607,7 +546,7 @@ static int iptcap_test_nat_random(struct vrmr_config *cnf)
 }
 
 int vrmr_check_iptcaps(
-        struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+        struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, bool load_modules)
 {
     assert(iptcap != NULL && cnf != NULL);
 
@@ -671,15 +610,28 @@ int vrmr_check_iptcaps(
     return (0);
 }
 
+static bool iptcap_check_cap_modules(struct vrmr_config *cnf,
+        const char *check_file, const char *check_name, bool load_modules,
+        const char *modules[])
+{
+    while (*modules != NULL) {
+        bool result = (iptcap_check_cap(cnf, check_file, check_name, *modules,
+                               load_modules) == 1);
+        if (result)
+            return true;
+        modules++;
+    }
+    return false;
+}
+
 int vrmr_load_iptcaps(
-        struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+        struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, bool load_modules)
 {
     char proc_net_match[] = "/proc/net/ip_tables_matches",
          proc_net_target[] = "/proc/net/ip_tables_targets",
          proc_net_names[] = "/proc/net/ip_tables_names",
          proc_net_netfilter_nfnetlink_queue[] =
                  "/proc/net/netfilter/nfnetlink_queue";
-    int result = 0;
 
     assert(iptcap != NULL && cnf != NULL);
 
@@ -695,7 +647,7 @@ int vrmr_load_iptcaps(
         vrmr_debug(LOW, "%s not found: load_modules: %s.", proc_net_match,
                 load_modules ? "Yes" : "No");
 
-        if (load_modules == TRUE) {
+        if (load_modules == true) {
             /* try to load the module */
             (void)iptcap_load_module(cnf, "ip_tables");
 
@@ -705,11 +657,11 @@ int vrmr_load_iptcaps(
             } else {
                 vrmr_debug(LOW, "%s found!", proc_net_match);
 
-                iptcap->proc_net_matches = TRUE;
+                iptcap->proc_net_matches = true;
             }
         }
     } else {
-        iptcap->proc_net_matches = TRUE;
+        iptcap->proc_net_matches = true;
     }
 
     /* /proc/net/ip_tables_targets */
@@ -717,7 +669,7 @@ int vrmr_load_iptcaps(
         vrmr_debug(LOW, "%s not found: load_modules: %s.", proc_net_target,
                 load_modules ? "Yes" : "No");
 
-        if (load_modules == TRUE) {
+        if (load_modules == true) {
             /* try to load the module */
             (void)iptcap_load_module(cnf, "ip_tables");
 
@@ -727,16 +679,16 @@ int vrmr_load_iptcaps(
             } else {
                 vrmr_debug(LOW, "%s found!", proc_net_target);
 
-                iptcap->proc_net_targets = TRUE;
+                iptcap->proc_net_targets = true;
             }
         }
     } else {
-        iptcap->proc_net_targets = TRUE;
+        iptcap->proc_net_targets = true;
     }
 
     /* /proc/net/ip_tables_names */
     if (!(iptcap_check_file(proc_net_names))) {
-        if (load_modules == TRUE) {
+        if (load_modules == true) {
             /* try to load the module */
             (void)iptcap_load_module(cnf, "ip_tables");
 
@@ -746,543 +698,276 @@ int vrmr_load_iptcaps(
             } else {
                 vrmr_debug(LOW, "%s found!", proc_net_names);
 
-                iptcap->proc_net_names = TRUE;
+                iptcap->proc_net_names = true;
             }
         }
     } else {
-        iptcap->proc_net_names = TRUE;
+        iptcap->proc_net_names = true;
     }
 
     /*
         NAMES
     */
     if (iptcap->proc_net_names == TRUE) {
-        result = iptcap_check_cap(
-                cnf, proc_net_names, "filter", "iptable_filter", load_modules);
-        if (result == 1)
-            iptcap->table_filter = TRUE;
-        else
-            iptcap->table_filter = FALSE;
-
-        result = iptcap_check_cap(
-                cnf, proc_net_names, "mangle", "iptable_mangle", load_modules);
-        if (result == 1)
-            iptcap->table_mangle = TRUE;
-        else
-            iptcap->table_mangle = FALSE;
-
-        result = iptcap_check_cap(
-                cnf, proc_net_names, "nat", "iptable_nat", load_modules);
-        if (result == 1)
-            iptcap->table_nat = TRUE;
-        else
-            iptcap->table_nat = FALSE;
-
-        result = iptcap_check_cap(
-                cnf, proc_net_names, "raw", "iptable_raw", load_modules);
-        if (result == 1)
-            iptcap->table_raw = TRUE;
-        else
-            iptcap->table_raw = FALSE;
+        const char *filter_modules[] = {"iptable_filter", NULL};
+        iptcap->table_filter = iptcap_check_cap_modules(
+                cnf, proc_net_names, "filter", load_modules, filter_modules);
+        const char *mangle_modules[] = {"iptable_mangle", NULL};
+        iptcap->table_mangle = iptcap_check_cap_modules(
+                cnf, proc_net_names, "mangle", load_modules, mangle_modules);
+        const char *nat_modules[] = {"iptable_nat", NULL};
+        iptcap->table_nat = iptcap_check_cap_modules(
+                cnf, proc_net_names, "nat", load_modules, nat_modules);
+        const char *raw_modules[] = {"iptable_raw", NULL};
+        iptcap->table_raw = iptcap_check_cap_modules(
+                cnf, proc_net_names, "raw", load_modules, raw_modules);
     } else {
         /* assume yes */
-        iptcap->table_filter = TRUE;
-        iptcap->table_mangle = TRUE;
-        iptcap->table_nat = TRUE;
-        iptcap->table_raw = TRUE;
+        iptcap->table_filter = true;
+        iptcap->table_mangle = true;
+        iptcap->table_nat = true;
+        iptcap->table_raw = true;
     }
 
     /* check for the CONNTRACK */
     if (vrmr_conn_check_api()) {
-        iptcap->conntrack = TRUE;
+        iptcap->conntrack = true;
     } else {
-        if (load_modules == TRUE) {
+        if (load_modules == true) {
             (void)iptcap_load_module(cnf, "ip_conntrack");
             (void)iptcap_load_module(cnf, "nf_conntrack_ipv4");
-
-            if (vrmr_conn_check_api()) {
-                iptcap->conntrack = TRUE;
-            } else {
-                iptcap->conntrack = FALSE;
-            }
-        } else {
-            iptcap->conntrack = FALSE;
         }
+        iptcap->conntrack = (vrmr_conn_check_api());
     }
 
     /* check for the /proc/net/netfilter/nfnetlink_queue */
     if (!(iptcap_check_file(proc_net_netfilter_nfnetlink_queue))) {
-        if (load_modules == TRUE) {
+        if (load_modules == true) {
             /* try to load the module, if it fails, return 0 */
             (void)iptcap_load_module(cnf, "nfnetlink_queue");
 
             /* check again */
             if ((iptcap_check_file(proc_net_netfilter_nfnetlink_queue))) {
-                iptcap->proc_net_netfilter_nfnetlink_queue = TRUE;
+                iptcap->proc_net_netfilter_nfnetlink_queue = true;
             }
         }
     } else {
-        iptcap->proc_net_netfilter_nfnetlink_queue = TRUE;
+        iptcap->proc_net_netfilter_nfnetlink_queue = true;
     }
 
     /*
         MATCHES (uncapitalized)
     */
-    if (iptcap->proc_net_matches == TRUE) {
-        /* tcp */
-        result = iptcap_check_cap(
-                cnf, proc_net_match, "tcp", "ip_tables", load_modules);
-        if (result == 1)
-            iptcap->match_tcp = TRUE;
-        else {
-            iptcap->match_tcp = FALSE;
-
-            /* from kernel 2.6.16 these are in xt_tcpudp */
-            result = iptcap_check_cap(
-                    cnf, proc_net_match, "tcp", "xt_tcpudp", load_modules);
-            if (result == 1)
-                iptcap->match_tcp = TRUE;
-        }
-
-        /* udp */
-        result = iptcap_check_cap(
-                cnf, proc_net_match, "udp", "ip_tables", load_modules);
-        if (result == 1)
-            iptcap->match_udp = TRUE;
-        else {
-            iptcap->match_udp = FALSE;
-
-            /* from kernel 2.6.16 these are in xt_tcpudp */
-            result = iptcap_check_cap(
-                    cnf, proc_net_match, "udp", "xt_tcpudp", load_modules);
-            if (result == 1)
-                iptcap->match_udp = TRUE;
-        }
-
-        /*  icmp: in kernel 2.6.16 this is also supplied by
-            ip_tables, while tcp and udp are no longer. */
-        result = iptcap_check_cap(
-                cnf, proc_net_match, "icmp", "ip_tables", load_modules);
-        if (result == 1)
-            iptcap->match_icmp = TRUE;
-        else
-            iptcap->match_icmp = FALSE;
+    if (iptcap->proc_net_matches == true) {
+        const char *tcp_modules[] = {"xt_tcpudp", "ip_tables", NULL};
+        iptcap->match_tcp = iptcap_check_cap_modules(
+                cnf, proc_net_match, "tcp", load_modules, tcp_modules);
+        const char *udp_modules[] = {"xt_tcpudp", "ip_tables", NULL};
+        iptcap->match_udp = iptcap_check_cap_modules(
+                cnf, proc_net_match, "udp", load_modules, udp_modules);
+        const char *icmp_modules[] = {"ip_tables", NULL};
+        iptcap->match_icmp = iptcap_check_cap_modules(
+                cnf, proc_net_match, "icmp", load_modules, icmp_modules);
 
         /* state match */
-        result = iptcap_check_cap(
-                cnf, proc_net_match, "state", "ipt_state", load_modules);
-        if (result == 1)
-            iptcap->match_state = TRUE;
-        else {
-            iptcap->match_state = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_match, "state", "xt_state", load_modules);
-            if (result == 1)
-                iptcap->match_state = TRUE;
-        }
+        const char *state_modules[] = {"xt_state", "ipt_state", NULL};
+        iptcap->match_state = iptcap_check_cap_modules(
+                cnf, proc_net_match, "state", load_modules, state_modules);
 
         /* length match */
-        result = iptcap_check_cap(
-                cnf, proc_net_match, "length", "ipt_length", load_modules);
-        if (result == 1)
-            iptcap->match_length = TRUE;
-        else {
-            iptcap->match_length = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_match, "length", "xt_length", load_modules);
-            if (result == 1)
-                iptcap->match_length = TRUE;
-        }
+        const char *length_modules[] = {"xt_length", "ipt_length", NULL};
+        iptcap->match_length = iptcap_check_cap_modules(
+                cnf, proc_net_match, "length", load_modules, length_modules);
 
         /* limit match */
-        result = iptcap_check_cap(
-                cnf, proc_net_match, "limit", "ipt_limit", load_modules);
-        if (result == 1)
-            iptcap->match_limit = TRUE;
-        else {
-            iptcap->match_limit = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_match, "limit", "xt_limit", load_modules);
-            if (result == 1)
-                iptcap->match_limit = TRUE;
-            else {
-                iptcap->match_limit = FALSE;
-
-                result = iptcap_test_filter_limit_match(
-                        cnf, cnf->iptables_location);
-                if (result == 1)
-                    iptcap->match_limit = TRUE;
-            }
+        const char *limit_modules[] = {"xt_limit", "ipt_limit", NULL};
+        iptcap->match_limit = iptcap_check_cap_modules(
+                cnf, proc_net_match, "limit", load_modules, limit_modules);
+        if (!iptcap->match_limit) {
+            iptcap->match_limit = (iptcap_test_filter_limit_match(
+                                           cnf, cnf->iptables_location) == 1);
         }
 
         /* mark match */
-        result = iptcap_check_cap(
-                cnf, proc_net_match, "mark", "ipt_mark", load_modules);
-        if (result == 1)
-            iptcap->match_mark = TRUE;
-        else {
-            iptcap->match_mark = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_match, "mark", "xt_mark", load_modules);
-            if (result == 1)
-                iptcap->match_mark = TRUE;
-            else {
-                iptcap->match_mark = FALSE;
-
-                result = iptcap_test_filter_mark_match(
-                        cnf, cnf->iptables_location);
-                if (result == 1)
-                    iptcap->match_mark = TRUE;
-            }
+        const char *mark_modules[] = {"xt_mark", "ipt_mark", NULL};
+        iptcap->match_mark = iptcap_check_cap_modules(
+                cnf, proc_net_match, "mark", load_modules, mark_modules);
+        if (!iptcap->match_mark) {
+            iptcap->match_mark = (iptcap_test_filter_mark_match(
+                                          cnf, cnf->iptables_location) == 1);
         }
 
         /* mac match */
-        result = iptcap_check_cap(
-                cnf, proc_net_match, "mac", "ipt_mac", load_modules);
-        if (result == 1)
-            iptcap->match_mac = TRUE;
-        else {
-            iptcap->match_mac = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_match, "mac", "xt_mac", load_modules);
-            if (result == 1)
-                iptcap->match_mac = TRUE;
-            else {
-                iptcap->match_mac = FALSE;
-
-                result = iptcap_test_filter_mac_match(
-                        cnf, cnf->iptables_location);
-                if (result == 1)
-                    iptcap->match_mac = TRUE;
-            }
+        const char *mac_modules[] = {"xt_mac", "ipt_mac", NULL};
+        iptcap->match_mac = iptcap_check_cap_modules(
+                cnf, proc_net_match, "mac", load_modules, mac_modules);
+        if (!iptcap->match_mac) {
+            iptcap->match_mac = (iptcap_test_filter_mac_match(
+                                         cnf, cnf->iptables_location) == 1);
         }
 
         /* helper match */
-        result = iptcap_check_cap(
-                cnf, proc_net_match, "helper", "ipt_helper", load_modules);
-        if (result == 1)
-            iptcap->match_helper = TRUE;
-        else {
-            iptcap->match_helper = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_match, "helper", "xt_helper", load_modules);
-            if (result == 1)
-                iptcap->match_helper = TRUE;
-            else {
-                iptcap->match_helper = FALSE;
-
-                result = iptcap_test_filter_helper_match(
-                        cnf, cnf->iptables_location);
-                if (result == 1)
-                    iptcap->match_helper = TRUE;
-            }
+        const char *helper_modules[] = {"xt_helper", "ipt_helper", NULL};
+        iptcap->match_helper = iptcap_check_cap_modules(
+                cnf, proc_net_match, "helper", load_modules, helper_modules);
+        if (!iptcap->match_helper) {
+            iptcap->match_helper = (iptcap_test_filter_helper_match(
+                                            cnf, cnf->iptables_location) == 1);
         }
 
         /* connmark match */
-        result = iptcap_check_cap(
-                cnf, proc_net_match, "connmark", "ipt_connmark", load_modules);
-        if (result == 1)
-            iptcap->match_connmark = TRUE;
-        else {
-            iptcap->match_connmark = FALSE;
-
-            result = iptcap_check_cap(cnf, proc_net_match, "connmark",
-                    "xt_connmark", load_modules);
-            if (result == 1)
-                iptcap->match_connmark = TRUE;
-            else {
-                iptcap->match_connmark = FALSE;
-
-                result = iptcap_test_filter_connmark_match(
-                        cnf, cnf->iptables_location);
-                if (result == 1)
-                    iptcap->match_connmark = TRUE;
-            }
+        const char *connmark_modules[] = {"xt_connmark", "ipt_connmark", NULL};
+        iptcap->match_connmark = iptcap_check_cap_modules(cnf, proc_net_match,
+                "connmark", load_modules, connmark_modules);
+        if (!iptcap->match_connmark) {
+            iptcap->match_connmark = (iptcap_test_filter_connmark_match(cnf,
+                                              cnf->iptables_location) == 1);
         }
 
         /* conntrack match */
-        result = iptcap_check_cap(cnf, proc_net_match, "conntrack",
-                "ipt_conntrack", load_modules);
-        if (result == 1)
-            iptcap->match_conntrack = TRUE;
-        else {
-            iptcap->match_conntrack = FALSE;
-
-            result = iptcap_check_cap(cnf, proc_net_match, "conntrack",
-                    "xt_conntrack", load_modules);
-            if (result == 1)
-                iptcap->match_conntrack = TRUE;
-            else {
-                iptcap->match_conntrack = FALSE;
-
-                result = iptcap_test_filter_conntrack_match(
-                        cnf, cnf->iptables_location);
-                if (result == 1)
-                    iptcap->match_conntrack = TRUE;
-            }
+        const char *conntrack_modules[] = {
+                "xt_conntrack", "ipt_conntrack", NULL};
+        iptcap->match_conntrack = iptcap_check_cap_modules(cnf, proc_net_match,
+                "conntrack", load_modules, conntrack_modules);
+        if (!iptcap->match_conntrack) {
+            iptcap->match_conntrack = (iptcap_test_filter_conntrack_match(cnf,
+                                               cnf->iptables_location) == 1);
         }
 
         /* rpfilter match */
-        result = iptcap_check_cap(
-                cnf, proc_net_match, "rpfilter", "ipt_rpfilter", load_modules);
-        if (result == 1) {
-            result = iptcap_test_filter_rpfilter_match(
-                    cnf, cnf->iptables_location);
-            if (result == 1)
-                iptcap->match_rpfilter = TRUE;
-            else
-                iptcap->match_rpfilter = FALSE;
-        } else {
-            iptcap->match_rpfilter = FALSE;
-
-            result = iptcap_check_cap(cnf, proc_net_match, "rpfilter",
-                    "xt_rpfilter", load_modules);
-            if (result == 1)
-                iptcap->match_rpfilter = TRUE;
-            else
-                iptcap->match_rpfilter = FALSE;
-        }
-        result = iptcap_test_filter_rpfilter_match(cnf, cnf->iptables_location);
-        if (result == 1)
-            iptcap->match_rpfilter = TRUE;
-        else
-            iptcap->match_rpfilter = FALSE;
+        const char *rpfilter_modules[] = {"xt_rpfilter", "ipt_rpfilter", NULL};
+        iptcap->match_rpfilter = iptcap_check_cap_modules(cnf, proc_net_match,
+                "rpfilter", load_modules, rpfilter_modules);
+        iptcap->match_rpfilter = (iptcap_test_filter_rpfilter_match(
+                                          cnf, cnf->iptables_location) == 1);
     } else {
-        /* assume yes */
-        iptcap->match_tcp = TRUE;
-        iptcap->match_udp = TRUE;
-        iptcap->match_icmp = TRUE;
+        iptcap->match_tcp = true;
+        iptcap->match_udp = true;
+        iptcap->match_icmp = true;
 
-        iptcap->match_mark = TRUE;
-        iptcap->match_state = TRUE;
-        iptcap->match_helper = TRUE;
-        iptcap->match_length = TRUE;
-        iptcap->match_limit = TRUE;
-        iptcap->match_mac = TRUE;
-        iptcap->match_connmark = TRUE;
-        iptcap->match_rpfilter = TRUE;
+        iptcap->match_mark = true;
+        iptcap->match_state = true;
+        iptcap->match_helper = true;
+        iptcap->match_length = true;
+        iptcap->match_limit = true;
+        iptcap->match_mac = true;
+        iptcap->match_connmark = true;
+        iptcap->match_rpfilter = true;
     }
 
     /*
         TARGETS (capitalized)
     */
-    if (iptcap->proc_net_targets == TRUE) {
+    if (iptcap->proc_net_targets) {
         /* NAT targets */
-        if (iptcap->table_nat == TRUE) {
+        if (iptcap->table_nat) {
             /* DNAT target */
-            result = iptcap_check_cap(
-                    cnf, proc_net_target, "DNAT", "iptable_nat", load_modules);
-            if (result == 1)
-                iptcap->target_dnat = TRUE;
-            else
-                iptcap->target_dnat = FALSE;
+            iptcap->target_dnat =
+                    (iptcap_check_cap(cnf, proc_net_target, "DNAT",
+                             "iptable_nat", load_modules) == 1);
 
             /* SNAT target */
-            result = iptcap_check_cap(
-                    cnf, proc_net_target, "SNAT", "iptable_nat", load_modules);
-            if (result == 1)
-                iptcap->target_snat = TRUE;
-            else
-                iptcap->target_snat = FALSE;
+            iptcap->target_snat =
+                    (iptcap_check_cap(cnf, proc_net_target, "SNAT",
+                             "iptable_nat", load_modules) == 1);
 
             /* REDIRECT target */
-            result = iptcap_check_cap(cnf, proc_net_target, "REDIRECT",
-                    "ipt_REDIRECT", load_modules);
-            if (result == 1)
-                iptcap->target_redirect = TRUE;
-            else
-                iptcap->target_redirect = FALSE;
+            const char *redirect_modules[] = {
+                    "xt_REDIRECT", "ipt_REDIRECT", NULL};
+            iptcap->target_redirect =
+                    iptcap_check_cap_modules(cnf, proc_net_target, "REDIRECT",
+                            load_modules, redirect_modules);
 
             /* MASQUERADE target */
-            result = iptcap_check_cap(cnf, proc_net_target, "MASQUERADE",
-                    "ipt_MASQUERADE", load_modules);
-            if (result == 1)
-                iptcap->target_masquerade = TRUE;
-            else
-                iptcap->target_masquerade = FALSE;
+            iptcap->target_masquerade =
+                    (iptcap_check_cap(cnf, proc_net_target, "MASQUERADE",
+                             "ipt_MASQUERADE", load_modules) == 1);
 
             /* --random option for NAT */
-            result = iptcap_test_nat_random(cnf);
-            if (result == 1)
-                iptcap->target_nat_random = TRUE;
-            else
-                iptcap->target_nat_random = FALSE;
+            iptcap->target_nat_random =
+                    (iptcap_test_nat_random(cnf, cnf->iptables_location) == 1);
         }
 
         /* REJECT target */
-        result = iptcap_check_cap(
-                cnf, proc_net_target, "REJECT", "ipt_REJECT", load_modules);
-        if (result == 1)
-            iptcap->target_reject = TRUE;
-        else {
-            iptcap->target_reject = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_target, "REJECT", "xt_REJECT", load_modules);
-            if (result == 1)
-                iptcap->target_reject = TRUE;
-        }
+        const char *reject_modules[] = {"xt_REJECT", "ipt_REJECT", NULL};
+        iptcap->target_reject = iptcap_check_cap_modules(
+                cnf, proc_net_target, "REJECT", load_modules, reject_modules);
 
         /* NFLOG target */
-        result = iptcap_check_cap(
-                cnf, proc_net_target, "NFLOG", "xt_NFLOG", load_modules);
-        if (result == 1)
-            iptcap->target_nflog = TRUE;
-        else {
-            iptcap->target_nflog = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_target, "NFLOG", "xt_NFLOG", load_modules);
-            if (result == 1)
-                iptcap->target_nflog = TRUE;
-        }
+        const char *nflog_modules[] = {"xt_NFLOG", "ipt_NFLOG", NULL};
+        iptcap->target_nflog = iptcap_check_cap_modules(
+                cnf, proc_net_target, "NFLOG", load_modules, nflog_modules);
 
         /* NFQUEUE target - this one is listed in /proc/net/ip_tables_targets */
-        result = iptcap_check_cap(
-                cnf, proc_net_target, "NFQUEUE", "ipt_NFQUEUE", load_modules);
-        if (result == 1)
-            iptcap->target_nfqueue = TRUE;
-        else {
-            iptcap->target_nfqueue = FALSE;
-
-            result = iptcap_check_cap(cnf, proc_net_target, "NFQUEUE",
-                    "xt_NFQUEUE", load_modules);
-            if (result == 1)
-                iptcap->target_nfqueue = TRUE;
-        }
+        const char *nfqueue_modules[] = {"xt_NFQUEUE", "ipt_NFQUEUE", NULL};
+        iptcap->target_nfqueue = iptcap_check_cap_modules(
+                cnf, proc_net_target, "NFQUEUE", load_modules, nfqueue_modules);
 
         /* TCPMSS target - this one is listed in /proc/net/ip_tables_targets */
-        result = iptcap_check_cap(
-                cnf, proc_net_target, "TCPMSS", "ipt_TCPMSS", load_modules);
-        if (result == 1)
-            iptcap->target_tcpmss = TRUE;
-        else {
-            iptcap->target_tcpmss = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_target, "TCPMSS", "xt_TCPMSS", load_modules);
-            if (result == 1)
-                iptcap->target_tcpmss = TRUE;
-        }
+        const char *tcpmss_modules[] = {"xt_TCPMSS", "ipt_TCPMSS", NULL};
+        iptcap->target_tcpmss = iptcap_check_cap_modules(
+                cnf, proc_net_target, "TCPMSS", load_modules, tcpmss_modules);
 
         /* mangle stuff */
-        if (iptcap->table_mangle == TRUE) {
-            /* MARK target */
-            result = iptcap_check_cap(
-                    cnf, proc_net_target, "MARK", "ipt_MARK", load_modules);
-            if (result == 1)
-                iptcap->target_mark = TRUE;
-            else {
-                iptcap->target_mark = FALSE;
-
-                result = iptcap_check_cap(
-                        cnf, proc_net_target, "MARK", "xt_MARK", load_modules);
-                if (result == 1)
-                    iptcap->target_mark = TRUE;
-                else {
-                    iptcap->target_mark = FALSE;
-
-                    result = iptcap_test_mangle_mark_target(
-                            cnf, cnf->iptables_location);
-                    if (result == 1)
-                        iptcap->target_mark = TRUE;
-                }
+        if (iptcap->table_mangle) {
+            const char *mark_modules[] = {"xt_MARK", "ipt_MARK", NULL};
+            iptcap->target_mark = iptcap_check_cap_modules(
+                    cnf, proc_net_target, "MARK", load_modules, mark_modules);
+            if (!iptcap->target_mark) {
+                iptcap->target_mark = (iptcap_test_mangle_mark_target(cnf,
+                                               cnf->iptables_location) == 1);
             }
 
             /* CONNMARK target */
-            result = iptcap_check_cap(cnf, proc_net_target, "CONNMARK",
-                    "ipt_CONNMARK", load_modules);
-            if (result == 1)
-                iptcap->target_connmark = TRUE;
-            else {
-                iptcap->target_connmark = FALSE;
-
-                result = iptcap_check_cap(cnf, proc_net_target, "CONNMARK",
-                        "xt_CONNMARK", load_modules);
-                if (result == 1)
-                    iptcap->target_connmark = TRUE;
-                else {
-                    iptcap->target_connmark = FALSE;
-
-                    result = iptcap_test_filter_connmark_target(
-                            cnf, cnf->iptables_location);
-                    if (result == 1)
-                        iptcap->target_connmark = TRUE;
-                }
+            const char *connmark_modules[] = {
+                    "xt_CONNMARK", "ipt_CONNMARK", NULL};
+            iptcap->target_connmark =
+                    iptcap_check_cap_modules(cnf, proc_net_target, "CONNMARK",
+                            load_modules, connmark_modules);
+            if (!iptcap->target_connmark) {
+                iptcap->target_connmark =
+                        (iptcap_test_mangle_connmark_target(
+                                 cnf, cnf->iptables_location) == 1);
             }
 
             /* CLASSIFY target */
-            result = iptcap_check_cap(cnf, proc_net_target, "CLASSIFY",
-                    "ipt_CLASSIFY", load_modules);
-            if (result == 1)
-                iptcap->target_classify = TRUE;
-            else {
-                iptcap->target_classify = FALSE;
-
-                result = iptcap_check_cap(cnf, proc_net_target, "CLASSIFY",
-                        "xt_CLASSIFY", load_modules);
-                if (result == 1)
-                    iptcap->target_classify = TRUE;
-                else {
-                    iptcap->target_classify = FALSE;
-
-                    result = iptcap_test_mangle_classify_target(
-                            cnf, cnf->iptables_location);
-                    if (result == 1)
-                        iptcap->target_classify = TRUE;
-                }
+            const char *classify_modules[] = {
+                    "xt_CLASSIFY", "ipt_CLASSIFY", NULL};
+            iptcap->target_classify =
+                    iptcap_check_cap_modules(cnf, proc_net_target, "CLASSIFY",
+                            load_modules, classify_modules);
+            if (!iptcap->target_classify) {
+                iptcap->target_classify =
+                        (iptcap_test_mangle_classify_target(
+                                 cnf, cnf->iptables_location) == 1);
             }
         }
 
         /* raw stuff */
-        if (iptcap->table_raw == TRUE) {
+        if (iptcap->table_raw) {
             /* CT target */
-            result = iptcap_check_cap(
-                    cnf, proc_net_target, "CT", "ipt_CT", load_modules);
-            if (result == 1)
-                iptcap->target_ct = TRUE;
-            else {
-                iptcap->target_ct = FALSE;
-
-                result = iptcap_check_cap(
-                        cnf, proc_net_target, "CT", "xt_CT", load_modules);
-                if (result == 1)
-                    iptcap->target_ct = TRUE;
-                else {
-                    iptcap->target_ct = FALSE;
-
-                    result = iptcap_test_mangle_mark_target(
-                            cnf, cnf->iptables_location);
-                    if (result == 1)
-                        iptcap->target_ct = TRUE;
-                }
-            }
+            const char *ct_modules[] = {"xt_CT", "ipt_CT", NULL};
+            iptcap->target_ct = iptcap_check_cap_modules(
+                    cnf, proc_net_target, "CT", load_modules, ct_modules);
         }
     } else {
-        /* assume yes */
-        if (iptcap->table_nat == TRUE) {
-            iptcap->target_snat = TRUE;
-            iptcap->target_dnat = TRUE;
-            iptcap->target_redirect = TRUE;
-            iptcap->target_masquerade = TRUE;
+        if (iptcap->table_nat == true) {
+            iptcap->target_snat = true;
+            iptcap->target_dnat = true;
+            iptcap->target_redirect = true;
+            iptcap->target_masquerade = true;
         }
 
-        iptcap->target_reject = TRUE;
-        iptcap->target_nfqueue = TRUE;
+        iptcap->target_reject = true;
+        iptcap->target_nfqueue = true;
 
-        if (iptcap->table_mangle == TRUE) {
-            iptcap->target_mark = TRUE;
-            iptcap->target_connmark = TRUE;
-            iptcap->target_classify = TRUE;
+        if (iptcap->table_mangle == true) {
+            iptcap->target_mark = true;
+            iptcap->target_connmark = true;
+            iptcap->target_classify = true;
         }
-        if (iptcap->table_raw == TRUE) {
-            iptcap->target_ct = TRUE;
+        if (iptcap->table_raw == true) {
+            iptcap->target_ct = true;
         }
     }
 
@@ -1290,7 +975,7 @@ int vrmr_load_iptcaps(
 }
 
 int vrmr_check_ip6tcaps(
-        struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+        struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, bool load_modules)
 {
     assert(iptcap != NULL && cnf != NULL);
 
@@ -1357,17 +1042,15 @@ int vrmr_check_ip6tcaps(
 }
 
 int vrmr_load_ip6tcaps(
-        struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+        struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, bool load_modules)
 {
     char proc_net_ip6_match[] = "/proc/net/ip6_tables_matches",
          proc_net_ip6_target[] = "/proc/net/ip6_tables_targets",
          proc_net_ip6_names[] = "/proc/net/ip6_tables_names";
     /*
                 proc_net_netfilter_nfnetlink_queue[] =
-       "/proc/net/netfilter/nfnetlink_queue", proc_net_ipconntrack[]  =
-       VRMR_PROC_IPCONNTRACK, proc_net_nfconntrack[]  = VRMR_PROC_NFCONNTRACK;
+       "/proc/net/netfilter/nfnetlink_queue"
     */
-    int result = 0;
     assert(iptcap != NULL && cnf != NULL);
 
 #if 0
@@ -1384,7 +1067,7 @@ int vrmr_load_ip6tcaps(
         vrmr_debug(LOW, "%s not found: load_modules: %s.", proc_net_ip6_match,
                 load_modules ? "Yes" : "No");
 
-        if (load_modules == TRUE) {
+        if (load_modules == true) {
             /* try to load the module */
             (void)iptcap_load_module(cnf, "ip6_tables");
 
@@ -1394,11 +1077,11 @@ int vrmr_load_ip6tcaps(
             } else {
                 vrmr_debug(LOW, "%s found!", proc_net_ip6_match);
 
-                iptcap->proc_net_ip6_matches = TRUE;
+                iptcap->proc_net_ip6_matches = true;
             }
         }
     } else {
-        iptcap->proc_net_ip6_matches = TRUE;
+        iptcap->proc_net_ip6_matches = true;
     }
 
     /* /proc/net/ip6_tables_targets */
@@ -1406,7 +1089,7 @@ int vrmr_load_ip6tcaps(
         vrmr_debug(LOW, "%s not found: load_modules: %s.", proc_net_ip6_target,
                 load_modules ? "Yes" : "No");
 
-        if (load_modules == TRUE) {
+        if (load_modules == true) {
             /* try to load the module */
             (void)iptcap_load_module(cnf, "ip6_tables");
 
@@ -1416,16 +1099,16 @@ int vrmr_load_ip6tcaps(
             } else {
                 vrmr_debug(LOW, "%s found!", proc_net_ip6_target);
 
-                iptcap->proc_net_ip6_targets = TRUE;
+                iptcap->proc_net_ip6_targets = true;
             }
         }
     } else {
-        iptcap->proc_net_ip6_targets = TRUE;
+        iptcap->proc_net_ip6_targets = true;
     }
 
     /* /proc/net/ip6_tables_names */
     if (!(iptcap_check_file(proc_net_ip6_names))) {
-        if (load_modules == TRUE) {
+        if (load_modules == true) {
             /* try to load the module */
             (void)iptcap_load_module(cnf, "ip6_tables");
 
@@ -1435,67 +1118,38 @@ int vrmr_load_ip6tcaps(
             } else {
                 vrmr_debug(LOW, "%s found!", proc_net_ip6_names);
 
-                iptcap->proc_net_ip6_names = TRUE;
+                iptcap->proc_net_ip6_names = true;
             }
         }
     } else {
-        iptcap->proc_net_ip6_names = TRUE;
+        iptcap->proc_net_ip6_names = true;
     }
 
     /*
         NAMES
     */
-    if (iptcap->proc_net_ip6_names == TRUE) {
-        result = iptcap_check_cap(cnf, proc_net_ip6_names, "filter",
-                "ip6table_filter", load_modules);
-        if (result == 1)
-            iptcap->table_ip6_filter = TRUE;
-        else
-            iptcap->table_ip6_filter = FALSE;
-
-        result = iptcap_check_cap(cnf, proc_net_ip6_names, "mangle",
-                "ip6table_mangle", load_modules);
-        if (result == 1)
-            iptcap->table_ip6_mangle = TRUE;
-        else
-            iptcap->table_ip6_mangle = FALSE;
-
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_names, "raw", "ip6table_raw", load_modules);
-        if (result == 1)
-            iptcap->table_ip6_raw = TRUE;
-        else
-            iptcap->table_ip6_raw = FALSE;
+    if (iptcap->proc_net_ip6_names == true) {
+        const char *filter_modules[] = {"ip6table_filter", NULL};
+        iptcap->table_ip6_filter = iptcap_check_cap_modules(cnf,
+                proc_net_ip6_names, "filter", load_modules, filter_modules);
+        const char *mangle_modules[] = {"ip6table_mangle", NULL};
+        iptcap->table_ip6_mangle = iptcap_check_cap_modules(cnf,
+                proc_net_ip6_names, "mangle", load_modules, mangle_modules);
+        const char *raw_modules[] = {"ip6table_raw", NULL};
+        iptcap->table_ip6_raw = iptcap_check_cap_modules(
+                cnf, proc_net_ip6_names, "raw", load_modules, raw_modules);
     } else {
         /* assume yes */
-        iptcap->table_ip6_filter = TRUE;
-        iptcap->table_ip6_mangle = TRUE;
-        iptcap->table_ip6_raw = TRUE;
+        iptcap->table_ip6_filter = true;
+        iptcap->table_ip6_mangle = true;
+        iptcap->table_ip6_raw = true;
     }
 
-#if 0
     /* check for the CONNTRACK */
-    if(iptcap->conntrack == FALSE) {
-        if(!(iptcap_check_file(proc_net_nfconntrack)))
-        {
-            if(load_modules == TRUE)
-            {
-                /* try to load the module, if it fails, return 0 */
-                (void)iptcap_load_module(cnf, "nf_conntrack_ipv6");
-
-                /* check again */
-                if(!(iptcap_check_file(proc_net_nfconntrack)))
-                    iptcap->conntrack = FALSE;
-                else
-                    iptcap->conntrack = TRUE;
-            }
-        }
-        else
-        {
-            iptcap->conntrack = TRUE;
-        }
+    if (load_modules) {
+        (void)iptcap_load_module(cnf, "nf_conntrack");
+        (void)iptcap_load_module(cnf, "nf_conntrack_ipv6");
     }
-#endif
 
 #if 0
     /* check for the /proc/net/netfilter/nfnetlink_queue */
@@ -1524,240 +1178,104 @@ int vrmr_load_ip6tcaps(
         MATCHES (uncapitalized)
     */
     if (iptcap->proc_net_ip6_matches == TRUE) {
-        /* tcp */
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_match, "tcp", "ip6_tables", load_modules);
-        if (result == 1)
-            iptcap->match_ip6_tcp = TRUE;
-        else {
-            iptcap->match_ip6_tcp = FALSE;
-
-#if 0
-            /* from kernel 2.6.16 these are in xt_tcpudp */
-            result = iptcap_check_cap(cnf, proc_net_ip6_match, "tcp", "xt_tcpudp", load_modules);
-            if(result == 1) iptcap->match_ip6_tcp = TRUE;
-#endif
-        }
-
-        /* udp */
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_match, "udp", "ip6_tables", load_modules);
-        if (result == 1)
-            iptcap->match_ip6_udp = TRUE;
-        else {
-            iptcap->match_ip6_udp = FALSE;
-
-#if 0
-            /* from kernel 2.6.16 these are in xt_tcpudp */
-            result = iptcap_check_cap(cnf, proc_net_ip6_match, "udp", "xt_tcpudp", load_modules);
-            if(result == 1) iptcap->match_ip6_udp = TRUE;
-#endif
-        }
-
-        /*  icmp: in kernel 2.6.16 this is also supplied by
-            ip_tables, while tcp and udp are no longer. */
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_match, "icmp6", "ip6_tables", load_modules);
-        if (result == 1)
-            iptcap->match_icmp6 = TRUE;
-        else
-            iptcap->match_icmp6 = FALSE;
+        const char *tcp_modules[] = {"xt_tcpudp", "ip6_tables", NULL};
+        iptcap->match_ip6_tcp = iptcap_check_cap_modules(
+                cnf, proc_net_ip6_match, "tcp", load_modules, tcp_modules);
+        const char *udp_modules[] = {"xt_tcpudp", "ip6_tables", NULL};
+        iptcap->match_ip6_udp = iptcap_check_cap_modules(
+                cnf, proc_net_ip6_match, "udp", load_modules, udp_modules);
+        const char *icmp_modules[] = {"ip6_tables", NULL};
+        iptcap->match_icmp6 = iptcap_check_cap_modules(
+                cnf, proc_net_ip6_match, "icmp6", load_modules, icmp_modules);
 
         /* state match */
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_match, "state", "ipt_state", load_modules);
-        if (result == 1)
-            iptcap->match_ip6_state = TRUE;
-        else {
-            iptcap->match_ip6_state = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_ip6_match, "state", "xt_state", load_modules);
-            if (result == 1)
-                iptcap->match_ip6_state = TRUE;
-        }
+        const char *state_modules[] = {"xt_state", "ipt_state", NULL};
+        iptcap->match_ip6_state = iptcap_check_cap_modules(
+                cnf, proc_net_ip6_match, "state", load_modules, state_modules);
 
         /* length match */
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_match, "length", "ipt_length", load_modules);
-        if (result == 1)
-            iptcap->match_ip6_length = TRUE;
-        else {
-            iptcap->match_ip6_length = FALSE;
-
-            result = iptcap_check_cap(cnf, proc_net_ip6_match, "length",
-                    "xt_length", load_modules);
-            if (result == 1)
-                iptcap->match_ip6_length = TRUE;
-        }
+        const char *length_modules[] = {"xt_length", "ipt_length", NULL};
+        iptcap->match_ip6_length = iptcap_check_cap_modules(cnf,
+                proc_net_ip6_match, "length", load_modules, length_modules);
 
         /* limit match */
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_match, "limit", "ipt_limit", load_modules);
-        if (result == 1)
-            iptcap->match_ip6_limit = TRUE;
-        else {
-            iptcap->match_ip6_limit = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_ip6_match, "limit", "xt_limit", load_modules);
-            if (result == 1)
-                iptcap->match_ip6_limit = TRUE;
-            else {
-                iptcap->match_ip6_limit = FALSE;
-
-                result = iptcap_test_filter_limit_match(
-                        cnf, cnf->ip6tables_location);
-                if (result == 1)
-                    iptcap->match_ip6_limit = TRUE;
-            }
+        const char *limit_modules[] = {"xt_limit", "ipt_limit", NULL};
+        iptcap->match_ip6_limit = iptcap_check_cap_modules(
+                cnf, proc_net_ip6_match, "limit", load_modules, limit_modules);
+        if (!iptcap->match_ip6_limit) {
+            iptcap->match_ip6_limit = (iptcap_test_filter_limit_match(cnf,
+                                               cnf->ip6tables_location) == 1);
         }
 
         /* mark match */
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_match, "mark", "ipt_mark", load_modules);
-        if (result == 1)
-            iptcap->match_ip6_mark = TRUE;
-        else {
-            iptcap->match_ip6_mark = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_ip6_match, "mark", "xt_mark", load_modules);
-            if (result == 1)
-                iptcap->match_ip6_mark = TRUE;
-            else {
-                iptcap->match_ip6_mark = FALSE;
-
-                result = iptcap_test_filter_mark_match(
-                        cnf, cnf->ip6tables_location);
-                if (result == 1)
-                    iptcap->match_ip6_mark = TRUE;
-            }
+        const char *mark_modules[] = {"xt_mark", "ipt_mark", NULL};
+        iptcap->match_ip6_mark = iptcap_check_cap_modules(
+                cnf, proc_net_ip6_match, "mark", load_modules, mark_modules);
+        if (!iptcap->match_ip6_mark) {
+            iptcap->match_ip6_mark = (iptcap_test_filter_mark_match(cnf,
+                                              cnf->ip6tables_location) == 1);
         }
 
         /* mac match */
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_match, "mac", "ipt_mac", load_modules);
-        if (result == 1)
-            iptcap->match_ip6_mac = TRUE;
-        else {
-            iptcap->match_ip6_mac = FALSE;
-
-            result = iptcap_check_cap(
-                    cnf, proc_net_ip6_match, "mac", "xt_mac", load_modules);
-            if (result == 1)
-                iptcap->match_ip6_mac = TRUE;
-            else {
-                iptcap->match_ip6_mac = FALSE;
-
-                result = iptcap_test_filter_mac_match(
-                        cnf, cnf->ip6tables_location);
-                if (result == 1)
-                    iptcap->match_ip6_mac = TRUE;
-            }
+        const char *mac_modules[] = {"xt_mac", "ipt_mac", NULL};
+        iptcap->match_ip6_mac = iptcap_check_cap_modules(
+                cnf, proc_net_ip6_match, "mac", load_modules, mac_modules);
+        if (!iptcap->match_ip6_mac) {
+            iptcap->match_ip6_mac = (iptcap_test_filter_mac_match(cnf,
+                                             cnf->ip6tables_location) == 1);
         }
 
         /* helper match */
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_match, "helper", "ipt_helper", load_modules);
-        if (result == 1)
-            iptcap->match_ip6_helper = TRUE;
-        else {
-            iptcap->match_ip6_helper = FALSE;
-
-            result = iptcap_check_cap(cnf, proc_net_ip6_match, "helper",
-                    "xt_helper", load_modules);
-            if (result == 1)
-                iptcap->match_ip6_helper = TRUE;
-            else {
-                iptcap->match_ip6_helper = FALSE;
-
-                result = iptcap_test_filter_helper_match(
-                        cnf, cnf->ip6tables_location);
-                if (result == 1)
-                    iptcap->match_ip6_helper = TRUE;
-            }
+        const char *helper_modules[] = {"xt_helper", "ipt_helper", NULL};
+        iptcap->match_ip6_helper = iptcap_check_cap_modules(cnf,
+                proc_net_ip6_match, "helper", load_modules, helper_modules);
+        if (!iptcap->match_ip6_helper) {
+            iptcap->match_ip6_helper = (iptcap_test_filter_helper_match(cnf,
+                                                cnf->ip6tables_location) == 1);
         }
 
         /* connmark match */
-        result = iptcap_check_cap(cnf, proc_net_ip6_match, "connmark",
-                "ipt_connmark", load_modules);
-        if (result == 1)
-            iptcap->match_ip6_connmark = TRUE;
-        else {
-            iptcap->match_ip6_connmark = FALSE;
-
-            result = iptcap_check_cap(cnf, proc_net_ip6_match, "connmark",
-                    "xt_connmark", load_modules);
-            if (result == 1)
-                iptcap->match_ip6_connmark = TRUE;
-            else {
-                iptcap->match_ip6_connmark = FALSE;
-
-                result = iptcap_test_filter_connmark_match(
-                        cnf, cnf->ip6tables_location);
-                if (result == 1)
-                    iptcap->match_ip6_connmark = TRUE;
-            }
+        const char *connmark_modules[] = {"xt_connmark", "ipt_connmark", NULL};
+        iptcap->match_ip6_connmark = iptcap_check_cap_modules(cnf,
+                proc_net_ip6_match, "connmark", load_modules, connmark_modules);
+        if (!iptcap->match_ip6_connmark) {
+            iptcap->match_ip6_connmark =
+                    (iptcap_test_filter_connmark_match(
+                             cnf, cnf->ip6tables_location) == 1);
         }
 
         /* conntrack match */
-        result = iptcap_check_cap(cnf, proc_net_ip6_match, "conntrack",
-                "ipt_conntrack", load_modules);
-        if (result == 1)
-            iptcap->match_ip6_conntrack = TRUE;
-        else {
-            iptcap->match_ip6_conntrack = FALSE;
-
-            result = iptcap_check_cap(cnf, proc_net_ip6_match, "conntrack",
-                    "xt_conntrack", load_modules);
-            if (result == 1)
-                iptcap->match_ip6_conntrack = TRUE;
-            else {
-                iptcap->match_ip6_conntrack = FALSE;
-
-                result = iptcap_test_filter_conntrack_match(
-                        cnf, cnf->ip6tables_location);
-                if (result == 1)
-                    iptcap->match_ip6_conntrack = TRUE;
-            }
+        const char *conntrack_modules[] = {
+                "xt_conntrack", "ipt_conntrack", NULL};
+        iptcap->match_ip6_conntrack =
+                iptcap_check_cap_modules(cnf, proc_net_ip6_match, "conntrack",
+                        load_modules, conntrack_modules);
+        if (!iptcap->match_ip6_conntrack) {
+            iptcap->match_ip6_conntrack =
+                    (iptcap_test_filter_conntrack_match(
+                             cnf, cnf->ip6tables_location) == 1);
         }
 
         /* rpfilter match */
-        result = iptcap_check_cap(cnf, proc_net_ip6_match, "rpfilter",
-                "ip6t_rpfilter", load_modules);
-        if (result == 1)
-            iptcap->match_ip6_rpfilter = TRUE;
-        else {
-            iptcap->match_ip6_rpfilter = FALSE;
+        const char *rpfilter_modules[] = {"xt_rpfilter", "ipt_rpfilter", NULL};
+        iptcap->match_ip6_rpfilter = iptcap_check_cap_modules(cnf,
+                proc_net_ip6_match, "rpfilter", load_modules, rpfilter_modules);
+        iptcap->match_ip6_rpfilter = (iptcap_test_filter_rpfilter_match(cnf,
+                                              cnf->ip6tables_location) == 1);
 
-            result = iptcap_check_cap(cnf, proc_net_ip6_match, "rpfilter",
-                    "xt_rpfilter", load_modules);
-            if (result == 1)
-                iptcap->match_ip6_rpfilter = TRUE;
-            else
-                iptcap->match_ip6_rpfilter = FALSE;
-        }
-        result =
-                iptcap_test_filter_rpfilter_match(cnf, cnf->ip6tables_location);
-        if (result == 1)
-            iptcap->match_ip6_rpfilter = TRUE;
-        else
-            iptcap->match_ip6_rpfilter = FALSE;
     } else {
-        /* assume yes */
-        iptcap->match_ip6_tcp = TRUE;
-        iptcap->match_ip6_udp = TRUE;
-        iptcap->match_icmp6 = TRUE;
+        iptcap->match_ip6_tcp = true;
+        iptcap->match_ip6_udp = true;
+        iptcap->match_icmp6 = true;
 
-        iptcap->match_ip6_mark = TRUE;
-        iptcap->match_ip6_state = TRUE;
-        iptcap->match_ip6_helper = TRUE;
-        iptcap->match_ip6_length = TRUE;
-        iptcap->match_ip6_limit = TRUE;
-        iptcap->match_ip6_mac = TRUE;
-        iptcap->match_ip6_connmark = TRUE;
-        iptcap->match_ip6_rpfilter = TRUE;
+        iptcap->match_ip6_mark = true;
+        iptcap->match_ip6_state = true;
+        iptcap->match_ip6_helper = true;
+        iptcap->match_ip6_length = true;
+        iptcap->match_ip6_limit = true;
+        iptcap->match_ip6_mac = true;
+        iptcap->match_ip6_connmark = true;
+        iptcap->match_ip6_rpfilter = true;
     }
 
     /*
@@ -1765,142 +1283,86 @@ int vrmr_load_ip6tcaps(
     */
     if (iptcap->proc_net_ip6_targets == TRUE) {
         /* REJECT target */
-        result = iptcap_check_cap(cnf, proc_net_ip6_target, "REJECT",
-                "ip6t_REJECT", load_modules);
-        if (result == 1)
-            iptcap->target_ip6_reject = TRUE;
-        else {
-            iptcap->target_ip6_reject = FALSE;
+        const char *reject_modules[] = {"xt_REJECT", "ip6t_REJECT", NULL};
+        iptcap->target_ip6_reject = iptcap_check_cap_modules(cnf,
+                proc_net_ip6_target, "REJECT", load_modules, reject_modules);
 
-            /* TODO Check if this module really exists */
-            result = iptcap_check_cap(cnf, proc_net_ip6_target, "REJECT",
-                    "xt_REJECT", load_modules);
-            if (result == 1)
-                iptcap->target_ip6_reject = TRUE;
-        }
-
-        /* LOG target */
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_target, "LOG", "ip6t_LOG", load_modules);
-        if (result == 1)
-            iptcap->target_ip6_log = TRUE;
-        else {
-            iptcap->target_ip6_log = FALSE;
-
-            /* TODO Check if this module really exists */
-            result = iptcap_check_cap(
-                    cnf, proc_net_ip6_target, "LOG", "xt_LOG", load_modules);
-            if (result == 1)
-                iptcap->target_ip6_log = TRUE;
-        }
+        /* NFLOG target */
+        const char *nflog_modules[] = {"xt_NFLOG", "ip6t_NFLOG", NULL};
+        iptcap->target_ip6_nflog = iptcap_check_cap_modules(
+                cnf, proc_net_ip6_target, "NFLOG", load_modules, nflog_modules);
 
         /* NFQUEUE target - this one is listed in /proc/net/ip_tables_targets */
-        result = iptcap_check_cap(cnf, proc_net_ip6_target, "NFQUEUE",
-                "ipt_NFQUEUE", load_modules);
-        if (result == 1)
-            iptcap->target_ip6_nfqueue = TRUE;
-        else {
-            iptcap->target_ip6_nfqueue = FALSE;
-
-            result = iptcap_check_cap(cnf, proc_net_ip6_target, "NFQUEUE",
-                    "xt_NFQUEUE", load_modules);
-            if (result == 1)
-                iptcap->target_ip6_nfqueue = TRUE;
-        }
+        const char *nfqueue_modules[] = {"xt_NFQUEUE", "ip6t_NFQUEUE", NULL};
+        iptcap->target_ip6_nfqueue = iptcap_check_cap_modules(cnf,
+                proc_net_ip6_target, "NFQUEUE", load_modules, nfqueue_modules);
 
         /* TCPMSS target - this one is listed in /proc/net/ip_tables_targets */
-        result = iptcap_check_cap(
-                cnf, proc_net_ip6_target, "TCPMSS", "ipt_TCPMSS", load_modules);
-        if (result == 1)
-            iptcap->target_ip6_tcpmss = TRUE;
-        else {
-            iptcap->target_ip6_tcpmss = FALSE;
-
-            result = iptcap_check_cap(cnf, proc_net_ip6_target, "TCPMSS",
-                    "xt_TCPMSS", load_modules);
-            if (result == 1)
-                iptcap->target_ip6_tcpmss = TRUE;
-        }
+        const char *tcpmss_modules[] = {"xt_TCPMSS", "ip6t_TCPMSS", NULL};
+        iptcap->target_ip6_tcpmss = iptcap_check_cap_modules(cnf,
+                proc_net_ip6_target, "TCPMSS", load_modules, tcpmss_modules);
 
         /* mangle stuff */
         if (iptcap->table_ip6_mangle == TRUE) {
             /* MARK target */
-            result = iptcap_check_cap(
-                    cnf, proc_net_ip6_target, "MARK", "ipt_MARK", load_modules);
-            if (result == 1)
-                iptcap->target_ip6_mark = TRUE;
-            else {
-                iptcap->target_ip6_mark = FALSE;
-
-                result = iptcap_check_cap(cnf, proc_net_ip6_target, "MARK",
-                        "xt_MARK", load_modules);
-                if (result == 1)
-                    iptcap->target_ip6_mark = TRUE;
-                else {
-                    iptcap->target_ip6_mark = FALSE;
-
-                    result = iptcap_test_mangle_mark_target(
-                            cnf, cnf->ip6tables_location);
-                    if (result == 1)
-                        iptcap->target_ip6_mark = TRUE;
-                }
+            const char *mark_modules[] = {"xt_MARK", "ip6t_MARK", NULL};
+            iptcap->target_ip6_mark = iptcap_check_cap_modules(cnf,
+                    proc_net_ip6_target, "MARK", load_modules, mark_modules);
+            if (!iptcap->target_ip6_mark) {
+                iptcap->target_ip6_mark =
+                        (iptcap_test_mangle_mark_target(
+                                 cnf, cnf->ip6tables_location) == 1);
             }
 
             /* CONNMARK target */
-            result = iptcap_check_cap(cnf, proc_net_ip6_target, "CONNMARK",
-                    "ipt_CONNMARK", load_modules);
-            if (result == 1)
-                iptcap->target_ip6_connmark = TRUE;
-            else {
-                iptcap->target_ip6_connmark = FALSE;
-
-                result = iptcap_check_cap(cnf, proc_net_ip6_target, "CONNMARK",
-                        "xt_CONNMARK", load_modules);
-                if (result == 1)
-                    iptcap->target_ip6_connmark = TRUE;
-                else {
-                    iptcap->target_ip6_connmark = FALSE;
-
-                    result = iptcap_test_filter_connmark_target(
-                            cnf, cnf->ip6tables_location);
-                    if (result == 1)
-                        iptcap->target_ip6_connmark = TRUE;
-                }
+            const char *connmark_modules[] = {
+                    "xt_CONNMARK", "ip6t_CONNMARK", NULL};
+            iptcap->target_ip6_connmark =
+                    iptcap_check_cap_modules(cnf, proc_net_ip6_target,
+                            "CONNMARK", load_modules, connmark_modules);
+            if (!iptcap->target_ip6_connmark) {
+                iptcap->target_ip6_connmark =
+                        (iptcap_test_mangle_connmark_target(
+                                 cnf, cnf->ip6tables_location) == 1);
             }
 
             /* CLASSIFY target */
-            result = iptcap_check_cap(cnf, proc_net_ip6_target, "CLASSIFY",
-                    "ipt_CLASSIFY", load_modules);
-            if (result == 1)
-                iptcap->target_ip6_classify = TRUE;
-            else {
-                iptcap->target_ip6_classify = FALSE;
-
-                result = iptcap_check_cap(cnf, proc_net_ip6_target, "CLASSIFY",
-                        "xt_CLASSIFY", load_modules);
-                if (result == 1)
-                    iptcap->target_ip6_classify = TRUE;
-                else {
-                    iptcap->target_ip6_classify = FALSE;
-
-                    result = iptcap_test_mangle_classify_target(
-                            cnf, cnf->ip6tables_location);
-                    if (result == 1)
-                        iptcap->target_ip6_classify = TRUE;
-                }
+            const char *classify_modules[] = {
+                    "xt_CLASSIFY", "ip6t_CLASSIFY", NULL};
+            iptcap->target_ip6_classify =
+                    iptcap_check_cap_modules(cnf, proc_net_ip6_target,
+                            "CLASSIFY", load_modules, classify_modules);
+            if (!iptcap->target_ip6_classify) {
+                iptcap->target_ip6_classify =
+                        (iptcap_test_mangle_classify_target(
+                                 cnf, cnf->ip6tables_location) == 1);
             }
         }
-    } else {
-        /* assume yes */
-        iptcap->target_ip6_reject = TRUE;
-        iptcap->target_ip6_log = TRUE;
-        iptcap->target_ip6_nfqueue = TRUE;
-
-        if (iptcap->table_ip6_mangle == TRUE) {
-            iptcap->target_ip6_mark = TRUE;
-            iptcap->target_ip6_connmark = TRUE;
-            iptcap->target_ip6_classify = TRUE;
+        /* raw stuff */
+        if (iptcap->table_ip6_raw) {
+            /* CT target */
+            const char *ct_modules[] = {"xt_CT", "ip6t_CT", NULL};
+            iptcap->target_ip6_ct = iptcap_check_cap_modules(
+                    cnf, proc_net_ip6_target, "CT", load_modules, ct_modules);
         }
+    } else {
+        iptcap->target_ip6_reject = true;
+        iptcap->target_ip6_nfqueue = true;
+
+        if (iptcap->table_ip6_mangle == true) {
+            iptcap->target_ip6_mark = true;
+            iptcap->target_ip6_connmark = true;
+            iptcap->target_ip6_classify = true;
+        }
+    }
+
+    /* test to see if we have ipv6 conntrack support. If the api is available
+       and the connmark target is available and usable, we assume yes. */
+    if (vrmr_conn_check_api() && iptcap->target_ip6_connmark &&
+            iptcap->match_ip6_connmark &&
+            (iptcap_test_mangle_connmark_target(cnf, cnf->ip6tables_location) ==
+                    1)) {
+        iptcap->conntrack_ip6 = true;
     }
 
     return (0);
