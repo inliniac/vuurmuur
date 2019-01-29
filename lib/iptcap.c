@@ -514,6 +514,36 @@ static int iptcap_test_filter_limit_match(
     return retval;
 }
 
+static int iptcap_test_snat(struct vrmr_config *cnf, const char *ipt_loc)
+{
+    int retval = 1;
+
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "nat") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error will "
+                         "be ignored");
+    }
+
+    if (iptcap_create_test_chain(cnf, ipt_loc, "nat") < 0) {
+        vrmr_debug(NONE, "iptcap_create_test_chain failed");
+        return -1;
+    }
+
+    const char *args[] = {cnf->iptables_location, "-t", "nat", "-A",
+            "VRMRIPTCAP", "-j", "SNAT", "--to-source", "127.0.0.1", NULL};
+    int r = libvuurmuur_exec_command(cnf, cnf->iptables_location, args, NULL);
+    if (r != 0) {
+        vrmr_debug(NONE, "r = %d", r);
+        retval = -1;
+    }
+
+    if (iptcap_delete_test_chain(cnf, ipt_loc, "nat") < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error will "
+                         "be ignored");
+    }
+
+    return retval;
+}
+
 static int iptcap_test_nat_random(struct vrmr_config *cnf, const char *ipt_loc)
 {
     int retval = 1;
@@ -617,6 +647,9 @@ static bool iptcap_check_cap_modules(struct vrmr_config *cnf,
     while (*modules != NULL) {
         bool result = (iptcap_check_cap(cnf, check_file, check_name, *modules,
                                load_modules) == 1);
+        vrmr_debug(LOW, "looking for %s in %s module %s (load? %s) result %s",
+                check_name, check_file, *modules,
+                load_modules ? "true" : "false", result ? "true" : "false");
         if (result)
             return true;
         modules++;
@@ -861,31 +894,48 @@ int vrmr_load_iptcaps(
     if (iptcap->proc_net_targets) {
         /* NAT targets */
         if (iptcap->table_nat) {
-            /* DNAT target */
-            iptcap->target_dnat =
-                    (iptcap_check_cap(cnf, proc_net_target, "DNAT",
-                             "iptable_nat", load_modules) == 1);
-
             /* SNAT target */
+            const char *snat_modules[] = {
+                    "xt_nat", "iptable_nat", "nf_nat_ipv4", "nf_nat", NULL};
             iptcap->target_snat =
-                    (iptcap_check_cap(cnf, proc_net_target, "SNAT",
-                             "iptable_nat", load_modules) == 1);
+                    (iptcap_check_cap_modules(cnf, proc_net_target, "SNAT",
+                             load_modules, snat_modules) == 1);
+            vrmr_debug(LOW, "iptcap->target_snat %s",
+                    iptcap->target_snat ? "true" : "false");
+            if (!iptcap->target_snat) {
+                iptcap->target_snat =
+                        (iptcap_test_snat(cnf, cnf->iptables_location) == 1);
+                vrmr_debug(LOW, "iptcap->target_snat %s",
+                        iptcap->target_snat ? "true" : "false");
+            }
+
+            /* --random option for NAT */
+            iptcap->target_nat_random =
+                    (iptcap_test_nat_random(cnf, cnf->iptables_location) == 1);
+
+            /* DNAT target */
+            const char *dnat_modules[] = {
+                    "xt_nat", "iptable_nat", "nf_nat_ipv4", "nf_nat", NULL};
+            iptcap->target_dnat =
+                    (iptcap_check_cap_modules(cnf, proc_net_target, "DNAT",
+                             load_modules, dnat_modules) == 1);
+            vrmr_debug(LOW, "iptcap->target_dnat %s",
+                    iptcap->target_dnat ? "true" : "false");
 
             /* REDIRECT target */
             const char *redirect_modules[] = {
-                    "xt_REDIRECT", "ipt_REDIRECT", NULL};
+                    "nf_nat_redirect", "xt_REDIRECT", "ipt_REDIRECT", NULL};
             iptcap->target_redirect =
                     iptcap_check_cap_modules(cnf, proc_net_target, "REDIRECT",
                             load_modules, redirect_modules);
 
             /* MASQUERADE target */
+            const char *masq_modules[] = {"ipt_MASQUERADE",
+                    "nf_nat_masquerade_ipv4", "iptable_nat", "nf_nat_ipv4",
+                    "nf_nat", NULL};
             iptcap->target_masquerade =
-                    (iptcap_check_cap(cnf, proc_net_target, "MASQUERADE",
-                             "ipt_MASQUERADE", load_modules) == 1);
-
-            /* --random option for NAT */
-            iptcap->target_nat_random =
-                    (iptcap_test_nat_random(cnf, cnf->iptables_location) == 1);
+                    (iptcap_check_cap_modules(cnf, proc_net_target,
+                             "MASQUERADE", load_modules, masq_modules) == 1);
         }
 
         /* REJECT target */
