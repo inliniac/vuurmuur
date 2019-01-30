@@ -2,7 +2,7 @@
 
 # This is an implementation of a start-script for Vuurmuur.
 #
-# (c) 2004-2007 Victor Julien, released under GPL.
+# (c) 2004-2019 Victor Julien, released under GPL.
 
 # Make RedHat happy:
 #
@@ -12,10 +12,6 @@
 
 # where do the executables reside? NOTE: no trailing slash
 VUURMUUR_LOCATION=/usr/bin
-
-# space separated list of modules to load on start, or 'none' if none ;-)
-MODULES_TO_LOAD="ip_tables iptable_filter iptable_mangle iptable_nat ip_conntrack ipt_state ip_conntrack_ftp ip_nat_ftp"
-#MODULES_TO_LOAD="none"
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
@@ -30,18 +26,6 @@ case "$1" in
 			exit 1
 		fi
 
-		echo -n -e "\tLoading modules:\t"
-		if [ "$MODULES_TO_LOAD" == "none" ]; then
-			echo "disabled."
-		else
-			# load the modules
-			for MODULE in `echo $MODULES_TO_LOAD`; do
-				modprobe $MODULE
-				echo -n "$MODULE "
-			done
-			echo ""
-		fi
-	
 		echo -n -e "\tLoading Vuurmuur:\t"
 		# start vuurmuur
 		if [ ! -f /var/run/vuurmuur.pid ]; then
