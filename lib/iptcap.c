@@ -94,6 +94,24 @@ static int iptcap_load_module(struct vrmr_config *cnf, const char *modulename)
     return (0);
 }
 
+/* load possible modules for a helper */
+void iptcap_load_helper_module(struct vrmr_config *cnf, const char *helper)
+{
+    assert(cnf);
+    assert(helper);
+
+    const char *prefixes[] = {
+            "nf_conntrack_", "ip_conntrack_", "nf_nat_", "ip_nat_", NULL};
+    const char **p = prefixes;
+    while (*p) {
+        char module[64];
+        snprintf(module, sizeof(module), "%s%s", *p, helper);
+
+        (void)iptcap_load_module(cnf, module);
+        p++;
+    }
+}
+
 static int iptcap_check_cap(struct vrmr_config *cnf, const char *procpath,
         const char *request, const char *modulename, char load_module)
 {

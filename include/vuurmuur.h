@@ -610,6 +610,10 @@ struct vrmr_rules {
     struct vrmr_list system_chain_mangle;
     struct vrmr_list system_chain_nat;
     struct vrmr_list system_chain_raw;
+
+    /* list of in-use helpers. List as there aren't that
+     * many helpers supported. */
+    struct vrmr_list helpers;
 };
 
 struct vrmr_blocklist {
@@ -1862,6 +1866,7 @@ int vrmr_load_ip6tcaps(
         struct vrmr_config *ATTR_NONNULL, struct vrmr_iptcaps *, bool);
 int vrmr_check_ip6tcaps(struct vrmr_config *ATTR_NONNULL,
         /*@out@*/ struct vrmr_iptcaps *, bool);
+void iptcap_load_helper_module(struct vrmr_config *cnf, const char *helper);
 
 /*
     filter

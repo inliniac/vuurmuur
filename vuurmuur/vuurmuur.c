@@ -456,6 +456,14 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
     } else {
+        if (vctx.rules.helpers.len > 0) {
+            struct vrmr_list_node *n = NULL;
+            for (n = vctx.rules.helpers.top; n; n = n->next) {
+                const char *helper = n->data;
+                vrmr_info("Info", "helper %s", helper);
+            }
+        }
+
         if (load_ruleset(&vctx) < 0) {
             vrmr_error(-1, "Error", "creating rules failed.");
             exit(EXIT_FAILURE);

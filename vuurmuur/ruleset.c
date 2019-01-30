@@ -1457,6 +1457,19 @@ static void load_ruleset_free_fds(int ruleset_fd, int result_fd, int shape_fd)
     }
 }
 
+static void ruleset_load_helper_modules(struct vrmr_ctx *vctx)
+{
+    assert(vctx);
+
+    if (vctx->conf.load_modules) {
+        struct vrmr_list_node *n;
+        for (n = vctx->rules.helpers.top; n; n = n->next) {
+            const char *helper = n->data;
+            iptcap_load_helper_module(&vctx->conf, helper);
+        }
+    }
+}
+
 /** \internal
  *
  *  \brief load the ipv4 ruleset
@@ -1556,6 +1569,8 @@ static int load_ruleset_ipv4(struct vrmr_ctx *vctx)
         vrmr_debug(HIGH, "sleeping so you can look into the tmpfile.");
         sleep(15);
     }
+
+    ruleset_load_helper_modules(vctx);
 
     /* load the shaping rules */
     if (ruleset_load_shape_ruleset(

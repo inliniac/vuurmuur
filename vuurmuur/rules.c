@@ -202,6 +202,33 @@ int analyze_network_protect_rules(struct vrmr_config *conf,
     return (0);
 }
 
+static void track_helper(
+        const struct vrmr_rule *rule_ptr, struct vrmr_rules *rules)
+{
+    if (!rule_ptr->rulecache.service) {
+        return;
+    }
+
+    const char *helper = rule_ptr->rulecache.service->helper;
+    if (strcmp(helper, "") != 0) {
+        bool found = false;
+        struct vrmr_list_node *n = NULL;
+        for (n = rules->helpers.top; n; n = n->next) {
+            const char *list_helper = n->data;
+            if (strcmp(helper, list_helper) == 0) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            char *copy = strdup(helper);
+            if (copy) {
+                vrmr_list_append(&rules->helpers, copy);
+            }
+        }
+    }
+}
+
 int analyze_normal_rules(struct vrmr_config *conf, struct vrmr_rules *rules,
         struct vrmr_zones *zones, struct vrmr_services *services,
         struct vrmr_interfaces *interfaces)
@@ -224,6 +251,8 @@ int analyze_normal_rules(struct vrmr_config *conf, struct vrmr_rules *rules,
         if (vrmr_rules_analyze_rule(rule_ptr, &rule_ptr->rulecache, services,
                     zones, interfaces, conf) == 0) {
             vrmr_debug(MEDIUM, "vrmr_rules_analyze_rule %3u ok.", rulescount);
+
+            track_helper(rule_ptr, rules);
 
             /* update d_node */
             d_node = d_node->next;

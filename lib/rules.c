@@ -619,6 +619,8 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx,
     /*  setup the list: the cleanup function is set to NULL
         so it's the users responsibility to free memory. */
     vrmr_list_setup(&rules->list, NULL);
+    /* helpers list */
+    vrmr_list_setup(&rules->helpers, free);
 
     /* see if the rulesfile already exists in the backend */
     while (vctx->rf->list(vctx->rule_backend, rule_name, &type,
@@ -1283,10 +1285,11 @@ int vrmr_rules_cleanup_list(struct vrmr_rules *rules)
         rule_ptr = NULL;
     }
 
-    /*
-        cleanup the list
-    */
+    /* cleanup lists */
     if (vrmr_list_cleanup(&rules->list) < 0)
+        return (-1);
+
+    if (vrmr_list_cleanup(&rules->helpers) < 0)
         return (-1);
 
     return (0);
