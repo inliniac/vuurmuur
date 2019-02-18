@@ -3356,9 +3356,11 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
     field_opts_off(rule_fields.listen_label_fld_ptr, O_VISIBLE);
 
     /* this is needed after declaring the field dynamic */
-    if (rule_ptr->opt != NULL && rule_ptr->opt->listenport == 1)
-        set_field_buffer_wrap(rule_fields.listen_fld_ptr, 0,
-                vrmr_list_to_portopts(&rule_ptr->opt->ListenportList, NULL));
+    if (rule_ptr->opt != NULL && rule_ptr->opt->listenport == 1) {
+        char *str = vrmr_list_to_portopts(&rule_ptr->opt->ListenportList, NULL);
+        set_field_buffer_wrap(rule_fields.listen_fld_ptr, 0, str);
+        free(str);
+    }
 
     /* remoteport (portfw) label */
     /* TRANSLATORS: max 11 chars */
@@ -3383,9 +3385,11 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
     field_opts_off(rule_fields.remote_label_fld_ptr, O_VISIBLE);
 
     /* this is needed after declaring the field dynamic */
-    if (rule_ptr->opt != NULL && rule_ptr->opt->remoteport == 1)
-        set_field_buffer_wrap(rule_fields.remote_fld_ptr, 0,
-                vrmr_list_to_portopts(&rule_ptr->opt->RemoteportList, NULL));
+    if (rule_ptr->opt != NULL && rule_ptr->opt->remoteport == 1) {
+        char *str = vrmr_list_to_portopts(&rule_ptr->opt->RemoteportList, NULL);
+        set_field_buffer_wrap(rule_fields.remote_fld_ptr, 0, str);
+        free(str);
+    }
 
     /* terminate the fields-array */
     fields[n_fields] = NULL;

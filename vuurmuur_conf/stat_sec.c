@@ -835,12 +835,14 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
             /* print interfaces, starting at line 13 */
             for (cur_interface = 0, y = 13, d_node = interfaces->list.top,
                 shadow_node = shadow_list.top;
-                    d_node && y < height - 1;
+                    d_node && y < height - 1 && shadow_node;
                     d_node = d_node->next, shadow_node = shadow_node->next) {
                 uint64_t tmp;
 
                 iface_ptr = d_node->data;
+                vrmr_fatal_if_null(iface_ptr);
                 shadow_ptr = shadow_node->data;
+                vrmr_fatal_if_null(shadow_ptr);
 
                 /* only show real interfaces */
                 if (iface_ptr->device_virtual == TRUE) {

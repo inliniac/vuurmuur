@@ -1350,14 +1350,15 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                             vrmr_error(-1, VR_ERR,
                                     gettext("opening pipe failed: %s."),
                                     strerror(errno));
-                            return (-1);
-                        }
-                        if (check_search_script(search_string) != 1) {
                             search_script_ok = 0;
                         } else {
-                            search_script_ok = 1;
+                            if (check_search_script(search_string) != 1) {
+                                search_script_ok = 0;
+                            } else {
+                                search_script_ok = 1;
+                            }
+                            search_script_checked = 1;
                         }
-                        search_script_checked = 1;
                     }
 
                     /* search already checked */
