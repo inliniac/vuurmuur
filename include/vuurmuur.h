@@ -54,7 +54,7 @@
 #include <linux/netfilter/nf_conntrack_tcp.h>
 
 /* our version */
-#define VUURMUUR_VERSION "0.8rc6"
+#define VUURMUUR_VERSION "0.8"
 
 #define VUURMUUR_COPYRIGHT "Copyright (C) 2002-2019 Victor Julien et al"
 
