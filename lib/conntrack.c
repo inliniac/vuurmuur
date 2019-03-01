@@ -253,11 +253,14 @@ static const char *state_to_string(enum tcp_conntrack tcp_state)
             return "close_wait";
         case TCP_CONNTRACK_CLOSE:
             return "close";
+#if 0   // not available on all systems
         case TCP_CONNTRACK_MAX:
         case TCP_CONNTRACK_IGNORE:
         case TCP_CONNTRACK_RETRANS:
         case TCP_CONNTRACK_UNACK:
         case TCP_CONNTRACK_TIMEOUT_MAX:
+#endif
+        default:
             return "weird"; // TODO
     }
     return "unknown";
