@@ -63,8 +63,7 @@ int open_logfiles(const struct vrmr_config *cnf, FILE **, FILE **);
 
 int process_logrecord(struct vrmr_log_record *log_record);
 
-/* semaphore id */
-int sem_id;
-char version_string[128];
+extern char version_string[128];
+extern int sem_id;
 
 #endif /* __VUURMUUR_LOG_H__ */

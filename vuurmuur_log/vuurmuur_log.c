@@ -28,6 +28,8 @@
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_log/libnetfilter_log.h>
 
+char version_string[128];
+
 /*@null@*/
 struct vrmr_shm_table *shm_table = 0;
 struct vrmr_hash_table zone_htbl;

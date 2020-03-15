@@ -29,6 +29,8 @@
 
 static union semun semarg;
 static ushort seminit[] = {1, 0};
+/* semaphore id */
+int sem_id;
 
 int ipc_setup(int *shm_id, struct vrmr_shm_table **shm_table)
 {
