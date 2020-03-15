@@ -20,6 +20,12 @@
 
 #include "main.h"
 
+char version_string[128];
+struct cmd_line cmdline;
+
+struct vrmr_shm_table *shm_table = NULL;
+int sem_id;
+
 static void print_help(void);
 
 /*
@@ -390,9 +396,6 @@ int main(int argc, char *argv[])
     vrmr_info("Info", "%s", VUURMUUR_COPYRIGHT);
     vrmr_audit("Vuurmuur %s started by user %s.", version_string,
             vctx.user_data.realusername);
-
-    /* set chain couters to zero */
-    ipt_rulecount = 0;
 
     /* load the services into memory */
     result = vrmr_services_load(&vctx, &vctx.services, &vctx.reg);

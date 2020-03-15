@@ -69,8 +69,7 @@
 #define VR_INFO "Info"
 #define VR_WARN "Warning"
 
-char version_string[128];
-char log_tcp_options[18]; /* --log-tcp-options */
+extern char version_string[128];
 
 struct rule_scratch {
     int ipv; /* ip version */
@@ -257,18 +256,15 @@ struct cmd_line {
 };
 
 /*@null@*/
-struct vrmr_shm_table *shm_table;
-
-/* counters */
-int ipt_rulecount;
+extern struct vrmr_shm_table *shm_table;
 
 /* semaphore id */
-int sem_id;
+extern int sem_id;
 
 /* pointer to the environment */
 extern char **environ;
 
-struct cmd_line cmdline;
+extern struct cmd_line cmdline;
 
 /* rules.c */
 void create_logprefix_string(
