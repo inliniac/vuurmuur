@@ -59,11 +59,10 @@
 #define EXIT_SUCCESS 0
 #define EXIT_COMMANDLINE_ERROR 1
 
-/*@null@*/
-struct vrmr_shm_table *shm_table;
+extern struct vrmr_shm_table *shm_table;
 
 /* semaphore id */
-int sem_id;
+extern int sem_id;
 
 /* pointer to the environment */
 extern char **environ;
@@ -98,7 +97,7 @@ enum
     VRS_ERR_INTERNAL = 254,
 };
 
-char version_string[128];
+extern char version_string[128];
 
 struct vuurmuur_script {
     int cmd, type;

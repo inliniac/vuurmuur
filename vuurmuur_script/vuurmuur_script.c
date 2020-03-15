@@ -20,6 +20,14 @@
 
 #include "vuurmuur_script.h"
 
+char version_string[128];
+
+/*@null@*/
+struct vrmr_shm_table *shm_table;
+
+/* semaphore id */
+int sem_id;
+
 /* we put this here, because we only use it here in main. */
 static char sigint_recv = FALSE;
 static char sighup_recv = FALSE;
