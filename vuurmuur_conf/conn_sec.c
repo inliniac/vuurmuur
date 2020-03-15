@@ -20,6 +20,8 @@
 
 #include "main.h"
 
+struct conntrack conntrack;
+
 /* internal stuff */
 static int fromzone_width = 0, tozone_width = 0, service_width = 0;
 static char ser_snprintf_str[32] = "", fromzone_snprintf_str[32] = "",

@@ -20,6 +20,30 @@
 
 #include "main.h"
 
+/* vuurmuur */
+int vuurmuur_shmid;
+int vuurmuur_semid;
+/*@null@*/
+struct vrmr_shm_table *vuurmuur_shmtable;
+char *vuurmuur_shmp;
+pid_t vuurmuur_pid;
+
+/* vuurmuur_log */
+int vuurmuurlog_shmid;
+int vuurmuurlog_semid;
+char *vuurmuurlog_shmp;
+/*@null@*/
+struct vrmr_shm_table *vuurmuurlog_shmtable;
+pid_t vuurmuurlog_pid;
+
+char version_string[128];
+
+int utf8_mode;
+
+struct vrmr_gui_conf vccnf;
+
+WINDOW *status_frame_win, *status_win, *top_win, *main_win, *mainlog_win;
+
 static void print_commandline_args(void)
 {
     fprintf(stdout, "Usage: vuurmuur_conf [OPTIONS]\n");

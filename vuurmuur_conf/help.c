@@ -20,6 +20,8 @@
 
 #include "main.h"
 
+struct vrmr_status vuurmuur_status;
+
 #define UTF8_TRUE TRUE
 #define UTF8_FALSE FALSE
 

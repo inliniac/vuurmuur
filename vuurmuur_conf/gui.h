@@ -107,7 +107,7 @@ struct vrmr_gui_win {
 };
 
 /* global busywin */
-struct vrmr_gui_win *vr_busywin;
+extern struct vrmr_gui_win *vr_busywin;
 
 void VrBusyWinCreate(void);
 void VrBusyWinShow(void);

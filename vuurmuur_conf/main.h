@@ -188,9 +188,9 @@ struct vrmr_gui_conf {
     chtype color_bgd_cyan;
 
     chtype color_rule_bar;
-} vc_cnf;
+};
 
-struct vrmr_gui_conf vccnf;
+extern struct vrmr_gui_conf vccnf;
 
 /* setting defaults */
 #define VRMR_DEFAULT_NEWRULE_LOG 1
@@ -206,7 +206,7 @@ struct vrmr_gui_conf vccnf;
 
 #define VRMR_DEFAULT_IPTRAFVOL_LOCATION "/usr/bin/iptrafvol.pl"
 
-struct {
+struct vrmr_status {
     struct vrmr_list StatusList;
 
     int vuurmuur;
@@ -233,34 +233,36 @@ struct {
 
     char have_shape_rules;
     char have_shape_ifaces;
-} vuurmuur_status;
+};
+
+extern struct vrmr_status vuurmuur_status;
 
 /* TODO remove this */
-WINDOW *status_frame_win, *status_win, *top_win, *main_win, *mainlog_win;
+extern WINDOW *status_frame_win, *status_win, *top_win, *main_win, *mainlog_win;
 
 /*
     shared memory id and semaphore id
 */
 
 /* vuurmuur */
-int vuurmuur_shmid;
-int vuurmuur_semid;
+extern int vuurmuur_shmid;
+extern int vuurmuur_semid;
 /*@null@*/
-struct vrmr_shm_table *vuurmuur_shmtable;
-char *vuurmuur_shmp;
-pid_t vuurmuur_pid;
+extern struct vrmr_shm_table *vuurmuur_shmtable;
+extern char *vuurmuur_shmp;
+extern pid_t vuurmuur_pid;
 
 /* vuurmuur_log */
-int vuurmuurlog_shmid;
-int vuurmuurlog_semid;
-char *vuurmuurlog_shmp;
+extern int vuurmuurlog_shmid;
+extern int vuurmuurlog_semid;
+extern char *vuurmuurlog_shmp;
 /*@null@*/
-struct vrmr_shm_table *vuurmuurlog_shmtable;
-pid_t vuurmuurlog_pid;
+extern struct vrmr_shm_table *vuurmuurlog_shmtable;
+extern pid_t vuurmuurlog_pid;
 
-char version_string[128];
+extern char version_string[128];
 
-int utf8_mode;
+extern int utf8_mode;
 
 /*
  *
@@ -465,7 +467,8 @@ struct conntrack {
     struct vrmr_conntrack_stats conn_stats;
 
     unsigned int prev_list_size;
-} conntrack;
+};
+extern struct conntrack conntrack;
 
 int kill_connections_by_ip(struct conntrack *ct, char *srcip, char *dstip,
         char *sername, char connect_status);

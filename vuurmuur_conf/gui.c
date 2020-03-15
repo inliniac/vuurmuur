@@ -24,6 +24,8 @@
 
 #include "main.h"
 
+struct vrmr_gui_win *vr_busywin;
+
 void VrBusyWinCreate(void)
 {
     int width = 20, height = 5;
