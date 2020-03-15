@@ -21,6 +21,8 @@
 #include "config.h"
 #include "vuurmuur.h"
 
+struct vrprint vrprint;
+struct vrmr_list vrmr_plugin_list;
 int vrmr_debug_level = 0;
 
 /*  vrmr_rule_malloc

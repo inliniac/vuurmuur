@@ -426,8 +426,9 @@ struct vrprint {
     /* auditlog */
     int (*audit)(char *fmt, ...);
     char auditlog[VRMR_LOG_PATH_SIZE];
-} vrprint;
+};
 
+extern struct vrprint vrprint;
 extern int vrmr_debug_level;
 
 #define vrmr_debug(lvl, ...)                                                   \
@@ -1889,6 +1890,6 @@ int vrmr_is_shape_outgoing_rule(/*@null@*/ struct vrmr_rule_options *);
 int vrmr_is_shape_interface(/*@null@*/ struct vrmr_interface *);
 
 /* global var */
-struct vrmr_list vrmr_plugin_list;
+extern struct vrmr_list vrmr_plugin_list;
 
 #endif
