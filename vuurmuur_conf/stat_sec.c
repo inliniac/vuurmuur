@@ -759,76 +759,76 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
 
             /* loop trough the fields and update the information */
             for (size_t i = 0; i < statsec_ctx.n_fields; i++) {
-                FIELD *cur = statsec_ctx.fields[i];
+                FIELD *cf = statsec_ctx.fields[i];
 
-                if (strncmp(field_buffer(cur, 1), "ld_s", 4) == 0) {
+                if (strncmp(field_buffer(cf, 1), "ld_s", 4) == 0) {
                     if (load_s > 2 && load_s < 5)
-                        set_field_fore(cur, vccnf.color_win_yellow | A_BOLD);
+                        set_field_fore(cf, vccnf.color_win_yellow | A_BOLD);
                     else if (load_s >= 5)
-                        set_field_fore(cur, vccnf.color_win_red | A_BOLD);
+                        set_field_fore(cf, vccnf.color_win_red | A_BOLD);
                     else
-                        set_field_fore(cur, vccnf.color_win);
+                        set_field_fore(cf, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_s);
-                    set_field_buffer_wrap(cur, 0, load_str);
-                } else if (strncmp(field_buffer(cur, 1), "ld_m", 4) == 0) {
+                    set_field_buffer_wrap(cf, 0, load_str);
+                } else if (strncmp(field_buffer(cf, 1), "ld_m", 4) == 0) {
                     if (load_m > 2 && load_m < 5)
-                        set_field_fore(cur, vccnf.color_win_yellow | A_BOLD);
+                        set_field_fore(cf, vccnf.color_win_yellow | A_BOLD);
                     else if (load_m >= 5)
-                        set_field_fore(cur, vccnf.color_win_red | A_BOLD);
+                        set_field_fore(cf, vccnf.color_win_red | A_BOLD);
                     else
-                        set_field_fore(cur, vccnf.color_win);
+                        set_field_fore(cf, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_m);
-                    set_field_buffer_wrap(cur, 0, load_str);
-                } else if (strncmp(field_buffer(cur, 1), "ld_l", 4) == 0) {
+                    set_field_buffer_wrap(cf, 0, load_str);
+                } else if (strncmp(field_buffer(cf, 1), "ld_l", 4) == 0) {
                     if (load_l > 2 && load_l < 5)
-                        set_field_fore(cur, vccnf.color_win_yellow | A_BOLD);
+                        set_field_fore(cf, vccnf.color_win_yellow | A_BOLD);
                     else if (load_l >= 5)
-                        set_field_fore(cur, vccnf.color_win_red | A_BOLD);
+                        set_field_fore(cf, vccnf.color_win_red | A_BOLD);
                     else
-                        set_field_fore(cur, vccnf.color_win);
+                        set_field_fore(cf, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_l);
-                    set_field_buffer_wrap(cur, 0, load_str);
-                } else if (strncmp(field_buffer(cur, 1), "mem_t", 5) == 0) {
+                    set_field_buffer_wrap(cf, 0, load_str);
+                } else if (strncmp(field_buffer(cf, 1), "mem_t", 5) == 0) {
                     uint32_t mem = (uint32_t)(mem_total / 1024);
                     mem = MIN(mem, 999999UL);
                     snprintf(mem_str, sizeof(mem_str), "%6u", mem);
-                    set_field_buffer_wrap(cur, 0, mem_str);
-                } else if (strncmp(field_buffer(cur, 1), "mem_f", 5) == 0) {
+                    set_field_buffer_wrap(cf, 0, mem_str);
+                } else if (strncmp(field_buffer(cf, 1), "mem_f", 5) == 0) {
                     uint32_t mem = (uint32_t)(mem_free / 1024);
                     mem = MIN(mem, 999999UL);
                     snprintf(mem_str, sizeof(mem_str), "%6u", mem);
-                    set_field_buffer_wrap(cur, 0, mem_str);
-                } else if (strncmp(field_buffer(cur, 1), "mem_c", 5) == 0) {
+                    set_field_buffer_wrap(cf, 0, mem_str);
+                } else if (strncmp(field_buffer(cf, 1), "mem_c", 5) == 0) {
                     uint32_t mem = (uint32_t)(mem_cached / 1024);
                     mem = MIN(mem, 999999UL);
                     snprintf(mem_str, sizeof(mem_str), "%6u", mem);
-                    set_field_buffer_wrap(cur, 0, mem_str);
-                } else if (strncmp(field_buffer(cur, 1), "mem_b", 5) == 0) {
+                    set_field_buffer_wrap(cf, 0, mem_str);
+                } else if (strncmp(field_buffer(cf, 1), "mem_b", 5) == 0) {
                     uint32_t mem = (uint32_t)(mem_bufferd / 1024);
                     mem = MIN(mem, 999999UL);
                     snprintf(mem_str, sizeof(mem_str), "%6u", mem);
-                    set_field_buffer_wrap(cur, 0, mem_str);
-                } else if (strncmp(field_buffer(cur, 1), "up_d", 4) == 0) {
-                    set_field_buffer_wrap(cur, 0, upt_day);
-                } else if (strncmp(field_buffer(cur, 1), "uh", 2) == 0) {
-                    set_field_buffer_wrap(cur, 0, upt_hour);
-                } else if (strncmp(field_buffer(cur, 1), "um", 2) == 0) {
-                    set_field_buffer_wrap(cur, 0, upt_minute);
-                } else if (strncmp(field_buffer(cur, 1), "us", 2) == 0) {
-                    set_field_buffer_wrap(cur, 0, upt_second);
-                } else if (strncmp(field_buffer(cur, 1), "con_m", 5) == 0) {
-                    set_field_buffer_wrap(cur, 0, conn_max);
-                } else if (strncmp(field_buffer(cur, 1), "con_c", 5) == 0) {
-                    set_field_buffer_wrap(cur, 0, conn_total);
-                } else if (strncmp(field_buffer(cur, 1), "con_t", 5) == 0) {
-                    set_field_buffer_wrap(cur, 0, conn_tcp);
-                } else if (strncmp(field_buffer(cur, 1), "con_u", 5) == 0) {
-                    set_field_buffer_wrap(cur, 0, conn_udp);
-                } else if (strncmp(field_buffer(cur, 1), "con_o", 5) == 0) {
-                    set_field_buffer_wrap(cur, 0, conn_other);
+                    set_field_buffer_wrap(cf, 0, mem_str);
+                } else if (strncmp(field_buffer(cf, 1), "up_d", 4) == 0) {
+                    set_field_buffer_wrap(cf, 0, upt_day);
+                } else if (strncmp(field_buffer(cf, 1), "uh", 2) == 0) {
+                    set_field_buffer_wrap(cf, 0, upt_hour);
+                } else if (strncmp(field_buffer(cf, 1), "um", 2) == 0) {
+                    set_field_buffer_wrap(cf, 0, upt_minute);
+                } else if (strncmp(field_buffer(cf, 1), "us", 2) == 0) {
+                    set_field_buffer_wrap(cf, 0, upt_second);
+                } else if (strncmp(field_buffer(cf, 1), "con_m", 5) == 0) {
+                    set_field_buffer_wrap(cf, 0, conn_max);
+                } else if (strncmp(field_buffer(cf, 1), "con_c", 5) == 0) {
+                    set_field_buffer_wrap(cf, 0, conn_total);
+                } else if (strncmp(field_buffer(cf, 1), "con_t", 5) == 0) {
+                    set_field_buffer_wrap(cf, 0, conn_tcp);
+                } else if (strncmp(field_buffer(cf, 1), "con_u", 5) == 0) {
+                    set_field_buffer_wrap(cf, 0, conn_udp);
+                } else if (strncmp(field_buffer(cf, 1), "con_o", 5) == 0) {
+                    set_field_buffer_wrap(cf, 0, conn_other);
                 }
             }
 

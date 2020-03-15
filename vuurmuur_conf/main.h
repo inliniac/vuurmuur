@@ -515,17 +515,17 @@ void VrShapeIface(struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
 #if !defined(__clang_analyzer__) && !defined(DEBUG) && !defined(CPPCHECK)
 #define vrmr_fatal(...)                                                        \
     do {                                                                       \
-        char _vrmr_msg[2048];                                                  \
-        char _vrmr_loc[512];                                                   \
-        char _vrmr_line[2048 + 512];                                           \
+        char __vrmr_msg[2048];                                                 \
+        char __vrmr_loc[512];                                                  \
+        char __vrmr_line[2048 + 512];                                          \
                                                                                \
-        (void)snprintf(_vrmr_msg, sizeof(_vrmr_msg), __VA_ARGS__);             \
-        (void)snprintf(_vrmr_loc, sizeof(_vrmr_loc), "[%s:%d:%s]", __FILE__,   \
+        (void)snprintf(__vrmr_msg, sizeof(__vrmr_msg), __VA_ARGS__);           \
+        (void)snprintf(__vrmr_loc, sizeof(__vrmr_loc), "[%s:%d:%s]", __FILE__, \
                 __LINE__, __func__);                                           \
-        (void)snprintf(_vrmr_line, sizeof(_vrmr_line), "%s %s", _vrmr_loc,     \
-                _vrmr_msg);                                                    \
+        (void)snprintf(__vrmr_line, sizeof(__vrmr_line), "%s %s", __vrmr_loc,  \
+                __vrmr_msg);                                                   \
                                                                                \
-        vrmr_error(EXIT_FAILURE, gettext("Fatal Error"), "%s", _vrmr_line);    \
+        vrmr_error(EXIT_FAILURE, gettext("Fatal Error"), "%s", __vrmr_line);   \
         exit(EXIT_FAILURE);                                                    \
     } while (0)
 
