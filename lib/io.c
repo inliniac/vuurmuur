@@ -500,7 +500,6 @@ int libvuurmuur_exec_command(struct vrmr_config *cnf ATTR_UNUSED,
         const char *path, const char *argv[], char *output[])
 {
     int retval = 0;
-    FILE *fp = NULL;
     char dev_null[] = "/dev/null";
     char *output_path = NULL;
 
@@ -512,8 +511,8 @@ int libvuurmuur_exec_command(struct vrmr_config *cnf ATTR_UNUSED,
 
         /* close stdout so we don't see the output of the
          * command we execute */
-        fp = freopen("/dev/null", "rb", stdin);
-        if (fp == NULL) {
+        FILE *stdin_fp = freopen("/dev/null", "rb", stdin);
+        if (stdin_fp == NULL) {
             vrmr_error(127, "Internal Error",
                     "freopen stdin to /dev/null failed: %s", strerror(errno));
             exit(127);
@@ -524,8 +523,8 @@ int libvuurmuur_exec_command(struct vrmr_config *cnf ATTR_UNUSED,
         else
             output_path = output[0];
 
-        fp = freopen(output_path, "wb", stdout);
-        if (fp == NULL) {
+        FILE *stdout_fp = freopen(output_path, "wb", stdout);
+        if (stdout_fp == NULL) {
             vrmr_error(127, "Internal Error", "freopen stdout to %s failed: %s",
                     output_path, strerror(errno));
             exit(127);
@@ -536,8 +535,8 @@ int libvuurmuur_exec_command(struct vrmr_config *cnf ATTR_UNUSED,
         else
             output_path = output[1];
 
-        fp = freopen(output_path, "wb", stderr);
-        if (fp == NULL) {
+        FILE *stderr_fp = freopen(output_path, "wb", stderr);
+        if (stderr_fp == NULL) {
             vrmr_error(127, "Internal Error", "freopen stdin to %s failed: %s",
                     output_path, strerror(errno));
             exit(127);
@@ -545,6 +544,10 @@ int libvuurmuur_exec_command(struct vrmr_config *cnf ATTR_UNUSED,
 
         /* actually exec the command */
         execv(path, (char **)argv);
+
+        fclose(stdin_fp);
+        fclose(stdout_fp);
+        fclose(stderr_fp);
 
         /* if we get here, the command didn't exec
          * so kill the child */
