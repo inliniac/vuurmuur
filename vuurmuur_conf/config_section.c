@@ -2161,7 +2161,7 @@ static void view_caps_init(int height, int width, int starty, int startx,
     mvwprintw(config_section.win, (line), 22, "%s", (b) ? STR_YES : STR_NO)
 #define P6_NA(line) mvwprintw(config_section.win, (line), 22, "%s", "N/A");
 #else
-#define HEADER6
+#define HEADER6 ""
 #define P6(line, b)
 #define P6_NA(line)
 #endif
