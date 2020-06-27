@@ -102,12 +102,11 @@
 
 #define VRMR_MAX_HOST 32
 #define VRMR_MAX_NETWORK 32
-#define VRMR_MAX_BROADCAST (VRMR_MAX_NETWORK + 11) /* network(broadcast) */
 #define VRMR_MAX_ZONE 32
-
-#define VRMR_MAX_NET_ZONE (VRMR_MAX_BROADCAST + VRMR_MAX_ZONE)
+#define VRMR_MAX_NET_ZONE (VRMR_MAX_NETWORK + VRMR_MAX_ZONE)
 #define VRMR_VRMR_MAX_HOST_NET_ZONE                                            \
-    (VRMR_MAX_HOST + VRMR_MAX_BROADCAST + VRMR_MAX_ZONE)
+    (VRMR_MAX_HOST + VRMR_MAX_NETWORK + VRMR_MAX_ZONE)
+#define VRMR_MAX_BROADCAST (VRMR_MAX_NET_ZONE + 11) /* network(broadcast) */
 
 #define VRMR_MAX_PROC_ENTRY_LENGHT 64
 
@@ -823,7 +822,7 @@ struct vrmr_zone {
     /* for names */
     char host_name[VRMR_MAX_HOST];
     char network_name[VRMR_MAX_NETWORK];
-    char broadcast_name[VRMR_MAX_NET_ZONE]; /* network.zone(broadcast) */
+    char broadcast_name[VRMR_MAX_BROADCAST]; /* network.zone(broadcast) */
     char zone_name[VRMR_MAX_ZONE];
 
     /* pointers to parent zone and network (NULL if zone/network) */
