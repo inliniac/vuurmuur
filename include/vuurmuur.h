@@ -492,6 +492,8 @@ struct vrmr_config {
     /* configfile */
     char configfile[256];
 
+    char vuurmuur_logdir_location[64];
+
     /* program locations */
     char sysctl_location[128];
     char iptables_location[128];
@@ -509,8 +511,6 @@ struct vrmr_config {
     char log_blocklist;
 
     /* logfile locations */
-    char vuurmuur_logdir_location[64];
-
     char debuglog_location[VRMR_LOG_PATH_SIZE];
     char vuurmuurlog_location[VRMR_LOG_PATH_SIZE];
     char auditlog_location[VRMR_LOG_PATH_SIZE];
@@ -822,7 +822,6 @@ struct vrmr_zone {
     /* for names */
     char host_name[VRMR_MAX_HOST];
     char network_name[VRMR_MAX_NETWORK];
-    char broadcast_name[VRMR_MAX_BROADCAST]; /* network.zone(broadcast) */
     char zone_name[VRMR_MAX_ZONE];
 
     /* pointers to parent zone and network (NULL if zone/network) */
@@ -835,6 +834,8 @@ struct vrmr_zone {
     /* TODO: 18 is enough: 00:20:1b:10:1D:0F = 17 + '\0' = 18. */
     char mac[19];
     int has_mac;
+
+    char broadcast_name[VRMR_MAX_BROADCAST]; /* network.zone(broadcast) */
 
     /* the list with interfaces: for networks */
     int active_interfaces;
