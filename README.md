@@ -4,8 +4,7 @@ Vuurmuur
 Introduction
 ------------
 
-Vuurmuur is a iptables manager with a Ncurses GUI for easy management over SSH.
-
+Vuurmuur is an iptables manager with a Ncurses GUI for easy management over SSH.
 
 Installation
 ------------
