@@ -666,11 +666,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
 
     if [ "$BUILDUPDATE" = "1" ]; then
         PrintL "* build system update"
-        Libtoolize -f
-        Aclocal
-        Autoheader
-        Automake
-        Autoconf
+        ./autogen.sh &>> ${LOG}
     fi
     if [ "$WIDEC" = "1" ]; then
         WIDESTR="yes"
