@@ -26,11 +26,6 @@ SHAREDDIR=${SHAREDDIR:-"$INSTALLDIR/share"}
 ETCDIR=${ETCDIR:-"/etc"}
 PLUGINDIR=${PLUGINDIR:-"$ETCDIR/vuurmuur/plugins"}
 LOGDIR=${LOGDIR:-"/var/log/vuurmuur/"}
-if  [ "$(uname -m)" = "x86_64" ] ; then
-    LIBDIR=${LIBDIR:-"$INSTALLDIR/lib64"}
-else
-    LIBDIR=${LIBDIR:-"$INSTALLDIR/lib"}
-fi
 
 CURPATH=`pwd`
 FULL_SCRIPT=$(readlink -f $0)
@@ -549,11 +544,6 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         if [ "$TALK" != "" ]; then
             INSTALLDIR="$TALK"
             SHAREDDIR="$INSTALLDIR/share"
-            if  [ "$(uname -m)" = "x86_64" ] ; then
-                LIBDIR="$INSTALLDIR/lib64"
-            else
-                LIBDIR="$INSTALLDIR/lib"
-            fi
         fi
     fi
     INSTALLDIR=${PREFIX}${INSTALLDIR}
@@ -561,22 +551,6 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     
     MkDir ${INSTALLDIR} mayfail
 fi
-
-# libdir
-#if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
-#
-#    if [ "$DEFAULTS" = "0" ]; then
-#        # get the libdir
-#        echo "Please enter the library dir ($LIBDIR)."
-#        read TALK
-#        if [ "$TALK" != "" ]; then
-#            LIBDIR="$TALK"
-#        fi
-#    fi
-#    PrintL "Libdir: $LIBDIR ..."
-#
-#    MkDir $LIBDIR mayfail
-#fi
 
 # etcdir
 if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
