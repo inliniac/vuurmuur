@@ -23,17 +23,6 @@
 
 #include "stats.h"
 
-struct file_mon {
-    struct stat old_file;
-    struct stat new_file;
-
-    off_t windback;
-};
-
-int search_in_ipt_line(char *, size_t, char *, size_t *, size_t *);
-int check_ipt_line(char *);
-int parse_ipt_logline(
-        char *, size_t, char *, struct vrmr_log_record *, struct logcounters *);
 FILE *open_logfile(const struct vrmr_config *, const char *, const char *);
 
 int open_syslog(const struct vrmr_config *, FILE **);
