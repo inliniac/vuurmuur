@@ -126,7 +126,7 @@ struct vuurmuur_script {
     struct vrmr_ctx vctx;
 };
 
-void logchange(struct vuurmuur_script *, char *fmt, ...);
+void logchange(struct vuurmuur_script *, char *fmt, ...) ATTR_FMT_PRINTF(2, 3);
 
 int script_print(struct vuurmuur_script *);
 int script_list(struct vuurmuur_script *);
