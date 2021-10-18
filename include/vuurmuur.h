@@ -238,9 +238,11 @@
         __clang_patchlevel__) >= 30800
 #define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
 #define ATTR_UNUSED __attribute__((unused))
+#define ATTR_FMT_PRINTF(x, y) __attribute__((format(printf, (x), (y))))
 #else
 #define ATTR_RETURNS_NONNULL
 #define ATTR_UNUSED
+#define ATTR_FMT_PRINTF(x, y)
 #endif
 #elif defined(__GNUC__)
 #define GCC_VERSION                                                            \
@@ -248,14 +250,17 @@
 #if GCC_VERSION >= 50400
 #define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
 #define ATTR_UNUSED __attribute__((unused))
+#define ATTR_FMT_PRINTF(x, y) __attribute__((format(printf, (x), (y))))
 #else
 #define ATTR_RETURNS_NONNULL
 #define ATTR_UNUSED
+#define ATTR_FMT_PRINTF(x, y)
 #endif
 #else
 #warn "unknown or very old compiler"
 #define ATTR_RETURNS_NONNULL
 #define ATTR_UNUSED
+#define ATTR_FMT_PRINTF(x, y)
 #endif
 
 #if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)
@@ -1692,21 +1697,31 @@ int vrmr_blocklist_save_list(
     log.c
 */
 int vrmr_logprint(char *logfile, char *logstring);
-int vrmr_logprint_error(int errorlevel, const char *head, char *fmt, ...);
-int vrmr_logprint_warning(const char *head, char *fmt, ...);
-int vrmr_logprint_info(const char *head, char *fmt, ...);
-int vrmr_logprint_audit(char *fmt, ...);
-int vrmr_logprint_debug(const char *head, char *fmt, ...);
-int vrmr_stdoutprint_debug(const char *head, char *fmt, ...);
-int vrmr_stdoutprint_info(const char *head, char *fmt, ...);
-int vrmr_stdoutprint_audit(char *fmt, ...);
-int vrmr_stdoutprint_warning(const char *head, char *fmt, ...);
-int vrmr_stdoutprint_error(int errorlevel, const char *head, char *fmt, ...);
-int vrmr_logstdoutprint_debug(const char *head, char *fmt, ...);
-int vrmr_logstdoutprint_info(const char *head, char *fmt, ...);
-int vrmr_logstdoutprint_audit(char *fmt, ...);
-int vrmr_logstdoutprint_warning(const char *head, char *fmt, ...);
-int vrmr_logstdoutprint_error(int errorlevel, const char *head, char *fmt, ...);
+int vrmr_logprint_error(int errorlevel, const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(3, 4);
+int vrmr_logprint_warning(const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
+int vrmr_logprint_info(const char *head, char *fmt, ...) ATTR_FMT_PRINTF(2, 3);
+int vrmr_logprint_audit(char *fmt, ...) ATTR_FMT_PRINTF(1, 2);
+int vrmr_logprint_debug(const char *head, char *fmt, ...) ATTR_FMT_PRINTF(2, 3);
+int vrmr_stdoutprint_debug(const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
+int vrmr_stdoutprint_info(const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
+int vrmr_stdoutprint_audit(char *fmt, ...) ATTR_FMT_PRINTF(1, 2);
+int vrmr_stdoutprint_warning(const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
+int vrmr_stdoutprint_error(int errorlevel, const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(3, 4);
+int vrmr_logstdoutprint_debug(const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
+int vrmr_logstdoutprint_info(const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
+int vrmr_logstdoutprint_audit(char *fmt, ...) ATTR_FMT_PRINTF(1, 2);
+int vrmr_logstdoutprint_warning(const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
+int vrmr_logstdoutprint_error(int errorlevel, const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(3, 4);
 
 int vrmr_log_record_build_line(
         struct vrmr_log_record *log_record, char *outline, size_t size);
@@ -1878,8 +1893,9 @@ void vrmr_filter_cleanup(struct vrmr_filter *filter);
 /*
     util.c
 */
-char *vrmr_get_string(const char *fmt, ...);
-char *vrmr_get_len_string(size_t max, const char *fmt, ...);
+char *vrmr_get_string(const char *fmt, ...) ATTR_FMT_PRINTF(1, 2);
+char *vrmr_get_len_string(size_t max, const char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
 
 /*
  * shape.c
