@@ -267,8 +267,8 @@ extern char **environ;
 extern struct cmd_line cmdline;
 
 /* rules.c */
-void create_logprefix_string(
-        struct vrmr_config *conf, char *, size_t, int, char *, char *, ...);
+void create_logprefix_string(struct vrmr_config *conf, char *, size_t, int,
+        char *, char *, ...) ATTR_FMT_PRINTF(6, 7);
 
 int oldrules_create_custom_chains(struct vrmr_rules *, struct vrmr_config *);
 
@@ -356,9 +356,11 @@ void send_hup_to_vuurmuurlog(void);
 void cmdline_override_config(struct vrmr_config *conf);
 int sysctl_exec(struct vrmr_config *cnf, char *key, char *value, int bash_out);
 
-int logprint_error_bash(int errorlevel, const char *head, char *fmt, ...);
-int logprint_warning_bash(const char *head, char *fmt, ...);
-int logprint_info_bash(const char *head, char *fmt, ...);
+int logprint_error_bash(int errorlevel, const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(3, 4);
+int logprint_warning_bash(const char *head, char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
+int logprint_info_bash(const char *head, char *fmt, ...) ATTR_FMT_PRINTF(2, 3);
 
 /* reload.c */
 int apply_changes(struct vrmr_ctx *vctx, struct vrmr_regex *);
