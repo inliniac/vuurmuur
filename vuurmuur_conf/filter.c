@@ -149,7 +149,7 @@ int filter_input_box(struct vrmr_filter *filter)
     /* XXX: we really should have a wrapper function to just print
      * in the middle of a window to prevent hacks like this. */
     const char *s = gettext("Enter filter (leave empty for no filter)");
-    mvwprintw(ib_win, 2, (width - StrLen(s)) / 2, s);
+    mvwprintw(ib_win, 2, (width - StrLen(s)) / 2, "%s", s);
     mvwprintw(ib_win, 6, 6, "[");
     mvwprintw(ib_win, 6, 8, "]");
     mvwprintw(ib_win, 6, 11, gettext("show lines that don't match"));

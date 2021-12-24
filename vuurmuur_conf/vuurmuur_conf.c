@@ -514,11 +514,11 @@ WINDOW *create_newwin(int height, int width, int starty, int startx,
             } else {
                 snprintf(title_ptr, memsize + 3, " %s ", title);
                 mvwprintw(local_win, 0, (int)(((size_t)width - screensize) / 2),
-                        title_ptr);
+                        "%s", title_ptr);
                 free(title_ptr);
             }
         } else {
-            vrmr_warning(gettext("Warning"),
+            vrmr_warning(VR_WARN,
                     gettext("title '%s' too long, window will be drawn without "
                             "a title."),
                     title);

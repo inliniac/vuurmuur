@@ -269,6 +269,7 @@ static void mm_shm_connect_vuurmuurlog(void)
     }
 }
 
+ATTR_FMT_PRINTF(3, 4)
 static void queue_status_msg(
         /*@null@*/ struct vrmr_list *status_list, int status, const char *fmt,
         ...)

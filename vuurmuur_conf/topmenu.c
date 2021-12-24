@@ -27,14 +27,14 @@ static void menunameprint(WINDOW *win, const char *menuname)
 }
 
 static int keyprint(
-        WINDOW *win, int y, int x, const char *keystr, const char *fmt, ...)
+        WINDOW *win, int y, int x, const char *keystr, const char *cmd)
 {
     int res = 0, printlen = 0;
 
     vrmr_fatal_if_null(keystr);
-    vrmr_fatal_if_null(fmt);
+    vrmr_fatal_if_null(cmd);
 
-    printlen = (int)(StrLen(keystr) + 2 + StrLen(fmt));
+    printlen = (int)(StrLen(keystr) + 2 + StrLen(cmd));
     if (printlen + x > COLS - 2)
         return (0);
     if (x > COLS - 2)
@@ -45,10 +45,10 @@ static int keyprint(
     wattroff(win, vccnf.color_bgd | A_BOLD);
 
     wattron(win, vccnf.color_bgd_hi | A_BOLD);
-    mvwprintw(win, y, (int)(x + StrLen(keystr) + 1), fmt);
+    mvwprintw(win, y, (int)(x + StrLen(keystr) + 1), "%s", cmd);
     wattroff(win, vccnf.color_bgd_hi | A_BOLD);
 
-    res = (int)(x + StrLen(keystr) + 1 + StrLen(fmt) + 2);
+    res = (int)(x + StrLen(keystr) + 1 + StrLen(cmd) + 2);
     return (res);
 }
 

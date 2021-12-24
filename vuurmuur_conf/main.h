@@ -335,12 +335,16 @@ int write_rulesfile(char *, struct vrmr_rules *);
 int confirm(const char *title, const char *text, chtype forecolor,
         chtype backcolor, int def);
 char *input_box(size_t length, const char *title, const char *description);
-int vuumuurconf_print_error(int error_no, const char *title, char *fmt, ...);
-int vuumuurconf_print_warning(const char *title, char *fmt, ...);
-int vuumuurconf_print_info(const char *title, char *fmt, ...);
+int vuumuurconf_print_error(int error_no, const char *title, char *fmt, ...)
+        ATTR_FMT_PRINTF(3, 4);
+int vuumuurconf_print_warning(const char *title, char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
+int vuumuurconf_print_info(const char *title, char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
 char *selectbox(const char *title, const char *text, size_t n_choices,
         const char **choices, unsigned int cols, const char *);
-int status_print(WINDOW *local_win, /*@null@*/ const char *fmt, ...);
+int status_print(WINDOW *local_win, /*@null@*/ const char *fmt, ...)
+        ATTR_FMT_PRINTF(2, 3);
 int check_box(int status, const char *title, const char *description);
 /* fixes */
 void set_field_buffer_wrap(FIELD *, int, const char *);

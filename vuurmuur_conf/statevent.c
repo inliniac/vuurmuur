@@ -434,7 +434,7 @@ static void statevent_interactivemenu_conn(struct vrmr_ctx *vctx,
     if (con->cnt == 1)
         str = vrmr_get_string(gettext("Kill this connection"));
     else
-        str = vrmr_get_string(gettext("Kill all connections with this "
+        str = vrmr_get_string(gettext("Kill all %u connections with this "
                                       "service/source/destination"),
                 con->cnt);
     VrMenuAddItem(menu, "1", str);
