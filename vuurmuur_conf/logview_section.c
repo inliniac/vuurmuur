@@ -521,7 +521,123 @@ static void sanitize_search_str(char *str, size_t size)
     }
 }
 
+struct logview_control {
+    bool print; // do we print to screen this run?
+    bool sleep; // do we sleep this run
+    int queue;  // do we queue this one
+    bool pause;
+
+    bool use_filter;
+
+    bool search_mode;
+    bool search_stop;
+    bool search_error;
+    bool search_completed;
+    uint32_t search_results;
+};
+
 #define READLINE_LEN 512
+
+static int read_log_line(FILE *fp, const bool traffic_log,
+        struct vrmr_filter *vfilter, struct logview_control *ctl,
+        struct vrmr_list *logs, const uint32_t max_logs)
+{
+    /* read line from log */
+    char *line = malloc(READLINE_LEN);
+    vrmr_fatal_alloc("malloc", line);
+
+    const char *rline = fgets(line, READLINE_LEN, fp);
+    if (rline == NULL) {
+        vrmr_debug(LOW, "fgets() returned NULL: errno:%s feof:%d ferror:%d",
+                strerror(errno), feof(fp), ferror(fp));
+        if (feof(fp) || ferror(fp))
+            clearerr(fp);
+        /* free the allocated buffer */
+        free(line);
+        return 0;
+    }
+
+    /* if the line doesn't end with a newline character we rewind and
+     * try again the next run. */
+    uint32_t linelen = StrMemLen(line);
+    if (linelen < READLINE_LEN - 1 && line[linelen - 1] != '\n') {
+        if (fseek(fp, (long)(linelen * -1), SEEK_CUR) != 0) {
+            vrmr_debug(LOW, "fseek(): %s", strerror(errno));
+        }
+        free(line);
+        return 0;
+    }
+
+    if (ctl->search_mode) {
+        if (strncmp(line, "SL:EOF:", 7) == 0) {
+            ctl->search_completed = true;
+        } else if (strncmp(line, "SL:ERROR:", 9) == 0) {
+            ctl->search_error = true;
+            ctl->search_completed = true;
+            line[StrMemLen(line) - 2] = '\0';
+            vrmr_error(-1, VR_ERR, "%s", line);
+        } else {
+            ctl->search_results++;
+        }
+
+        if (ctl->search_completed) {
+            /* if we bail out here it's because of an EOF or ERROR
+               and we are not interested in the line. So free it. */
+            free(line);
+            return 0;
+        }
+    }
+
+    /* insert the line into the buffer list */
+    if (traffic_log) {
+        /* here we can analyse the rule */
+        struct log_record *log_record = malloc(sizeof(struct log_record));
+        vrmr_fatal_alloc("malloc", log_record);
+
+        /* we asume unfiltered (was filtered) */
+        log_record->filtered = 0;
+
+        /* convert the raw line to our data structure */
+        logline2logrule(line, log_record);
+
+        /* if we have a filter check it now */
+        if (ctl->use_filter) {
+            log_record->filtered = logrule_filtered(log_record, vfilter);
+        }
+
+        /* now really insert the rule into the buffer */
+        vrmr_fatal_if(vrmr_list_append(logs, log_record) == NULL);
+    } else {
+        /* here we can analyse the rule */
+        struct plain_log_record *plainlog_record =
+                malloc(sizeof(struct plain_log_record));
+        vrmr_fatal_alloc("malloc", plainlog_record);
+
+        /* we asume unfiltered (was filtered) */
+        plainlog_record->filtered = 0;
+
+        logline2plainlogrule(line, plainlog_record);
+
+        /* if we have a filter check it now */
+        if (ctl->use_filter) {
+            plainlog_record->filtered =
+                    plainlogrule_filtered(plainlog_record->line, vfilter);
+        }
+
+        /* now insert the rule */
+        vrmr_fatal_if(vrmr_list_append(logs, plainlog_record) == NULL);
+    }
+    /* if the bufferlist is full, remove the oldest item from it
+     */
+    if (logs->len > max_logs) {
+        vrmr_fatal_if(vrmr_list_remove_top(logs) < 0);
+    }
+    ctl->queue++;
+
+    /* free the line string, we don't need it anymore */
+    free(line);
+    return 1;
+}
 
 int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
         struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
@@ -549,8 +665,6 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
          /* infobar stuff */
             search[32] = "none";
 
-    char use_filter = FALSE;
-
     struct vrmr_list_node *d_node = NULL;
 
     int max_onscreen = 0;
@@ -560,26 +674,14 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     char hide_date = 0, hide_action = 0, hide_service = 0, hide_from = 0,
          hide_to = 0, hide_prefix = 0, hide_details = 0;
 
-    struct {
-        int print; // do we print to screen this run?
-        int sleep; // do we sleep this run
-        int queue; // do we queue this one
-        int pause;
-    } control = {
-            0,
-            0,
-            0,
-            0,
-    };
-
-    struct log_record *log_record = NULL;
-    struct plain_log_record *plainlog_record = NULL;
+    struct logview_control control = {
+            0, 0, 0, 0, false, false, false, false, false, 0};
 
     size_t max_logrule_length = 0, cur_logrule_length = 0;
 
     struct vrmr_filter vfilter;
 
-    int done = 0, first_logline_done = 0, filtered_lines = 0;
+    int first_logline_done = 0, filtered_lines = 0;
 
     unsigned int run_count = 0;
     int delta = 0;
@@ -588,11 +690,6 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 
     off_t logfile_size = 0;
     long logfile_fseek_offset = 0;
-
-    /* search */
-    char search_mode = 0;
-    char search_stop = 0, search_completed = 0, search_error = 0;
-    unsigned long search_results = 0;
 
     char *search_ptr = NULL, search_string[PATH_MAX] = "";
 
@@ -705,6 +802,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
         fclose(fp);
         return (-1);
     }
+
     status_print(status_win,
             gettext("Loading loglines into memory (trying to load %u "
                     "lines)..."),
@@ -732,7 +830,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     /*
         load the initial lines
     */
-    while (!done) {
+    while (1) {
         /* read line from log */
         line = malloc(READLINE_LEN);
         vrmr_fatal_alloc("malloc", line);
@@ -740,6 +838,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
         if (fgets(line, READLINE_LEN, fp) == NULL) {
             /* free the alloced line */
             free(line);
+            clearerr(fp);
             break;
         }
 
@@ -769,7 +868,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
          */
         if (traffic_log) {
             /* here we can analyse the rule */
-            log_record = malloc(sizeof(struct log_record));
+            struct log_record *log_record = malloc(sizeof(struct log_record));
             vrmr_fatal_alloc("malloc", log_record);
 
             /* start not filtered (was filtered) */
@@ -790,7 +889,8 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 
         } else {
             /* here we can analyse the rule */
-            plainlog_record = malloc(sizeof(struct plain_log_record));
+            struct plain_log_record *plainlog_record =
+                    malloc(sizeof(struct plain_log_record));
             vrmr_fatal_alloc("malloc", plainlog_record);
 
             /* start not filtered (was filtered) */
@@ -853,128 +953,24 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     update_panels();
     doupdate();
 
-    /* the main loop */
+    /* the main loop: we try to read a line, then handle user input */
     while (quit == 0) {
-        /* read line from log */
-        line = malloc(READLINE_LEN);
-        vrmr_fatal_alloc("malloc", line);
-
-        /* read a line if we are not in pause mode */
-        if (!control.pause && fgets(line, READLINE_LEN, fp) != NULL) {
-            linelen = StrMemLen(line);
-
-            /* if the line doesn't end with a newline character we rewind and
-             * try again the next run. */
-            if (linelen < READLINE_LEN - 1 && line[linelen - 1] != '\n') {
-                (void)fseek(fp, (long)(linelen * -1), SEEK_CUR);
-                free(line);
-                line = NULL;
-            } else if (search_mode) {
-                if (strncmp(line, "SL:EOF:", 7) == 0) {
-                    search_completed = 1;
-                } else if (strncmp(line, "SL:ERROR:", 9) == 0) {
-                    search_error = 1;
-                    search_completed = 1;
-                    line[StrMemLen(line) - 2] = '\0';
-                    vrmr_error(-1, VR_ERR, "%s", line);
-                } else {
-                    search_results++;
-                }
-
-                if (search_completed) {
-                    /* if we bail out here it's because of an EOF or ERROR
-                       and we are not interested in the line. So free it. */
-                    free(line);
-                    line = NULL;
-                }
-            }
-
-            /* insert the line into the buffer list */
-            if (line) {
-                if (traffic_log) {
-                    /* here we can analyse the rule */
-                    log_record = malloc(sizeof(struct log_record));
-                    vrmr_fatal_alloc("malloc", log_record);
-
-                    /* we asume unfiltered (was filtered) */
-                    log_record->filtered = 0;
-
-                    /* convert the raw line to our data structure */
-                    logline2logrule(line, log_record);
-
-                    /* if we have a filter check it now */
-                    if (use_filter) {
-                        log_record->filtered =
-                                logrule_filtered(log_record, &vfilter);
-                    }
-
-                    /* now really insert the rule into the buffer */
-                    vrmr_fatal_if(
-                            vrmr_list_append(buffer_ptr, log_record) == NULL);
-
-                    /* if the bufferlist is full, remove the oldest item from it
-                     */
-                    if (buffer_ptr->len > max_buffer_size) {
-                        vrmr_fatal_if(vrmr_list_remove_top(buffer_ptr) < 0);
-                    }
-
-                    control.queue++;
-                    log_record = NULL;
-                } else {
-                    /* here we can analyse the rule */
-                    plainlog_record = malloc(sizeof(struct plain_log_record));
-                    vrmr_fatal_alloc("malloc", plainlog_record);
-
-                    /* we asume unfiltered (was filtered) */
-                    plainlog_record->filtered = 0;
-
-                    logline2plainlogrule(line, plainlog_record);
-
-                    /* if we have a filter check it now */
-                    if (use_filter) {
-                        plainlog_record->filtered = plainlogrule_filtered(
-                                plainlog_record->line, &vfilter);
-                    }
-
-                    /* now insert the rule */
-                    vrmr_fatal_if(vrmr_list_append(
-                                          buffer_ptr, plainlog_record) == NULL);
-
-                    /* if the bufferlist is full, remove the oldest item from it
-                     */
-                    if (buffer_ptr->len > max_buffer_size) {
-                        vrmr_fatal_if(vrmr_list_remove_top(buffer_ptr) < 0);
-                    }
-
-                    plainlog_record = NULL;
-                    control.queue++;
-                }
-
-                /* free the line string, we don't need it anymore */
-                free(line);
-            }
-        }
-        /*  no line read
-
-            This means we have to sleep for a little while.
-        */
-        else {
-            /* free the allocated buffer */
-            free(line);
-            line = NULL;
-
+        int r = 0;
+        if (!control.pause)
+            r = read_log_line(fp, traffic_log, &vfilter, &control, buffer_ptr,
+                    max_buffer_size);
+        if (r == 0) {
             /* so we sleep, */
-            control.sleep = 1;
+            control.sleep = true;
             /* unless we still have a queue! */
             if (control.queue > 0)
-                control.print = 1;
+                control.print = true;
         }
-
         /* handle the search mode */
-        if (search_mode) {
+        if (control.search_mode) {
             /* emergengy search stop */
-            if (search_stop) {
-                search_completed = 1;
+            if (control.search_stop) {
+                control.search_completed = true;
             }
 
             /*  if the search is completed we have to do two things:
@@ -988,7 +984,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                 The reason for this is that we want to be able to scroll
                 through the search results.
             */
-            if (search_completed) {
+            if (control.search_completed) {
                 /* close the pipe */
                 if (pclose(search_pipe) < 0) {
                     vrmr_error(-1, VR_ERR,
@@ -1000,35 +996,35 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                 fp = traffic_fp;
 
                 /* disable search_mode */
-                search_mode = 0;
+                control.search_mode = false;
 
                 /* print the result */
-                if (search_stop) {
+                if (control.search_stop) {
                     status_print(status_win,
                             gettext("Search canceled. Press SPACE to return to "
                                     "normal logging."));
-                    search_stop = 0;
-                } else if (search_error) {
+                    control.search_stop = false;
+                } else if (control.search_error) {
                     status_print(
                             status_win, gettext("Search ERROR. Press SPACE to "
                                                 "return to normal logging."));
-                    search_error = 0;
+                    control.search_error = false;
                 } else {
                     status_print(status_win,
-                            gettext("Search done: %lu matches. Press SPACE to "
+                            gettext("Search done: %u matches. Press SPACE to "
                                     "return to normal logging."),
-                            search_results);
+                            control.search_results);
                 }
 
                 /* pause to leave the results on screen */
-                control.pause = 1;
+                control.pause = true;
 
                 /* finally free the search ptr */
                 free(search_ptr);
                 search_ptr = NULL;
 
                 /* reset counter */
-                search_results = 0;
+                control.search_results = 0;
 
                 /* clear for the infobar */
                 (void)strlcpy(search, "none", sizeof(search));
@@ -1044,18 +1040,18 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             /* scrolling */
             case KEY_UP:
                 offset++;
-                control.print = 1;
+                control.print = true;
                 break;
 
             case KEY_DOWN:
                 if (offset)
                     offset--;
-                control.print = 1;
+                control.print = true;
                 break;
 
             case KEY_PPAGE:
                 offset = offset + max_onscreen - 1;
-                control.print = 1;
+                control.print = true;
                 break;
 
             case KEY_NPAGE:
@@ -1064,17 +1060,17 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                     offset = 0;
                 else
                     offset = offset - page;
-                control.print = 1;
+                control.print = true;
                 break;
 
             case 262: /* home */
                 offset = buffer_ptr->len;
-                control.print = 1;
+                control.print = true;
                 break;
 
             case 360: /* end */
                 offset = 0;
-                control.print = 1;
+                control.print = true;
                 break;
 
             /* filter */
@@ -1093,13 +1089,13 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                             gettext("Active filter: '%s' (press 'enter' to "
                                     "clear)."),
                             vfilter.str);
-                    use_filter = TRUE;
-                } else if (use_filter == TRUE && vfilter.reg_active == FALSE) {
+                    control.use_filter = true;
+                } else if (control.use_filter && vfilter.reg_active == FALSE) {
                     status_print(status_win, gettext("Filter removed."));
-                    use_filter = FALSE;
+                    control.use_filter = false;
                 }
 
-                if (use_filter == TRUE) {
+                if (control.use_filter) {
                     /* draw (or hide) the filter panel */
                     draw_filter(info_bar_panels[0], filter_ib_win, vfilter.str);
                 } else {
@@ -1121,9 +1117,9 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                 for (d_node = buffer_ptr->top; d_node; d_node = d_node->next) {
                     if (traffic_log) {
                         vrmr_fatal_if_null(d_node->data);
-                        log_record = d_node->data;
+                        struct log_record *log_record = d_node->data;
 
-                        if (use_filter) {
+                        if (control.use_filter) {
                             log_record->filtered =
                                     logrule_filtered(log_record, &vfilter);
                         } else {
@@ -1131,9 +1127,9 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                         }
                     } else {
                         vrmr_fatal_if_null(d_node->data);
-                        plainlog_record = d_node->data;
+                        struct plain_log_record *plainlog_record = d_node->data;
 
-                        if (use_filter) {
+                        if (control.use_filter) {
                             plainlog_record->filtered = plainlogrule_filtered(
                                     plainlog_record->line, &vfilter);
                         } else {
@@ -1145,7 +1141,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                 /* destroy the wait dialog */
                 del_panel(wait_panels[0]);
                 destroy_win(wait_win);
-                control.print = 1;
+                control.print = true;
                 offset = 0;
                 break;
 
@@ -1155,7 +1151,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                 werase(log_win);
                 vrmr_fatal_if(vrmr_list_cleanup(buffer_ptr) < 0);
                 vrmr_list_setup(buffer_ptr, free);
-                control.print = 1;
+                control.print = true;
                 break;
 
             /* quit */
@@ -1164,12 +1160,12 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             case 'Q':
             case KEY_F(10):
 
-                if (search_mode) {
+                if (control.search_mode) {
                     status_print(
                             status_win, gettext("Search in progress. Press 'S' "
                                                 "to stop current search."));
                     usleep(600000);
-                } else if (search_completed) {
+                } else if (control.search_completed) {
                     status_print(status_win,
                             gettext("Please first close the current search by "
                                     "pressing SPACE."));
@@ -1183,34 +1179,34 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             case 'p':
             case 32: /* spacebar */
 
-                if (control.pause == 1) {
+                if (control.pause) {
                     /* here we do the final cleanup for the search mode. */
-                    if (search_completed) {
+                    if (control.search_completed) {
                         /* cleanup the buffer */
                         vrmr_fatal_if(vrmr_list_cleanup(buffer_ptr) < 0);
 
                         /* restore buffer pointer */
                         buffer_ptr = &LogBufferList;
-                        search_completed = 0;
-                        control.print = 1;
-                        control.pause = 0;
+                        control.search_completed = false;
+                        control.print = true;
+                        control.pause = false;
                     }
 
-                    if (!search_mode)
+                    if (!control.search_mode)
                         status_print(status_win,
                                 gettext("Continue viewing the log."));
                     else
                         status_print(
                                 status_win, gettext("Continue searching."));
 
-                    control.pause = 0;
+                    control.pause = false;
                 } else {
-                    control.pause = 1;
-                    control.sleep = 1;
+                    control.pause = true;
+                    control.sleep = true;
 
                     /* search_mode has it's own way of letting the user know
                        that a search is paused. */
-                    if (!search_mode)
+                    if (!control.search_mode)
                         status_print(
                                 status_win, gettext("*** PAUSED *** (press 'p' "
                                                     "to continue)"));
@@ -1226,7 +1222,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 
                     status_print(status_win, "%s: %s.", STR_THE_DATE_IS_NOW,
                             hide_date ? gettext("hidden") : gettext("visible"));
-                    control.print = 1;
+                    control.print = true;
                 } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
@@ -1242,7 +1238,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                     status_print(status_win, "%s: %s.", STR_THE_ACTION_IS_NOW,
                             hide_action ? gettext("hidden")
                                         : gettext("visible"));
-                    control.print = 1;
+                    control.print = true;
                 } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
@@ -1258,7 +1254,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                     status_print(status_win, "%s: %s.", STR_THE_SERVICE_IS_NOW,
                             hide_service ? gettext("hidden")
                                          : gettext("visible"));
-                    control.print = 1;
+                    control.print = true;
                 } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
@@ -1273,7 +1269,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 
                     status_print(status_win, "%s: %s.", STR_THE_SOURCE_IS_NOW,
                             hide_from ? gettext("hidden") : gettext("visible"));
-                    control.print = 1;
+                    control.print = true;
                 } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
@@ -1305,7 +1301,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                     status_print(status_win, "%s: %s.", STR_THE_PREFIX_IS_NOW,
                             hide_prefix ? gettext("hidden")
                                         : gettext("visible"));
-                    control.print = 1;
+                    control.print = true;
                 } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
@@ -1321,7 +1317,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                     status_print(status_win, "%s: %s.", STR_THE_DETAILS_ARE_NOW,
                             hide_details ? gettext("hidden")
                                          : gettext("visible"));
-                    control.print = 1;
+                    control.print = true;
                 } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
@@ -1330,12 +1326,12 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             /* search */
             case 's':
 
-                if (search_mode) {
+                if (control.search_mode) {
                     status_print(
                             status_win, gettext("Already searching. Press 'S' "
                                                 "to stop current search."));
                     usleep(600000);
-                } else if (search_completed) {
+                } else if (control.search_completed) {
                     status_print(status_win,
                             gettext("Please first close the current search by "
                                     "pressing SPACE."));
@@ -1408,7 +1404,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                             fp = search_pipe;
 
                             /* we are in search-mode */
-                            search_mode = 1;
+                            control.search_mode = true;
 
                             status_print(status_win,
                                     gettext("Search started. Press 'S' to stop "
@@ -1433,8 +1429,8 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             /* emergency search stop */
             case 'S':
 
-                if (search_mode)
-                    search_stop = 1;
+                if (control.search_mode)
+                    control.search_stop = true;
                 else
                     status_print(status_win, gettext("No search in progress."));
                 break;
@@ -1475,7 +1471,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 
         /* offset cannot be smaller than 0, or bigger than buffer_size -
          * max_onscreen */
-        if (!use_filter) {
+        if (!control.use_filter) {
             if (offset != 0 && offset > (buffer_size - max_onscreen))
                 offset = buffer_size - max_onscreen;
 
@@ -1499,7 +1495,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                     d_node = d_node->prev, run_count++) {
                 if (traffic_log) {
                     vrmr_fatal_if_null(d_node->data);
-                    log_record = d_node->data;
+                    struct log_record *log_record = d_node->data;
 
                     if (log_record->filtered == 0) {
                         delta++;
@@ -1509,7 +1505,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                     }
                 } else {
                     vrmr_fatal_if_null(d_node->data);
-                    plainlog_record = d_node->data;
+                    struct plain_log_record *plainlog_record = d_node->data;
 
                     if (plainlog_record->filtered == 0) {
                         delta++;
@@ -1537,7 +1533,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 
         /* if the queue is getting too full, print */
         if (control.queue > (max_onscreen / 3))
-            control.print = 1;
+            control.print = true;
 
         /* display counters for debuging */
         if (vrmr_debug_level >= LOW)
@@ -1551,17 +1547,17 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
         if (control.print) {
             /* update the results printer if in search_mode - we do this here
                because we come here less often because of the queue. */
-            if (search_mode) {
+            if (control.search_mode) {
                 if (!control.pause)
                     status_print(status_win,
-                            gettext("Search in progress: %lu matches so far. "
+                            gettext("Search in progress: %u matches so far. "
                                     "SPACE to pause, 'S' to stop."),
-                            search_results);
+                            control.search_results);
                 else
                     status_print(status_win,
-                            gettext("Search PAUSED: %lu matches so far. SPACE "
+                            gettext("Search PAUSED: %u matches so far. SPACE "
                                     "to continue, 'S' to stop."),
-                            search_results);
+                            control.search_results);
             }
             /* clear the screen */
             werase(log_win);
@@ -1573,10 +1569,10 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                     cur_logrule_length = 0;
                     if (traffic_log) {
                         vrmr_fatal_if_null(d_node->data);
-                        log_record = d_node->data;
+                        struct log_record *log_record = d_node->data;
 
-                        if (!use_filter ||
-                                (use_filter && !log_record->filtered)) {
+                        if (!control.use_filter ||
+                                (control.use_filter && !log_record->filtered)) {
                             drawn_lines++;
                             print_logrule(log_win, log_record,
                                     max_logrule_length, cur_logrule_length,
@@ -1586,10 +1582,11 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                         }
                     } else {
                         vrmr_fatal_if_null(d_node->data);
-                        plainlog_record = d_node->data;
+                        struct plain_log_record *plainlog_record = d_node->data;
 
-                        if (!use_filter ||
-                                (use_filter && !plainlog_record->filtered)) {
+                        if (!control.use_filter ||
+                                (control.use_filter &&
+                                        !plainlog_record->filtered)) {
                             drawn_lines++;
                             print_plainlogrule(log_win, plainlog_record->line,
                                     max_logrule_length, cur_logrule_length);
@@ -1607,9 +1604,9 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             doupdate();
 
             /* reset the control stuff */
-            control.print = 0;
+            control.print = false;
             control.queue = 0;
-            control.sleep = 0;
+            control.sleep = false;
 
             /* if we are in search mode, there is no need to keep up with the
                log in real-time. So we take some time to draw the screen. It
@@ -1618,14 +1615,14 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 
                furthermore it will decrease the load on the system during a
                search */
-            if (search_mode)
+            if (control.search_mode)
                 usleep(90000);
         }
 
         /* sleep for 1 tenth of a second if we want to sleep */
-        if (control.sleep == 1) {
+        if (control.sleep) {
             usleep(100000);
-            control.sleep = 0;
+            control.sleep = false;
         }
     }
 
