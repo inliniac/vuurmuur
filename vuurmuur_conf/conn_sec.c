@@ -24,8 +24,32 @@ struct conntrack conntrack;
 
 /* internal stuff */
 static int fromzone_width = 0, tozone_width = 0, service_width = 0;
-static char ser_snprintf_str[32] = "", fromzone_snprintf_str[32] = "",
-            tozone_snprintf_str[32] = "";
+
+/* taken from suricata:src/util-device.c
+ * turn long string abcdefghi into "abc~ghi"
+ * if output_size is even (so available space odd because of nul byte,
+ * we prefer the start: "abcd~ghi"
+ */
+void shorten_name(const char *input, char *output, size_t output_size)
+{
+    const size_t str_len = StrLen(input);
+    const size_t half = (output_size - 1) / 2;
+    size_t lhalf = half;       // left half
+    const size_t rhalf = half; // right half
+
+    /* If the output size is an even number */
+    if (half * 2 == (output_size - 1)) {
+        lhalf--;
+    }
+
+    /* Add the first half to the new string */
+    snprintf(output, lhalf + 1, "%s", input);
+
+    /* Add the amount of spaces wanted */
+    size_t length = strlcat(output, "~", output_size);
+
+    snprintf(output + length, rhalf + 1, "%s", input + (str_len - rhalf));
+}
 
 /* wrapper for strlcpy, that truncates a string a little nicer */
 static void copy_name(char *dst, char *src, size_t size)
@@ -33,10 +57,14 @@ static void copy_name(char *dst, char *src, size_t size)
     size_t srclen = StrLen(src);
     if (srclen < size) {
         (void)strlcpy(dst, src, size);
+        /* pad with spaces */
+        size_t left = size - srclen + 1;
+        while (left) {
+            strlcat(dst, " ", size);
+            left--;
+        }
     } else {
-        (void)strlcpy(dst, src, size);
-        dst[size - 3] = '>';
-        dst[size - 2] = '>';
+        shorten_name(src, dst, size);
     }
 }
 
@@ -86,16 +114,9 @@ static int print_connection(WINDOW *local_win,
             display count
         */
         wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
-
-        printline_width = spaceleft;
-        if (printline_width >= sizeof(printline))
-            printline_width = sizeof(printline);
-
+        printline_width = MIN(spaceleft, sizeof(printline));
         snprintf(printline, printline_width, "%4d: ", cd_ptr->cnt);
-
-        // mvwprintw(local_win, start_print, 0, "%s", printline);
         wprintw(local_win, "%s", printline);
-
         wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
 
         spaceleft = spaceleft - StrLen(printline);
@@ -108,15 +129,10 @@ static int print_connection(WINDOW *local_win,
     */
     wattron(local_win, vccnf.color_bgd_cyan | A_BOLD);
 
-    printline_width = spaceleft;
-    if (printline_width >= sizeof(printline))
-        printline_width = sizeof(printline);
-
+    printline_width = MIN(spaceleft, sizeof(printline));
     copy_name(servicename, cd_ptr->sername, service_width);
-
-    snprintf(printline, printline_width, ser_snprintf_str, servicename);
-
-    wprintw(local_win, "%s", printline);
+    strlcpy(printline, servicename, printline_width);
+    wprintw(local_win, "%s ", printline);
     wattroff(local_win, vccnf.color_bgd_cyan | A_BOLD);
 
     spaceleft = spaceleft - StrLen(printline);
@@ -131,16 +147,11 @@ static int print_connection(WINDOW *local_win,
     else
         wattron(local_win, vccnf.color_bgd | A_BOLD);
 
-    printline_width = spaceleft;
-    if (printline_width >= sizeof(printline))
-        printline_width = sizeof(printline);
-
+    printline_width = MIN(spaceleft, sizeof(printline));
     copy_name(zonename, cd_ptr->fromname, fromzone_width);
-
-    snprintf(printline, printline_width, fromzone_snprintf_str, zonename);
+    strlcpy(printline, zonename, printline_width);
     spaceleft = spaceleft - StrLen(printline);
-
-    wprintw(local_win, "%s", printline);
+    wprintw(local_win, "%s ", printline);
 
     if (strncmp(cd_ptr->fromname, "firewall", 8) == 0)
         wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
@@ -153,14 +164,10 @@ static int print_connection(WINDOW *local_win,
     /*
         ARROW
     */
-    printline_width = spaceleft;
-    if (printline_width >= sizeof(printline))
-        printline_width = sizeof(printline);
-
-    snprintf(printline, printline_width, "-> ");
+    printline_width = MIN(spaceleft, sizeof(printline));
+    snprintf(printline, printline_width, "->");
     spaceleft = spaceleft - StrLen(printline);
-
-    wprintw(local_win, "%s", printline);
+    wprintw(local_win, "%s ", printline);
 
     if (!spaceleft)
         return (1);
@@ -173,16 +180,11 @@ static int print_connection(WINDOW *local_win,
     else
         wattron(local_win, vccnf.color_bgd | A_BOLD);
 
-    printline_width = spaceleft;
-    if (printline_width >= sizeof(printline))
-        printline_width = sizeof(printline);
-
+    printline_width = MIN(spaceleft, sizeof(printline));
     copy_name(zonename, cd_ptr->toname, tozone_width);
-
-    snprintf(printline, printline_width, tozone_snprintf_str, zonename);
+    strlcpy(printline, zonename, printline_width);
     spaceleft = spaceleft - StrLen(printline);
-
-    wprintw(local_win, "%s", printline);
+    wprintw(local_win, "%s ", printline);
 
     if (strncmp(cd_ptr->toname, "firewall", 8) == 0)
         wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
@@ -197,21 +199,14 @@ static int print_connection(WINDOW *local_win,
     */
     if (!connreq->sort_conn_status) {
         /* whitespace */
-        printline_width = spaceleft;
-        if (printline_width >= sizeof(printline))
-            printline_width = sizeof(printline);
-
+        printline_width = MIN(spaceleft, sizeof(printline));
         snprintf(printline, printline_width, "%s", " ");
         spaceleft = spaceleft - StrLen(printline);
-
         wprintw(local_win, "%s", printline);
 
         if (cd_ptr->connect_status == VRMR_CONN_CONNECTING) {
             wattron(local_win, vccnf.color_bgd_green | A_BOLD);
-
-            printline_width = spaceleft;
-            if (printline_width >= sizeof(printline))
-                printline_width = sizeof(printline);
+            printline_width = MIN(spaceleft, sizeof(printline));
 
             /* TRANSLATORS: max 4 chars: CONNECTING, like building a new
              * connection. */
@@ -223,10 +218,7 @@ static int print_connection(WINDOW *local_win,
             wattroff(local_win, vccnf.color_bgd_green | A_BOLD);
         } else if (cd_ptr->connect_status == VRMR_CONN_CONNECTED) {
             wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
-
-            printline_width = spaceleft;
-            if (printline_width >= sizeof(printline))
-                printline_width = sizeof(printline);
+            printline_width = MIN(spaceleft, sizeof(printline));
 
             /* TRANSLATORS: max 4 chars: ESTABLISHED, an existing connection. */
             snprintf(printline, printline_width, "%-4s", gettext("ESTA"));
@@ -237,10 +229,7 @@ static int print_connection(WINDOW *local_win,
             wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
         } else if (cd_ptr->connect_status == VRMR_CONN_DISCONNECTING) {
             wattron(local_win, vccnf.color_bgd_red | A_BOLD);
-
-            printline_width = spaceleft;
-            if (printline_width >= sizeof(printline))
-                printline_width = sizeof(printline);
+            printline_width = MIN(spaceleft, sizeof(printline));
 
             /* TRANSLATORS: max 4 chars: DISCONNECTING, an existing connection
              * is shutting down. */
@@ -261,10 +250,7 @@ static int print_connection(WINDOW *local_win,
 
     if (!connreq->sort_in_out_fwd) {
         /* whitespace */
-        printline_width = spaceleft;
-        if (printline_width >= sizeof(printline))
-            printline_width = sizeof(printline);
-
+        printline_width = MIN(spaceleft, sizeof(printline));
         snprintf(printline, printline_width, "%s", " ");
         spaceleft = spaceleft - StrLen(printline);
 
@@ -272,10 +258,7 @@ static int print_connection(WINDOW *local_win,
 
         if (cd_ptr->direction_status == VRMR_CONN_IN) {
             wattron(local_win, vccnf.color_bgd_cyan | A_BOLD);
-
-            printline_width = spaceleft;
-            if (printline_width >= sizeof(printline))
-                printline_width = sizeof(printline);
+            printline_width = MIN(spaceleft, sizeof(printline));
 
             /* TRANSLATORS: max 3 chars: INCOMING, an incoming connection. */
             snprintf(printline, printline_width, "%-4s", gettext("IN"));
@@ -285,10 +268,7 @@ static int print_connection(WINDOW *local_win,
             wattroff(local_win, vccnf.color_bgd_cyan | A_BOLD);
         } else if (cd_ptr->direction_status == VRMR_CONN_OUT) {
             wattron(local_win, vccnf.color_bgd_cyan | A_BOLD);
-
-            printline_width = spaceleft;
-            if (printline_width >= sizeof(printline))
-                printline_width = sizeof(printline);
+            printline_width = MIN(spaceleft, sizeof(printline));
 
             /* TRANSLATORS: max 3 chars: OUTGOING, an outgoing connection. */
             snprintf(printline, printline_width, "%-4s", gettext("OUT"));
@@ -298,10 +278,7 @@ static int print_connection(WINDOW *local_win,
             wattroff(local_win, vccnf.color_bgd_cyan | A_BOLD);
         } else if (cd_ptr->direction_status == VRMR_CONN_FW) {
             wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
-
-            printline_width = spaceleft;
-            if (printline_width >= sizeof(printline))
-                printline_width = sizeof(printline);
+            printline_width = MIN(spaceleft, sizeof(printline));
 
             /* TRANSLATORS: max 3 chars: FORWARDING, an forwarding connection.
              */
@@ -317,9 +294,7 @@ static int print_connection(WINDOW *local_win,
         return (1);
 
     if (connreq->draw_acc_data == TRUE && acct == TRUE) {
-        printline_width = spaceleft;
-        if (printline_width >= sizeof(printline))
-            printline_width = sizeof(printline);
+        printline_width = MIN(spaceleft, sizeof(printline));
 
         if (cd_ptr->use_acc == FALSE)
             snprintf(bw_str, sizeof(bw_str), "  n/a");
@@ -363,9 +338,7 @@ static int print_connection(WINDOW *local_win,
         if (!spaceleft)
             return (1);
 
-        printline_width = spaceleft;
-        if (printline_width >= sizeof(printline))
-            printline_width = sizeof(printline);
+        printline_width = MIN(spaceleft, sizeof(printline));
 
         if (cd_ptr->use_acc == FALSE)
             snprintf(bw_str, sizeof(bw_str), "  n/a");
@@ -414,9 +387,7 @@ static int print_connection(WINDOW *local_win,
         if (spaceleft < 10)
             return (1);
 
-        printline_width = spaceleft;
-        if (printline_width >= sizeof(printline))
-            printline_width = sizeof(printline);
+        printline_width = MIN(spaceleft, sizeof(printline));
 
         if (cd_ptr->src_port == 0 && cd_ptr->dst_port == 0) {
             snprintf(printline, printline_width, "%s -> %s PROTO %u",
@@ -454,44 +425,29 @@ static int print_connection(WINDOW *local_win,
     return (1);
 }
 
-static void update_draw_size_do(
-        int *s, int sr, int sm, char *str, size_t strsize)
-{
-    *s = sm;
-    if (sr < sm)
-        *s = sr;
-
-    snprintf(str, strsize, "%%-%ds", *s);
-}
-
-static void update_draw_size(int width, int ser, int from, int to)
+static void update_draw_size(
+        int width, int service_request, int from_request, int to_request)
 {
     /* max: cnt sp ser sp from sp arrow sp to sp stat sp dir
      *        5  1   15 1   46  1     2  1 46  1    5  1   4 = 129 */
 #define FIXED 20
     int left = width - FIXED;
-    int serw = left * 0.2;
-    if (serw > ser)
-        serw = ser;
+    int serw = left * 0.3;
+    serw = MIN(serw, service_request);
     left -= serw;
 
-    int fromw = left * 0.5;
-    if (fromw > from)
-        fromw = from;
+    int fromw = left * 0.4;
+    fromw = MIN(fromw, from_request);
     left -= fromw;
 
     int tow = left;
-    if (tow > to)
-        tow = to;
+    tow = MIN(tow, to_request);
     left -= tow;
     (void)left;
 
-    update_draw_size_do(&service_width, ser, serw, ser_snprintf_str,
-            sizeof(ser_snprintf_str));
-    update_draw_size_do(&fromzone_width, from, fromw, fromzone_snprintf_str,
-            sizeof(fromzone_snprintf_str));
-    update_draw_size_do(&tozone_width, to, tow, tozone_snprintf_str,
-            sizeof(tozone_snprintf_str));
+    service_width = serw;
+    fromzone_width = fromw;
+    tozone_width = tow;
 }
 
 void conn_free_ct(struct conntrack **ct, struct vrmr_zones *zones)
