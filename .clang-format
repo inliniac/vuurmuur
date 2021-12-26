@@ -92,8 +92,9 @@ PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 60
 PointerAlignment: Right
 RawStringFormats: 
-  - Delimiter:       pb
-    Language:        TextProto
+  - Language:        TextProto
+    Delimiters:
+      - 'pb'
     BasedOnStyle:    google
 ReflowComments:  true
 SortIncludes:    false
