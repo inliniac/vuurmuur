@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2019 by Victor Julien                              *
+ *   Copyright (C) 2003-2021 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -68,22 +68,31 @@ static void copy_name(char *dst, char *src, size_t size)
     }
 }
 
+static int get_space(WINDOW *w, int size)
+{
+    int _y, x;
+    getyx(w, _y, x);
+    (void)_y;
+    const int left = size - x;
+    return left;
+}
+
 /**
  *  \param acct print accounting is enabled
  */
 static int print_connection(WINDOW *local_win,
         struct vrmr_conntrack_entry *cd_ptr,
         struct vrmr_conntrack_request *connreq, int max_onscreen, int cnt,
-        int screen_width, int acct)
+        const int screen_width, int acct)
 {
     int start_print = 0;
     char printline[256] = "";
-    size_t spaceleft = 0, printline_width = 0;
+    const int printline_max = MIN((int)sizeof(printline), screen_width);
+    int printline_width = printline_max;
     char servicename[32] = "";
     char zonename[46] = "";
     char bw_str[9] = "";
-
-    spaceleft = (size_t)screen_width;
+    const bool start_with_service = (connreq->group_conns == FALSE);
 
     /* determine the position where we are going to write */
     if (connreq->sort_conn_status) {
@@ -106,196 +115,138 @@ static int print_connection(WINDOW *local_win,
         start_print = cnt;
     }
 
-    /* move cursor to new line */
-    mvwprintw(local_win, start_print, 0, "");
-
     if (connreq->group_conns == TRUE) {
-        /*
-            display count
-        */
+        /* display count */
         wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
-        printline_width = MIN(spaceleft, sizeof(printline));
         snprintf(printline, printline_width, "%4d: ", cd_ptr->cnt);
-        wprintw(local_win, "%s", printline);
+        mvwprintw(local_win, start_print, 0, "%s", printline);
         wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
 
-        spaceleft = spaceleft - StrLen(printline);
-        if (!spaceleft)
+        printline_width = get_space(local_win, printline_max);
+        if (printline_width <= 0)
             return (1);
     }
 
-    /*
-        SERVICE name
-    */
+    /* SERVICE name */
     wattron(local_win, vccnf.color_bgd_cyan | A_BOLD);
-
-    printline_width = MIN(spaceleft, sizeof(printline));
     copy_name(servicename, cd_ptr->sername, service_width);
     strlcpy(printline, servicename, printline_width);
-    wprintw(local_win, "%s ", printline);
+    if (start_with_service) {
+        mvwprintw(local_win, start_print, 0, "%s ", printline);
+    } else {
+        wprintw(local_win, "%s ", printline);
+    }
     wattroff(local_win, vccnf.color_bgd_cyan | A_BOLD);
 
-    spaceleft = spaceleft - StrLen(printline);
-    if (!spaceleft)
+    /* FROM name */
+    printline_width = get_space(local_win, printline_max);
+    if (printline_width <= 0)
         return (1);
-
-    /*
-        FROM name
-    */
     if (strncmp(cd_ptr->fromname, "firewall", 8) == 0)
         wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
     else
         wattron(local_win, vccnf.color_bgd | A_BOLD);
-
-    printline_width = MIN(spaceleft, sizeof(printline));
     copy_name(zonename, cd_ptr->fromname, fromzone_width);
     strlcpy(printline, zonename, printline_width);
-    spaceleft = spaceleft - StrLen(printline);
     wprintw(local_win, "%s ", printline);
-
     if (strncmp(cd_ptr->fromname, "firewall", 8) == 0)
         wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
     else
         wattroff(local_win, vccnf.color_bgd | A_BOLD);
 
-    if (!spaceleft)
+    /* ARROW */
+    printline_width = get_space(local_win, printline_max);
+    if (printline_width <= 0)
         return (1);
-
-    /*
-        ARROW
-    */
-    printline_width = MIN(spaceleft, sizeof(printline));
     snprintf(printline, printline_width, "->");
-    spaceleft = spaceleft - StrLen(printline);
     wprintw(local_win, "%s ", printline);
 
-    if (!spaceleft)
+    /* TO name */
+    printline_width = get_space(local_win, printline_max);
+    if (printline_width <= 0)
         return (1);
-
-    /*
-        TO name
-    */
     if (strncmp(cd_ptr->toname, "firewall", 8) == 0)
         wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
     else
         wattron(local_win, vccnf.color_bgd | A_BOLD);
-
-    printline_width = MIN(spaceleft, sizeof(printline));
     copy_name(zonename, cd_ptr->toname, tozone_width);
     strlcpy(printline, zonename, printline_width);
-    spaceleft = spaceleft - StrLen(printline);
     wprintw(local_win, "%s ", printline);
-
     if (strncmp(cd_ptr->toname, "firewall", 8) == 0)
         wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
     else
         wattroff(local_win, vccnf.color_bgd | A_BOLD);
 
-    if (!spaceleft)
+    printline_width = get_space(local_win, printline_max);
+    if (printline_width <= 0)
         return (1);
 
-    /*
-        Connection status
-    */
+    /* Connection status */
     if (!connreq->sort_conn_status) {
-        /* whitespace */
-        printline_width = MIN(spaceleft, sizeof(printline));
-        snprintf(printline, printline_width, "%s", " ");
-        spaceleft = spaceleft - StrLen(printline);
-        wprintw(local_win, "%s", printline);
-
         if (cd_ptr->connect_status == VRMR_CONN_CONNECTING) {
             wattron(local_win, vccnf.color_bgd_green | A_BOLD);
-            printline_width = MIN(spaceleft, sizeof(printline));
 
             /* TRANSLATORS: max 4 chars: CONNECTING, like building a new
              * connection. */
             snprintf(printline, printline_width, "%-4s", gettext("CONN"));
-            spaceleft = spaceleft - StrLen(printline);
-
-            wprintw(local_win, "%s", printline);
+            wprintw(local_win, "%s ", printline);
 
             wattroff(local_win, vccnf.color_bgd_green | A_BOLD);
         } else if (cd_ptr->connect_status == VRMR_CONN_CONNECTED) {
             wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
-            printline_width = MIN(spaceleft, sizeof(printline));
 
             /* TRANSLATORS: max 4 chars: ESTABLISHED, an existing connection. */
             snprintf(printline, printline_width, "%-4s", gettext("ESTA"));
-            spaceleft = spaceleft - StrLen(printline);
-
-            wprintw(local_win, "%s", printline);
+            wprintw(local_win, "%s ", printline);
 
             wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
         } else if (cd_ptr->connect_status == VRMR_CONN_DISCONNECTING) {
             wattron(local_win, vccnf.color_bgd_red | A_BOLD);
-            printline_width = MIN(spaceleft, sizeof(printline));
 
             /* TRANSLATORS: max 4 chars: DISCONNECTING, an existing connection
              * is shutting down. */
             snprintf(printline, printline_width, "%-4s", gettext("DISC"));
-            spaceleft = spaceleft - StrLen(printline);
-
-            wprintw(local_win, "%s", printline);
+            wprintw(local_win, "%s ", printline);
 
             wattroff(local_win, vccnf.color_bgd_red | A_BOLD);
         } else {
-            wprintw(local_win, "%-4s", "-");
-            spaceleft = spaceleft - 4;
+            wprintw(local_win, "%-4s ", "-");
         }
     }
 
-    if (!spaceleft)
+    printline_width = get_space(local_win, printline_max);
+    if (printline_width <= 0)
         return (1);
 
     if (!connreq->sort_in_out_fwd) {
-        /* whitespace */
-        printline_width = MIN(spaceleft, sizeof(printline));
-        snprintf(printline, printline_width, "%s", " ");
-        spaceleft = spaceleft - StrLen(printline);
-
-        wprintw(local_win, "%s", printline);
-
         if (cd_ptr->direction_status == VRMR_CONN_IN) {
             wattron(local_win, vccnf.color_bgd_cyan | A_BOLD);
-            printline_width = MIN(spaceleft, sizeof(printline));
 
             /* TRANSLATORS: max 3 chars: INCOMING, an incoming connection. */
             snprintf(printline, printline_width, "%-4s", gettext("IN"));
-            spaceleft = spaceleft - StrLen(printline);
-
             wprintw(local_win, "%s", printline);
             wattroff(local_win, vccnf.color_bgd_cyan | A_BOLD);
         } else if (cd_ptr->direction_status == VRMR_CONN_OUT) {
             wattron(local_win, vccnf.color_bgd_cyan | A_BOLD);
-            printline_width = MIN(spaceleft, sizeof(printline));
-
             /* TRANSLATORS: max 3 chars: OUTGOING, an outgoing connection. */
             snprintf(printline, printline_width, "%-4s", gettext("OUT"));
-            spaceleft = spaceleft - StrLen(printline);
-
             wprintw(local_win, "%s", printline);
             wattroff(local_win, vccnf.color_bgd_cyan | A_BOLD);
         } else if (cd_ptr->direction_status == VRMR_CONN_FW) {
             wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
-            printline_width = MIN(spaceleft, sizeof(printline));
-
             /* TRANSLATORS: max 3 chars: FORWARDING, an forwarding connection.
              */
             snprintf(printline, printline_width, "%-4s", gettext("FWD"));
-            spaceleft = spaceleft - StrLen(printline);
-
             wprintw(local_win, "%s", printline);
             wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
         }
     }
 
-    if (!spaceleft)
+    printline_width = get_space(local_win, printline_max);
+    if (printline_width <= 0)
         return (1);
 
     if (connreq->draw_acc_data == TRUE && acct == TRUE) {
-        printline_width = MIN(spaceleft, sizeof(printline));
-
         if (cd_ptr->use_acc == FALSE)
             snprintf(bw_str, sizeof(bw_str), "  n/a");
         else if (cd_ptr->to_src_bytes == 0)
@@ -331,14 +282,11 @@ static int print_connection(WINDOW *local_win,
                     (float)cd_ptr->to_src_bytes / (1024 * 1024 * 1024));
 
         snprintf(printline, printline_width, "<- %-5s ", bw_str);
-
-        spaceleft = spaceleft - StrLen(printline);
         wprintw(local_win, "%s", printline);
 
-        if (!spaceleft)
+        printline_width = get_space(local_win, printline_max);
+        if (printline_width <= 0)
             return (1);
-
-        printline_width = MIN(spaceleft, sizeof(printline));
 
         if (cd_ptr->use_acc == FALSE)
             snprintf(bw_str, sizeof(bw_str), "  n/a");
@@ -375,20 +323,15 @@ static int print_connection(WINDOW *local_win,
                     (float)cd_ptr->to_dst_bytes / (1024 * 1024 * 1024));
 
         snprintf(printline, printline_width, "%5s -> ", bw_str);
-
-        spaceleft = spaceleft - StrLen(printline);
         wprintw(local_win, "%s", printline);
+    }
 
-        if (!spaceleft)
-            return (1);
+    printline_width = get_space(local_win, printline_max);
+    if (printline_width < 10) {
+        return (1);
     }
 
     if (connreq->draw_details == TRUE) {
-        if (spaceleft < 10)
-            return (1);
-
-        printline_width = MIN(spaceleft, sizeof(printline));
-
         if (cd_ptr->src_port == 0 && cd_ptr->dst_port == 0) {
             snprintf(printline, printline_width, "%s -> %s PROTO %u",
                     cd_ptr->src_ip, cd_ptr->dst_ip, cd_ptr->protocol);
@@ -414,14 +357,8 @@ static int print_connection(WINDOW *local_win,
                         cd_ptr->dst_port, cd_ptr->protocol);
             }
         }
-
-        spaceleft = spaceleft - StrLen(printline);
         wprintw(local_win, "%s", printline);
-
-        if (!spaceleft)
-            return (1);
     }
-
     return (1);
 }
 
@@ -986,7 +923,7 @@ int connections_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             case 32: // space
 
                 if (control.pause == 1) {
-                    status_print(status_win, "");
+                    status_print(status_win, "%s", "");
                     control.pause = 0;
                 } else {
                     control.pause = 1;
