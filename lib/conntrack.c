@@ -443,7 +443,7 @@ static int conn_data_to_entry(const struct vrmr_conntrack_api_entry *cae,
         ce->toname = ce->to->name;
     }
 
-    vrmr_debug(NONE, "status cae->status %u", cae->status);
+    vrmr_debug(MEDIUM, "status cae->status %u", cae->status);
 
     if ((cae->status & IPS_SEEN_REPLY) == 0) {
         ce->connect_status = VRMR_CONN_CONNECTING;
