@@ -1,4 +1,4 @@
-AC_INIT([vuurmuur],[0.8])
+AC_INIT([vuurmuur],[0.8.1])
 m4_ifndef([AM_SILENT_RULES], [m4_define([AM_SILENT_RULES],[])])AM_SILENT_RULES([yes])
 AC_CONFIG_SRCDIR([vuurmuur/vuurmuur.c])
 AM_INIT_AUTOMAKE

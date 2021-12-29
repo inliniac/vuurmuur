@@ -6,7 +6,7 @@
 
 VMS="vuurmuur_script"
 
-VERSION="0.8"
+VERSION="0.8.1"
 BACKTITLE="Vuurmuur Setup Wizard version $VERSION"
 
 ZONES="inet lan"
