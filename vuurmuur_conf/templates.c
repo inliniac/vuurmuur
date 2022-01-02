@@ -678,9 +678,6 @@ void set_field_buffer_wrap(FIELD *field, int bufnum, const char *value)
     int field_rows = 0, field_cols = 0, field_size = 0, i = 0, x = 0;
     size_t value_size = 0;
     int result = 0;
-#ifdef USE_WIDEC
-    wchar_t wbuffer[512] = L"";
-#endif /* USE_WIDEC */
 
     /* safety */
     vrmr_fatal_if_null(field);
@@ -713,7 +710,18 @@ void set_field_buffer_wrap(FIELD *field, int bufnum, const char *value)
             field_size, field_rows, field_cols);
 
 #ifdef USE_WIDEC
-    mbstowcs(wbuffer, value, wsizeof(wbuffer));
+    wchar_t wbuffer[512];
+    memset(wbuffer, 0, sizeof(wbuffer));
+    size_t mbslen = mbstowcs(NULL, value, 0);
+    if (mbslen == (size_t)-1) {
+        vrmr_error(-1, VR_INTERR, "mbstowcs(): %s", strerror(errno));
+        return;
+    }
+    if (mbslen >= 512) {
+        vrmr_debug(NONE, "mbslen %"PRIuMAX, mbslen);
+        return;
+    }
+    mbstowcs(wbuffer, value, mbslen);
     value_size = wcslen(wbuffer);
 
     /* clear the remaining buffer with whitespaces */

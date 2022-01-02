@@ -711,9 +711,6 @@ void print_help(const char *part)
     struct vrmr_list HelpList;
     int max_height = 0, max_width = 0, height = 0, width = 0, startx = 0,
         starty = 0;
-#ifdef USE_WIDEC
-    wchar_t wpart[32] = L"";
-#endif /* USE_WIDEC */
 
     /* get screensize */
     getmaxyx(stdscr, max_height, max_width);
@@ -734,8 +731,19 @@ void print_help(const char *part)
         vrmr_list_cleanup(&HelpList);
 #ifdef USE_WIDEC
     } else {
+        wchar_t wpart[32] = L"";
+        memset(wpart, 0, sizeof(wpart));
+        size_t mbslen = mbstowcs(NULL, part, 0);
+        if (mbslen == (size_t)-1) {
+            vrmr_error(-1, VR_INTERR, "mbstowcs(): %s", strerror(errno));
+            return;
+        }
+        if (mbslen >= 32) {
+            vrmr_debug(NONE, "mbslen %"PRIuMAX, mbslen);
+            return;
+        }
         /* convert the part name to a wchar_t string */
-        mbstowcs(wpart, part, wsizeof(wpart));
+        mbstowcs(wpart, part, mbslen);
         vrmr_debug(
                 LOW, "part: %s, wpart %ls, %lu", part, wpart, wsizeof(wpart));
 
