@@ -73,6 +73,8 @@ echo "LOCATION=\"%{conf_prefix_vm}%{name}\"" > %{conf_prefix}%{name}/plugins/tex
 if [ %{root_prefix_vm} != %{_prefix}/ ]; then
     mv %{root_prefix}share ${RPM_BUILD_ROOT}%{_prefix}
 fi
+find $RPM_BUILD_ROOT -name "*.la" -delete
+
 # if [ %{share_prefix}doc/ != %{docdir} ]; then
 #    mkdir -p -m 0700 ${RPM_BUILD_ROOT}%{docdir}
 #    mv ${RPM_BUILD_ROOT}%{share_prefix}doc/%{name} ${RPM_BUILD_ROOT}%{docdir}
@@ -154,7 +156,6 @@ chkconfig --del vuurmuur
 %{root_prefix_vm}bin/%{name}_script
 %{root_prefix_vm}bin/%{name}_conf
 %{_libdir}/libvuurmuur.a
-%{_libdir}/libvuurmuur.la
 %{_libdir}/libvuurmuur.so
 %{_libdir}/libvuurmuur.so.0
 %{_libdir}/libvuurmuur.so.0.6.0
