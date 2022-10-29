@@ -678,6 +678,8 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx,
                     if (!(vrmr_list_append(&rules->list, rule_ptr))) {
                         vrmr_error(-1, "Internal Error",
                                 "vrmr_list_append() failed");
+                        free(rule_ptr);
+                        rule_ptr = NULL;
                         return (-1);
                     }
 
