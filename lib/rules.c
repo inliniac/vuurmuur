@@ -656,6 +656,8 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx,
              * ignore it. */
             if (vrmr_rules_parse_line(line, rule_ptr, reg) < 0) {
                 vrmr_debug(NONE, "parsing rule failed: %s", line);
+                free(rule_ptr);
+                rule_ptr = NULL;
             } else {
                 /* protect rules are no longer supported in the main rules
                  * list */
