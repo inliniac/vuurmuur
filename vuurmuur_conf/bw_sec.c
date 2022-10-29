@@ -127,7 +127,7 @@ static int bandwidth_get_iface(struct vrmr_config *conf, char *device,
     int retval = 0;
 
     char cmd_year_str[5] = "", cmd_month_str[3] = "", cmd_start_day_str[3] = "",
-         cmd_num_days_str[8] = "";
+         cmd_num_days_str[11] = "";
 
     /* safety */
     vrmr_fatal_if_null(device);
