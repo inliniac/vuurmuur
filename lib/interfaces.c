@@ -588,7 +588,7 @@ int vrmr_insert_interface(struct vrmr_ctx *vctx,
 int vrmr_init_interfaces(
         struct vrmr_ctx *vctx, struct vrmr_interfaces *interfaces)
 {
-    int result = 0, counter = 0, zonetype = 0;
+    int result = 0, zonetype = 0;
     char ifacname[VRMR_MAX_INTERFACE] = "";
 
     assert(interfaces);
@@ -608,8 +608,6 @@ int vrmr_init_interfaces(
             vrmr_error(-1, "Internal Error", "insert_interface() failed");
             return (-1);
         }
-
-        counter++;
 
         vrmr_debug(LOW, "loading interface succes: '%s'.", ifacname);
     }
