@@ -72,9 +72,9 @@ int vrmr_set_proc_entry(struct vrmr_config *cnf, const char *proc_entry,
     int retval = 0;
     FILE *fp = NULL;
 
-    char entry[VRMR_MAX_PROC_ENTRY_LENGHT],
-            entry_last[VRMR_MAX_PROC_ENTRY_LENGHT],
-            total_entry[VRMR_MAX_PROC_ENTRY_LENGHT * 2];
+    char entry[VRMR_MAX_PROC_ENTRY_LENGHT] = "",
+            entry_last[VRMR_MAX_PROC_ENTRY_LENGHT] = "",
+            total_entry[VRMR_MAX_PROC_ENTRY_LENGHT * 2] = "";
     int proc_int = 0;
 
     assert(cnf);
