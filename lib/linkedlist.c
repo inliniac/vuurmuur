@@ -91,7 +91,6 @@ int vrmr_list_remove_node(struct vrmr_list *list, struct vrmr_list_node *d_node)
 
     /* free the node */
     free(d_node);
-    d_node = NULL;
 
     /* adjust the length */
     list->len--;

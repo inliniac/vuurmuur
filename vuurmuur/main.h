@@ -60,8 +60,8 @@
 
 #define PIDFILE "/var/run/vuurmuur.pid"
 
-#define NFQ_MARK_BASE 3
-#define NFLOG_MARK_BASE 65536 + NFQ_MARK_BASE
+#define NFQ_MARK_BASE 3U
+#define NFLOG_MARK_BASE 65536U + NFQ_MARK_BASE
 
 /* define these here so converting to gettext will be easier */
 #define VR_ERR "Error"

@@ -39,7 +39,7 @@ static void logline2logrule(const char *logline, struct log_record *logrule)
 
     /* scan the line. Note: 'time' has a ':' as last char, and 'to' has a comma
      * as last char. */
-    sscanf(logline, "%3s %2s %9s %s service %s from %s to %s", logrule->month,
+    sscanf(logline, "%3s %2s %9s %16s service %32s from %96s to %96s", logrule->month,
             logrule->date, logrule->time, logrule->action, logrule->service,
             logrule->from, logrule->to);
 
@@ -559,9 +559,9 @@ static int read_log_line(FILE *fp, const bool traffic_log,
 
     /* if the line doesn't end with a newline character we rewind and
      * try again the next run. */
-    uint32_t linelen = StrMemLen(line);
+    long linelen = StrMemLen(line);
     if (linelen < READLINE_LEN - 1 && line[linelen - 1] != '\n') {
-        if (fseek(fp, (long)(linelen * -1), SEEK_CUR) != 0) {
+        if (fseek(fp, -linelen, SEEK_CUR) != 0) {
             vrmr_debug(LOW, "fseek(): %s", strerror(errno));
         }
         free(line);
@@ -657,7 +657,6 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
 
     FILE *fp = NULL, *traffic_fp = NULL, *search_pipe = NULL;
 
-    size_t linelen = 0;
     char *line = NULL,
 
          *logfile = NULL,
@@ -854,9 +853,9 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
            if the line doesn't end with a newline character we rewind and try
            again.
          */
-        linelen = StrMemLen(line);
+        long linelen = (long)StrMemLen(line);
         if (linelen < READLINE_LEN - 1 && line[linelen - 1] != '\n') {
-            (void)fseek(fp, (long)(StrMemLen(line) * -1), SEEK_CUR);
+            (void)fseek(fp, -linelen, SEEK_CUR);
             free(line);
             /* done because we reached the end of the file which does not have a
              * newline */
@@ -1444,18 +1443,16 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                 break;
 
             case 'm':
-            case 'M': {
-                if (buffer_ptr) {
-                    statevent(vctx, cnf, STATEVENTTYPE_LOG, buffer_ptr,
-                            /* no ct */ NULL,
-                            /* no connreq*/ NULL, zones, blocklist, interfaces,
-                            services);
+            case 'M':
+                statevent(vctx, cnf, STATEVENTTYPE_LOG, buffer_ptr,
+                        /* no ct */ NULL,
+                        /* no connreq*/ NULL, zones, blocklist, interfaces,
+                        services);
 
-                    draw_top_menu(top_win, gettext("Logview"), key_choices_n,
-                            key_choices, cmd_choices_n, cmd_choices);
-                }
+                draw_top_menu(top_win, gettext("Logview"), key_choices_n,
+                        key_choices, cmd_choices_n, cmd_choices);
                 break;
-            }
+
             case KEY_F(12):
             case 'h':
             case 'H':

@@ -610,7 +610,7 @@ int backend_check_rule_rule(char *value, struct vrmr_regex *reg)
         return (VRS_ERR_COMMANDLINE);
     }
 
-    sscanf(line, "%s", action);
+    sscanf(line, "%31s", action);
     if (strcasecmp(action, "block") == 0) {
         return (backend_check_blocklist_rule(value, reg));
     } else {

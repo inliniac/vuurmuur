@@ -567,23 +567,20 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
     else {
         /* description */
         if (cnf->bash_out == TRUE && create->description != NULL) {
-            char *action_ptr =
-                    NULL; /* pointer to action name in static array */
-            char *option_ptr =
-                    NULL; /* pointer to assembled and alloced option string */
+            const char *action_ptr = vrmr_rules_itoaction(rule_ptr->action);
+            if (action_ptr == NULL)
+                return (-1);
 
-            action_ptr = vrmr_rules_itoaction(rule_ptr->action);
-            if (action_ptr != NULL)
-                option_ptr = vrmr_rules_assemble_options_string(
-                        rule_ptr->opt, action_ptr);
+            char *option_ptr = vrmr_rules_assemble_options_string(
+                    rule_ptr->opt, action_ptr);
+            if (option_ptr == NULL)
+                return (-1);
 
             snprintf(create->description, VRMR_MAX_BASH_DESC,
                     "rule %u: %s service %s from %s to %s %s", rule_ptr->number,
                     action_ptr, rule_ptr->service, rule_ptr->from, rule_ptr->to,
                     option_ptr ? option_ptr : "");
-
-            if (option_ptr != NULL)
-                free(option_ptr);
+            free(option_ptr);
         }
     }
 

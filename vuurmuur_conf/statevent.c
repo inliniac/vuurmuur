@@ -165,11 +165,11 @@ static char *statevent_print2str_conn(
         /* group on dst port */
     } else if (conn->cnt > 1) {
         snprintf(src, sizeof(src), "%s", conn->src_ip);
-        snprintf(dst, sizeof(dst), "%s:%u", conn->dst_ip, conn->dst_port);
+        snprintf(dst, sizeof(dst), "%s:%d", conn->dst_ip, conn->dst_port);
         /* single TCP or UDP */
     } else {
-        snprintf(src, sizeof(src), "%s:%u", conn->src_ip, conn->src_port);
-        snprintf(dst, sizeof(dst), "%s:%u", conn->dst_ip, conn->dst_port);
+        snprintf(src, sizeof(src), "%s:%d", conn->src_ip, conn->src_port);
+        snprintf(dst, sizeof(dst), "%s:%d", conn->dst_ip, conn->dst_port);
     }
 
     /* get the string */

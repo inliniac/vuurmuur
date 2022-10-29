@@ -749,11 +749,11 @@ int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
                 conntrack_conn_udp = MIN(conntrack_conn_udp, 999999);
                 conntrack_conn_other = MIN(conntrack_conn_other, 999999);
 
-                snprintf(conn_total, sizeof(conn_total), "%6d",
+                snprintf(conn_total, sizeof(conn_total), "%6u",
                         conntrack_conn_total);
-                snprintf(conn_tcp, sizeof(conn_tcp), "%6d", conntrack_conn_tcp);
-                snprintf(conn_udp, sizeof(conn_udp), "%6d", conntrack_conn_udp);
-                snprintf(conn_other, sizeof(conn_other), "%6d",
+                snprintf(conn_tcp, sizeof(conn_tcp), "%6u", conntrack_conn_tcp);
+                snprintf(conn_udp, sizeof(conn_udp), "%6u", conntrack_conn_udp);
+                snprintf(conn_other, sizeof(conn_other), "%6u",
                         conntrack_conn_other);
             }
 

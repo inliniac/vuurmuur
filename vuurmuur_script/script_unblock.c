@@ -37,29 +37,18 @@ char *remove_leading_part(char *input)
     assert(input);
 
     size_t len = strlen(input);
-    if (len == 0) {
+    if (len < 7) {
         vrmr_error(VRS_ERR_DATA_INCONSISTENCY, VR_ERR,
                 "empty string returned from backend");
         exit(VRS_ERR_DATA_INCONSISTENCY);
     }
 
-    /* we don't need the space for "block" */
-    len = len - 5;
-
-    char *output = malloc(len); /* for output we need to cut of "block " */
+    char *output = strdup(input + 6);
     if (output == NULL) {
         vrmr_error(
-                VRS_ERR_MALLOC, VR_ERR, "malloc failed: %s", strerror(errno));
+                VRS_ERR_MALLOC, VR_ERR, "strdup failed: %s", strerror(errno));
         exit(VRS_ERR_MALLOC);
     }
-    memset(output, 0, len);
-
-    if (sscanf(input, "block %s", output) == 0) {
-        vrmr_error(VRS_ERR_DATA_INCONSISTENCY, VR_ERR,
-                "malformed rule '%s' returned from backend", input);
-        exit(VRS_ERR_DATA_INCONSISTENCY);
-    }
-
     return (output);
 }
 

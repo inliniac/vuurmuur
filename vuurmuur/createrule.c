@@ -263,9 +263,7 @@ static int process_rule(struct vrmr_config *conf,
             return (pipe_ip6tables_command(conf, table, chain, cmd));
 #endif
         }
-    }
-
-    if (ruleset->ipv != ipv) {
+    } else if (ruleset->ipv != ipv) {
         return 0;
     }
 
@@ -2870,7 +2868,7 @@ static int pre_rules_conntrack(struct vrmr_config *conf,
         vrmr_debug(LOW, "Setting up connection-tracking...");
 
         snprintf(cmd, sizeof(cmd),
-                "-m connmark --mark %u %s ESTABLISHED -j ACCEPT", 1,
+                "-m connmark --mark 1 %s ESTABLISHED -j ACCEPT",
                 create_state_string(conf, ipv, iptcap));
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -2883,7 +2881,7 @@ static int pre_rules_conntrack(struct vrmr_config *conf,
             retval = -1;
 
         snprintf(cmd, sizeof(cmd),
-                "-m connmark --mark %u %s RELATED -j NEWACCEPT", 1,
+                "-m connmark --mark 1 %s RELATED -j NEWACCEPT",
                 create_state_string(conf, ipv, iptcap));
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
