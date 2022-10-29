@@ -139,7 +139,7 @@ static int process_connrecord(struct vrmr_log_record *lr)
 
     if (lr->conn_rec.type == VRMR_LOG_CONN_COMPLETED) {
         if (lr->conn_rec.mark > 0) {
-            char mark[16];
+            char mark[32];
             snprintf(mark, sizeof(mark), " mark:%u", lr->conn_rec.mark);
             strlcat(line, mark, sizeof(line));
         }

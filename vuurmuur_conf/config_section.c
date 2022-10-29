@@ -1620,7 +1620,7 @@ static void edit_logconfig_init(
 {
     size_t i = 0;
     int rows = 0, cols = 0;
-    char limit_string[4] = "";
+    char limit_string[16] = "";
 
     config_section.n_fields = 9;
     config_section.fields =
@@ -1757,7 +1757,7 @@ static int edit_logconfig_save(struct vrmr_config *conf)
 {
     int retval = 0;
     size_t i = 0;
-    char limit_string[4] = "";
+    char limit_string[16] = "";
     int result = 0;
 
     /* check for changed fields */

@@ -2728,7 +2728,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
     FORM *form;
     int rows, cols, retval = 0, quit = 0;
     size_t field_num = 0, n_fields = 0, i = 0;
-    char redirect_port[6] = "", loglimit_string[4] = "", nfmark_string[9] = "",
+    char redirect_port[6] = "", loglimit_string[16] = "", nfmark_string[16] = "",
          nfqueuenum_string[6] = "0", nflognum_string[6] = "0";
     int height, width, startx, starty, max_height;
     const char *action_choices[] =

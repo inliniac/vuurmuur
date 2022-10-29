@@ -4652,7 +4652,7 @@ int post_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
 {
     int retval = 0, result = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
-    char my_limit[42] = "";
+    char my_limit[64] = "";
     char logprefix[64] = "";
 
     assert(iptcap);

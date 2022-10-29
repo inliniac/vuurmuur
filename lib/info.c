@@ -318,8 +318,10 @@ char *vrmr_list_to_portopts(
             }
         }
     }
-    /* overwrite the last comma */
-    options[strlen(options) - 1] = '\0';
+    if (strlen(options) > 0) {
+        /* overwrite the last comma */
+        options[strlen(options) - 1] = '\0';
+    }
 
     if (option_name != NULL) {
         /* the trailing trema */
