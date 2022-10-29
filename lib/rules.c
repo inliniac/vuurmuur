@@ -573,14 +573,14 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
 
             char *option_ptr = vrmr_rules_assemble_options_string(
                     rule_ptr->opt, action_ptr);
-            if (option_ptr == NULL)
-                return (-1);
+            /* can return NULL if no options */
 
             snprintf(create->description, VRMR_MAX_BASH_DESC,
                     "rule %u: %s service %s from %s to %s %s", rule_ptr->number,
                     action_ptr, rule_ptr->service, rule_ptr->from, rule_ptr->to,
                     option_ptr ? option_ptr : "");
-            free(option_ptr);
+            if (option_ptr != NULL)
+                free(option_ptr);
         }
     }
 
