@@ -123,7 +123,7 @@ struct rule_scratch {
     struct vrmr_portdata *listenport_ptr;
     struct vrmr_portdata *remoteport_ptr;
 
-    char limit[42]; /*  -m limit --limit 999/s --limit-burst 9999 */
+    char limit[64]; /*  -m limit --limit 999/s --limit-burst 9999 */
 
     /* portfw stuff - needs to go-> later we can put it in the function for
      * creating portfw rules! */

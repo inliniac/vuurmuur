@@ -234,7 +234,7 @@ int analyze_normal_rules(struct vrmr_config *conf, struct vrmr_rules *rules,
         struct vrmr_interfaces *interfaces)
 {
     struct vrmr_rule *rule_ptr = NULL;
-    unsigned int rulescount = 0, rulesfailedcount = 0;
+    unsigned int rulescount = 0;
     struct vrmr_list_node *d_node = NULL;
 
     assert(rules && zones && services && interfaces);
@@ -258,7 +258,6 @@ int analyze_normal_rules(struct vrmr_config *conf, struct vrmr_rules *rules,
             d_node = d_node->next;
         } else {
             vrmr_warning("Warning", "Analyzing rule %u failed.", rulescount);
-            rulesfailedcount++;
 
             /* update node before removing */
             struct vrmr_list_node *next_d_node = d_node->next;
@@ -269,10 +268,6 @@ int analyze_normal_rules(struct vrmr_config *conf, struct vrmr_rules *rules,
                         -1, "Internal Error", "vrmr_list_remove_node() failed");
                 return (-1);
             }
-
-            /* now update the number in the list */
-            // vrmr_rules_update_numbers(rules, rulescount - rulesfailedcount +
-            // 1, 0);
 
             vrmr_rules_free_options(rule_ptr->opt);
             free(rule_ptr);
