@@ -593,6 +593,37 @@ static int iptcap_test_nat_random(struct vrmr_config *cnf, const char *ipt_loc)
     return retval;
 }
 
+static int iptcap_test_table(
+        struct vrmr_config *cnf, const char *ipt_loc, const char *table)
+{
+    int retval = 1;
+
+    if (iptcap_delete_test_chain(cnf, ipt_loc, table) < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error will "
+                         "be ignored");
+    }
+
+    if (iptcap_create_test_chain(cnf, ipt_loc, table) < 0) {
+        vrmr_debug(NONE, "iptcap_create_test_chain failed");
+        return -1;
+    }
+
+    const char *args[] = {
+            ipt_loc, "-t", table, "-A", "VRMRIPTCAP", "-j", "LOG", NULL};
+    int r = libvuurmuur_exec_command(cnf, cnf->iptables_location, args, NULL);
+    if (r != 0) {
+        vrmr_debug(NONE, "r = %d", r);
+        retval = -1;
+    }
+
+    if (iptcap_delete_test_chain(cnf, ipt_loc, table) < 0) {
+        vrmr_debug(NONE, "iptcap_delete_test_chain failed, but error will "
+                         "be ignored");
+    }
+
+    return retval;
+}
+
 int vrmr_check_iptcaps(
         struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, bool load_modules)
 {
@@ -772,6 +803,21 @@ int vrmr_load_iptcaps(
         const char *raw_modules[] = {"iptable_raw", NULL};
         iptcap->table_raw = iptcap_check_cap_modules(
                 cnf, proc_net_names, "raw", load_modules, raw_modules);
+
+        if (iptcap->table_filter == false)
+            iptcap->table_filter =
+                    (iptcap_test_table(cnf, cnf->iptables_location, "filter") ==
+                            1);
+        if (iptcap->table_mangle == false)
+            iptcap->table_mangle =
+                    (iptcap_test_table(cnf, cnf->iptables_location, "mangle") ==
+                            1);
+        if (iptcap->table_nat == false)
+            iptcap->table_nat = (iptcap_test_table(cnf, cnf->iptables_location,
+                                         "nat") == 1);
+        if (iptcap->table_raw == false)
+            iptcap->table_raw = (iptcap_test_table(cnf, cnf->iptables_location,
+                                         "raw") == 1);
     } else {
         /* assume yes */
         iptcap->table_filter = true;
@@ -1206,6 +1252,19 @@ int vrmr_load_ip6tcaps(
         const char *raw_modules[] = {"ip6table_raw", NULL};
         iptcap->table_ip6_raw = iptcap_check_cap_modules(
                 cnf, proc_net_ip6_names, "raw", load_modules, raw_modules);
+
+        if (iptcap->table_ip6_filter == false)
+            iptcap->table_ip6_filter =
+                    (iptcap_test_table(
+                             cnf, cnf->ip6tables_location, "filter") == 1);
+        if (iptcap->table_ip6_mangle == false)
+            iptcap->table_ip6_mangle =
+                    (iptcap_test_table(
+                             cnf, cnf->ip6tables_location, "mangle") == 1);
+        if (iptcap->table_ip6_raw == false)
+            iptcap->table_ip6_raw =
+                    (iptcap_test_table(cnf, cnf->ip6tables_location, "raw") ==
+                            1);
     } else {
         /* assume yes */
         iptcap->table_ip6_filter = true;
