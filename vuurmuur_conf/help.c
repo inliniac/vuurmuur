@@ -739,7 +739,7 @@ void print_help(const char *part)
             return;
         }
         if (mbslen >= 32) {
-            vrmr_debug(NONE, "mbslen %"PRIuMAX, mbslen);
+            vrmr_debug(NONE, "mbslen %" PRIuMAX, mbslen);
             return;
         }
         /* convert the part name to a wchar_t string */
