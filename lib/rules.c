@@ -1423,9 +1423,7 @@ char *vrmr_rules_assemble_options_string(
 {
     char *option_ptr = NULL, options[VRMR_MAX_OPTIONS_LENGTH] = "",
          *ports_ptr = NULL;
-    char redirect_port[6] = "",
-         limit_string[17] = "",
-            nfmark_string[11] = "";
+    char redirect_port[6] = "", limit_string[17] = "", nfmark_string[11] = "";
     /* out_int="rtl8193", : out_int (7) = (1) " (1) " (1) , (1) \0 (1) = 12 */
     char interfacestr[VRMR_MAX_INTERFACE + 12] = "";
     char chainstr[48] = "";

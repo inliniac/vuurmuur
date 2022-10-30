@@ -34,8 +34,8 @@ int vrmr_logprint(char *logfile, char *logstring)
     dcp = localtime(&td);
 
     if (logfile == NULL || strlen(logfile) == 0) {
-        fprintf(stdout, "Invalid logpath '%s' (%p).\n", logfile ? logfile : "NULL",
-                (void *)logfile);
+        fprintf(stdout, "Invalid logpath '%s' (%p).\n",
+                logfile ? logfile : "NULL", (void *)logfile);
         return (-1);
     }
 
