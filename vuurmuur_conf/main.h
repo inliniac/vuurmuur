@@ -560,15 +560,13 @@ void VrShapeIface(struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
 #else /* __clang_analyzer__ */
 
 #define vrmr_fatal(...) abort()
-#define vrmr_fatal_alloc(func, ptr)                                            \
-    if ((ptr) == NULL)                                                         \
-        abort()
-#define vrmr_fatal_if_null(ptr)                                                \
-    if ((ptr) == NULL)                                                         \
-        abort()
+#define vrmr_fatal_alloc(func, ptr) assert((ptr))
+#define vrmr_fatal_if_null(ptr) assert((ptr))
 #define vrmr_fatal_if(expr)                                                    \
-    if ((expr))                                                                \
-        abort()
+    do {                                                                       \
+        if ((expr))                                                            \
+            abort();                                                           \
+    } while (0)
 
 #endif /* __clang_analyzer__ */
 #endif
