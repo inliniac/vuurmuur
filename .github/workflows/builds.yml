@@ -38,7 +38,6 @@ jobs:
                 libmnl-dev \
                 libncurses5-dev \
                 libncursesw5-dev
-      - run: find .
       - run: ./autogen.sh
       - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure --prefix=/usr --sysconfdir=/etc
       - run: make -j2
@@ -72,7 +71,6 @@ jobs:
                 libmnl-dev \
                 libncurses5-dev \
                 libncursesw5-dev
-      - run: find .
       - run: ./autogen.sh
       - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure --prefix=/usr --sysconfdir=/etc
       - run: make -j2
@@ -80,6 +78,40 @@ jobs:
       - run: make distcheck
       - run: vuurmuur -V
       - run: dpkg-buildpackage
+
+  ubuntu-2210-sb:
+    name: Ubuntu 22.10 scan-buid
+    runs-on: ubuntu-latest
+    container: ubuntu:22.10
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Install system dependencies
+        run: |
+            apt update
+            apt-get upgrade -y
+            apt-get -y install make \
+                autoconf \
+                build-essential \
+                autoconf \
+                automake \
+                clang-tools-15 \
+                python3-clang-15 \
+                dpkg-dev \
+                debhelper \
+                libtool \
+                make \
+                pkg-config \
+                libnetfilter-conntrack-dev \
+                libnetfilter-log-dev \
+                libmnl-dev \
+                libncurses5-dev \
+                libncursesw5-dev
+      - run: ./autogen.sh
+      - run: CC=clang-15 CFLAGS="${DEFAULT_CFLAGS}" scan-build-15 ./configure --with-widec=no
+      - run: CC=clang-15 scan-build-15 --status-bugs make -j2
+      - run: make clean
+      - run: CC=clang-15 CFLAGS="${DEFAULT_CFLAGS}" scan-build-15 ./configure --with-widec=yes
+      - run: CC=clang-15 scan-build-15 --status-bugs make -j2
 
   centos-7:
     name: CentOS 7
@@ -103,7 +135,6 @@ jobs:
                 pkgconfig \
                 sudo \
                 which
-      - run: find .
       - run: ./autogen.sh
       - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure --prefix=/usr --sysconfdir=/etc
       - run: make -j2
