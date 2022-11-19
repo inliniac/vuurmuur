@@ -18,12 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ubuntu:20.04
     steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v3.1.0
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
+      - uses: actions/checkout@v3.1.0
       - name: Install system dependencies
         run: |
             apt update
@@ -54,12 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ubuntu:22.04
     steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v3.1.0
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
+      - uses: actions/checkout@v3.1.0
       - name: Install system dependencies
         run: |
             apt update
@@ -90,12 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     container: centos:7
     steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v3.1.0
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
+      - uses: actions/checkout@v3.1.0
       - name: Install system dependencies
         run: |
           yum -y install epel-release
