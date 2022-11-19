@@ -28,6 +28,8 @@ jobs:
                 build-essential \
                 autoconf \
                 automake \
+                dpkg-dev \
+                debhelper \
                 libtool \
                 make \
                 pkg-config \
@@ -43,6 +45,7 @@ jobs:
       - run: make install
       - run: make distcheck
       - run: vuurmuur -V
+      - run: dpkg-buildpackage
 
   ubuntu-2204:
     name: Ubuntu 22.04
