@@ -165,7 +165,7 @@ jobs:
                 sudo \
                 which
       - run: ./autogen.sh
-      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure --prefix=/usr --sysconfdir=/etc
+      - run: CFLAGS="${DEFAULT_CFLAGS} -std=gnu99" ./configure --prefix=/usr --sysconfdir=/etc
       - run: make -j2
       - run: make install
       - run: make distcheck
