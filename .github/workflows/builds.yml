@@ -62,6 +62,8 @@ jobs:
                 build-essential \
                 autoconf \
                 automake \
+                dpkg-dev \
+                debhelper \
                 libtool \
                 make \
                 pkg-config \
@@ -77,6 +79,7 @@ jobs:
       - run: make install
       - run: make distcheck
       - run: vuurmuur -V
+      - run: dpkg-buildpackage
 
   centos-7:
     name: CentOS 7
