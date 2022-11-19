@@ -13,6 +13,36 @@ env:
   DEBIAN_FRONTEND: "noninteractive"
 
 jobs:
+  ubuntu-2204:
+    name: Ubuntu 22.02
+    runs-on: ubuntu-latest
+    container: ubuntu:22.04
+    steps:
+      - name: Install system dependencies
+        run: |
+            apt update
+            apt-get upgrade -y
+            apt-get -y install make \
+                autoconf \
+                build-essential \
+                autoconf \
+                automake \
+                libtool \
+                make \
+                pkg-config \
+                libnetfilter-conntrack-dev \
+                libnetfilter-log-dev \
+                libmnl-dev \
+                libncurses5-dev \
+                libncursesw5-dev
+      - run: find .
+      - run: ./autogen.sh
+      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure
+      - run: make -j2
+      - run: make install
+      - run: make distcheck
+      - run: vuurmuur -V
+
   centos-7:
     name: CentOS 7
     runs-on: ubuntu-latest
@@ -34,6 +64,7 @@ jobs:
                 pkgconfig \
                 sudo \
                 which
+      - run: find .
       - run: ./autogen.sh
       - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure
       - run: make -j2
