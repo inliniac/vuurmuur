@@ -169,4 +169,5 @@ jobs:
       - run: make -j2
       - run: make install
       - run: make distcheck
+      - run: ldconfig /usr/lib
       - run: vuurmuur -V
