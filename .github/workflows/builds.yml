@@ -40,7 +40,7 @@ jobs:
                 libncursesw5-dev
       - run: find .
       - run: ./autogen.sh
-      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure
+      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure --prefix=/usr --sysconfdir=/etc
       - run: make -j2
       - run: make install
       - run: make distcheck
@@ -74,7 +74,7 @@ jobs:
                 libncursesw5-dev
       - run: find .
       - run: ./autogen.sh
-      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure
+      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure --prefix=/usr --sysconfdir=/etc
       - run: make -j2
       - run: make install
       - run: make distcheck
@@ -105,7 +105,7 @@ jobs:
                 which
       - run: find .
       - run: ./autogen.sh
-      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure
+      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure --prefix=/usr --sysconfdir=/etc
       - run: make -j2
       - run: make install
       - run: make distcheck
