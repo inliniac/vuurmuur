@@ -95,6 +95,7 @@ jobs:
                 autoconf \
                 automake \
                 libtool \
+                gettext \
                 make \
                 pkg-config \
                 libnetfilter-conntrack-dev \
@@ -152,7 +153,7 @@ jobs:
                 autoconf \
                 automake \
                 gcc \
-                gettext \
+                gettext-devel \
                 tar \
                 libnetfilter_log-devel \
                 libmnl-devel \
