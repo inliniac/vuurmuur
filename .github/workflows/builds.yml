@@ -13,11 +13,53 @@ env:
   DEBIAN_FRONTEND: "noninteractive"
 
 jobs:
+  ubuntu-2004:
+    name: Ubuntu 20.04
+    runs-on: ubuntu-latest
+    container: ubuntu:20.04
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v3.1.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Install system dependencies
+        run: |
+            apt update
+            apt-get upgrade -y
+            apt-get -y install make \
+                autoconf \
+                build-essential \
+                autoconf \
+                automake \
+                libtool \
+                make \
+                pkg-config \
+                libnetfilter-conntrack-dev \
+                libnetfilter-log-dev \
+                libmnl-dev \
+                libncurses5-dev \
+                libncursesw5-dev
+      - run: find .
+      - run: ./autogen.sh
+      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure
+      - run: make -j2
+      - run: make install
+      - run: make distcheck
+      - run: vuurmuur -V
+
   ubuntu-2204:
-    name: Ubuntu 22.02
+    name: Ubuntu 22.04
     runs-on: ubuntu-latest
     container: ubuntu:22.04
     steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v3.1.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
       - name: Install system dependencies
         run: |
             apt update
@@ -48,6 +90,12 @@ jobs:
     runs-on: ubuntu-latest
     container: centos:7
     steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v3.1.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
       - name: Install system dependencies
         run: |
           yum -y install epel-release
