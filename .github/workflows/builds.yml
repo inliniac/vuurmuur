@@ -130,6 +130,7 @@ jobs:
                 libnetfilter_log-devel \
                 libmnl-devel \
                 libnetfilter_conntrack-devel \
+                libtool \
                 make \
                 ncurses-devel \
                 pkgconfig \
