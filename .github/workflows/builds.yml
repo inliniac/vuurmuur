@@ -79,6 +79,32 @@ jobs:
       - run: vuurmuur -V
       - run: dpkg-buildpackage
 
+  ubuntu-2204-installer:
+    name: Ubuntu 22.04 Installer
+    runs-on: ubuntu-latest
+    container: ubuntu:22.04
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Install system dependencies
+        run: |
+            apt update
+            apt-get upgrade -y
+            apt-get -y install make \
+                autoconf \
+                build-essential \
+                autoconf \
+                automake \
+                libtool \
+                make \
+                pkg-config \
+                libnetfilter-conntrack-dev \
+                libnetfilter-log-dev \
+                libmnl-dev \
+                libncurses5-dev \
+                libncursesw5-dev
+      - run: installer/install.sh --defaults --install --build-update
+      - run: installer/install.sh --defaults --upgrade --build-update
+
   ubuntu-2210-sb:
     name: Ubuntu 22.10 scan-buid
     runs-on: ubuntu-latest
@@ -126,6 +152,7 @@ jobs:
                 autoconf \
                 automake \
                 gcc \
+                gettext \
                 tar \
                 libnetfilter_log-devel \
                 libmnl-devel \
