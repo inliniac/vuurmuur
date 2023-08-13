@@ -423,7 +423,7 @@ int backend_check_service_helper(char *value, struct vrmr_regex *reg)
 */
 int backend_check_service_tcp(char *value, struct vrmr_regex *reg)
 {
-    struct vrmr_service service;
+    struct vrmr_service service = VRMR_SERVICE_INITIALIZER;
 
     assert(value && reg);
 
@@ -445,7 +445,7 @@ int backend_check_service_tcp(char *value, struct vrmr_regex *reg)
 */
 int backend_check_service_udp(char *value, struct vrmr_regex *reg)
 {
-    struct vrmr_service service;
+    struct vrmr_service service = VRMR_SERVICE_INITIALIZER;
 
     assert(value && reg);
 
@@ -467,7 +467,7 @@ int backend_check_service_udp(char *value, struct vrmr_regex *reg)
 */
 int backend_check_service_icmp(char *value, struct vrmr_regex *reg)
 {
-    struct vrmr_service service;
+    struct vrmr_service service = VRMR_SERVICE_INITIALIZER;
 
     assert(value && reg);
 
@@ -489,7 +489,7 @@ int backend_check_service_icmp(char *value, struct vrmr_regex *reg)
 */
 int backend_check_service_gre(char *value, struct vrmr_regex *reg)
 {
-    struct vrmr_service service;
+    struct vrmr_service service = VRMR_SERVICE_INITIALIZER;
 
     assert(value && reg);
 
@@ -511,7 +511,7 @@ int backend_check_service_gre(char *value, struct vrmr_regex *reg)
 */
 int backend_check_service_ah(char *value, struct vrmr_regex *reg)
 {
-    struct vrmr_service service;
+    struct vrmr_service service = VRMR_SERVICE_INITIALIZER;
 
     assert(value && reg);
 
@@ -533,7 +533,7 @@ int backend_check_service_ah(char *value, struct vrmr_regex *reg)
 */
 int backend_check_service_esp(char *value, struct vrmr_regex *reg)
 {
-    struct vrmr_service service;
+    struct vrmr_service service = VRMR_SERVICE_INITIALIZER;
 
     assert(value && reg);
 
@@ -555,7 +555,7 @@ int backend_check_service_esp(char *value, struct vrmr_regex *reg)
 */
 int backend_check_service_proto41(char *value, struct vrmr_regex *reg)
 {
-    struct vrmr_service service;
+    struct vrmr_service service = VRMR_SERVICE_INITIALIZER;
 
     assert(value && reg);
 
