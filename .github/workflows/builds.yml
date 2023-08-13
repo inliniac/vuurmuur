@@ -106,10 +106,10 @@ jobs:
       - run: installer/install.sh --defaults --install --build-update
       - run: installer/install.sh --defaults --upgrade --build-update
 
-  ubuntu-2210-sb:
-    name: Ubuntu 22.10 scan-buid
+  ubuntu-2304-sb:
+    name: Ubuntu 23.04 scan-buid
     runs-on: ubuntu-latest
-    container: ubuntu:22.10
+    container: ubuntu:23.04
     steps:
       - uses: actions/checkout@v3.1.0
       - name: Install system dependencies
@@ -121,8 +121,8 @@ jobs:
                 build-essential \
                 autoconf \
                 automake \
-                clang-tools-15 \
-                python3-clang-15 \
+                clang-tools-16 \
+                python3-clang-16 \
                 dpkg-dev \
                 debhelper \
                 libtool \
@@ -134,11 +134,11 @@ jobs:
                 libncurses5-dev \
                 libncursesw5-dev
       - run: ./autogen.sh
-      - run: CC=clang-15 CFLAGS="${DEFAULT_CFLAGS}" scan-build-15 ./configure --with-widec=no
-      - run: CC=clang-15 scan-build-15 --status-bugs make -j2
+      - run: CC=clang-16 CFLAGS="${DEFAULT_CFLAGS}" scan-build-16 ./configure --with-widec=no
+      - run: CC=clang-16 scan-build-16 --status-bugs make -j2
       - run: make clean
-      - run: CC=clang-15 CFLAGS="${DEFAULT_CFLAGS}" scan-build-15 ./configure --with-widec=yes
-      - run: CC=clang-15 scan-build-15 --status-bugs make -j2
+      - run: CC=clang-16 CFLAGS="${DEFAULT_CFLAGS}" scan-build-16 ./configure --with-widec=yes
+      - run: CC=clang-16 scan-build-16 --status-bugs make -j2
 
   centos-7:
     name: CentOS 7
