@@ -279,24 +279,30 @@ static char statevent_convert_log(struct stat_event_ctx *ctl)
         */
         const char *s = log_record->details;
 #define MAX_TOK 32
-        char store[MAX_TOK][128];
+#define MAX_TOK_LEN 128
+        char store[MAX_TOK][MAX_TOK_LEN];
+        memset(&store, 0, sizeof(store));
 
         /* split the tokens */
         for (int x = 0, y = 0, z = 0; x < (int)strlen(s); x++) {
-            /* copy char */
-            store[y][z] = s[x];
-
-            if (store[y][z] == ' ') {
-                store[y][z] = '\0';
-
+            const bool is_separator = (s[x] == ' ');
+            /* copy char if we have space */
+            if (z < MAX_TOK_LEN - 1) {
+                if (is_separator)
+                    store[y][z] = '\0';
+                else
+                    store[y][z] = s[x];
+            } else {
+                store[y][MAX_TOK_LEN - 1] = '\0';
+            }
+            if (is_separator) {
                 y++;
                 z = 0;
-
-                if (y == MAX_TOK)
-                    break;
             } else {
                 z++;
             }
+            if (y == MAX_TOK)
+                break;
         }
 
         int next = 0;
