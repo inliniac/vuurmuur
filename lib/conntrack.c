@@ -263,7 +263,6 @@ static const char *state_to_string(enum tcp_conntrack tcp_state)
         default:
             return "weird"; // TODO
     }
-    return "unknown";
 }
 
 struct vrmr_conntrack_api_entry {
