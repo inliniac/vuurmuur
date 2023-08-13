@@ -113,7 +113,7 @@ int vrmr_stat_ok(const struct vrmr_config *cnf, const char *file_loc, char type,
 
     assert(file_loc);
 
-    /* coverity[toctou] */
+    /* coverity[toctou : FALSE] */
     if (lstat(file_loc, &stat_buf) == -1) {
         if (errno == ENOENT) {
             if (must_exist == VRMR_STATOK_ALLOW_NOTFOUND) {
@@ -189,7 +189,7 @@ int vrmr_stat_ok(const struct vrmr_config *cnf, const char *file_loc, char type,
                     "%o. Resetting to %o.",
                     file_loc, perm, max, max);
 
-            /* coverity[toctou] */
+            /* coverity[toctou : FALSE] */
             if (chmod(file_loc, max) == -1) {
                 vrmr_error(-1, "Error",
                         "failed to repair permissions for '%s': %s.", file_loc,
