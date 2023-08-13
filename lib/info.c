@@ -884,6 +884,7 @@ int vrmr_get_danger_info(const char *danger, const char *source,
         } else if (strcasecmp(source, "brdcst-dst") == 0) {
             danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "255.255.255.255");
+            /* coverity[copy_paste_error : FALSE] */
             strcpy(danger_struct->source_ip.netmask, "255.255.255.255");
         } else {
             vrmr_error(-1, "Internal Error", "unknown source");
