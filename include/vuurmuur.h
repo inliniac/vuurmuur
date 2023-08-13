@@ -294,6 +294,10 @@ struct vrmr_list {
 
     void (*remove)(void *data);
 };
+#define VRMR_LIST_INITIALIZER(free_func)                                       \
+    {                                                                          \
+        .len = 0, .top = NULL, .bot = NULL, .remove = (free_func),             \
+    }
 
 /*
     hash function
@@ -875,6 +879,12 @@ struct vrmr_service {
 
     char broadcast; /* 1: broadcasting service, 0: not */
 };
+#define VRMR_SERVICE_INITIALIZER                                               \
+    {                                                                          \
+        .type = VRMR_TYPE_SERVICE, .name = "", .active = 0, .status = 0,       \
+        .helper = "", .vrmr_hash_port = 0,                                     \
+        .PortrangeList = VRMR_LIST_INITIALIZER(free), .broadcast = 0,          \
+    }
 
 struct vrmr_rules_chaincount {
     int input; /* number of input rules for this rule */
