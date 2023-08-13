@@ -1064,7 +1064,7 @@ static void draw_rules(struct vrmr_rules *rules, struct rulebar_form *rbform)
                     if (rule_ptr->opt != NULL &&
                             rule_ptr->opt->comment[0] != '\0') {
                         size_t wcomment_len = 0;
-                        wchar_t wstr[256] = L"", wtmp[256] = L"";
+                        wchar_t wstr[256] = L"";
 
                         wcomment_len = StrLen(rule_ptr->opt->comment);
 
@@ -1072,24 +1072,27 @@ static void draw_rules(struct vrmr_rules *rules, struct rulebar_form *rbform)
                                 (rbform->separator_size - (wcomment_len + 4)) /
                                 2;
 
-                        wmemset(wstr, L'-', sizeof(wtmp) / sizeof(wchar_t));
+                        wmemset(wstr, L'-', sizeof(wstr) / sizeof(wchar_t));
 
-                        wstr[before_len] = L'[';
-                        wstr[before_len + 1] = L' ';
+                        if (wcomment_len > 0) {
+                            wstr[before_len] = L'[';
+                            wstr[before_len + 1] = L' ';
 
-                        /* convert to wide */
-                        mbstowcs(wtmp, rule_ptr->opt->comment,
-                                sizeof(wtmp) / sizeof(wchar_t));
+                            /* convert to wide */
+                            wchar_t wtmp[wcomment_len + 1];
+                            mbstowcs(wtmp, rule_ptr->opt->comment,
+                                    wcomment_len + 1);
 
-                        for (i = before_len + 2, x = 0;
-                                i < sizeof(wtmp) / sizeof(wchar_t) &&
-                                x < wcomment_len;
-                                i++, x++) {
-                            wstr[i] = wtmp[x];
+                            for (i = before_len + 2, x = 0;
+                                    // - 2 so we can add ' ]' below
+                                    i < sizeof(wstr) / sizeof(wchar_t) - 2 &&
+                                    x < wcomment_len;
+                                    i++, x++) {
+                                wstr[i] = wtmp[x];
+                            }
+                            wstr[i] = L' ';
+                            wstr[i + 1] = L']';
                         }
-                        wstr[i] = L' ';
-                        wstr[i + 1] = L']';
-
                         /* convert back to multi byte */
                         wcstombs(separator_str, wstr, sizeof(separator_str));
 
