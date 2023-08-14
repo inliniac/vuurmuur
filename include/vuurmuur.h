@@ -542,7 +542,7 @@ struct vrmr_config {
     unsigned int syn_limit_burst; /* burst limit */
 
     /* udpflood protection */
-    char use_udp_limit;
+    bool use_udp_limit;
     unsigned int
             udp_limit; /* the maximum number new udp connections per second */
     unsigned int udp_limit_burst; /* burst limit */

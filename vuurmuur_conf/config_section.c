@@ -1141,11 +1141,8 @@ static void edit_conconfig_save(struct vrmr_config *conf)
             }
         } else if (config_section.fields[i] == ConConfig.useudplimitfld) {
             /* log policy */
-            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
-                conf->use_udp_limit = 1;
-            else
-                conf->use_udp_limit = 0;
-
+            conf->use_udp_limit =
+                    (field_buffer(config_section.fields[i], 0)[0] == 'X');
             vrmr_audit("'use udp limit' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->use_udp_limit ? STR_YES : STR_NO);
         } else if (config_section.fields[i] == ConConfig.udplimitfld) {

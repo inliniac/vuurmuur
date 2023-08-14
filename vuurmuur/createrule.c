@@ -4599,7 +4599,7 @@ int update_udplimit_rules(struct vrmr_config *conf,
     }
 
     /* if we don't use udp_limit bail out now */
-    if (conf->use_udp_limit == FALSE)
+    if (!conf->use_udp_limit)
         return (0);
 
     /* create the return rule */
