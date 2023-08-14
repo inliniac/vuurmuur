@@ -9,9 +9,9 @@ Vuurmuur is an iptables manager with a Ncurses GUI for easy management over SSH.
 Installation
 ------------
 
-https://www.vuurmuur.org/trac/wiki/Installation
+https://vuurmuur.org/pages/doc/installation/
 
 User Guide
 ----------
 
-https://www.vuurmuur.org/trac/wiki/Manual
+https://www.vuurmuur.org/pages/doc/
