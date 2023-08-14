@@ -40,7 +40,7 @@ static int zones_split_zonename(
         struct vrmr_zones *zones, struct vrmr_zone *zone_ptr, regex_t *reg_ex)
 {
     int arg_count = 0;
-    char check_str[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
+    char check_str[VRMR_MAX_HOST_NET_ZONE] = "";
     char zonename[VRMR_MAX_ZONE] = "", netname[VRMR_MAX_NETWORK] = "",
          hostname[VRMR_MAX_HOST] = "";
 
@@ -469,7 +469,7 @@ int vrmr_init_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     int zonetype = 0;
-    char zonename[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
+    char zonename[VRMR_MAX_HOST_NET_ZONE] = "";
 
     assert(zones && interfaces && reg);
 
@@ -526,7 +526,7 @@ int vrmr_delete_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
 {
     struct vrmr_zone *zone_ptr = NULL, *zone_list_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
-    char name[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
+    char name[VRMR_MAX_HOST_NET_ZONE] = "";
     struct vrmr_interface *iface_ptr = NULL;
 
     assert(zonename && zones);
@@ -867,9 +867,9 @@ int vrmr_add_broadcasts_zonelist(struct vrmr_zones *zones)
                         ipaddress
                         type
                 */
-                if (snprintf(broadcast_ptr->name, VRMR_VRMR_MAX_HOST_NET_ZONE,
+                if (snprintf(broadcast_ptr->name, VRMR_MAX_HOST_NET_ZONE,
                             "%s(broadcast)",
-                            zone_ptr->name) >= VRMR_VRMR_MAX_HOST_NET_ZONE) {
+                            zone_ptr->name) >= VRMR_MAX_HOST_NET_ZONE) {
                     vrmr_error(-1, "Internal Error", "string overflow");
                     vrmr_zone_free(broadcast_ptr);
                     return (-1);
@@ -910,7 +910,7 @@ int vrmr_add_broadcasts_zonelist(struct vrmr_zones *zones)
 int vrmr_validate_zonename(const char *zonename, int onlyvalidate, char *zone,
         char *network, char *host, regex_t *reg_ex, char quiet)
 {
-    char name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char name[VRMR_MAX_HOST_NET_ZONE];
     int retval = 0;
     /* this initalization pleases splint */
     regmatch_t reg_match[8] = {

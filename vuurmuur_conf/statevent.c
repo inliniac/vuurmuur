@@ -30,8 +30,8 @@ struct stat_event_log {
     int filtered;
 
     char ser[VRMR_MAX_SERVICE];
-    char src[VRMR_VRMR_MAX_HOST_NET_ZONE];
-    char dst[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char src[VRMR_MAX_HOST_NET_ZONE];
+    char dst[VRMR_MAX_HOST_NET_ZONE];
 
     char src_ip[46];
     char dst_ip[46];
@@ -53,8 +53,8 @@ struct stat_event_conn {
     int filtered;
 
     char ser[VRMR_MAX_SERVICE];
-    char src[VRMR_VRMR_MAX_HOST_NET_ZONE];
-    char dst[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char src[VRMR_MAX_HOST_NET_ZONE];
+    char dst[VRMR_MAX_HOST_NET_ZONE];
 
     char src_ip[46];
     char dst_ip[46];

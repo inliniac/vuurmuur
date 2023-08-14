@@ -293,7 +293,7 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
             /* we get the data later */
             create->to_any = TRUE;
         } else if (strstr(rule_ptr->to, "(broadcast)") != NULL) {
-            char network_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+            char network_name[VRMR_MAX_HOST_NET_ZONE];
             strlcpy(network_name, rule_ptr->to, sizeof(network_name));
             network_name[strlen(network_name) - 11] = '\0';
 

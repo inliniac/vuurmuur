@@ -35,7 +35,7 @@ char *list_textdir(
     char dir_location[PATH_MAX] = "", netdir_location[PATH_MAX] = "",
          hostdir_location[PATH_MAX] = "", groupdir_location[PATH_MAX] = "",
          *file_location = NULL;
-    char cur_zonename[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
+    char cur_zonename[VRMR_MAX_HOST_NET_ZONE] = "";
     struct dirent *dir_entry_p = NULL;
     int done = 0;
 
@@ -327,7 +327,7 @@ char *list_textdir(
                                     *zonetype = VRMR_TYPE_HOST;
 
                                     (void)strlcpy(name, cur_zonename,
-                                            VRMR_VRMR_MAX_HOST_NET_ZONE);
+                                            VRMR_MAX_HOST_NET_ZONE);
                                     return (name);
                                 }
 
@@ -384,7 +384,7 @@ char *list_textdir(
                                     *zonetype = VRMR_TYPE_GROUP;
 
                                     (void)strlcpy(name, cur_zonename,
-                                            VRMR_VRMR_MAX_HOST_NET_ZONE);
+                                            VRMR_MAX_HOST_NET_ZONE);
                                     return (name);
                                 }
 

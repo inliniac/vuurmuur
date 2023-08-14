@@ -444,7 +444,7 @@ int reload_zonedata(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     int retval = 0, result = 0;
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_zone *zone_ptr = NULL;
-    char name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char name[VRMR_MAX_HOST_NET_ZONE];
     int zonetype;
 
     assert(interfaces && zones);

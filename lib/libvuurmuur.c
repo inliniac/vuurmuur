@@ -246,8 +246,8 @@ int vrmr_regex_setup(int action, struct vrmr_regex *reg)
             return (-1);
         }
 
-        if (regcomp(reg->zone_part, VRMR_VRMR_ZONE_REGEX_ZONEPART,
-                    REG_EXTENDED) != 0) {
+        if (regcomp(reg->zone_part, VRMR_ZONE_REGEX_ZONEPART, REG_EXTENDED) !=
+                0) {
             vrmr_error(-1, "Internal Error", "regcomp() failed");
             return (-1);
         }
@@ -259,7 +259,7 @@ int vrmr_regex_setup(int action, struct vrmr_regex *reg)
             return (-1);
         }
 
-        if (regcomp(reg->network_part, VRMR_VRMR_ZONE_REGEX_NETWORKPART,
+        if (regcomp(reg->network_part, VRMR_ZONE_REGEX_NETWORKPART,
                     REG_EXTENDED) != 0) {
             vrmr_error(-1, "Internal Error", "regcomp() failed");
             return (-1);
@@ -272,8 +272,8 @@ int vrmr_regex_setup(int action, struct vrmr_regex *reg)
             return (-1);
         }
 
-        if (regcomp(reg->host_part, VRMR_VRMR_ZONE_REGEX_HOSTPART,
-                    REG_EXTENDED) != 0) {
+        if (regcomp(reg->host_part, VRMR_ZONE_REGEX_HOSTPART, REG_EXTENDED) !=
+                0) {
             vrmr_error(-1, "Internal Error", "regcomp() failed");
             return (-1);
         }

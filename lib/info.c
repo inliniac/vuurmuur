@@ -215,8 +215,7 @@ int vrmr_get_group_info(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         const char *groupname, struct vrmr_zone *answer_ptr)
 {
     int result = 0;
-    char total_zone[VRMR_VRMR_MAX_HOST_NET_ZONE] = "",
-         cur_mem[VRMR_MAX_HOST] = "";
+    char total_zone[VRMR_MAX_HOST_NET_ZONE] = "", cur_mem[VRMR_MAX_HOST] = "";
     struct vrmr_zone *zone_ptr = NULL;
 
     assert(groupname && answer_ptr && zones);
@@ -452,7 +451,7 @@ int vrmr_check_active(struct vrmr_ctx *vctx, char *name, int type)
     }
 
     /* service */
-    if (type == VRMR_TYPE_SERVICE || type == VRMR_VRMR_TYPE_SERVICEGRP) {
+    if (type == VRMR_TYPE_SERVICE || type == VRMR_TYPE_SERVICEGRP) {
         result = vctx->sf->ask(vctx->serv_backend, name, "ACTIVE", active,
                 sizeof(active), type, 0);
     }

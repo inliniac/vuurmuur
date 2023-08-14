@@ -136,10 +136,10 @@ static int conn_match_conntrackdata(const void *check, const void *hash)
     if (strncmp(check_cd->sername, hash_cd->sername, VRMR_MAX_SERVICE) == 0) {
         // service matches
         if (strncmp(check_cd->fromname, hash_cd->fromname,
-                    VRMR_VRMR_MAX_HOST_NET_ZONE) == 0) {
+                    VRMR_MAX_HOST_NET_ZONE) == 0) {
             // from host also matches
             if (strncmp(check_cd->toname, hash_cd->toname,
-                        VRMR_VRMR_MAX_HOST_NET_ZONE) == 0) {
+                        VRMR_MAX_HOST_NET_ZONE) == 0) {
                 if (check_cd->connect_status == hash_cd->connect_status) {
                     // they all match-> return 1
                     return (1);

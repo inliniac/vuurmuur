@@ -449,8 +449,8 @@ struct log_record {
 
     char service[VRMR_MAX_SERVICE];
 
-    char from[VRMR_VRMR_MAX_HOST_NET_ZONE];
-    char to[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char from[VRMR_MAX_HOST_NET_ZONE];
+    char to[VRMR_MAX_HOST_NET_ZONE];
 
     char prefix[32];
 

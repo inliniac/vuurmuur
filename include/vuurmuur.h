@@ -104,7 +104,7 @@
 #define VRMR_MAX_NETWORK 32
 #define VRMR_MAX_ZONE 32
 #define VRMR_MAX_NET_ZONE (VRMR_MAX_NETWORK + VRMR_MAX_ZONE)
-#define VRMR_VRMR_MAX_HOST_NET_ZONE                                            \
+#define VRMR_MAX_HOST_NET_ZONE                                                 \
     (VRMR_MAX_HOST + VRMR_MAX_NETWORK + VRMR_MAX_ZONE)
 #define VRMR_MAX_BROADCAST (VRMR_MAX_NET_ZONE + 11) /* network(broadcast) */
 
@@ -203,9 +203,9 @@
     "^([a-zA-Z0-9_-]{1,32})(([.])([a-zA-Z0-9_-]{1,32})(([.])([a-zA-Z0-9_-]{1," \
     "32}))?)?$"
 
-#define VRMR_VRMR_ZONE_REGEX_ZONEPART "^([a-zA-Z0-9_-]{1,32})$"
-#define VRMR_VRMR_ZONE_REGEX_NETWORKPART "^([a-zA-Z0-9_-]{1,32})$"
-#define VRMR_VRMR_ZONE_REGEX_HOSTPART "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_ZONE_REGEX_ZONEPART "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_ZONE_REGEX_NETWORKPART "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_ZONE_REGEX_HOSTPART "^([a-zA-Z0-9_-]{1,32})$"
 
 /* service */
 #define VRMR_SERV_REGEX "^([a-zA-Z0-9_-]{1,32})$"
@@ -819,7 +819,7 @@ struct vrmr_zone {
     int type; /* this should always be on top */
 
     /* basic vars */
-    char name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char name[VRMR_MAX_HOST_NET_ZONE];
 
     char active; // 0 no, 1 yes
     int status;
@@ -962,11 +962,11 @@ struct vrmr_rule {
 
     /* normal rules */
     char service[VRMR_MAX_SERVICE];
-    char from[VRMR_VRMR_MAX_HOST_NET_ZONE];
-    char to[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char from[VRMR_MAX_HOST_NET_ZONE];
+    char to[VRMR_MAX_HOST_NET_ZONE];
 
     /* protect rules */
-    char who[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char who[VRMR_MAX_HOST_NET_ZONE];
     char danger[64];
     // TODO size right?
     char source[32];
@@ -1227,7 +1227,7 @@ enum vrmr_objecttypes
     VRMR_TYPE_NETWORK,
     VRMR_TYPE_ZONE,
     VRMR_TYPE_SERVICE,
-    VRMR_VRMR_TYPE_SERVICEGRP, /* not implemented */
+    VRMR_TYPE_SERVICEGRP, /* not implemented */
     VRMR_TYPE_INTERFACE,
     VRMR_TYPE_RULE,
 
@@ -1475,8 +1475,8 @@ struct vrmr_log_record {
 
     unsigned int ttl;
 
-    char from_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
-    char to_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char from_name[VRMR_MAX_HOST_NET_ZONE];
+    char to_name[VRMR_MAX_HOST_NET_ZONE];
     char ser_name[VRMR_MAX_SERVICE];
     char from_int[VRMR_MAX_INTERFACE + 5]; /* 'in: ' */
     char to_int[VRMR_MAX_INTERFACE + 6];   /* 'out: ' */

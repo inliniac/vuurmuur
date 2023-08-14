@@ -2755,7 +2755,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                        "icmp-host-unreachable", "icmp-proto-unreachable",
                        "icmp-port-unreachable", "icmp-net-prohibited",
                        "icmp-host-prohibited", "tcp-reset"};
-    char select_choice[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
+    char select_choice[VRMR_MAX_HOST_NET_ZONE] = "";
     size_t action_choices_n = 13, reject_types_n = 7;
     char *choice_ptr;
     size_t zone_choices_n = 0, service_choices_n = 0, n_choices = 0;
@@ -2776,7 +2776,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
 
     /* is this screen in advanced mode or not? */
     char advanced_mode = vccnf.advanced_mode;
-    char zonename[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
+    char zonename[VRMR_MAX_HOST_NET_ZONE] = "";
 
     struct vrmr_list *interfaces_list = NULL;
 
@@ -3802,8 +3802,8 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                         zone_choices_n +=
                                 3; /* for firewall, firewall(any) and any */
 
-                        const char **zone_choices = calloc(zone_choices_n + 1,
-                                VRMR_VRMR_MAX_HOST_NET_ZONE);
+                        const char **zone_choices = calloc(
+                                zone_choices_n + 1, VRMR_MAX_HOST_NET_ZONE);
                         vrmr_fatal_alloc("calloc", zone_choices);
 
                         for (i = zone_choices_n - 1, d_node = zones->list.bot;

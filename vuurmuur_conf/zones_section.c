@@ -825,7 +825,7 @@ static int zones_rename_host_group(struct vrmr_ctx *vctx,
     struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_list_node *d_node = NULL, *grp_d_node = NULL;
     char rules_changed = 0, blocklist_changed = 0, group_changed = 0;
-    char old_host_name[VRMR_VRMR_MAX_HOST_NET_ZONE] = "",
+    char old_host_name[VRMR_MAX_HOST_NET_ZONE] = "",
          new_host[VRMR_MAX_HOST] = "", new_net[VRMR_MAX_NETWORK] = "",
          vrmr_new_zone[VRMR_MAX_ZONE] = "";
     char *blocklist_item = NULL, *new_blocklist_item = NULL;
@@ -1479,7 +1479,7 @@ static void edit_zone_group_members_delmem(
         struct vrmr_ctx *vctx, struct vrmr_zone *group_ptr, char *member_name)
 {
     int result = 0;
-    char logname[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
+    char logname[VRMR_MAX_HOST_NET_ZONE] = "";
 
     snprintf(logname, sizeof(logname), "%s.%s.%s", member_name,
             group_ptr->network_name, group_ptr->zone_name);
@@ -1501,7 +1501,7 @@ static void edit_zone_group_members_newmem(struct vrmr_ctx *vctx,
 {
     struct vrmr_list_node *d_node = NULL;
     const char **choices;
-    char *choice_ptr = NULL, search_name[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
+    char *choice_ptr = NULL, search_name[VRMR_MAX_HOST_NET_ZONE] = "";
     size_t n_choices = 0, i = 0;
     struct vrmr_zone *zonelist_ptr = NULL;
     int result = 0;
@@ -5580,7 +5580,7 @@ static void zones_blocklist_init(struct vrmr_blocklist *blocklist)
 
     /* now set the size of the window */
     height = (int)(zonessec_ctx.host_n + 7);
-    width = VRMR_VRMR_MAX_HOST_NET_ZONE + 2;
+    width = VRMR_MAX_HOST_NET_ZONE + 2;
     startx = 1;
     starty = 4;
 
@@ -5740,7 +5740,7 @@ int zones_blocklist_add_one(
                 return (0);
             }
 
-            zone_choices = calloc(i + 1, VRMR_VRMR_MAX_HOST_NET_ZONE);
+            zone_choices = calloc(i + 1, VRMR_MAX_HOST_NET_ZONE);
             vrmr_fatal_alloc("calloc", zone_choices);
 
             for (d_node = zones->list.top, i = 0; d_node;
@@ -5793,7 +5793,7 @@ int zones_blocklist(struct vrmr_ctx *vctx, struct vrmr_blocklist *blocklist,
 {
     int ch = 0, quit = 0, reload = 0, retval = 0;
     char changes = 0;
-    char *itemname = NULL, saveitemname[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
+    char *itemname = NULL, saveitemname[VRMR_MAX_HOST_NET_ZONE] = "";
     ITEM *cur = NULL;
     /* top menu */
     const char *key_choices[] = {"F12", "INS", "DEL", "F10"};

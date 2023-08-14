@@ -60,7 +60,7 @@ char *get_filelocation(
             }
             break;
         case VRMR_TYPE_SERVICE:
-        case VRMR_VRMR_TYPE_SERVICEGRP:
+        case VRMR_TYPE_SERVICEGRP:
             /* validate the name */
             if (vrmr_validate_servicename(name, tb->servicename_reg) != 0) {
                 vrmr_error(-1, "Error", "servicename '%s' is not valid.", name);
@@ -146,7 +146,7 @@ char *get_filelocation(
             break;
 
         case VRMR_TYPE_SERVICE:
-        case VRMR_VRMR_TYPE_SERVICEGRP:
+        case VRMR_TYPE_SERVICEGRP:
             vrmr_debug(
                     HIGH, "looking up data from services, service: %s.", name);
 
