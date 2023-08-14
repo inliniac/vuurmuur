@@ -1815,7 +1815,7 @@ static int edit_logconfig_save(struct vrmr_config *conf)
                     set_field_buffer_wrap(LogConfig.nfgrpfld, 0, limit_string);
                 }
             } else {
-                conf->nfgrp = (unsigned int)result;
+                conf->nfgrp = (uint16_t)result;
 
                 vrmr_audit("'nfgrp' %s '%u'.", STR_IS_NOW_SET_TO, conf->nfgrp);
             }

@@ -940,23 +940,24 @@ int vrmr_init_config(struct vrmr_config *cnf)
     if (result == 1) {
         /* ok, found */
         result = atoi(answer);
-        if (result < 0) {
+        if (result < 1 || result > 999) {
             vrmr_warning("Warning",
-                    "A negative NF Group (%d) can not be used, using default "
+                    "invalid NF Group (%d). Valid range is 1-999. Using "
+                    "default "
                     "(%u).",
                     result, VRMR_DEFAULT_NFGRP);
-            cnf->nfgrp = VRMR_DEFAULT_NFGRP;
+            cnf->nfgrp = (uint16_t)VRMR_DEFAULT_NFGRP;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         } else {
-            cnf->nfgrp = (unsigned int)result;
+            cnf->nfgrp = (uint16_t)result;
         }
     } else if (result == 0) {
         vrmr_warning("Warning",
                 "Variable NFGRP not found in '%s'. Using default.",
                 cnf->configfile);
 
-        cnf->nfgrp = VRMR_DEFAULT_NFGRP;
+        cnf->nfgrp = (uint16_t)VRMR_DEFAULT_NFGRP;
 
         retval = VRMR_CNF_W_MISSING_VAR;
     } else

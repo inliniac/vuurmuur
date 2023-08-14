@@ -515,7 +515,7 @@ struct vrmr_config {
 
     char tc_location[128];
 
-    char nfgrp;
+    uint16_t nfgrp;
 
     char log_blocklist;
 
