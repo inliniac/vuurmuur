@@ -730,9 +730,9 @@ int vrmr_init_config(struct vrmr_config *cnf)
     if (result == 1) {
         /* ok, found */
         if (strcasecmp(answer, "yes") == 0) {
-            cnf->use_syn_limit = TRUE;
+            cnf->use_syn_limit = true;
         } else if (strcasecmp(answer, "no") == 0) {
-            cnf->use_syn_limit = FALSE;
+            cnf->use_syn_limit = false;
         } else {
             vrmr_warning("Warning",
                     "'%s' is not a valid value for option USE_SYN_LIMIT.",

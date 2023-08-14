@@ -4517,7 +4517,7 @@ int update_synlimit_rules(struct vrmr_config *conf,
     }
 
     /* if we don't use syn_limit bail out now */
-    if (conf->use_syn_limit == FALSE)
+    if (!conf->use_syn_limit)
         return (0);
 
     /* create the return rule */

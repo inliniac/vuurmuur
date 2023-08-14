@@ -1110,11 +1110,7 @@ static void edit_conconfig_save(struct vrmr_config *conf)
 
         if (config_section.fields[i] == ConConfig.usesynlimitfld) {
             /* log policy */
-            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
-                conf->use_syn_limit = 1;
-            else
-                conf->use_syn_limit = 0;
-
+            conf->use_syn_limit = (field_buffer(config_section.fields[i], 0)[0] == 'X');
             vrmr_audit("'use syn limit' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->use_syn_limit ? STR_YES : STR_NO);
         } else if (config_section.fields[i] == ConConfig.synlimitfld) {

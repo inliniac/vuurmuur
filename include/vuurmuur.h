@@ -145,7 +145,7 @@
 #define VRMR_DEFAULT_DYN_INT_CHECK FALSE
 #define VRMR_DEFAULT_DYN_INT_INTERVAL (unsigned int)30
 
-#define VRMR_DEFAULT_USE_SYN_LIMIT TRUE
+#define VRMR_DEFAULT_USE_SYN_LIMIT true
 #define VRMR_DEFAULT_SYN_LIMIT (unsigned int)10
 #define VRMR_DEFAULT_SYN_LIMIT_BURST (unsigned int)20
 
@@ -537,7 +537,7 @@ struct vrmr_config {
     char rule_backend_name[32];
 
     /* synflood protection */
-    char use_syn_limit;
+    bool use_syn_limit;
     unsigned int syn_limit; /* the maximum number of SYN packets per second. */
     unsigned int syn_limit_burst; /* burst limit */
 
