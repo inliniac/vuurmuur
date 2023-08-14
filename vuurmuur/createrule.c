@@ -3870,8 +3870,8 @@ static int pre_rules_blocklist_ipv4(struct vrmr_config *conf,
         (void)vrmr_pipe_command(conf, cmd, VRMR_PIPE_QUIET);
     }
 
-    if (conf->log_blocklist == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                               iptcap->target_nflog == TRUE)) {
+    if (conf->log_blocklist && (conf->vrmr_check_iptcaps == FALSE ||
+                                       iptcap->target_nflog == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_INPUT, "DROP", "BLOCKED");
 

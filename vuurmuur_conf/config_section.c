@@ -1853,11 +1853,8 @@ static int edit_logconfig_save(struct vrmr_config *conf)
             }
         } else if (config_section.fields[i] == LogConfig.logblocklistfld) {
             /* log policy */
-            if (field_buffer(config_section.fields[i], 0)[0] == 'X')
-                conf->log_blocklist = 1;
-            else
-                conf->log_blocklist = 0;
-
+            conf->log_blocklist =
+                    (field_buffer(config_section.fields[i], 0)[0] == 'X');
             vrmr_audit("'log blocklist' %s '%s'.", STR_IS_NOW_SET_TO,
                     conf->log_blocklist ? STR_YES : STR_NO);
         } else if (config_section.fields[i] == LogConfig.loginvalidfld) {

@@ -161,8 +161,10 @@
     (unsigned int)30 /* default limit for logging the default policy */
 #define VRMR_DEFAULT_LOG_TCP_OPTIONS                                           \
     FALSE /* default we don't log TCP options */
-#define VRMR_DEFAULT_LOG_BLOCKLIST                                             \
-    TRUE                              /* default we log blocklist violations */
+
+/* default we log blocklist violations */
+#define VRMR_DEFAULT_LOG_BLOCKLIST true
+
 #define VRMR_DEFAULT_LOG_INVALID TRUE /* default we log INVALID traffic */
 #define VRMR_DEFAULT_LOG_NO_SYN TRUE  /* default we log new TCP but no SYN */
 #define VRMR_DEFAULT_LOG_PROBES TRUE  /* default we log probes like XMAS */
@@ -517,7 +519,7 @@ struct vrmr_config {
 
     uint16_t nfgrp;
 
-    char log_blocklist;
+    bool log_blocklist;
 
     /* logfile locations */
     char debuglog_location[VRMR_LOG_PATH_SIZE];

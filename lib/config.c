@@ -618,9 +618,9 @@ int vrmr_init_config(struct vrmr_config *cnf)
     if (result == 1) {
         /* ok, found */
         if (strcasecmp(answer, "yes") == 0) {
-            cnf->log_blocklist = TRUE;
+            cnf->log_blocklist = true;
         } else if (strcasecmp(answer, "no") == 0) {
-            cnf->log_blocklist = FALSE;
+            cnf->log_blocklist = false;
         } else {
             vrmr_warning("Warning",
                     "'%s' is not a valid value for option LOG_BLOCKLIST.",
