@@ -4210,7 +4210,7 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                                         services, zones, interfaces,
                                         conf) < 0) {
                                 /* clear tmp_ruledata for the next use */
-                                bzero(&tmp_ruledata, sizeof(tmp_ruledata));
+                                memset(&tmp_ruledata, 0, sizeof(tmp_ruledata));
 
                                 /* ask the user if he/she want to look at the
                                  * rule again */
