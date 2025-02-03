@@ -399,7 +399,7 @@ int shaping_shape_outgoing_rule(/*@null@*/ struct vrmr_rule_options *opt);
 int shaping_shape_interface(struct vrmr_interface *iface_ptr);
 int shaping_shape_create_rule(struct vrmr_config *cnf,
         struct rule_scratch *rule, struct vrmr_interface *shape_iface_ptr,
-        struct vrmr_interface *class_iface_ptr, uint16_t class, uint32_t rate,
+        struct vrmr_interface *class_iface_ptr, uint16_t clss, uint32_t rate,
         char *rate_unit, uint32_t ceil, char *ceil_unit, uint8_t prio);
 int shaping_determine_minimal_default_rates(
         struct vrmr_interfaces *interfaces, struct vrmr_rules *rules);
