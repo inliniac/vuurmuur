@@ -670,6 +670,7 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx,
                         protect_warning_shown = TRUE;
                     }
 
+                    vrmr_rules_free_options(rule_ptr->opt);
                     free(rule_ptr);
                     rule_ptr = NULL;
                 } else {
@@ -677,6 +678,7 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx,
                     if (!(vrmr_list_append(&rules->list, rule_ptr))) {
                         vrmr_error(-1, "Internal Error",
                                 "vrmr_list_append() failed");
+                        vrmr_rules_free_options(rule_ptr->opt);
                         free(rule_ptr);
                         rule_ptr = NULL;
                         return (-1);
