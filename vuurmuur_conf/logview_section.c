@@ -985,11 +985,12 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             */
             if (control.search_completed) {
                 /* close the pipe */
-                if (pclose(search_pipe) < 0) {
+                if (search_pipe != NULL && pclose(search_pipe) < 0) {
                     vrmr_error(-1, VR_ERR,
                             gettext("closing search pipe failed: %s."),
                             strerror(errno));
                 }
+                search_pipe = NULL;
 
                 /* restore file pointer */
                 fp = traffic_fp;
@@ -1632,6 +1633,10 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     nodelay(log_win, FALSE);
     vrmr_fatal_if(vrmr_list_cleanup(buffer_ptr) < 0);
     (void)fclose(fp);
+
+    if (search_pipe) {
+        (void)pclose(search_pipe);
+    }
 
     /* info bar stuff */
     show_panel(info_bar_panels[0]);
