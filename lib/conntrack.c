@@ -710,7 +710,7 @@ static int dump_cb(
         if (conn_data_to_entry(&cae, ce, ctx->serhash, ctx->zonehash,
                     ctx->zonelist, ctx->req) < 0) {
             vrmr_error(-1, "Error", "conn_data_to_entry() failed");
-            free(ce);
+            free_conntrack_entry(ce);
             return NFCT_CB_STOP;
         }
 
