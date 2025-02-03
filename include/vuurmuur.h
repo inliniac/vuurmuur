@@ -21,7 +21,6 @@
 #ifndef __VUURMUUR_H__
 #define __VUURMUUR_H__
 
-#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
