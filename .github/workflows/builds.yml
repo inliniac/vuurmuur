@@ -140,32 +140,45 @@ jobs:
       - run: CC=clang-18 CFLAGS="${DEFAULT_CFLAGS}" scan-build-18 ./configure --with-widec=yes
       - run: CC=clang-18 scan-build-18 --status-bugs make -j2
 
-  centos-7:
-    name: CentOS 7
+  centos-9-stream:
+    name: CentOS 9 Stream
     runs-on: ubuntu-latest
-    container: centos:7
+    container: quay.io/centos/centos:stream9
     steps:
       - uses: actions/checkout@v3.1.0
       - name: Install system dependencies
         run: |
-          yum -y install epel-release
-          yum -y install \
+          dnf -y install dnf-plugins-core epel-release
+          dnf config-manager --set-enabled crb
+          dnf -y install \
                 autoconf \
                 automake \
+                file-devel \
                 gcc \
+                gcc-c++ \
                 gettext-devel \
-                tar \
-                libnetfilter_log-devel \
+                git \
                 libmnl-devel \
+                libtool \
+                libnfnetlink-devel \
                 libnetfilter_conntrack-devel \
+                libnetfilter_queue-devel \
                 libtool \
                 make \
                 ncurses-devel \
                 pkgconfig \
                 sudo \
                 which
+      - run: |
+          git clone https://git.netfilter.org/libnetfilter_log/
+          cd libnetfilter_log
+          bash autogen.sh
+          ./configure --prefix=/usr
+          make
+          make install
+          cd ..
       - run: ./autogen.sh
-      - run: CFLAGS="${DEFAULT_CFLAGS} -std=gnu99" ./configure --prefix=/usr --sysconfdir=/etc
+      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure --prefix=/usr --sysconfdir=/etc
       - run: make -j2
       - run: make install
       - run: make distcheck
