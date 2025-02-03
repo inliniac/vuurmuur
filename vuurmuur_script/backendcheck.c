@@ -590,7 +590,7 @@ int backend_check_rule_rule(char *value, struct vrmr_regex *reg)
 {
     char line[1024] = "";
     char action[32] = "";
-    struct vrmr_rule rule;
+    struct vrmr_rule rule = {.opt = NULL};
 
     assert(value && reg);
 
@@ -618,6 +618,7 @@ int backend_check_rule_rule(char *value, struct vrmr_regex *reg)
             vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed");
             return (VRS_ERR_COMMANDLINE);
         }
+        vrmr_rules_free_options(rule.opt);
     }
 
     return (0);
