@@ -5,10 +5,10 @@
 # TODO: setup an initial configuration that works for most
 # setups.
 #
-# Copyright (c) 2004-2017 by Victor Julien, Stefan Ubbink
+# Copyright (c) 2004-2025 by Victor Julien, Stefan Ubbink
 # Licenced under the GPL.
 #
-VERSION="0.8.1"
+VERSION="0.8.2"
 
 # progams
 ACLOCAL="aclocal"

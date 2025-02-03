@@ -2,11 +2,11 @@
 
 # Quick setup wizard for Vuurmuur.
 #
-# Copyright (c) 2009-2016 by Victor Julien <victor@inliniac.net>
+# Copyright (c) 2009-2025 by Victor Julien <victor@inliniac.net>
 
 VMS="vuurmuur_script"
 
-VERSION="0.8.1"
+VERSION="0.8.2"
 BACKTITLE="Vuurmuur Setup Wizard version $VERSION"
 
 ZONES="inet lan"
