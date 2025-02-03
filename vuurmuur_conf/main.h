@@ -106,12 +106,6 @@
 
 #define CP_RULE_BAR 23
 
-#ifdef SYSCONFDIR
-#define VUURMUURCONF_CONFIGFILE SYSCONFDIR "/vuurmuur/vuurmuur_conf.conf"
-#else
-#define VUURMUURCONF_CONFIGFILE "/etc/vuurmuur/vuurmuur_conf.conf"
-#endif
-
 #ifndef MIN
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #endif

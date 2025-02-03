@@ -196,13 +196,21 @@ int main(int argc, char *argv[])
 
     /* settings file */
     memset(vccnf.configfile_location, 0, sizeof(vccnf.configfile_location));
-    if (vctx.conf.etcdir[0] == '\0')
-        (void)strlcpy(vccnf.configfile_location, VUURMUURCONF_CONFIGFILE,
+    if (vctx.conf.etcdir[0] == '\0') {
+#ifdef SYSCONFDIR
+        (void)snprintf(vccnf.configfile_location,
+                sizeof(vccnf.configfile_location),
+                "%s/vuurmuur/vuurmuur_conf.conf", xstr(SYSCONFDIR));
+#else
+        (void)strlcpy(vccnf.configfile_location,
+                "/etc/vuurmuur/vuurmuur_conf.conf",
                 sizeof(vccnf.configfile_location));
-    else
+#endif
+    } else {
         (void)snprintf(vccnf.configfile_location,
                 sizeof(vccnf.configfile_location),
                 "%s/vuurmuur/vuurmuur_conf.conf", vctx.conf.etcdir);
+    }
 
 #ifdef ENABLE_NLS
     setlocale(LC_ALL, "");
