@@ -508,7 +508,7 @@ static void statevent_interactivemenu_conn(struct vrmr_ctx *vctx,
                             }
                         } else {
                             vrmr_debug(NONE,
-                                    "cnt %u, src %s srcip %s dst %s dstip %s "
+                                    "cnt %d, src %s srcip %s dst %s dstip %s "
                                     "ser %s",
                                     con->cnt, con->src, con->src_ip, con->dst,
                                     con->dst_ip, con->ser);

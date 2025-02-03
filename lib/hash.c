@@ -85,7 +85,7 @@ int vrmr_hash_cleanup(struct vrmr_hash_table *hash_table)
     /* clear all rows */
     for (unsigned int row = 0; row < hash_table->rows; row++) {
         if (vrmr_list_cleanup(&hash_table->table[row]) < 0) {
-            vrmr_error(-1, "Internal Error", "cleaning up row %d failed", row);
+            vrmr_error(-1, "Internal Error", "cleaning up row %u failed", row);
             return (-1);
         }
     }
@@ -407,7 +407,7 @@ int vrmr_init_services_hashtable(unsigned int n_rows,
     struct vrmr_portdata *portrange_ptr = NULL;
     struct vrmr_list_node *d_node_serlist = NULL;
 
-    vrmr_debug(LOW, "services hashtable size will be %d rows.", n_rows);
+    vrmr_debug(LOW, "services hashtable size will be %u rows.", n_rows);
 
     assert(services_list);
 
@@ -425,14 +425,14 @@ int vrmr_init_services_hashtable(unsigned int n_rows,
             return (-1);
         }
 
-        vrmr_debug(HIGH, "service: '%s', '%p', len: '%d'.", ser_ptr->name,
+        vrmr_debug(HIGH, "service: '%s', '%p', len: '%u'.", ser_ptr->name,
                 ser_ptr, ser_ptr->PortrangeList.len);
 
         if (ser_ptr->PortrangeList.len > 0) {
             for (d_node = ser_ptr->PortrangeList.top; d_node;
                     d_node = d_node->next) {
                 vrmr_debug(HIGH,
-                        "service: '%s', '%p', len: '%d', d_node: '%p', "
+                        "service: '%s', '%p', len: '%u', d_node: '%p', "
                         "'d_node->data: '%p'.",
                         ser_ptr->name, ser_ptr, ser_ptr->PortrangeList.len,
                         d_node, d_node->data);

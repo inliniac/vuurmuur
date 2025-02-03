@@ -691,7 +691,7 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx,
             }
         }
 
-        vrmr_info("Info", "%d rules loaded.", count - 1);
+        vrmr_info("Info", "%u rules loaded.", count - 1);
     }
 
     return (retval);
@@ -1316,7 +1316,7 @@ int vrmr_rules_insert_list(struct vrmr_rules *rules, unsigned int place,
     assert(rules && rule_ptr);
 
     vrmr_debug(HIGH,
-            "insert at: %d. (list len is %d), number: %d, action: %s, service: "
+            "insert at: %u. (list len is %u), number: %u, action: %s, service: "
             "%s, from: %s, to: %s, danger: %s, who: %s, source: %s.",
             place, rules->list.len, rule_ptr->number,
             vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service,
@@ -1327,7 +1327,7 @@ int vrmr_rules_insert_list(struct vrmr_rules *rules, unsigned int place,
     if (rules->list.len == 0) {
         vrmr_debug(HIGH,
                 "inserting into an empty list. Setting place to 1 (place was: "
-                "%d).",
+                "%u).",
                 place);
         place = 1;
     }
@@ -1335,7 +1335,7 @@ int vrmr_rules_insert_list(struct vrmr_rules *rules, unsigned int place,
     /* handle inserting at the bottom of the list */
     if (place > rules->list.len) {
         vrmr_debug(HIGH,
-                "place > rules_list->len (%d, %d). Setting place to %d.", place,
+                "place > rules_list->len (%u, %u). Setting place to %u.", place,
                 rules->list.len, rules->list.len + 1);
         place = rules->list.len + 1;
     }
@@ -1351,7 +1351,7 @@ int vrmr_rules_insert_list(struct vrmr_rules *rules, unsigned int place,
         }
 
         vrmr_debug(HIGH,
-                "vrmr_list_prepend succes, now update numbers (place: %d)",
+                "vrmr_list_prepend succes, now update numbers (place: %u)",
                 place);
 
         vrmr_rules_update_numbers(rules, place, 1);
@@ -1378,7 +1378,7 @@ int vrmr_rules_insert_list(struct vrmr_rules *rules, unsigned int place,
                 listrule_ptr->source);
 
         if (listrule_ptr->number == place - 1) {
-            vrmr_debug(HIGH, "place to insert: place: %d, %s %s %s %s %s",
+            vrmr_debug(HIGH, "place to insert: place: %u, %s %s %s %s %s",
                     place, vrmr_rules_itoaction(listrule_ptr->action),
                     listrule_ptr->service, listrule_ptr->danger,
                     listrule_ptr->who, listrule_ptr->source);
@@ -1392,7 +1392,7 @@ int vrmr_rules_insert_list(struct vrmr_rules *rules, unsigned int place,
             /* update numbers after count */
             vrmr_debug(HIGH,
                     "vrmr_list_insert_after succes, now update numbers (place: "
-                    "%d)",
+                    "%u)",
                     place);
 
             vrmr_rules_update_numbers(rules, place - 1, 1);
@@ -1400,7 +1400,7 @@ int vrmr_rules_insert_list(struct vrmr_rules *rules, unsigned int place,
             /* set the number */
             vrmr_debug(HIGH,
                     "vrmr_list_insert_after succes, now set rule_ptr->number "
-                    "to place: %d.",
+                    "to place: %u.",
                     place);
 
             rule_ptr->number = place;
@@ -1410,7 +1410,7 @@ int vrmr_rules_insert_list(struct vrmr_rules *rules, unsigned int place,
         }
         /* we're not just there yet */
         else {
-            vrmr_debug(HIGH, "not the right place: %d, %s %s %s %s %s", place,
+            vrmr_debug(HIGH, "not the right place: %u, %s %s %s %s %s", place,
                     vrmr_rules_itoaction(listrule_ptr->action),
                     listrule_ptr->service, listrule_ptr->danger,
                     listrule_ptr->who, listrule_ptr->source);
@@ -1969,7 +1969,7 @@ static int parse_option(const char *curopt, struct vrmr_rule_options *op)
         op->loglimit = (unsigned int)atoi(portstring);
         op->logburst = op->loglimit * 2;
 
-        vrmr_debug(MEDIUM, "loglimit: %d, logburst %d.", op->loglimit,
+        vrmr_debug(MEDIUM, "loglimit: %u, logburst %u.", op->loglimit,
                 op->logburst);
     }
     /* limit */
@@ -2013,7 +2013,7 @@ static int parse_option(const char *curopt, struct vrmr_rule_options *op)
 
         op->limit = (unsigned int)atoi(portstring);
 
-        vrmr_debug(MEDIUM, "limit: %d / %s.", op->limit, op->limit_unit);
+        vrmr_debug(MEDIUM, "limit: %u / %s.", op->limit, op->limit_unit);
     }
     /* burst */
     else if (strncmp(curopt, "burst", strlen("burst")) == 0) {
@@ -2028,7 +2028,7 @@ static int parse_option(const char *curopt, struct vrmr_rule_options *op)
 
         op->burst = (unsigned int)atoi(portstring);
 
-        vrmr_debug(MEDIUM, "burst: %d.", op->burst);
+        vrmr_debug(MEDIUM, "burst: %u.", op->burst);
     }
     /* obsolete: mark the iptablesstate? */
     else if (strcmp(curopt, "markiptstate") == 0) {
@@ -2993,21 +2993,21 @@ struct vrmr_rule *vrmr_rules_remove_rule_from_list(
 
     assert(rules);
 
-    vrmr_debug(LOW, "start: place: %d, updatenumbers: %d, listsize: %d", place,
+    vrmr_debug(LOW, "start: place: %u, updatenumbers: %d, listsize: %u", place,
             updatenumbers, rules->list.len);
 
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         if (!(rule_ptr = d_node->data))
             continue;
 
-        vrmr_debug(HIGH, "rule_ptr->number: %d, place: %d", rule_ptr->number,
+        vrmr_debug(HIGH, "rule_ptr->number: %u, place: %u", rule_ptr->number,
                 place);
 
         if (rule_ptr->number != place)
             continue;
 
         vrmr_debug(HIGH,
-                "now we have to remove (query_ptr->number: %d, place: %d)",
+                "now we have to remove (query_ptr->number: %u, place: %u)",
                 rule_ptr->number, place);
 
         if (vrmr_list_node_is_bot(d_node)) {
@@ -3028,7 +3028,7 @@ struct vrmr_rule *vrmr_rules_remove_rule_from_list(
             }
 
             if (updatenumbers == 1) {
-                vrmr_debug(HIGH, "updatenumbers: %d, %d", place, 0);
+                vrmr_debug(HIGH, "updatenumbers: %u, %d", place, 0);
                 vrmr_rules_update_numbers(rules, place, 0);
             }
         }
@@ -3056,7 +3056,7 @@ void vrmr_rules_update_numbers(
     assert(rules);
 
     vrmr_debug(HIGH,
-            "Update higher (or equal) than: %d, action = %d. (list len is %d)",
+            "Update higher (or equal) than: %u, action = %d. (list len is %u)",
             place, action, rules->list.len);
 
     for (d_node = rules->list.top, i = 1; d_node; d_node = d_node->next, i++) {
@@ -3087,7 +3087,7 @@ void vrmr_rules_print_list(const struct vrmr_rules *rules)
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         rule_ptr = d_node->data;
 
-        vrmr_debug(LOW, "%3d, %-8s, %s, %s, %s, %s, %s, %s, status: %d",
+        vrmr_debug(LOW, "%3u, %-8s, %s, %s, %s, %s, %s, %s, status: %d",
                 rule_ptr->number, vrmr_rules_itoaction(rule_ptr->action),
                 rule_ptr->service, rule_ptr->from, rule_ptr->to, rule_ptr->who,
                 rule_ptr->source, rule_ptr->danger, rule_ptr->status);

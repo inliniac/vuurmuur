@@ -346,7 +346,7 @@ int create_all_rules(struct vrmr_ctx *vctx, int create_prerules)
         vrmr_error(-1, "Error", "shaping setup default rules failed.");
     }
 
-    vrmr_info("Info", "Creating the rules... (rules to create: %d)",
+    vrmr_info("Info", "Creating the rules... (rules to create: %u)",
             vctx->rules.list.len);
 
     /* create the prerules if were called with it */

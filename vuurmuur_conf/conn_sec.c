@@ -333,7 +333,7 @@ static int print_connection(WINDOW *local_win,
 
     if (connreq->draw_details == TRUE) {
         if (cd_ptr->src_port == 0 && cd_ptr->dst_port == 0) {
-            snprintf(printline, printline_width, "%s -> %s PROTO %u",
+            snprintf(printline, printline_width, "%s -> %s PROTO %d",
                     cd_ptr->src_ip, cd_ptr->dst_ip, cd_ptr->protocol);
         } else if (cd_ptr->cnt > 1) {
             snprintf(printline, printline_width, "%s -> %s:%d %s",

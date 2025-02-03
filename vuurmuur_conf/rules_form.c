@@ -476,7 +476,7 @@ static void move_rule(
 
     rule_ptr->number = new_place;
 
-    vrmr_debug(HIGH, "new_place: %d, rule_ptr->number: %d", new_place,
+    vrmr_debug(HIGH, "new_place: %u, rule_ptr->number: %u", new_place,
             rule_ptr->number);
 
     vrmr_rules_insert_list(rules, new_place, rule_ptr);
@@ -530,7 +530,7 @@ static void MoveRuleBarForm(struct vrmr_rules *rules, unsigned int cur_rule)
     mvwprintw(move_win, 4, 2, gettext("Cur: %d, Min: 1, Max: %d"), cur_rule,
             rules->list.len);
 
-    vrmr_debug(HIGH, "cur_rule: %d, rules->list.len: %d.", cur_rule,
+    vrmr_debug(HIGH, "cur_rule: %u, rules->list.len: %u.", cur_rule,
             rules->list.len);
 
     update_panels();
@@ -912,7 +912,7 @@ static void Insert_RuleBar(struct rulebar_form *rbform, FIELD *active,
     rbform->bars++;
     bar->bar_num = rbform->bars;
 
-    vrmr_debug(HIGH, "success at %p (bars: %d, bar->num: %d).", bar,
+    vrmr_debug(HIGH, "success at %p (bars: %u, bar->num: %u).", bar,
             rbform->bars, bar->bar_num);
     return;
 }
@@ -1458,19 +1458,19 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         if (update_filter == 1) {
             /* count the number of lines that are filtered */
             (void)rules_update_filter(rules, rbform);
-            vrmr_debug(HIGH, "filtered_rules: %d", rbform->filtered_rules);
+            vrmr_debug(HIGH, "filtered_rules: %u", rbform->filtered_rules);
             update_filter = 0;
         }
 
         /* calculate the number of printable rules */
         rbform->printable_rules = rules->list.len - rbform->filtered_rules;
-        vrmr_debug(HIGH, "printable_rules: %d (current_bar_num: %d)",
+        vrmr_debug(HIGH, "printable_rules: %u (current_bar_num: %u)",
                 rbform->printable_rules, current_bar_num);
 
         /* get current bar num */
         cur_bar = CurrentBar(rbform, form);
         current_bar_num = cur_bar->bar_num;
-        vrmr_debug(HIGH, "current_bar_num: %d", current_bar_num);
+        vrmr_debug(HIGH, "current_bar_num: %u", current_bar_num);
 
         /* if we filter, position the bar at the top of the list if needed */
         if (rbform->use_filter || rbform->show_only_forward ||
@@ -1509,7 +1509,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 if (rbform->printable_rules > rbform->max_bars_on_screen) {
                     vrmr_debug(HIGH,
                             "360 (end): rbform->printable_rules > "
-                            "rbform->max_bars_on_screen (%d > %d).",
+                            "rbform->max_bars_on_screen (%u > %u).",
                             rbform->printable_rules,
                             rbform->max_bars_on_screen);
                     rbform->scroll_offset = rbform->printable_rules -
@@ -1518,7 +1518,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 } else {
                     vrmr_debug(HIGH,
                             "360 (end): rbform->printable_rules <= "
-                            "rbform->max_bars_on_screen (%d <= %d).",
+                            "rbform->max_bars_on_screen (%u <= %u).",
                             rbform->printable_rules,
                             rbform->max_bars_on_screen);
                     rbform->scroll_offset = 0;
@@ -1555,12 +1555,12 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 for (unsigned int i = 0; i < (rbform->max_bars_on_screen);
                         i++) {
                     vrmr_debug(HIGH,
-                            "338 (pgdn): current_bar_num : %d, "
-                            "rbform->max_bars_on_screen: %d, "
-                            "rbform->printable_rules: %d, "
-                            "rbform->scroll_offset: %d, "
+                            "338 (pgdn): current_bar_num : %u, "
+                            "rbform->max_bars_on_screen: %u, "
+                            "rbform->printable_rules: %u, "
+                            "rbform->scroll_offset: %u, "
                             "atoi(field_buffer(cur_bar->num_field,0)): %d, "
-                            "pgdn_offset: %d.",
+                            "pgdn_offset: %u.",
                             current_bar_num, rbform->max_bars_on_screen,
                             rbform->printable_rules, rbform->scroll_offset,
                             atoi(field_buffer(cur_bar->num_field, 0)),
@@ -1577,11 +1577,11 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                                     pgdn_offset) < rbform->printable_rules) {
                         vrmr_debug(HIGH,
                                 "338 (pgdn): current_bar_num < "
-                                "rbform->max_bars_on_screen (%d < %d).",
+                                "rbform->max_bars_on_screen (%u < %u).",
                                 current_bar_num, rbform->max_bars_on_screen);
                         vrmr_debug(HIGH,
                                 "338 (pgdn): current_bar_num < printable_rules "
-                                "(%d < %d).",
+                                "(%u < %u).",
                                 current_bar_num, rbform->printable_rules);
 
                         form_driver_wrap(form, REQ_NEXT_FIELD);
@@ -1594,18 +1594,18 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         // just do'in nothin'
                         vrmr_debug(HIGH,
                                 "338 (pgdn): current_bar_num == "
-                                "rbform->printable_rules (%d == %d), OR",
+                                "rbform->printable_rules (%u == %u), OR",
                                 current_bar_num, rbform->printable_rules);
                         vrmr_debug(HIGH,
                                 "338 (pgdn): "
                                 "atoi(field_buffer(cur_bar->num_field,0)) + "
                                 "pgdn_offset == rbform->printable_rules (%d + "
-                                "%d == %d).",
+                                "%u == %u).",
                                 atoi(field_buffer(cur_bar->num_field, 0)),
                                 pgdn_offset, rbform->printable_rules);
                     } else {
                         vrmr_debug(HIGH,
-                                "338 (pgdn): rbform->scroll_offset: %d.",
+                                "338 (pgdn): rbform->scroll_offset: %u.",
                                 rbform->scroll_offset);
 
                         rbform->scroll_offset++;
@@ -1637,11 +1637,11 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         current_bar_num < rbform->printable_rules) {
                     vrmr_debug(HIGH,
                             "KEY_DOWN: current_bar_num < "
-                            "rbform->max_bars_on_screen (%d < %d).",
+                            "rbform->max_bars_on_screen (%u < %u).",
                             current_bar_num, rbform->max_bars_on_screen);
                     vrmr_debug(HIGH,
-                            "KEY_DOWN: current_bar_num < printable_rules (%d < "
-                            "%d).",
+                            "KEY_DOWN: current_bar_num < printable_rules (%u < "
+                            "%u).",
                             current_bar_num, rbform->printable_rules);
 
                     form_driver_wrap(form, REQ_NEXT_FIELD);
@@ -1650,23 +1650,23 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                                    0)) == rbform->printable_rules) {
                     /* do nothing, just sit here */
                     vrmr_debug(HIGH,
-                            "KEY_DOWN: current_bar_num == printable_rules (%d "
-                            "== %d), OR",
+                            "KEY_DOWN: current_bar_num == printable_rules (%u "
+                            "== %u), OR",
                             current_bar_num, rbform->printable_rules);
                     vrmr_debug(HIGH,
                             "KEY_DOWN: "
                             "atoi(field_buffer(cur_bar->num_field,0)) == "
-                            "rbform->printable_rules (%d == %d)",
+                            "rbform->printable_rules (%u == %u)",
                             atoi(field_buffer(cur_bar->num_field, 0)),
                             rbform->printable_rules);
                 } else {
                     vrmr_debug(HIGH,
                             "KEY_DOWN: current_bar_num >= "
-                            "rbform->max_bars_on_screen (%d >= %d).",
+                            "rbform->max_bars_on_screen (%u >= %u).",
                             current_bar_num, rbform->max_bars_on_screen);
                     vrmr_debug(HIGH,
-                            "KEY_DOWN: current_bar_num >= printable_rules (%d "
-                            ">= %d).",
+                            "KEY_DOWN: current_bar_num >= printable_rules (%u "
+                            ">= %u).",
                             current_bar_num, rbform->printable_rules);
 
                     rbform->scroll_offset++;
@@ -1710,14 +1710,14 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                     if (current_bar_num > rbform->printable_rules - 1) {
                         vrmr_debug(HIGH,
                                 "edit: current_bar_num > printable_rules - 1 "
-                                "(%d > %d).",
+                                "(%u > %u).",
                                 current_bar_num, rbform->printable_rules - 1);
 
                         form_driver_wrap(form, REQ_PREV_FIELD);
                     } else {
                         vrmr_debug(HIGH,
                                 "edit: current_bar_num <= printable_rules - 1 "
-                                "(%d <= %d).",
+                                "(%u <= %u).",
                                 current_bar_num, rbform->printable_rules - 1);
                     }
                 }
@@ -1749,13 +1749,13 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                          * list */
                         if (rbform->scroll_offset > 0) {
                             vrmr_debug(HIGH,
-                                    "KEY_DC: scroll_offset > 0 (%d) "
+                                    "KEY_DC: scroll_offset > 0 (%u) "
                                     "decreasing.",
                                     rbform->scroll_offset);
                             rbform->scroll_offset--;
                         } else {
                             vrmr_debug(HIGH,
-                                    "KEY_DC: scroll_offset <= 0 (%d) doing "
+                                    "KEY_DC: scroll_offset <= 0 (%u) doing "
                                     "nothing.",
                                     rbform->scroll_offset);
                         }
@@ -1765,14 +1765,14 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         if (current_bar_num > rbform->printable_rules - 1) {
                             vrmr_debug(HIGH,
                                     "KEY_DC: current_bar_num > printable_rules "
-                                    "- 1 (%d > %d).",
+                                    "- 1 (%u > %u).",
                                     current_bar_num,
                                     rbform->printable_rules - 1);
                             form_driver_wrap(form, REQ_PREV_FIELD);
                         } else {
                             vrmr_debug(HIGH,
                                     "KEY_DC: current_bar_num <= "
-                                    "printable_rules - 1 (%d <= %d).",
+                                    "printable_rules - 1 (%u <= %u).",
                                     current_bar_num,
                                     rbform->printable_rules - 1);
                         }
@@ -2050,7 +2050,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         vrmr_fatal_if(vrmr_rules_save_list(vctx, rules, &vctx->conf) < 0);
 
         /* audit log */
-        vrmr_audit("%s: %s: %d (%s).", STR_RULES_ARE_CHANGED,
+        vrmr_audit("%s: %s: %u (%s).", STR_RULES_ARE_CHANGED,
                 STR_NUMBER_OF_RULES, rules->list.len, STR_LISTED_BELOW);
 
         int i;
@@ -2141,7 +2141,7 @@ static void insert_new_rule(
     /* safety */
     vrmr_fatal_if_null(rules);
 
-    vrmr_debug(LOW, "rule_num: %d", rule_num);
+    vrmr_debug(LOW, "rule_num: %u", rule_num);
 
     /* inserting into an empty rules list */
     if (rule_num == 0)
@@ -2175,7 +2175,7 @@ static void insert_new_rule(
         /* insert at 1 of course */
         rule_ptr->number = 1;
 
-        vrmr_debug(HIGH, "rule_num: %d, rule_ptr->number: %d", rule_num,
+        vrmr_debug(HIGH, "rule_num: %u, rule_ptr->number: %u", rule_num,
                 rule_ptr->number);
 
         vrmr_fatal_if(
@@ -2206,7 +2206,7 @@ int edit_rule(struct vrmr_config *conf, struct vrmr_rules *rules,
     vrmr_fatal_if_null(reg);
     vrmr_fatal_if_null(interfaces);
 
-    vrmr_debug(HIGH, "called with rule_num = %d", rule_num);
+    vrmr_debug(HIGH, "called with rule_num = %u", rule_num);
 
     if (rule_num == 0)
         rule_num = 1;

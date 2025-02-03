@@ -4062,7 +4062,7 @@ static int edit_zone_network_save(
     if (rules_changed == TRUE) {
         /* example: "network 'local.lan' has been changed: rules are changed:
          * number of rules: 5 (listed below)." */
-        vrmr_audit("%s '%s' %s: %s: %s: %d (%s).", STR_NETWORK, zone_ptr->name,
+        vrmr_audit("%s '%s' %s: %s: %s: %u (%s).", STR_NETWORK, zone_ptr->name,
                 STR_HAS_BEEN_CHANGED, STR_RULES_ARE_CHANGED,
                 STR_NUMBER_OF_RULES, zone_ptr->ProtectList.len,
                 STR_LISTED_BELOW);

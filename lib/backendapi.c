@@ -76,7 +76,7 @@ static int load_plugin(struct vrmr_config *cfg ATTR_UNUSED,
     assert(plugin_list && plugin_name && func_ptr);
     assert(strlen(plugin_name) > 0);
 
-    vrmr_debug(HIGH, "plugin_nane: '%s', pluginlist size: '%d'.", plugin_name,
+    vrmr_debug(HIGH, "plugin_nane: '%s', pluginlist size: '%u'.", plugin_name,
             plugin_list->len);
 
     for (d_node = plugin_list->top; d_node; d_node = d_node->next) {

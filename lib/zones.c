@@ -1272,7 +1272,7 @@ int vrmr_zones_network_save_interfaces(
     assert(network_ptr);
     assert(network_ptr->type == VRMR_TYPE_NETWORK);
 
-    vrmr_debug(HIGH, "network: %s, interfaces: %d", network_ptr->name,
+    vrmr_debug(HIGH, "network: %s, interfaces: %u", network_ptr->name,
             network_ptr->InterfaceList.len);
 
     /* write the new list to the backend */

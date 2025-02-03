@@ -260,7 +260,7 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
                                     (struct icmp6_hdr *)payload;
                             log_record->icmp_type = icmp6h->icmp6_type;
                             log_record->icmp_code = icmp6h->icmp6_code;
-                            vrmr_debug(NONE, "ICMPv6: type %u code %u",
+                            vrmr_debug(NONE, "ICMPv6: type %d code %d",
                                     log_record->icmp_type,
                                     log_record->icmp_code);
                         }
@@ -289,7 +289,7 @@ static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
 
                 log_record->ipv6 = 1;
 
-                vrmr_debug(LOW, "IPV6 %s -> %s (%u)", log_record->src_ip,
+                vrmr_debug(LOW, "IPV6 %s -> %s (%d)", log_record->src_ip,
                         log_record->dst_ip, log_record->protocol);
 #endif /* IPV6_ENABLED */
                 break;

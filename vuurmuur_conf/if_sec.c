@@ -1166,7 +1166,7 @@ static int edit_interface_save(
     if (rules_changed == TRUE) {
         /* example: "interface 'lan' has been changed: rules are changed: number
          * of rules: 5 (listed below)." */
-        vrmr_audit("%s '%s' %s: %s: %s: %d (%s).", STR_INTERFACE,
+        vrmr_audit("%s '%s' %s: %s: %s: %u (%s).", STR_INTERFACE,
                 iface_ptr->name, STR_HAS_BEEN_CHANGED, STR_RULES_ARE_CHANGED,
                 STR_NUMBER_OF_RULES, iface_ptr->ProtectList.len,
                 STR_LISTED_BELOW);

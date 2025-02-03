@@ -944,7 +944,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
             vrmr_warning("Warning",
                     "invalid NF Group (%d). Valid range is 1-999. Using "
                     "default "
-                    "(%u).",
+                    "(%d).",
                     result, VRMR_DEFAULT_NFGRP);
             cnf->nfgrp = (uint16_t)VRMR_DEFAULT_NFGRP;
 
@@ -1226,7 +1226,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
         if (result < 0) {
             vrmr_warning("Warning",
                     "A negative MODULES_WAIT_TIME (%d) can not be used, using "
-                    "default (%u).",
+                    "default (%d).",
                     result, VRMR_DEFAULT_MODULES_WAITTIME);
             cnf->modules_wait_time = VRMR_DEFAULT_MODULES_WAITTIME;
 
@@ -1482,7 +1482,7 @@ int vrmr_ask_configfile(const struct vrmr_config *cnf, char *question,
             } else
                 value[j] = '\0';
 
-            vrmr_debug(HIGH, "question '%s' value '%s' (%u)", question, value,
+            vrmr_debug(HIGH, "question '%s' value '%s' (%d)", question, value,
                     (int)size);
 
             if (strcmp(question, variable) == 0) {

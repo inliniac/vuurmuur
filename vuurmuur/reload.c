@@ -1480,13 +1480,13 @@ int reload_blocklist(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
         /* change */
         if (!old_node)
             vrmr_info("Info",
-                    "BlockList: blocklist now has items (old: %d, new: %d).",
+                    "BlockList: blocklist now has items (old: %u, new: %u).",
                     blocklist->list.len, new_blocklist->list.len);
 
         if (!new_node)
             vrmr_info("Info",
-                    "BlockList: blocklist no longer has items (old: %d, new: "
-                    "%d).",
+                    "BlockList: blocklist no longer has items (old: %u, new: "
+                    "%u).",
                     blocklist->list.len, new_blocklist->list.len);
 
         status = 1;
@@ -1577,12 +1577,12 @@ int reload_rules(struct vrmr_ctx *vctx, struct vrmr_regex *reg)
         /* change */
         if (!old_node)
             vrmr_info("Info",
-                    "Rules: ruleslist now has items (old: %d, new: %d).",
+                    "Rules: ruleslist now has items (old: %u, new: %u).",
                     vctx->rules.list.len, new_rules->list.len);
 
         if (!new_node)
             vrmr_info("Info",
-                    "Rules: ruleslist no longer has items (old: %d, new: %d).",
+                    "Rules: ruleslist no longer has items (old: %u, new: %u).",
                     vctx->rules.list.len, new_rules->list.len);
 
         status = 1;
@@ -1596,38 +1596,38 @@ int reload_rules(struct vrmr_ctx *vctx, struct vrmr_regex *reg)
 
             /* active */
             if (org_rule_ptr->active != new_rule_ptr->active) {
-                vrmr_debug(LOW, "%d: active changed.", org_rule_ptr->number);
+                vrmr_debug(LOW, "%u: active changed.", org_rule_ptr->number);
                 status = 1;
             }
 
             /* action */
             if (org_rule_ptr->action != new_rule_ptr->action) {
-                vrmr_debug(LOW, "%d: action changed.", org_rule_ptr->number);
+                vrmr_debug(LOW, "%u: action changed.", org_rule_ptr->number);
                 status = 1;
             }
 
             /* service */
             if (strcmp(org_rule_ptr->service, new_rule_ptr->service) != 0) {
-                vrmr_debug(LOW, "%d: service changed.", org_rule_ptr->number);
+                vrmr_debug(LOW, "%u: service changed.", org_rule_ptr->number);
                 status = 1;
             }
 
             /* from */
             if (strcmp(org_rule_ptr->from, new_rule_ptr->from) != 0) {
-                vrmr_debug(LOW, "%d: from changed.", org_rule_ptr->number);
+                vrmr_debug(LOW, "%u: from changed.", org_rule_ptr->number);
                 status = 1;
             }
 
             /* to */
             if (strcmp(org_rule_ptr->to, new_rule_ptr->to) != 0) {
-                vrmr_debug(LOW, "%d: to changed.", org_rule_ptr->number);
+                vrmr_debug(LOW, "%u: to changed.", org_rule_ptr->number);
                 status = 1;
             }
 
             /* comparing the rule options */
             if (vrmr_rules_compare_options(org_rule_ptr->opt, new_rule_ptr->opt,
                         vrmr_rules_itoaction(new_rule_ptr->action)) != 0) {
-                vrmr_debug(LOW, "%d: options changed.", org_rule_ptr->number);
+                vrmr_debug(LOW, "%u: options changed.", org_rule_ptr->number);
                 status = 1;
             }
         }

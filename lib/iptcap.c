@@ -65,7 +65,7 @@ static int iptcap_get_one_cap_from_proc(
         return (-1);
     }
 
-    vrmr_debug(LOW, "procpath: %s request: %s retval: %u", procpath, request,
+    vrmr_debug(LOW, "procpath: %s request: %s retval: %d", procpath, request,
             retval);
 
     /* return retval, 1 if found, 0 if not found */

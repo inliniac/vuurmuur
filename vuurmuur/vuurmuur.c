@@ -686,7 +686,7 @@ int main(int argc, char *argv[])
                         /* damn, we didn't get one */
                         if (result == 0) {
                             vrmr_info("Info",
-                                    "We've waited for %d seconds for an "
+                                    "We've waited for %u seconds for an "
                                     "VRMR_RR_RESULT_ACK, but got none. Setting "
                                     "to VRMR_RR_READY",
                                     wait_time);

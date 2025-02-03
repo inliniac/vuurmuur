@@ -1221,7 +1221,7 @@ static int ruleset_create_ruleset(
         return (-1);
     }
 
-    vrmr_info("Info", "Creating the rules... (rules to create: %d)",
+    vrmr_info("Info", "Creating the rules... (rules to create: %u)",
             vctx->rules.list.len);
 
     /* create the prerules if were called with it */

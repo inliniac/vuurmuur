@@ -162,7 +162,7 @@ struct vrmr_list_node *vrmr_list_append(
     if (prev_node) {
         prev_node->next = new_node;
     } else {
-        vrmr_debug(HIGH, "appended in an empty list (%d).", list->len);
+        vrmr_debug(HIGH, "appended in an empty list (%u).", list->len);
     }
 
     new_node->prev = prev_node;
@@ -195,7 +195,7 @@ struct vrmr_list_node *vrmr_list_prepend(
     if (next_node) {
         next_node->prev = new_node;
     } else {
-        vrmr_debug(HIGH, "prepended in an empty list (%d).", list->len);
+        vrmr_debug(HIGH, "prepended in an empty list (%u).", list->len);
     }
 
     new_node->prev = NULL;

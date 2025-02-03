@@ -126,13 +126,13 @@ static int process_connrecord(struct vrmr_log_record *lr)
 
     if (lr->protocol == IPPROTO_TCP || lr->protocol == IPPROTO_UDP) {
         char addrports[256];
-        snprintf(addrports, sizeof(addrports), "%s:%u -> %s:%u %s", lr->src_ip,
+        snprintf(addrports, sizeof(addrports), "%s:%d -> %s:%d %s", lr->src_ip,
                 lr->src_port, lr->dst_ip, lr->dst_port,
                 lr->protocol == IPPROTO_TCP ? "TCP" : "UDP");
         strlcat(line, addrports, sizeof(line));
     } else {
         char addr[256];
-        snprintf(addr, sizeof(addr), "%s -> %s PROTO %u", lr->src_ip,
+        snprintf(addr, sizeof(addr), "%s -> %s PROTO %d", lr->src_ip,
                 lr->dst_ip, lr->protocol);
         strlcat(line, addr, sizeof(line));
     }
