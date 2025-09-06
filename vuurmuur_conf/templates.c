@@ -201,6 +201,7 @@ char *input_box(size_t length, const char *title, const char *description)
             height, width, starty, startx, title, vccnf.color_win);
     my_panels[0] = new_panel(ib_win);
     fields = (FIELD **)calloc(1 + 1, sizeof(FIELD *));
+    vrmr_fatal_alloc("calloc", fields);
     fields[0] = new_field_wrap(
             1, (int)length - 1, 3, (int)(((width - length) / 2) - 2), 0, 0);
     set_field_back(fields[0], vccnf.color_win_rev);
