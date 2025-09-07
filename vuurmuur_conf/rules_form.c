@@ -2765,7 +2765,6 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
     struct vrmr_interface *iface_ptr = NULL;
 
     int result = 0;
-    struct vrmr_rule_cache tmp_ruledata;
     char window_title[32] = "";
 
     const char *key_choices[] = {"F12", "F5", "F6", "F10"};
@@ -2784,8 +2783,6 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
     vrmr_fatal_if_null(reg);
     vrmr_fatal_if_null(rule_ptr);
 
-    /* clear tmp_ruledata for the initial */
-    memset(&tmp_ruledata, 0, sizeof(tmp_ruledata));
     memset(&rule_fields, 0, sizeof(rule_fields));
 
     /* set to keep first */
@@ -4205,13 +4202,13 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                                 quit = 1;
                             }
                         } else {
+                            struct vrmr_rule_cache tmp_ruledata;
+                            memset(&tmp_ruledata, 0, sizeof(tmp_ruledata));
+
                             /* check */
                             if (vrmr_rules_analyze_rule(rule_ptr, &tmp_ruledata,
                                         services, zones, interfaces,
                                         conf) < 0) {
-                                /* clear tmp_ruledata for the next use */
-                                memset(&tmp_ruledata, 0, sizeof(tmp_ruledata));
-
                                 /* ask the user if he/she want to look at the
                                  * rule again */
                                 if (!(confirm(gettext("An error was detected "
@@ -4232,6 +4229,9 @@ int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
                             } else {
                                 quit = 1;
                                 retval = 1;
+                            }
+                            if (tmp_ruledata.description) {
+                                free(tmp_ruledata.description);
                             }
                         }
                     } else if (result == 0) {
@@ -4367,14 +4367,11 @@ static int edit_rule_separator(
     size_t n_fields = 0, i = 0, field_num = 0;
     int height, width, startx, starty, max_height, max_width;
     int result = 0;
-    struct vrmr_rule_cache tmp_ruledata;
 
     /* safety */
     vrmr_fatal_if_null(rule_ptr);
     vrmr_fatal_if_null(reg);
 
-    /* clear tmp_ruledata for the initial */
-    memset(&tmp_ruledata, 0, sizeof(tmp_ruledata));
     memset(&sep_rule_fields, 0, sizeof(sep_rule_fields));
 
     /* set to keep first */
