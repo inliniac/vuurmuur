@@ -652,10 +652,9 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     status_print(status_win, gettext("Ready."));
 }
 
-static void zones_section_menu_hosts_init(
-        struct vrmr_zones *zones, char *zonename, char *networkname)
+static void zones_section_menu_hosts_init(const struct vrmr_zones *zones,
+        const char *zonename, const char *networkname)
 {
-    struct vrmr_zone *zone_ptr = NULL;
     int height = 0, width = 0, startx = 0, starty = 0, maxy = 0, result = 0;
     struct vrmr_list_node *d_node = NULL;
     size_t i = 0;
@@ -672,18 +671,15 @@ static void zones_section_menu_hosts_init(
     for (zonessec_ctx.host_n = 0, d_node = zones->list.top; d_node;
             d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        zone_ptr = d_node->data;
+        const struct vrmr_zone *zone_ptr = d_node->data;
 
         /* only count hosts inside the network and zone */
-        if (zone_ptr->type == VRMR_TYPE_HOST) {
-            if (strcmp(zone_ptr->zone_name, zonename) == 0 &&
-                    strcmp(zone_ptr->network_name, networkname) == 0) {
-                zonessec_ctx.host_n++;
-            }
+        if (zone_ptr->type == VRMR_TYPE_HOST &&
+                strcmp(zone_ptr->zone_name, zonename) == 0 &&
+                strcmp(zone_ptr->network_name, networkname) == 0) {
+            zonessec_ctx.host_n++;
         }
     }
-
-    i = zonessec_ctx.host_n - 1;
 
     /* alloc the menu items */
     zonessec_ctx.hostitems =
@@ -691,19 +687,19 @@ static void zones_section_menu_hosts_init(
     vrmr_fatal_if_null(zonessec_ctx.hostitems);
 
     /* create the menu items */
-    for (d_node = zones->list.bot; d_node; d_node = d_node->prev) {
+    for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        zone_ptr = d_node->data;
+        const struct vrmr_zone *zone_ptr = d_node->data;
 
         /* only add hosts inside the network and zone */
-        if (zone_ptr->type == VRMR_TYPE_HOST) {
-            if (strcmp(zone_ptr->zone_name, zonename) == 0 &&
-                    strcmp(zone_ptr->network_name, networkname) == 0) {
-                zonessec_ctx.hostitems[i] =
-                        new_item(zone_ptr->host_name, zone_ptr->ipv4.ipaddress);
-                vrmr_fatal_if_null(zonessec_ctx.hostitems[i]);
-                i--;
-            }
+        if (zone_ptr->type == VRMR_TYPE_HOST &&
+                strcmp(zone_ptr->zone_name, zonename) == 0 &&
+                strcmp(zone_ptr->network_name, networkname) == 0) {
+            vrmr_fatal_if(i > zonessec_ctx.host_n);
+            zonessec_ctx.hostitems[i] =
+                    new_item(zone_ptr->host_name, zone_ptr->ipv4.ipaddress);
+            vrmr_fatal_if_null(zonessec_ctx.hostitems[i]);
+            i++;
         }
     }
     /* terminate the items */
@@ -1502,7 +1498,7 @@ static void edit_zone_group_members_newmem(struct vrmr_ctx *vctx,
     struct vrmr_list_node *d_node = NULL;
     const char **choices;
     char *choice_ptr = NULL, search_name[VRMR_MAX_HOST_NET_ZONE] = "";
-    size_t n_choices = 0, i = 0;
+    size_t n_choices = 0;
     struct vrmr_zone *zonelist_ptr = NULL;
     int result = 0;
 
@@ -1540,19 +1536,17 @@ static void edit_zone_group_members_newmem(struct vrmr_ctx *vctx,
     vrmr_fatal_alloc("calloc", choices);
 
     /* now init the new mem */
-    for (i = n_choices - 1, d_node = zones->list.bot; d_node;
-            d_node = d_node->prev) {
+    size_t i = 0;
+    for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        zonelist_ptr = d_node->data;
+        const struct vrmr_zone *zone_ptr = d_node->data;
 
-        if (zonelist_ptr->type == VRMR_TYPE_HOST) {
-            if (strcmp(group_ptr->zone_name, zonelist_ptr->zone_name) == 0) {
-                if (strcmp(group_ptr->network_name,
-                            zonelist_ptr->network_name) == 0) {
-                    choices[i] = zonelist_ptr->host_name;
-                    i--;
-                }
-            }
+        if (zone_ptr->type == VRMR_TYPE_HOST &&
+                strcmp(group_ptr->zone_name, zone_ptr->zone_name) == 0 &&
+                strcmp(group_ptr->network_name, zone_ptr->network_name) == 0) {
+            vrmr_fatal_if(i > n_choices);
+            choices[i] = zone_ptr->host_name;
+            i++;
         }
     }
 
@@ -2087,10 +2081,9 @@ static int edit_zone_group(
 }
 
 static void zones_section_menu_groups_init(
-        struct vrmr_zones *zones, char *zonename, char *networkname)
+        const struct vrmr_zones *zones, char *zonename, char *networkname)
 {
     size_t i = 0;
-    struct vrmr_zone *zone_ptr = NULL;
     int height, width, starty, startx, maxy;
     struct vrmr_list_node *d_node = NULL;
     char temp[32], *desc_ptr = NULL;
@@ -2108,45 +2101,41 @@ static void zones_section_menu_groups_init(
 
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        zone_ptr = d_node->data;
+        const struct vrmr_zone *zone_ptr = d_node->data;
 
-        if (zone_ptr->type == VRMR_TYPE_GROUP) {
-            if (strcmp(zone_ptr->zone_name, zonename) == 0 &&
-                    strcmp(zone_ptr->network_name, networkname) == 0) {
-                zonessec_ctx.host_n++;
-            }
+        if (zone_ptr->type == VRMR_TYPE_GROUP &&
+                strcmp(zone_ptr->zone_name, zonename) == 0 &&
+                strcmp(zone_ptr->network_name, networkname) == 0) {
+            zonessec_ctx.host_n++;
         }
     }
 
     vrmr_list_setup(&zonessec_ctx.group_desc_list, free);
 
-    i = zonessec_ctx.host_n - 1;
-
     zonessec_ctx.hostitems =
             (ITEM **)calloc(zonessec_ctx.host_n + 1, sizeof(ITEM *));
     vrmr_fatal_alloc("calloc", zonessec_ctx.hostitems);
 
-    for (d_node = zones->list.bot; d_node; d_node = d_node->prev) {
+    for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        zone_ptr = d_node->data;
+        const struct vrmr_zone *zone_ptr = d_node->data;
 
-        if (zone_ptr->type == VRMR_TYPE_GROUP) {
-            if (strcmp(zone_ptr->zone_name, zonename) == 0 &&
-                    strcmp(zone_ptr->network_name, networkname) == 0) {
-                snprintf(temp, sizeof(temp), "%6u %s", zone_ptr->GroupList.len,
-                        gettext("members"));
+        if (zone_ptr->type == VRMR_TYPE_GROUP &&
+                strcmp(zone_ptr->zone_name, zonename) == 0 &&
+                strcmp(zone_ptr->network_name, networkname) == 0) {
+            snprintf(temp, sizeof(temp), "%6u %s", zone_ptr->GroupList.len,
+                    gettext("members"));
 
-                desc_ptr = strdup(temp);
-                vrmr_fatal_alloc("strdup", desc_ptr);
+            desc_ptr = strdup(temp);
+            vrmr_fatal_alloc("strdup", desc_ptr);
 
-                vrmr_fatal_if(vrmr_list_append(&zonessec_ctx.group_desc_list,
-                                      desc_ptr) == NULL);
+            vrmr_fatal_if(vrmr_list_append(&zonessec_ctx.group_desc_list,
+                                  desc_ptr) == NULL);
 
-                zonessec_ctx.hostitems[i] =
-                        new_item(zone_ptr->host_name, desc_ptr);
-                vrmr_fatal_if_null(zonessec_ctx.hostitems[i]);
-                i--;
-            }
+            vrmr_fatal_if(i > zonessec_ctx.host_n);
+            zonessec_ctx.hostitems[i] = new_item(zone_ptr->host_name, desc_ptr);
+            vrmr_fatal_if_null(zonessec_ctx.hostitems[i]);
+            i++;
         }
     }
     zonessec_ctx.hostitems[zonessec_ctx.host_n] = (ITEM *)NULL;
@@ -4299,9 +4288,8 @@ static int edit_zone_network(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
 }
 
 static void zones_section_menu_networks_init(
-        struct vrmr_zones *zones, char *zonename)
+        const struct vrmr_zones *zones, char *zonename)
 {
-    struct vrmr_zone *zone_ptr = NULL;
     int height, width, startx, starty, maxy;
     struct vrmr_list_node *d_node = NULL;
     char temp[64] = "", /* set to twice 32 because it
@@ -4322,7 +4310,7 @@ static void zones_section_menu_networks_init(
     /* count the networks */
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        zone_ptr = d_node->data;
+        const struct vrmr_zone *zone_ptr = d_node->data;
 
         if (zone_ptr->type == VRMR_TYPE_NETWORK &&
                 strcmp(zone_ptr->zone_name, zonename) == 0)
@@ -4331,16 +4319,14 @@ static void zones_section_menu_networks_init(
 
     vrmr_list_setup(&zonessec_ctx.network_desc_list, free);
 
-    i = zonessec_ctx.network_n - 1;
-
     zonessec_ctx.networkitems =
             (ITEM **)calloc(zonessec_ctx.network_n + 1, sizeof(ITEM *));
     vrmr_fatal_alloc("calloc", zonessec_ctx.networkitems);
 
     /* now load the items */
-    for (d_node = zones->list.bot; d_node; d_node = d_node->prev) {
+    for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        zone_ptr = d_node->data;
+        const struct vrmr_zone *zone_ptr = d_node->data;
 
         if (zone_ptr->type == VRMR_TYPE_NETWORK &&
                 strcmp(zone_ptr->zone_name, zonename) == 0) {
@@ -4359,11 +4345,11 @@ static void zones_section_menu_networks_init(
             vrmr_fatal_if(vrmr_list_append(&zonessec_ctx.network_desc_list,
                                   desc_ptr) == NULL);
 
+            vrmr_fatal_if(i > zonessec_ctx.network_n);
             zonessec_ctx.networkitems[i] =
                     new_item(zone_ptr->network_name, desc_ptr);
             vrmr_fatal_if_null(zonessec_ctx.networkitems[i]);
-
-            i--;
+            i++;
         }
     }
     zonessec_ctx.networkitems[zonessec_ctx.network_n] = (ITEM *)NULL;
@@ -5156,8 +5142,6 @@ static int edit_zone_zone(
 
 static void zones_section_init(struct vrmr_zones *zones)
 {
-    size_t i = 0;
-    struct vrmr_zone *zone_ptr = NULL;
     int height, width, startx, starty, maxy;
     size_t zones_cnt = 0;
     struct vrmr_list_node *d_node = NULL;
@@ -5169,26 +5153,25 @@ static void zones_section_init(struct vrmr_zones *zones)
     /* count how many zones there are */
     for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        zone_ptr = d_node->data;
-
-        if (zone_ptr->type == VRMR_TYPE_ZONE)
-            zones_cnt++;
+        const struct vrmr_zone *zone_ptr = d_node->data;
+        zones_cnt += (zone_ptr->type == VRMR_TYPE_ZONE);
     }
     zonessec_ctx.zone_n = zones_cnt;
-    i = zones_cnt - 1;
 
     zonessec_ctx.zoneitems =
             (ITEM **)calloc(zonessec_ctx.zone_n + 1, sizeof(ITEM *));
     vrmr_fatal_alloc("calloc", zonessec_ctx.zoneitems);
 
-    for (d_node = zones->list.bot; d_node; d_node = d_node->prev) {
+    size_t i = 0;
+    for (d_node = zones->list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
-        zone_ptr = d_node->data;
+        const struct vrmr_zone *zone_ptr = d_node->data;
 
         if (zone_ptr->type == VRMR_TYPE_ZONE) {
+            vrmr_fatal_if(i >= zonessec_ctx.zone_n);
             zonessec_ctx.zoneitems[i] = new_item(zone_ptr->name, NULL);
             vrmr_fatal_if_null(zonessec_ctx.zoneitems[i]);
-            i--;
+            i++;
         }
     }
     zonessec_ctx.zoneitems[zonessec_ctx.zone_n] = (ITEM *)NULL;
