@@ -5793,7 +5793,7 @@ int zones_blocklist(struct vrmr_ctx *vctx, struct vrmr_blocklist *blocklist,
 {
     int ch = 0, quit = 0, reload = 0, retval = 0;
     char changes = 0;
-    char *itemname = NULL, saveitemname[VRMR_MAX_HOST_NET_ZONE] = "";
+    char saveitemname[VRMR_MAX_HOST_NET_ZONE] = "";
     ITEM *cur = NULL;
     /* top menu */
     const char *key_choices[] = {"F12", "INS", "DEL", "F10"};
@@ -5882,7 +5882,7 @@ int zones_blocklist(struct vrmr_ctx *vctx, struct vrmr_blocklist *blocklist,
                             cur = current_item(zonessec_ctx.h_menu);
                             vrmr_fatal_if_null(cur);
 
-                            itemname = (char *)item_name(cur);
+                            char *itemname = (char *)item_name(cur);
                             vrmr_fatal_if_null(itemname);
 
                             vrmr_debug(HIGH, "itemname to remove: '%s'.",
@@ -5896,9 +5896,6 @@ int zones_blocklist(struct vrmr_ctx *vctx, struct vrmr_blocklist *blocklist,
                                         zones, blocklist, itemname) == 0) {
                                 vrmr_audit("'%s' %s.", saveitemname,
                                         STR_HAS_BEEN_REMOVED_FROM_THE_BLOCKLIST);
-
-                                itemname = NULL;
-
                                 changes = 1;
                                 reload = 1;
                             }
