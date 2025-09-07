@@ -1256,19 +1256,17 @@ int vrmr_validate_interfacename(const char *interfacename, regex_t *reg_ex)
 void vrmr_destroy_interfaceslist(struct vrmr_interfaces *interfaces)
 {
     struct vrmr_list_node *d_node = NULL;
-    struct vrmr_interface *iface_ptr = NULL;
 
     assert(interfaces);
 
-    /* first destroy all PortrangeLists */
+    /* first destroy all protect lists */
     for (d_node = interfaces->list.top; d_node; d_node = d_node->next) {
-        iface_ptr = d_node->data;
+        struct vrmr_interface *iface_ptr = d_node->data;
         if (iface_ptr == NULL)
             continue;
 
         vrmr_list_cleanup(&iface_ptr->ProtectList);
         free(iface_ptr);
-        iface_ptr = NULL;
     }
 
     /* then the list itself */
