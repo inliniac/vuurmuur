@@ -39,7 +39,7 @@ static void logline2logrule(const char *logline, struct log_record *logrule)
 
     /* scan the line. Note: 'time' has a ':' as last char, and 'to' has a comma
      * as last char. */
-    sscanf(logline, "%3s %2s %9s %16s service %32s from %96s to %96s",
+    sscanf(logline, "%3s %2s %9s %15s service %31s from %95s to %95s",
             logrule->month, logrule->date, logrule->time, logrule->action,
             logrule->service, logrule->from, logrule->to);
 
