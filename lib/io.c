@@ -582,6 +582,18 @@ void vrmr_shm_update_progress(int semid, int *shm_progress, int set_percent)
     vrmr_debug(HIGH, "set_percent %d.", set_percent);
 }
 
+// coverity[ +tainted_string_sanitize_content : arg-0 ]
+static bool sanitize_pid_string(char *s)
+{
+    size_t len = strlen(s);
+    for (size_t i = 0; i < len; i++) {
+        if (!(s[i] >= '0' && s[i] <= '9')) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /*  get_vuurmuur_pid
 
     Gets the pid and shm_id from vuurmuur.
@@ -603,8 +615,39 @@ pid_t get_vuurmuur_pid(char *vuurmuur_pidfile_location, int *shmid)
     /* read the first line */
     if (fgets(line, (int)sizeof(line), fp) != NULL) {
         sscanf(line, "%15s %15s", pid_c, shm_c);
-        pid = atol(pid_c);
-        *shmid = atoi(shm_c);
+
+        if (!sanitize_pid_string(pid_c)) {
+            vrmr_error(-1, "Error", "invalid pid string '%s' in '%s'", pid_c,
+                    vuurmuur_pidfile_location);
+            (void)fclose(fp);
+            return (-1);
+        }
+
+        char *endptr = NULL;
+        errno = 0;
+        int64_t r = (pid_t)strtoll(pid_c, &endptr, 10);
+        if (errno == ERANGE || endptr == NULL || *endptr != '\0') {
+            vrmr_error(-1, "Error", "pid string '%s' in '%s'", pid_c,
+                    vuurmuur_pidfile_location);
+            (void)fclose(fp);
+            return (-1);
+        }
+        if (!(r < (int64_t)LONG_MAX)) {
+            vrmr_error(-1, "Error", "pid invalid '%s' in '%s'", pid_c,
+                    vuurmuur_pidfile_location);
+            (void)fclose(fp);
+            return (-1);
+        }
+        pid = (pid_t)r;
+
+        endptr = NULL;
+        *shmid = (int)strtol(shm_c, &endptr, 10);
+        if (endptr == NULL || *endptr != '\0') {
+            vrmr_error(-1, "Error", "shmid string '%s' in '%s'", shm_c,
+                    vuurmuur_pidfile_location);
+            (void)fclose(fp);
+            return (-1);
+        }
     } else {
         /* no need to return, because pid isn't touched, so still -1 */
         vrmr_error(-1, "Error", "empty or corrupted pid file: '%s'",
