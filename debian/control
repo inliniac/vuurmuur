@@ -3,11 +3,11 @@ Priority: optional
 Maintainer: Victor Julien <victor@vuurmuur.org>
 Section: contrib/net
 Standards-Version: 3.6.2.1
-Build-Depends: debhelper, libtool, libnfnetlink-dev, libmnl-dev, libnetfilter-log-dev, libnetfilter-conntrack-dev, libncurses5-dev
+Build-Depends: debhelper, libtool, libnfnetlink-dev, libmnl-dev, libnetfilter-log-dev, libnetfilter-conntrack-dev, libncurses-dev
 
 Package: vuurmuur
 Architecture: any
-Depends: libnfnetlink0, libnetfilter-log1, libmnl0, libnetfilter-conntrack3, libncurses5
+Depends: libnfnetlink0, libnetfilter-log1, libmnl0, libnetfilter-conntrack3, libncurses6
 Recommends: iptables, iproute
 Conflicts: vuurmuur-log
 Description: Iptables manager.
