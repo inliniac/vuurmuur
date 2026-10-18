@@ -329,14 +329,14 @@ int read_wide_helpfile(struct vrmr_list *help_list, wchar_t *part)
 
 static void set_lines(struct vrmr_list *help_list, size_t width)
 {
-    size_t line_width = 0, line_num = 1, words = 0;
+    size_t line_width = 0, line_num = 1;
     struct helpword *hw = NULL, *next_hw = NULL;
     struct vrmr_list_node *d_node = NULL, *next_d_node = NULL;
 
     /* safety */
     vrmr_fatal_if_null(help_list);
 
-    for (d_node = help_list->top; d_node; d_node = d_node->next, words++) {
+    for (d_node = help_list->top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
         hw = d_node->data;
 
@@ -410,14 +410,14 @@ static void set_lines(struct vrmr_list *help_list, size_t width)
 #ifdef USE_WIDEC
 static void set_wide_lines(struct vrmr_list *help_list, int width)
 {
-    int line_width = 0, line_num = 1, words = 0;
+    int line_width = 0, line_num = 1;
     struct whelpword *hw = NULL, *next_hw = NULL;
     struct vrmr_list_node *d_node = NULL, *next_d_node = NULL;
 
     /* safety */
     vrmr_fatal_if_null(help_list);
 
-    for (d_node = help_list->top; d_node; d_node = d_node->next, words++) {
+    for (d_node = help_list->top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
         hw = d_node->data;
 

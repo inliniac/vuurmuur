@@ -25,7 +25,7 @@ int vrmr_read_proc_entry(const char *proc_entry, int *value)
 {
     int retval = 0, result = 0;
     FILE *fp = NULL;
-    size_t entry_length = 0, i = 0, j = 0;
+    size_t entry_length = 0, i = 0;
 
     vrmr_debug(HIGH, "** start **");
 
@@ -36,12 +36,12 @@ int vrmr_read_proc_entry(const char *proc_entry, int *value)
         return (-1);
     }
 
-    for (i = 0, j = 0; i <= entry_length; i++) {
-        if (proc_entry[i] != '*') {
-            j++;
-        } else {
-            vrmr_error(-1, "Error", "Opening '%s' failed: %s", proc_entry,
-                    strerror(errno));
+    /* globbed entries are not supported: we would have to walk the tree */
+    for (i = 0; i <= entry_length; i++) {
+        if (proc_entry[i] == '*') {
+            vrmr_error(-1, "Error",
+                    "'%s' contains a wildcard, which cannot be read.",
+                    proc_entry);
             return (-1);
         }
     }
