@@ -391,7 +391,7 @@ Run tier 0+1 under it in CI once the suite runs there at all.
 
 | Phase | Content | Size |
 |---|---|---|
-| P0 | `tests/` skeleton + TAP emitter, tier 0 for `lib/rules.c` parsers, fix the 4 const sites of §10 | S |
+| P0 | `tests/` skeleton + TAP emitter, tier 0 for `lib/rules.c` parsers (strict build prerequisite: done) | S |
 | P1 | S1 exec-capture + S6 build split, tier 1 driver, sandbox helper, 6 golden cases | M |
 | P2 | S2 rooting, S3 owner, S5 proc/iface-address hooks, tier 2 CLI cases, 15 more goldens | M |
 | P3 | normalizer hardening, capability profiles, idempotence + reload-diff cases, corpus target (~25) | M |
@@ -425,8 +425,9 @@ part of the PR that changes it.
    the `PRE-VRMR-*` / custom-chain logic goes untested. First-class in S1.
 6. **IPv6 in CI.** `--disable-ipv6` and `check_ipv6` must both be exercised; pick one
    canonical configure flag set for goldens (`IPV6_ENABLED` changes emitted output).
-7. **Bootstrap deps.** See §10 - the build now works locally, but `-Werror` with the CI
-   flags still fails on 4 pre-existing const-qualifier sites (part of P0).
+7. **Bootstrap deps.** See §10 - the build works locally and is `-Werror` clean on all four
+   available compilers; `vm-build.sh` covers the gettext workaround until the NLS handling
+   is made optional upstream.
 8. **Nftables abstraction is explicitly out of scope for now** (decided): the sink is the
    restore file, i.e. iptables-restore syntax is the golden format. When/if an nftables
    emitter appears, it gets its own artifact type and the restore goldens stay as the
@@ -454,16 +455,40 @@ cp ~/opt/gettext-local/usr/share/gettext/po/Makefile.in.in po/  # repo copy is f
 ```
 
 `~/opt/bin/vm-build.sh` wraps all of the above (it also restores `po/Makefile.in.in` on
-exit so `git status` stays clean; `WERROR=1` reproduces the CI flag set).
+exit so `git status` stays clean; `WERROR=1` reproduces the CI flag set). A strict build is
+now also available without any flag gymnastics: `./configure --enable-werror`.
 
-**Warning baseline.** With the CI flags (`-Wall -Wextra -Werror`) the build fails here on 4
-pre-existing `-Wdiscarded-qualifiers` sites that older CI compilers do not emit: gcc-15 /
-C23 treats `strstr`/`strchr`/`strrchr` results as const-qualified when the argument is.
+**Warning status.** The build is clean under `-Wall -Wextra -Werror
+-Wno-unused-parameter -Wno-unused-function` clean with gcc 15, gcc 16 and clang 21.
+clang 22 compiles clean but fails the link step: its `gcc-install-dir-libstdcxx`
+notice is promoted to an error when libtool hands CFLAGS to the driver, and the
+`-Wno-error=` demotion that fixes the compile step does not reach there.
+(76 translation units each). Earlier `-Wdiscarded-qualifiers` failures under C23
+string-search results and the set-but-unused counters are fixed on master. CI still sets the
+same flags through a `CFLAGS` override, which also drops `-g -O2`; switching the workflows
+to `./configure --enable-werror` would make CI and local strict builds identical (open
+cleanup, no harness dependency).
 
-* `lib/log.c:679`, `lib/rules.c:1979`, `vuurmuur_conf/logview_section.c:54`, `:78`
+**The override is the trap, and it has teeth.** CI does not have one warning set. The alpine
+and Ubuntu `features` jobs compile with `CFLAGS="-Werror -Wall -Wextra"` (alpine: same flags,
+`CC=gcc`) and **without** `-Wno-unused-parameter`, while my local strict loop passed a set that
+includes it. A seam that added an unused parameter — `vrmr_real_pipe()` keeps `cnf` for the hook
+signature, `splice_str()` in the harness took a buffer base it never used — was green across all
+five compilers locally and red in three CI jobs. A `CFLAGS` override replaces whatever configure
+would have set, so it silently tests a different program than the one CI builds; same class of
+mistake as picking a sanitizer in `CFLAGS` without `LDFLAGS`.
 
-Fixing those 4 is a prerequisite for running tier 0/1 with `-Werror` locally; treat it as
-part of P0.
+So reproduce the jobs verbatim before pushing anything that changes a signature:
+
+```sh
+git archive HEAD | tar -x -C /tmp/src && (cd /tmp/src && bash autogen.sh)
+mkdir -p /tmp/b && cd /tmp/b
+CFLAGS="-Werror -Wall -Wextra" /tmp/src/configure --with-widec=yes >/dev/null
+make -k all && make -k check     # -k: enumerate, do not stop at the first
+```
+
+`make -k check` matters: `check_PROGRAMS` are not built by `make all`, so harness-only code is
+where a warning set can still hide a failure.
 
 Other env facts that shaped this design: no `iptables` binary on the host, and
 unprivileged user/network namespaces are denied (`unshare: Operation not permitted`), so
