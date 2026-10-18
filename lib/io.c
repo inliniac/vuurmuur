@@ -855,8 +855,9 @@ int vrmr_create_tempfile(char *pathname)
     /* we cannot be sure errno is set in case of error */
     errno = 0;
 
-    /* call mkstemp */
-    mode_t prev = umask(0600);
+    /* call mkstemp: 0177 gives the 0600 we want; using 0600 as the mask
+     * subtracts the owner bits and leaves the file unreadable */
+    mode_t prev = umask(0177);
     int fd = mkstemp(pathname);
     umask(prev);
     if (fd == -1) {
