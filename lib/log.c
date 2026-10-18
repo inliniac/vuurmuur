@@ -676,7 +676,7 @@ void vrmr_log_record_parse_prefix(
         struct vrmr_log_record *log_record, const char *prefix)
 {
     if (prefix != NULL && strlen(prefix) > 6) {
-        char *needle = strstr(prefix, "vrmr: ");
+        const char *needle = strstr(prefix, "vrmr: ");
         if (needle != NULL) {
             needle += 6;
 

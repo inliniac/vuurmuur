@@ -1974,7 +1974,7 @@ static int parse_option(const char *curopt, struct vrmr_rule_options *op)
     }
     /* limit */
     else if (strncmp(curopt, "limit", strlen("limit")) == 0) {
-        char *ptr = NULL;
+        const char *ptr = NULL;
 
         ptr = strstr(curopt, "/");
 

@@ -50,10 +50,10 @@ static void logline2logrule(const char *logline, struct log_record *logrule)
     if (logrule->to[StrMemLen(logrule->to) - 1] == ',')
         logrule->to[StrMemLen(logrule->to) - 1] = '\0';
 
-    char *details_start;
-    char *prefix_start = strstr(logline, "prefix: \"");
+    const char *details_start;
+    const char *prefix_start = strstr(logline, "prefix: \"");
     if (prefix_start && strlen(prefix_start) > 9) {
-        char *prefix_end = strchr(prefix_start + 9, '"');
+        const char *prefix_end = strchr(prefix_start + 9, '"');
         if (prefix_end == NULL)
             return;
 
