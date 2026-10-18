@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include "vuurmuur.h"
+#include "vrmr_exec_priv.h"
 
 int vrmr_read_proc_entry(const char *proc_entry, int *value)
 {
@@ -46,8 +47,11 @@ int vrmr_read_proc_entry(const char *proc_entry, int *value)
         }
     }
 
+    char path[PATH_MAX] = "";
+    vrmr_proc_resolve(proc_entry, path, sizeof(path));
+
     if (retval >= 0) {
-        fp = fopen(proc_entry, "r");
+        fp = fopen(path, "r");
         if (!fp) {
             vrmr_error(-1, "Error", "Opening '%s' failed: %s", proc_entry,
                     strerror(errno));
@@ -75,6 +79,7 @@ int vrmr_set_proc_entry(struct vrmr_config *cnf, const char *proc_entry,
     char entry[VRMR_MAX_PROC_ENTRY_LENGHT] = "",
          entry_last[VRMR_MAX_PROC_ENTRY_LENGHT] = "",
          total_entry[VRMR_MAX_PROC_ENTRY_LENGHT * 2] = "";
+    char path[PATH_MAX] = "";
     int proc_int = 0;
 
     assert(cnf);
@@ -111,7 +116,8 @@ int vrmr_set_proc_entry(struct vrmr_config *cnf, const char *proc_entry,
         snprintf(total_entry, sizeof(total_entry), "%s%s%s", entry, who,
                 entry_last);
         if (!cnf->bash_out) {
-            fp = fopen(total_entry, "w");
+            vrmr_proc_resolve(total_entry, path, sizeof(path));
+            fp = fopen(path, "w");
             if (!fp) {
                 vrmr_error(-1, "Error", "opening proc entry '%s' failed: %s",
                         total_entry, strerror(errno));
@@ -132,7 +138,8 @@ int vrmr_set_proc_entry(struct vrmr_config *cnf, const char *proc_entry,
 
     } else {
         if (!cnf->bash_out) {
-            if (!(fp = fopen(proc_entry, "w"))) {
+            vrmr_proc_resolve(proc_entry, path, sizeof(path));
+            if (!(fp = fopen(path, "w"))) {
                 vrmr_error(-1, "Error", "Opening proc entry '%s' failed: %s",
                         proc_entry, strerror(errno));
                 retval = -1;

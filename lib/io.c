@@ -21,6 +21,77 @@
 #include "config.h"
 #include "vuurmuur.h"
 
+#include "vrmr_exec_priv.h"
+
+/* The harness swaps these out; every call below falls through to the real
+ * implementation when it is not installed. */
+static int vrmr_real_pipe(
+        struct vrmr_config *cnf ATTR_UNUSED, const char *command, char ignore_error);
+static int vrmr_real_exec(struct vrmr_config *cnf, const char *path,
+        const char *argv[], char *output[]);
+static int vrmr_real_read(
+        struct vrmr_config *cnf, const char *command, char *buf, size_t size);
+
+static const struct vrmr_exec_ops real_ops = {
+        .pipe = vrmr_real_pipe,
+        .exec = vrmr_real_exec,
+        .read = vrmr_real_read,
+};
+
+static const struct vrmr_exec_ops *exec_ops = &real_ops;
+
+static const char *tmpdir_override = NULL;
+static char proc_prefix[PATH_MAX] = "";
+static uid_t trusted_uid = 0;
+static gid_t trusted_gid = 0;
+
+void vrmr_set_exec_ops(const struct vrmr_exec_ops *ops)
+{
+    /* a partial set would leak real commands into a test run */
+    assert(ops == NULL || (ops->pipe && ops->exec && ops->read));
+
+    exec_ops = ops == NULL ? &real_ops : ops;
+}
+
+void vrmr_set_tmpdir(const char *tmpdir)
+{
+    tmpdir_override = tmpdir;
+}
+
+const char *vrmr_tmpdir(void)
+{
+    return tmpdir_override == NULL ? "/tmp" : tmpdir_override;
+}
+
+void vrmr_tmpfile(char *out, size_t size, const char *name)
+{
+    snprintf(out, size, "%s/%s-XXXXXX", vrmr_tmpdir(), name);
+}
+
+void vrmr_set_proc_prefix(const char *prefix)
+{
+    if (prefix == NULL) {
+        proc_prefix[0] = '\0';
+        return;
+    }
+
+    (void)strlcpy(proc_prefix, prefix, sizeof(proc_prefix));
+}
+
+void vrmr_set_trusted_owner(uid_t uid, gid_t gid)
+{
+    trusted_uid = uid;
+    trusted_gid = gid;
+}
+
+void vrmr_proc_resolve(const char *entry, char *out, size_t size)
+{
+    if (proc_prefix[0] != '\0' && strncmp(entry, "/proc", 5) == 0)
+        snprintf(out, size, "%s%s", proc_prefix, entry + 5);
+    else
+        (void)strlcpy(out, entry, size);
+}
+
 /*  vuurmuur_fopen
 
     A wrapper around fopen which can be used to open files. This
@@ -163,13 +234,15 @@ int vrmr_stat_ok(const struct vrmr_config *cnf, const char *file_loc, char type,
         return (0);
     }
 
-    /* we demand that all files are owned by root */
-    if (stat_buf.st_uid != 0 || stat_buf.st_gid != 0) {
+    /* we demand that all files are owned by the trusted user, root unless
+     * the harness says otherwise */
+    if (stat_buf.st_uid != trusted_uid || stat_buf.st_gid != trusted_gid) {
         if (output == VRMR_STATOK_VERBOSE)
             vrmr_error(-1, "Error",
                     "opening '%s': For security reasons Vuurmuur will not open "
-                    "files or directories that are not owned by root.",
-                    file_loc);
+                    "files or directories that are not owned by %u:%u.",
+                    file_loc, (unsigned int)trusted_uid,
+                    (unsigned int)trusted_gid);
 
         return (0);
     }
@@ -444,10 +517,16 @@ int vrmr_rules_file_close(FILE *file, const char *path)
  */
 int vrmr_pipe_command(struct vrmr_config *cnf, char *command, char ignore_error)
 {
+    assert(cnf && command);
+
+    return exec_ops->pipe(cnf, command, ignore_error);
+}
+
+static int vrmr_real_pipe(
+        struct vrmr_config *cnf, const char *command, char ignore_error)
+{
     int retval = 0;
     FILE *p;
-
-    assert(cnf && command);
 
     vrmr_debug(MEDIUM, "command: %s", command);
     vrmr_debug(MEDIUM, "strlen(command) = %d, max = %d", (int)strlen(command),
@@ -496,8 +575,14 @@ int vrmr_pipe_command(struct vrmr_config *cnf, char *command, char ignore_error)
  *  \retval: -1 if the command failed to start (ie not found)
  *              otherwise the return code of the command.
  */
-int libvuurmuur_exec_command(struct vrmr_config *cnf ATTR_UNUSED,
-        const char *path, const char *argv[], char *output[])
+int libvuurmuur_exec_command(struct vrmr_config *cnf, const char *path,
+        const char *argv[], char *output[])
+{
+    return exec_ops->exec(cnf, path, argv, output);
+}
+
+static int vrmr_real_exec(struct vrmr_config *cnf ATTR_UNUSED, const char *path,
+        const char *argv[], char *output[])
 {
     int retval = 0;
     char dev_null[] = "/dev/null";
@@ -569,6 +654,101 @@ int libvuurmuur_exec_command(struct vrmr_config *cnf ATTR_UNUSED,
 
     vrmr_debug(MEDIUM, "(%s) retval %d", path, retval);
     return retval;
+}
+
+static int vrmr_real_read(
+        struct vrmr_config *cnf, const char *command, char *buf, size_t size)
+{
+    FILE *p = NULL;
+    size_t len = 0;
+
+    assert(cnf && command && buf && size > 0);
+
+    if (!(p = popen(command, "r"))) {
+        vrmr_error(-1, "Error", "opening pipe to '%s' failed.", command);
+        return (-1);
+    }
+
+    len = fread(buf, 1, size - 1, p);
+    buf[len] = '\0';
+
+    if (pclose(p) == -1) {
+        vrmr_error(-1, "Error", "running '%s' failed.", command);
+        return (-1);
+    }
+
+    return (int)len;
+}
+
+int vrmr_cmdout_open(
+        struct vrmr_cmdout *co, struct vrmr_config *cnf, const char *command)
+{
+    int len = 0;
+
+    assert(co && command);
+
+    memset(co, 0, sizeof(*co));
+
+    if (exec_ops == &real_ops) {
+        co->fp = popen(command, "r");
+        return co->fp == NULL ? -1 : 0;
+    }
+
+    /* capture mode: the answer comes from the case fixtures */
+    co->buf = malloc(VRMR_CMDOUT_SIZE);
+    if (co->buf == NULL) {
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
+        return (-1);
+    }
+    co->len = VRMR_CMDOUT_SIZE;
+
+    len = exec_ops->read(cnf, command, co->buf, co->len);
+    if (len < 0) {
+        free(co->buf);
+        co->buf = NULL;
+        return (-1);
+    }
+    co->len = (size_t)len;
+
+    return 0;
+}
+
+char *vrmr_cmdout_nextline(struct vrmr_cmdout *co, char *line, size_t size)
+{
+    size_t n = 0;
+
+    assert(co && line && size > 0);
+
+    if (co->fp != NULL)
+        return fgets(line, (int)size, co->fp);
+
+    if (co->buf == NULL || co->pos >= co->len)
+        return NULL;
+
+    while (n < size - 1 && co->pos < co->len) {
+        line[n] = co->buf[co->pos];
+        n++;
+        co->pos++;
+
+        if (line[n - 1] == '\n')
+            break;
+    }
+    line[n] = '\0';
+
+    return line;
+}
+
+void vrmr_cmdout_close(struct vrmr_cmdout *co)
+{
+    if (co == NULL)
+        return;
+
+    if (co->fp != NULL)
+        (void)pclose(co->fp);
+    co->fp = NULL;
+
+    free(co->buf);
+    co->buf = NULL;
 }
 
 void vrmr_shm_update_progress(int semid, int *shm_progress, int set_percent)

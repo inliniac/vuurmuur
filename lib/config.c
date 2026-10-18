@@ -1339,9 +1339,12 @@ static int vrmr_pre_init_config(struct vrmr_config *cnf)
     /* init the struct */
     memset(cnf, 0, sizeof(struct vrmr_config));
 
-    /* set the configdir location */
-    if (strlcpy(cnf->etcdir, xstr(SYSCONFDIR), sizeof(cnf->etcdir)) >=
-            sizeof(cnf->etcdir)) {
+    /* set the configdir location; the test harness points the whole tree
+     * at a sandbox with this override */
+    const char *etcdir_loc = getenv("VUURMUUR_SYSCONFDIR");
+
+    if (strlcpy(cnf->etcdir, etcdir_loc != NULL ? etcdir_loc : xstr(SYSCONFDIR),
+                sizeof(cnf->etcdir)) >= sizeof(cnf->etcdir)) {
         vrmr_error(-1, "Error",
                 "buffer too small for config-dir supplied at compile-time");
         return (-1);

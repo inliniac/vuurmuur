@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include "vuurmuur.h"
+#include "vrmr_exec_priv.h"
 
 static int vrmr_insert_interface_list(struct vrmr_interfaces *interfaces,
         const struct vrmr_interface *iface_ptr)
@@ -1144,7 +1145,7 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
     char line[256] = "", interface_in[32] = "", interface_out[32] = "",
          command[256] = "", proto[16] = "", target[32] = "", options[16] = "",
          source[36] = "", dest[36] = "";
-    FILE *p = NULL;
+    struct vrmr_cmdout co;
     int line_count = 0;
 
     uint64_t packets = 0, bytes = 0;
@@ -1168,13 +1169,13 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
     vrmr_debug(HIGH, "command: '%s'.", command);
 
     /* open the pipe to the command */
-    if (!(p = popen(command, "r"))) {
+    if (vrmr_cmdout_open(&co, cfg, command) != 0) {
         vrmr_error(-1, "Internal Error", "pipe failed: %s", strerror(errno));
         return (-1);
     }
 
     /* loop through the result */
-    while (fgets(line, (int)sizeof(line), p) != NULL &&
+    while (vrmr_cmdout_nextline(&co, line, sizeof(line)) != NULL &&
             (!recv_done || !trans_done)) {
         /* we start looking after the first two lines */
         if (line_count >= 4) {
@@ -1222,7 +1223,7 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
     }
 
     /* finally close the pipe */
-    pclose(p);
+    vrmr_cmdout_close(&co);
     return (0);
 }
 

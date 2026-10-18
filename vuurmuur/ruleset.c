@@ -23,6 +23,7 @@
 */
 
 #include "main.h"
+#include "vrmr_exec_priv.h"
 
 /* hack: in 0.8 we have to do this right! */
 struct vrmr_list accounting_chain_names; /* list with the chainnames */
@@ -1482,10 +1483,14 @@ static void ruleset_load_helper_modules(struct vrmr_ctx *vctx)
 static int load_ruleset_ipv4(struct vrmr_ctx *vctx)
 {
     struct rule_set ruleset;
-    char cur_ruleset_path[] = "/tmp/vuurmuur-XXXXXX";
-    char cur_result_path[] = "/tmp/vuurmuur-load-result-XXXXXX";
-    char cur_shape_path[] = "/tmp/vuurmuur-shape-XXXXXX";
+    char cur_ruleset_path[PATH_MAX] = "", cur_result_path[PATH_MAX] = "",
+         cur_shape_path[PATH_MAX] = "";
     int ruleset_fd = 0, result_fd = 0, shape_fd = 0;
+
+    vrmr_tmpfile(cur_ruleset_path, sizeof(cur_ruleset_path), "vuurmuur");
+    vrmr_tmpfile(
+            cur_result_path, sizeof(cur_result_path), "vuurmuur-load-result");
+    vrmr_tmpfile(cur_shape_path, sizeof(cur_shape_path), "vuurmuur-shape");
 
     /* setup the ruleset */
     if (ruleset_setup(&ruleset) != 0) {
@@ -1645,9 +1650,12 @@ static int load_ruleset_ipv4(struct vrmr_ctx *vctx)
 static int load_ruleset_ipv6(struct vrmr_ctx *vctx)
 {
     struct rule_set ruleset;
-    char cur_ruleset_path[] = "/tmp/vuurmuur-XXXXXX";
-    char cur_result_path[] = "/tmp/vuurmuur-load-result-XXXXXX";
+    char cur_ruleset_path[PATH_MAX] = "", cur_result_path[PATH_MAX] = "";
     int ruleset_fd = 0, result_fd = 0;
+
+    vrmr_tmpfile(cur_ruleset_path, sizeof(cur_ruleset_path), "vuurmuur");
+    vrmr_tmpfile(
+            cur_result_path, sizeof(cur_result_path), "vuurmuur-load-result");
 
     /* setup the ruleset */
     if (ruleset_setup(&ruleset) != 0) {

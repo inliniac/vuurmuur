@@ -23,6 +23,7 @@
  ***************************************************************************/
 #include "config.h"
 #include "vuurmuur.h"
+#include "vrmr_exec_priv.h"
 #include <ctype.h>
 
 /* - determine_action -
@@ -2800,8 +2801,8 @@ static int vrmr_rules_get_system_chains_per_table(char *tablename,
         struct vrmr_list *list, struct vrmr_config *cnf, int ipv)
 {
     char line[128] = "", cmd[256] = "";
-    FILE *p = NULL;
     char chainname[33] = "";
+    struct vrmr_cmdout co;
 
     assert(list && tablename && cnf);
 
@@ -2814,36 +2815,34 @@ static int vrmr_rules_get_system_chains_per_table(char *tablename,
                 tablename);
     }
 
-    /* open the pipe to the command */
-    if ((p = popen(cmd, "r"))) {
-        /* loop through the result */
-        while (fgets(line, (int)sizeof(line), p) != NULL) {
-            if (strncmp("Chain", line, 5) == 0) {
-                sscanf(line, "Chain %32s", chainname);
+    if (vrmr_cmdout_open(&co, cnf, cmd) != 0) {
+        vrmr_debug(MEDIUM, "running '%s' failed", cmd);
+        return (0);
+    }
 
-                char *name = strdup(chainname);
-                if (name == NULL) {
-                    vrmr_error(
-                            -1, "Error", "strdup failed: %s", strerror(errno));
-                    pclose(p);
-                    return (-1);
-                }
+    /* loop through the result */
+    while (vrmr_cmdout_nextline(&co, line, sizeof(line)) != NULL) {
+        if (strncmp("Chain", line, 5) != 0)
+            continue;
 
-                if (vrmr_list_append(list, name) == NULL) {
-                    vrmr_error(
-                            -1, "Internal Error", "vrmr_list_append() failed");
-                    free(name);
-                    pclose(p);
-                    return (-1);
-                }
-            }
+        sscanf(line, "Chain %32s", chainname);
+
+        char *name = strdup(chainname);
+        if (name == NULL) {
+            vrmr_error(-1, "Error", "strdup failed: %s", strerror(errno));
+            vrmr_cmdout_close(&co);
+            return (-1);
         }
 
-        /* finally close the pipe */
-        pclose(p);
-    } else {
-        vrmr_debug(MEDIUM, "popen() failed");
+        if (vrmr_list_append(list, name) == NULL) {
+            vrmr_error(-1, "Internal Error", "vrmr_list_append() failed");
+            free(name);
+            vrmr_cmdout_close(&co);
+            return (-1);
+        }
     }
+
+    vrmr_cmdout_close(&co);
     return (0);
 }
 

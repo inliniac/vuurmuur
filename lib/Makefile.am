@@ -28,6 +28,6 @@ util.c \
 zones.c
 
 AM_CFLAGS = -DLIBDIR=$(libdir) -DSYSCONFDIR=$(sysconfdir)
-noinst_HEADERS = conntrack.h icmp.h
+noinst_HEADERS = conntrack.h icmp.h vrmr_exec_priv.h
 SUBDIRS=textdir
 

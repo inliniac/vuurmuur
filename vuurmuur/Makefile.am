@@ -1,4 +1,5 @@
 METASOURCES = AUTO
+AM_CPPFLAGS = -I$(top_srcdir)/lib
 bin_PROGRAMS = vuurmuur
 vuurmuur_SOURCES = \
 createrule.c \
