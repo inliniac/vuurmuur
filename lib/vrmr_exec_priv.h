@@ -58,6 +58,11 @@ void vrmr_proc_resolve(const char *entry, char *out, size_t size);
 /* Config and state files have to belong to this owner; root:root by default. */
 void vrmr_set_trusted_owner(uid_t uid, gid_t gid);
 
+/* Interface state normally comes from the kernel. Set to non-zero to take the
+ * configured address as the actual one, which is what a fixture needs. */
+void vrmr_set_iface_probe_config(int use_config);
+int vrmr_iface_probe_use_config(void);
+
 /* Line at a time command output: popen/fgets normally, the captured buffer of
  * the read op when the harness is in charge. Use this instead of popen so the
  * tree has a single, auditable execution path. */

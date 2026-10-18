@@ -44,6 +44,7 @@ static const char *tmpdir_override = NULL;
 static char proc_prefix[PATH_MAX] = "";
 static uid_t trusted_uid = 0;
 static gid_t trusted_gid = 0;
+static int iface_probe_config = 0;
 
 void vrmr_set_exec_ops(const struct vrmr_exec_ops *ops)
 {
@@ -82,6 +83,16 @@ void vrmr_set_trusted_owner(uid_t uid, gid_t gid)
 {
     trusted_uid = uid;
     trusted_gid = gid;
+}
+
+void vrmr_set_iface_probe_config(int use_config)
+{
+    iface_probe_config = use_config;
+}
+
+int vrmr_iface_probe_use_config(void)
+{
+    return iface_probe_config;
 }
 
 void vrmr_proc_resolve(const char *entry, char *out, size_t size)
@@ -855,8 +866,8 @@ int vrmr_create_tempfile(char *pathname)
     /* we cannot be sure errno is set in case of error */
     errno = 0;
 
-    /* call mkstemp: 0177 gives the 0600 we want; using 0600 as the mask
-     * subtracts the owner bits and leaves the file unreadable */
+    /* call mkstemp: 0177 gives the 0600 we want (0600 as a mask would
+     * subtract the owner bits and leave the file unreadable) */
     mode_t prev = umask(0177);
     int fd = mkstemp(pathname);
     umask(prev);

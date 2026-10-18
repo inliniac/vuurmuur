@@ -506,8 +506,10 @@ int vrmr_read_interface_info(
 
     if (iface_ptr->device_virtual_oldstyle == FALSE) {
         /* now check if the interface is currently up */
-        result =
-                vrmr_get_iface_stats(iface_ptr->device, NULL, NULL, NULL, NULL);
+        result = vrmr_iface_probe_use_config()
+                         ? 0
+                         : vrmr_get_iface_stats(
+                                   iface_ptr->device, NULL, NULL, NULL, NULL);
         if (result == 0) {
             vrmr_debug(HIGH, "interface '%s' is up.", iface_ptr->name);
 
@@ -1534,7 +1536,8 @@ int vrmr_interfaces_check(struct vrmr_interface *iface_ptr)
 
     /* if the interface is up check the ipaddress with the ipaddress we know */
     if (iface_ptr->up == TRUE && iface_ptr->active == TRUE &&
-            iface_ptr->device_virtual == FALSE) {
+            iface_ptr->device_virtual == FALSE &&
+            !vrmr_iface_probe_use_config()) {
         ipresult = vrmr_get_dynamic_ip(
                 iface_ptr->device, ipaddress, sizeof(ipaddress));
         if (ipresult < 0) {
