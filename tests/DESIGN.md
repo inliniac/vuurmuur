@@ -5,16 +5,18 @@ ruleset generation end-to-end, as an unprivileged user, on any host, in CI and l
 
 ## 1. Goals
 
-1. Deterministic coverage of the rule-generation pipeline:
-   config tree -> object model -> `analyze_all_rules()` -> emitted iptables/ruleset.
+1. Deterministic coverage of the rule-generation pipeline: config tree -> object model ->
+   `analyze_all_rules()` -> **the generated `iptables-restore` input file**.
 2. Run **without root**, without `/etc/vuurmuur`, without `/var/run`, without a real
    `iptables` binary, without network interfaces matching any particular name or address.
 3. Golden-file (snapshot) testing so that any change in generated output is explicit,
-   reviewable and diffable.
+   reviewable and diffable. The restore file *is* the contract; command streams are
+   secondary and temporary (legacy path goes in §8 P5).
 4. Cheap enough to run on every commit (`make check`, seconds), plus sanitizer/coverage
    variants.
-5. No behaviour change for production/root users: every seam must be inert when the
-   harness is not driving it.
+5. No behaviour change for production/root users, and **the seams stay test-only** - no
+   user-facing `--dry-run` (decided). Every hook must be inert when the harness is not
+   driving it.
 
 Non-goals for this phase: kernel-level correctness (does iptables *accept* the ruleset,
 do packets match), conntrack/NFLOG daemons, the ncurses GUI, IPv6-in-the-kernel,
@@ -40,11 +42,12 @@ do packets match), conntrack/NFLOG daemons, the ncurses GUI, IPv6-in-the-kernel,
 | D13 | SysV shm + semaphores for reload/IPC | `vuurmuur/vuurmuur.c:494-542`, `vuurmuur_log/vuurmuur_ipc.c:35` | daemon/GUI path only, not generation |
 | D14 | log dir created/validated under `LOGDIR` | `lib/config.c:63-135` | configurable -> fixtures use a temp dir |
 
-Already-good news: `vuurmuur` **without `-D`** is one-shot (generates, loads, exits;
-`cmdline.loop` only set for `-l/-D`, `vuurmuur.c:222`), and `-b` (bash mode) routes every
-command to `fprintf(stdout)` instead of `popen()` (`lib/io.c:465`) *and* skips iptcaps and
-the pidfile check. So the shape of a non-root oracle already exists; it is only D1-D4,
-D9 and D12 standing in the way.
+Already-good news: `vuurmuur` **without `-D`** is one-shot - it generates, loads and exits
+without daemonizing or creating shm (`cmdline.loop` only set for `-l/-D`, `vuurmuur.c:222`)
+- and `-k` already preserves the generated restore file for inspection
+(`ruleset.c:1602`). So a non-root oracle exists in the binary today; only D1-D4, D9 and D12
+block using it. Separately, `-b` routes commands to `fprintf(stdout)` instead of `popen()`
+(`lib/io.c:465`), which is the legacy path's own oracle (§8 P5 removes it).
 
 Note: this dev box has **no `iptables` binary at all** and **user/network namespaces are
 denied** (`unshare: Operation not permitted`), so namespace- or netns-based sandboxing is
@@ -54,19 +57,28 @@ not an option here. The design therefore uses in-code seams + fake executables.
 
 Four tiers, each independently useful. Tiers 0-2 are the deliverable; tier 3 is CI polish.
 
+**The oracle is the generated `iptables-restore` input file**, not a stream of commands
+(decided): that file is what the production path hands to the kernel
+(`iptables-restore --counters --noflush < /tmp/vuurmuur-XXXXXX`, `vuurmuur/ruleset.c:1124`),
+it is complete, ordered and diffable, and capturing it requires no change to the emission
+logic itself. The legacy per-command path (`-b`) is covered by a secondary golden only until
+it is deleted (§8 P5).
+
 ```
-          ┌───────────────────────────────────────────────┐
- tier 3   │ differential / corpus: git A vs B, ASan, cov  │
-          ├───────────────────────────────────────────────┤
- tier 2   │ end-to-end CLI:  vuurmuur -b / -t -c ...      │  <- fake iptables on PATH
-          │                  vuurmuur_script add/list     │
-          ├───────────────────────────────────────────────┤
- tier 1   │ in-process golden: tests/vrmr_gen_test        │  <- capture sink
-          │  sandbox ctx -> load -> analyze -> emit       │
-          ├───────────────────────────────────────────────┤
- tier 0   │ pure unit: parse/encode/decode, portranges,   │  <- no sandbox, no fixtures
-          │  regexes, list/hash, icmp tables              │
-          └───────────────────────────────────────────────┘
+          ┌────────────────────────────────────────────────────┐
+ tier 3   │ differential / corpus: git A vs B, ASan, coverage  │
+          ├────────────────────────────────────────────────────┤
+ tier 2   │ real binaries in a sandbox                         │ <- fake iptables-restore
+          │  vuurmuur -n -t -k ; vuurmuur_script add/list      │    copies stdin
+          ├────────────────────────────────────────────────────┤
+ tier 1   │ in-process: tests/vrmr_gen_test                    │ <- capture ops
+          │  ctx -> load -> analyze -> load_ruleset()          │    snapshot restore file
+          ├────────────────────────────────────────────────────┤
+ tier 0   │ pure unit: parse/encode/decode, portranges,        │ <- no sandbox, no fixtures
+          │  regexes, list/hash, icmp tables                   │
+          └────────────────────────────────────────────────────┘
+                       all tiers assert on the same artifact:
+                  the generated iptables-restore input file
 ```
 
 ### Tier 0 - pure unit tests
@@ -92,34 +104,48 @@ A test driver binary, `tests/vrmr_gen_test`, that links the engine and:
 1. builds a sandbox root (`$TMPDIR/vuurmuur-test.<case>.XXXX/`) and seeds it from
    `tests/fixtures/<case>/`;
 2. constructs a `struct vrmr_ctx` via a new `vrmr_test_ctx_init()` helper
-   (`vrmr_init` + `vrmr_init_config`, with D1/D2/D3/D4 neutralised by the seams of §4);
-3. installs a **capture sink** so `vrmr_pipe_command()`/`libvuurmuur_exec_command()` never
-   execute anything;
+   (`vrmr_init` + `vrmr_init_config`, with D1-D4 neutralised by the seams of §4);
+3. installs **capture ops** so nothing executes, and answers the two state queries from
+   fixtures (§4 S1);
 4. loads backends, services, interfaces, zones, blocklist, rules and calls
    `analyze_all_rules()`;
-5. runs the emit stage - `load_ruleset()` (`vuurmuur/ruleset.c:1757`) for the
-   iptables-restore path, or `create_all_rules()` for the per-command path;
-6. writes the captured stream through the normalizer (§5) and diffs against
-   `tests/golden/<case>/`.
+5. runs the emit stage `load_ruleset()` (`vuurmuur/ruleset.c:1757`); the capture op
+   snapshots the **restore file** referenced by the `iptables-restore ... < path` command
+   it was asked to run, into `artifacts/<case>/iptables.restore` (same for the IPv6 file
+   and for the `--counters`/shape script); every other command line is logged to
+   `artifacts/<case>/side-effects.txt`;
+6. normalizes (§5) and diffs against `tests/golden/<case>/`.
 
-The driver takes `--case NAME [--update] [--emit=restore|commands] [--profile=caps-X]`.
+The driver takes `--case NAME [--update] [--artifact=restore|commands] [--profile=caps-X]`.
+Optionally it can drive `apply_changes()` twice to cover the reload/diff path in-process.
 
 ### Tier 2 - end-to-end CLI tests
 
-Shell/TAP driver that runs the *real* binaries against a sandbox:
+Shell/TAP driver that runs the *real* binaries against a sandbox, with a fake
+`iptables-restore` that simply copies stdin to `$SB/out/restore.<n>.txt` - which yields the
+**same artifact as tier 1**, so the two tiers cross-check each other:
 
 ```
-VUURMUUR_SYSCONFDIR=$SB/etc PATH=$SB/bin:$PATH vuurmuur/vuurmuur -b -t -c $SB/etc/vuurmuur/config.conf
+VUURMUUR_SYSCONFDIR=$SB/etc VUURMUUR_TMPDIR=$SB/tmp PATH=$SB/bin:$PATH \
+  vuurmuur/vuurmuur -t -k -c $SB/etc/vuurmuur/config.conf
 ```
 
-where `$SB/bin/` holds fake `iptables`, `ip6tables`, `iptables-restore`,
-`ip6tables-restore`, `tc`, `sysctl`, `modprobe`. `-b` gives a shell script of every command
-on stdout (no exec at all) and `-t` skips the capability probe, so this tier needs only
-D1, D2, D3 and D9. Used for: config parsing, backend plumbing, `vuurmuur_script` CRUD,
-reload-diff logic (`apply_changes`), and error/warning-message paths.
+`-t` skips the capability probe (D7); `-k` keeps the tempfiles (`cmdline.keep_file`,
+`vuurmuur/vuurmuur.c:258` -> `vuurmuur/ruleset.c:1602`) so the restore file survives for
+inspection. No `-D`/`-l` means one-shot: `cmdline.loop` stays 0 (`vuurmuur.c:222`), so the
+process builds the ruleset, loads it and exits without daemonizing, creating shm or
+touching a pidfile (D11/D13 disappear on this path). `$SB/bin/` also holds fake `iptables`,
+`ip6tables`, `tc`, `sysctl`, `modprobe` for the config sanity checks (D6). Never pass
+`-d 3`: at debug level HIGH the loader sleeps 15 s "so you can look into the tmpfile"
+(`vuurmuur/ruleset.c:1568`).
 
-Also asserts negative cases: bad rule line, unknown zone/service, oversized names,
-insecure file permissions (D2 still enforced within the sandbox owner).
+`vuurmuur -b -t -c ...` is used separately, only to pin the legacy per-command path
+(`create_all_rules`) until §8 P5 deletes it.
+
+Used for: config parsing, backend plumbing, `vuurmuur_script` CRUD, reload-diff logic
+(`apply_changes`), and error/warning-message paths. Also asserts negative cases: bad rule
+line, unknown zone/service, oversized names, insecure file permissions (D2 still enforced
+within the sandbox owner).
 
 ### Tier 3 - corpus / differential
 
@@ -135,7 +161,8 @@ Small, additive, each inert unless told otherwise. Ordered by necessity.
 
 ### S1 `vrmr_exec_ops` - capture hook (enables D5, D5b, D6, D10)
 
-`include/vuurmuur.h`:
+`include/vuurmuur.h` *public* block stays untouched (test-only seams, decided); the ops
+struct and `vrmr_set_exec_ops()` go in a `noinst_HEADERS` private header:
 
 ```c
 struct vrmr_exec_ops {
@@ -158,13 +185,21 @@ two remaining direct `popen()` sites into it** (`lib/rules.c:2794-2802`,
 `lib/interfaces.c:1166-1171`) so the tree has exactly three auditable execution points.
 Default pointer = real ops, so production is one indirect call.
 
-The harness installs capture ops that append a normalized line per invocation to a buffer
-and, for `read()`, return canned text from the case dir
-(`tests/fixtures/<case>/iptables/<table>-nL.txt`, `.../<chain>-counters.txt` - config
-queries are answered by `iptables -t <table> -nL` and `iptables -vnL <chain> --exact`, so
-fixtures are stored per invocation kind, with a `--default-output` fallback for a
-"clean slate" case). Failures are injectable with `--fail-at N=<glob>` to exercise the
-rollback/`ruleset_store_failed_set` paths.
+The harness installs capture ops that:
+
+* log every command line to `side-effects.txt` and return 0 (or fail on `--fail-at N=<glob>`
+  to exercise the `ruleset_store_failed_set`/rollback paths);
+* **snapshot any sandbox tempfile a command references** (`... --noflush < $SB/tmp/x` or
+  `/bin/bash $SB/tmp/x`) as a golden artifact - this is how the restore file is captured
+  with no change to `ruleset.c`;
+* for `read()`, return canned text from the case dir
+  (`tests/fixtures/<case>/iptables/<table>-nL.txt`, `.../<chain>-counters.txt` - state is
+  queried as `iptables -t <table> -nL` and `iptables -vnL <chain> --exact`, so fixtures are
+  stored per invocation kind, with a default "no custom chains yet" output for a clean-slate
+  case).
+
+The assertion "`side-effects.txt` contains nothing but the restore invocations" is the
+invariant that lets the legacy path be deleted safely in §8 P5.
 
 Audit rule for reviewers: `grep -rn 'popen\|execv' --include='*.c' lib/ vuurmuur/
 vuurmuur_script/` must stay empty outside `lib/io.c`. (The GUI's own `fork`/`execv` and its
@@ -185,6 +220,7 @@ e = getenv("VUURMUUR_TMPDIR");                  /* ruleset tempdir, default /tmp
 Store `rundir`/`tmpdir` in `struct vrmr_config` (new fields) so `PIDFILE`/`/tmp/vuurmuur-*`
 literals become `cfg->rundir`/`cfg->tmpdir` prefixes (`vuurmuur/ruleset.c:1485`,
 `vuurmuur/main.h:59`, `vuurmuur_log/vuurmuur_log.h:39`, `vuurmuur/misc.c:30`).
+Rooting the tempdir is what makes the restore file findable and parallel-runnable.
 Config-file location keeps the existing `-c` override (`conf.configfile`).
 Production: unset env -> byte-identical paths.
 
@@ -270,24 +306,29 @@ tests/
                        proc/sys/**                       (fake /proc, optional)
                        profile                           (which .caps profile, opts)
   profiles/*.caps
-  golden/<case>/{ipv4.txt,ipv6.txt,commands.txt,warnings.txt,exitcode}
+  golden/<case>/{iptables.restore,ip6tables.restore,shape.sh,side-effects.txt,
+                 warnings.txt,exitcode}
 ```
 
 Case discovery: one directory = one test; `tests/gen/main.c` iterates `fixtures/*`.
 
 **Normalizer** (`tests/lib/normalize.c`), applied to both golden and captured output before
 diff, so goldens stay stable:
-* rewrite `<sandbox>` prefixes to `$SB` (tempfile names `/tmp/vuurmuur-XXXXXX` -> `$RULESET`)
-* drop `-A`/`-I` rule counters `pkts bytes` and `[0:0]` -> `[*]`
-* keep emission **order** (order is semantics for iptables chains; never sort)
-* drop `#` comment lines except `*table`/`:chain policy` markers
-* collapse whitespace, one rule per line, strip trailing CR
+* drop the `# Generated by Vuurmuur <version>` header line (`vuurmuur/ruleset.c:362`) so
+  version bumps do not touch goldens; keep every other line
+* rewrite sandbox paths to `$SB` (and `$RULESET`/`$SHAPE` for the tempfiles)
+* keep `[0:0]` counters: they are literal text in the generated file, not live values, so
+  asserting on them is free. Live counters only appear in `read()` fixtures
+  (`iptables -vnL <chain> --exact`), which are inputs, not output
+* keep emission **order** (order is semantics: chain declarations, `--new`, `COMMIT`, and
+  rule order inside a chain all matter); never sort
+* collapse trailing whitespace, one rule per line, strip CR
 
-Assertion style: exact text diff (a changed golden *is* the finding), plus opt-in
-structural queries for focused unit-ish tests:
-`expect_chain("INPUT")`, `expect_rule("-A INPUT", "-s 10.0.0.0/8", "-j ACCEPT")`,
-`expect_absent("-j LOG")`, `count_rules("FORWARD") == N`, and "no rule contains an
-unexpanded placeholder".
+Assertion style: exact text diff of the restore file (a changed golden *is* the finding),
+plus opt-in structural queries for focused tests: `expect_chain("filter","INPUT")`,
+`expect_rule("INPUT", "-s 10.0.0.0/8", "-j ACCEPT")`, `expect_absent("-j LOG")`,
+`count_rules("FORWARD") == N`, `expect_new_chain("PRE-VRMR-PREROUTING")`, and "no rule
+contains an unexpanded placeholder or an empty address".
 
 ### Case taxonomy (first corpus, ~25 cases)
 
@@ -355,17 +396,22 @@ Run tier 0+1 under it in CI once the suite runs there at all.
 | P2 | S2 rooting, S3 owner, S5 proc/iface-address hooks, tier 2 CLI cases, 15 more goldens | M |
 | P3 | normalizer hardening, capability profiles, idempotence + reload-diff cases, corpus target (~25) | M |
 | P4 | CI job (`make check` in the ubuntu matrix + ASan job), `diff-branch.sh`, coverage gate | S |
-| P5 | fuzz targets + nightly, seed corpus | S |
+| P5 | **delete the legacy per-command path** (decided: after the harness lands): drop `create_all_rules()`/`*-rules(..., NULL, ...)` call shapes, reroute `-b` through the ruleset path (or retire the flag), then drop the `commands.txt` goldens | M |
+| P6 | fuzz targets + nightly, seed corpus | S |
+
+Gate for P5: the whole restore-file corpus must be green before and after the deletion
+(`diff-branch.sh` proving byte-identical artifacts), and `side-effects.txt` must already be
+empty of non-restore commands.
 
 Each phase must keep `make distcheck` green; every golden is committed and reviewed as
 part of the PR that changes it.
 
 ## 9. Risks / open questions
 
-1. **Legacy duplicate code path.** Generation exists twice: `ruleset.c` (atomic restore,
-   the one that runs) and the per-command path in `vuurmuur/rules.c` + `-b` bash mode.
-   Harness covers both, but the right fix may be to delete the old path (also removes
-   D5/D10 exposure). Decision: test-then-delete, or delete-first?
+1. **Legacy duplicate code path.** *Decided:* harness first, deletion in P5. Consequence:
+   until P5 the golden corpus covers two implementations of the same intent, so the
+   `side-effects.txt` invariant ("nothing but restore invocations") is what makes the
+   eventual deletion reviewable rather than a leap.
 2. **Ordering flakiness.** Chain emission order and rule order inside chains come from
    config traversal; any hashing (hashtables in `lib/hash.c`) must never leak into emit
    order - a tier 1 invariant test should assert that.
@@ -381,12 +427,17 @@ part of the PR that changes it.
    canonical configure flag set for goldens (`IPV6_ENABLED` changes emitted output).
 7. **Bootstrap deps.** See §10 - the build now works locally, but `-Werror` with the CI
    flags still fails on 4 pre-existing const-qualifier sites (part of P0).
-8. Do we want a **nftables emitter** abstraction in scope? If yes, the S1 sink API should
-   be expressed in terms of an intermediate "rule emission" record (table/chain/match/
-   target) rather than a raw command string, so goldens stay backend-agnostic. Cheaper to
-   decide now than to rewrite 25 golden files later.
-9. Should the harness be usable as a **`vuurmuur --dry-run` for users**? Tempting (it is
-   the same plumbing) but then the seams become supported API, not test-only.
+8. **Nftables abstraction is explicitly out of scope for now** (decided): the sink is the
+   restore file, i.e. iptables-restore syntax is the golden format. When/if an nftables
+   emitter appears, it gets its own artifact type and the restore goldens stay as the
+   iptables contract. No premature backend-agnostic IR.
+9. Should the harness be usable as a **`vuurmuur --dry-run` for users**? *Decided: no -
+   the seams stay test-only.* But they are env-var-gated in production code, so the
+   wording of that rule is: the env vars exist in the shipped binary (they are the only
+   injection route for tier 2) but are documented as unsupported/for-testing, and
+   `vrmr_set_exec_ops()` stays declared in a header the tests include, not in
+   `include/vuurmuur.h`'s public block. Risk to watch: a future user-facing dry-run would
+   turn these into API and want a `conf` key instead of an env var.
 
 ## 10. Local build recipe (verified on this box)
 
