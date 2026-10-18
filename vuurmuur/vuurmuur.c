@@ -20,11 +20,8 @@
 
 #include "main.h"
 
-char version_string[128];
-struct cmd_line cmdline;
-
-struct vrmr_shm_table *shm_table = NULL;
-int sem_id;
+/* the engine owns version_string, cmdline, shm_table and sem_id; they are
+ * declared in main.h and defined in misc.c so tests can link the engine */
 
 static void print_help(void);
 

@@ -20,6 +20,12 @@
 
 #include "main.h"
 
+char version_string[128];
+struct cmd_line cmdline;
+
+struct vrmr_shm_table *shm_table = NULL;
+int sem_id;
+
 void send_hup_to_vuurmuurlog(void)
 {
     int i = 0;
