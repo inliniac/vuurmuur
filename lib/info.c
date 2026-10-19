@@ -506,6 +506,9 @@ int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
     int numreqs = 30;
     struct ifconf ifc;
     struct ifreq *ifr_ptr = NULL, ifr_struct;
+
+    /* ioctl may read fields we never touch */
+    memset(&ifr_struct, 0, sizeof(ifr_struct));
     char ipaddress[16] = "";
     struct sockaddr *sa = NULL;
     struct sockaddr_in *sin = NULL;

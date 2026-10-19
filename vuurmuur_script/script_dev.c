@@ -85,6 +85,9 @@ int script_list_devices(void)
     int numreqs = 30;
     struct ifconf ifc;
     struct ifreq *ifr_ptr = NULL, ifr_struct;
+
+    /* ioctl may read fields we never touch */
+    memset(&ifr_struct, 0, sizeof(ifr_struct));
     char ipaddress[16] = "", netmask[16] = "", broadcast[16] = "",
          network[16] = "";
     struct sockaddr *sa = NULL;
