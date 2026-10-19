@@ -550,8 +550,11 @@ static int read_log_line(FILE *fp, const bool traffic_log,
     if (rline == NULL) {
         vrmr_debug(LOW, "fgets() returned NULL: errno:%s feof:%d ferror:%d",
                 strerror(errno), feof(fp), ferror(fp));
-        if (feof(fp) || ferror(fp))
+        if (feof(fp) || ferror(fp)) {
             clearerr(fp);
+            /* a failed read leaves the position indeterminate */
+            (void)fseek(fp, 0, SEEK_CUR);
+        }
         /* free the allocated buffer */
         free(line);
         return 0;
@@ -1387,6 +1390,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                                 vrmr_error(-1, VR_ERR,
                                         gettext("opening pipe failed: %s."),
                                         strerror(errno));
+                                (void)fclose(traffic_fp);
                                 return (-1);
                             }
                             vrmr_debug(NONE, "search_string: '%s'.",
@@ -1397,6 +1401,7 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                                 vrmr_error(-1, VR_ERR,
                                         gettext("opening pipe failed: %s."),
                                         strerror(errno));
+                                (void)fclose(traffic_fp);
                                 return (-1);
                             }
 
@@ -1632,7 +1637,11 @@ int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     vrmr_filter_cleanup(&vfilter);
     nodelay(log_win, FALSE);
     vrmr_fatal_if(vrmr_list_cleanup(buffer_ptr) < 0);
-    (void)fclose(fp);
+    /* fp aliases one of the two, so close them by name: quitting during a
+       search used to fclose() the pipe and pclose() it again. */
+    if (traffic_fp != NULL) {
+        (void)fclose(traffic_fp);
+    }
 
     if (search_pipe) {
         (void)pclose(search_pipe);
