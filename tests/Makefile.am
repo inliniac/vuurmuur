@@ -3,7 +3,7 @@
 # would collide
 AUTOMAKE_OPTIONS = foreign 1.4 subdir-objects
 
-check_PROGRAMS = unit/rules-parse unit/rules-options
+check_PROGRAMS = unit/rules-parse unit/rules-options unit/lineread
 
 unit_rules_parse_SOURCES = \
 unit/rules_parse.c \
@@ -16,6 +16,12 @@ unit/rules_options.c \
 lib/tap.c lib/tap.h \
 lib/vrmr_test.c lib/vrmr_test.h
 unit_rules_options_LDADD = $(LIBVUURMUUR_LDADD)
+
+unit_lineread_SOURCES = \
+unit/lineread.c \
+lib/tap.c lib/tap.h \
+lib/vrmr_test.c lib/vrmr_test.h
+unit_lineread_LDADD = $(LIBVUURMUUR_LDADD)
 
 TESTS = $(check_PROGRAMS)
 

@@ -62,6 +62,7 @@ TAGS
 test-driver
 tests/unit/rules-parse
 tests/unit/rules-options
+tests/unit/lineread
 
 
 # automake stamp files in build directories
