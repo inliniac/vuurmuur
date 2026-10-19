@@ -1758,6 +1758,7 @@ FILE *vrmr_rules_file_open(const struct vrmr_config *cnf, const char *path,
         const char *mode, int caller);
 int vrmr_rules_file_close(FILE *file, const char *path);
 int vrmr_pipe_command(struct vrmr_config *, char *, char);
+int vrmr_lineread(FILE *, char *, size_t);
 int libvuurmuur_exec_command(
         struct vrmr_config *, const char *, const char **, char **);
 void vrmr_shm_update_progress(int semid, int *shm_progress, int set_percent);

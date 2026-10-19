@@ -16,6 +16,7 @@ io.c \
 iptcap.c \
 libvuurmuur.c \
 linkedlist.c \
+lineread.c \
 log.c \
 proc.c \
 rules.c \

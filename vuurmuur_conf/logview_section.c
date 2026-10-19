@@ -546,27 +546,9 @@ static int read_log_line(FILE *fp, const bool traffic_log,
     char *line = malloc(READLINE_LEN);
     vrmr_fatal_alloc("malloc", line);
 
-    const char *rline = fgets(line, READLINE_LEN, fp);
-    if (rline == NULL) {
-        vrmr_debug(LOW, "fgets() returned NULL: errno:%s feof:%d ferror:%d",
-                strerror(errno), feof(fp), ferror(fp));
-        if (feof(fp) || ferror(fp)) {
-            clearerr(fp);
-            /* a failed read leaves the position indeterminate */
-            (void)fseek(fp, 0, SEEK_CUR);
-        }
+    /* tail-safe read: 0 means nothing to show this run */
+    if (vrmr_lineread(fp, line, READLINE_LEN) <= 0) {
         /* free the allocated buffer */
-        free(line);
-        return 0;
-    }
-
-    /* if the line doesn't end with a newline character we rewind and
-     * try again the next run. */
-    long linelen = StrMemLen(line);
-    if (linelen < READLINE_LEN - 1 && line[linelen - 1] != '\n') {
-        if (fseek(fp, -linelen, SEEK_CUR) != 0) {
-            vrmr_debug(LOW, "fseek(): %s", strerror(errno));
-        }
         free(line);
         return 0;
     }
