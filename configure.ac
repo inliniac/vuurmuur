@@ -13,6 +13,14 @@ AC_PROG_CC
 AC_PROG_CC_C99
 LT_INIT
 
+# ./configure --enable-werror. Only the choice is recorded here; the flags go in
+# just before the output files. A dependency probe must not be compiled with
+# -Werror: a compiler notice during a probe reads as a missing library.
+AC_ARG_ENABLE([werror],
+        [AS_HELP_STRING([--enable-werror],[treat compiler warnings as errors])],
+        [vrmr_werror=$enableval],
+        [vrmr_werror=no])
+
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION
 
@@ -399,6 +407,21 @@ AC_SUBST(LIBMNL_LIBS)
 AC_SUBST(LIBNETFILTER_CONNTRACK_LIBS)
 AC_SUBST(LIBNETFILTER_LOG_LIBS)
 AC_SUBST(NCURSES_LIBS)
+
+if test "x$vrmr_werror" != "xno"; then
+    CFLAGS="${CFLAGS} -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-function"
+    # clang turns a toolchain notice into a hard error under -Werror on hosts
+    # holding several gcc installs. Demote it, but only where the compiler
+    # accepts the demotion while -Werror is in force, so an unknown option
+    # cannot quietly reappear as an error on every translation unit.
+    vrmr_save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -Wno-error=gcc-install-dir-libstdcxx"
+    AC_MSG_CHECKING([whether the compiler takes -Wno-error=gcc-install-dir-libstdcxx])
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE([int main(void) { return 0; }])],
+            [AC_MSG_RESULT([yes])],
+            [AC_MSG_RESULT([no])
+             CFLAGS="$vrmr_save_CFLAGS"])
+fi
 
 AC_CONFIG_FILES([Makefile include/Makefile lib/Makefile lib/textdir/Makefile
         vuurmuur/Makefile vuurmuur_log/Makefile vuurmuur_conf/Makefile
