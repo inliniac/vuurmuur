@@ -540,3 +540,24 @@ branches that were easy to get wrong:
 Quitting the viewer mid-search used to run `fclose()` on the search pipe and then
 `pclose()` on the same handle; both teardown paths now close each stream by name.
 The rest of that function is UI and still uncovered.
+
+## 13. Sanitizer build
+
+`./configure --with-sanitizers` appends `-fsanitize=address,undefined
+-fno-omit-frame-pointer` to `CFLAGS` and `LDFLAGS` after the defaults, so `-g -O2`
+survives; a link probe fails the configure if the compiler cannot do it. It is a flag
+rather than a CI `CFLAGS` override for the same reason `--enable-werror` is: the
+override replaces what configure chose, and the set that runs stops being a project
+decision.
+
+The tier 0 tests pass under it with `ASAN_OPTIONS="abort_on_error=1 detect_leaks=0"`
+and no sanitizer output. Leak checking stays off on purpose: the teardown paths leave
+allocations attached at exit, and the finding worth catching here is an invalid free,
+which ASan reports without help. UndefinedBehaviorSanitizer recovers and prints by
+default, so it cannot fail a job on its own; `UBSAN_OPTIONS=halt_on_error=1` in the CI
+job is the switch for that, deliberately not baked into the build because the tree has
+never been audited for it.
+
+What the sanitizers cannot reach yet is `vuurmuur_conf`'s quit-mid-search path, where
+the double close that section 12 describes lived: nothing drives the UI. That needs a
+pty-driven test of its own.

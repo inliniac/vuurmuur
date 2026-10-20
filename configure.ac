@@ -21,6 +21,13 @@ AC_ARG_ENABLE([werror],
         [vrmr_werror=$enableval],
         [vrmr_werror=no])
 
+# sanitizer build: ./configure --with-sanitizers. Only the choice is recorded
+# here; the flags go in next to --enable-werror, after every dependency probe.
+AC_ARG_WITH([sanitizers],
+        [AS_HELP_STRING([--with-sanitizers],[link with AddressSanitizer and UndefinedBehaviorSanitizer])],
+        [vrmr_sanitizers=$withval],
+        [vrmr_sanitizers=no])
+
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION
 
@@ -421,6 +428,23 @@ if test "x$vrmr_werror" != "xno"; then
             [AC_MSG_RESULT([yes])],
             [AC_MSG_RESULT([no])
              CFLAGS="$vrmr_save_CFLAGS"])
+fi
+
+# Appended, never a CFLAGS replacement, so the optimisation defaults survive.
+# The probe sees only the sanitizer flags: a compiler that cannot link them must
+# fail here rather than through whatever --enable-werror added to CFLAGS, and
+# the dependency probes above must not be compiled or linked with sanitizers on,
+# for the same reason they must not be compiled with -Werror.
+if test "x$vrmr_sanitizers" != "xno" && test "x$vrmr_sanitizers" != "x"; then
+    vrmr_san_flags="-fsanitize=address,undefined -fno-omit-frame-pointer"
+    vrmr_san_keep_CFLAGS="$CFLAGS"
+    vrmr_san_keep_LDFLAGS="$LDFLAGS"
+    CFLAGS="$vrmr_san_flags"
+    LDFLAGS="$vrmr_san_flags"
+    AC_LINK_IFELSE([AC_LANG_PROGRAM], [],
+            [AC_MSG_ERROR([the compiler cannot link with the sanitizers])])
+    CFLAGS="$vrmr_san_keep_CFLAGS $vrmr_san_flags"
+    LDFLAGS="$vrmr_san_keep_LDFLAGS $vrmr_san_flags"
 fi
 
 AC_CONFIG_FILES([Makefile include/Makefile lib/Makefile lib/textdir/Makefile
