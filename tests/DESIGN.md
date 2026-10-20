@@ -519,3 +519,24 @@ neither fake-kernel nor netns sandboxing is available - hence the explicit captu
   refused with a pointer to `nfqueue`, the option is not.
 
 
+
+## 12. Log viewer line reading
+
+The tail logic the log viewer used to own inline is now `vrmr_lineread()` in
+`lib/lineread.c`, so it is reachable without ncurses. `unit/lineread` pins the five
+branches that were easy to get wrong:
+
+* an incomplete line at the end of the file is *parked*, not consumed: polling it
+  repeatedly leaves the position alone until the newline lands;
+* a line longer than the buffer arrives in full-size chunks instead of being dropped;
+* after a read error the flag is cleared and the position re-anchored, which is what keeps
+  `ftell()` and any later seek trustworthy on a tailled file;
+* a NUL at the start of a line is dropped with the line consumed. Stalling there would
+  freeze the viewer.
+* a stream that cannot seek back (a pipe) still returns 0 on a partial line; the rewind
+  fails and the branch that logs it runs. The bytes are gone, which is the honest
+  outcome for a stream that never promised to be rewound.
+
+Quitting the viewer mid-search used to run `fclose()` on the search pipe and then
+`pclose()` on the same handle; both teardown paths now close each stream by name.
+The rest of that function is UI and still uncovered.
