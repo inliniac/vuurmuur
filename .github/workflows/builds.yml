@@ -7,6 +7,10 @@ on:
 permissions: read-all
 
 env:
+  # only the scan-build jobs still set the warning set through CFLAGS. Left as it
+  # is on purpose: --status-bugs must not turn an analyzer-reported warning into a
+  # build failure before the report is written, so this job keeps its policy out of
+  # the configure option.
   DEFAULT_CFLAGS: "-Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-function"
 
   # Apt sometimes likes to ask for user input, this will prevent that.
@@ -39,7 +43,7 @@ jobs:
                 libncurses5-dev \
                 libncursesw5-dev
       - run: ./autogen.sh
-      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure --prefix=/usr --sysconfdir=/etc
+      - run: ./configure --enable-werror --prefix=/usr --sysconfdir=/etc
       - run: make -j2
       - run: make install
       - run: make distcheck
@@ -72,7 +76,7 @@ jobs:
                 libncurses5-dev \
                 libncursesw5-dev
       - run: ./autogen.sh
-      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure --prefix=/usr --sysconfdir=/etc
+      - run: ./configure --enable-werror --prefix=/usr --sysconfdir=/etc
       - run: make -j2
       - run: make install
       - run: make distcheck
@@ -178,7 +182,7 @@ jobs:
           make install
           cd ..
       - run: ./autogen.sh
-      - run: CFLAGS="${DEFAULT_CFLAGS}" ./configure --prefix=/usr --sysconfdir=/etc
+      - run: ./configure --enable-werror --prefix=/usr --sysconfdir=/etc
       - run: make -j2
       - run: make install
       - run: make distcheck
