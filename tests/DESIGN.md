@@ -1,9 +1,9 @@
 # Testing harness for rule generation (non-root)
 
-Status: P0 landed - tier 0 runs under `make check` (the assertions cover the rules.conf
-line parser and the rule-options grammar). Owner: TBD. Target: `make check` that exercises
-the iptables ruleset generation end-to-end, as an unprivileged user, on any host, in CI and
-locally.
+Status: in progress - tier 0 is landed and runs under `make check` (it covers the rules.conf
+line parser and the rule-options grammar). Tracker: inliniac/vuurmuur#54. Target: a `make check`
+that exercises the iptables ruleset generation end-to-end, as an unprivileged user, on any host,
+in CI and locally.
 
 ## 1. Goals
 
@@ -51,9 +51,10 @@ without daemonizing or creating shm (`cmdline.loop` only set for `-l/-D`, `vuurm
 block using it. Separately, `-b` routes commands to `fprintf(stdout)` instead of `popen()`
 (`lib/io.c:465`), which is the legacy path's own oracle (§8 P5 removes it).
 
-Note: this dev box has **no `iptables` binary at all** and **user/network namespaces are
-denied** (`unshare: Operation not permitted`), so namespace- or netns-based sandboxing is
-not an option here. The design therefore uses in-code seams + fake executables.
+Two environment properties are treated as constraints rather than assumptions: a real
+`iptables` binary may be absent, and unprivileged user/network namespaces may be unusable
+(`unshare` returning `EPERM` is routine in containers). Neither netns-based nor fake-kernel
+sandboxing can be relied on, so isolation is done with in-code seams and fake executables.
 
 ## 3. Harness architecture
 
@@ -97,7 +98,7 @@ Targets:
 * zone/host/service/interface regexes (`include/vuurmuur.h:204-221`) incl. the 32-char
   edges that must agree with `VRMR_MAX_*`
 
-Fuzzing hooks in here (see §7).
+Fuzzing hooks: see §7.
 
 ### Tier 1 - in-process golden generation (the core)
 
@@ -357,7 +358,7 @@ Allocation sites (`malloc`/`calloc`/`realloc`/`strdup`) far outnumber the explic
 `free()` calls and there is no ownership tooling, so tier 0/1 under ASan is a bug
 finder in its own right. Count them with
 `git grep -hE '\b(malloc|calloc|realloc|strdup)\b' -- '*.c' | wc -l`; the number
-moves, so it is not quoted here.
+moves, so it is not quoted.
 
 What landed is one program per test in `tests/unit`, run through automake's default
 driver with `TESTS = $(check_PROGRAMS)`, and a 106-line emitter in `tests/lib/tap.c`
@@ -376,10 +377,9 @@ Still planned, each with a cost that has to be paid in the open:
 ## 7. Sanitizers, coverage, fuzzing
 
 `--with-sanitizers` -> `-fsanitize=address,undefined -fno-omit-frame-pointer`, landed.
-A single switch for both families, because there is no case for running one without
-the other here. Leak checking is an `ASAN_OPTIONS` choice rather than a build setting;
-§13 records what tier 0 shows with it on. An invalid free is what ASan is being asked to
-find here.
+A single switch for both families, because there is no case for running one without the
+other. Leak checking is an `ASAN_OPTIONS` choice rather than a build setting; §13 records what
+tier 0 shows with it on. An invalid free is what ASan is asked to find.
 
 The `build` job already runs the suite through `make distcheck`, so a sanitized variant is
 a configure flag on that recipe, not new machinery: the `fedora:sanitizers` jobs today
@@ -401,7 +401,7 @@ build with `-fsanitize=undefined` and never execute a binary.
 | Phase | Content | Size |
 |---|---|---|
 | P0 | ✅ `tests/` skeleton + TAP emitter, tier 0 for `lib/rules.c` parsers | done |
-| P0b | CI job entry for `make check` (needs a workflow edit, unverified here) | S |
+| P0b | CI job entry for `make check` (needs a workflow edit, unverified) | S |
 | P1 | S1 exec-capture + S6 build split, tier 1 driver, sandbox helper, 6 golden cases | M |
 | P2 | S2 rooting, S3 owner, S5 proc/iface-address hooks, tier 2 CLI cases, 15 more goldens | M |
 | P3 | normalizer hardening, capability profiles, idempotence + reload-diff cases, corpus target (~25) | M |
@@ -452,13 +452,12 @@ part of the PR that changes it.
    `include/vuurmuur.h`'s public block. Risk to watch: a future user-facing dry-run would
    turn these into API and want a `conf` key instead of an env var.
 
-## 10. Local build recipe (verified on this box)
+## 10. Build recipe
 
-The gettext tools are installed here, so `autogen.sh` needs no staging. The reason to keep
-this section at all is that a workaround outlived its problem: without `gettext`'s m4
-macros, `AM_GNU_GETTEXT` was left unexpanded and `configure` died at the
-`AM_GNU_GETTEXT(external)` line. There is no root or apt here, so if that returns, it
-returns as a broken `autogen.sh`, not as a missing package. Today:
+`autogen.sh` needs no staging where the gettext m4 macros are installed. The reason to keep this
+section at all is that a workaround outlived its problem: without those macros `AM_GNU_GETTEXT`
+was left unexpanded and `configure` died at the `AM_GNU_GETTEXT(external)` line. If that
+regression returns it should be diagnosed as a broken `autogen.sh`, not as a missing package.
 
 ```sh
 bash autogen.sh
@@ -466,10 +465,9 @@ bash autogen.sh
 make -j8
 ```
 
-There is no wrapper script and no unpacked prefix on this host: that was a container that
-has since been replaced, and `autogen.sh` from a clean checkout is all it takes. A strict
-build is `./configure --enable-werror`, sanitizers are `./configure --with-sanitizers`;
-neither is a `CFLAGS` exercise, which is the point of having the options.
+Nothing beyond `autogen.sh` from a clean checkout is assumed: no wrapper script, no pre-unpacked
+prefix. A strict build is `./configure --enable-werror`, sanitizers are `./configure
+--with-sanitizers`; neither is a `CFLAGS` exercise, which is the point of having the options.
 
 **Warning status.** With `--enable-werror` the build is clean with gcc 15, gcc 16 and clang 21.
 clang 22 compiles clean but fails the link step: its `gcc-install-dir-libstdcxx` notice is
@@ -502,15 +500,14 @@ make -k all && make -k check     # -k: enumerate, do not stop at the first
 `make -k check` matters: `check_PROGRAMS` are not built by `make all`, so harness-only code is
 where a warning set can still hide a failure.
 
-`make distcheck` runs here and passes, and it is worth stating plainly because it is also what
+`make distcheck` runs and passes, and it is worth stating plainly because it is also what
 CI's `build` job runs: a failing assertion breaks those jobs, which is the strongest sense in
 which this suite is in CI today. Build the VPATH tree from `git archive`, never from a tar of the
 working directory - a leftover `*.log` or `*.trs` makes `make check` die with `failed to create
 ... .log`, which reads like a test failure and is not one.
 
-Other env facts that shaped this design: no `iptables` binary on the host, and
-unprivileged user/network namespaces are denied (`unshare: Operation not permitted`), so
-neither fake-kernel nor netns sandboxing is available - hence the explicit capture seam.
+The two constraints from §2 are worth restating: they are why a capture seam exists at all
+rather than a netns wrapper or a fake kernel.
 
 ## 11. Findings from tier 0
 
