@@ -428,6 +428,6 @@ AC_CONFIG_FILES([Makefile include/Makefile lib/Makefile lib/textdir/Makefile
         po/Makefile.in
         vuurmuur_script/Makefile scripts/Makefile services/Makefile
         config/Makefile man/Makefile man/en/Makefile man/ru/Makefile
-        debian/Makefile help/Makefile doc/Makefile])
+        debian/Makefile help/Makefile doc/Makefile tests/Makefile])
 AC_OUTPUT
 

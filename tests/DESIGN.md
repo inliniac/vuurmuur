@@ -1,7 +1,9 @@
 # Testing harness for rule generation (non-root)
 
-Status: design. Owner: TBD. Target: `make check` that exercises the iptables
-ruleset generation end-to-end, as an unprivileged user, on any host, in CI and locally.
+Status: P0 landed - tier 0 runs under `make check` (the assertions cover the rules.conf
+line parser and the rule-options grammar). Owner: TBD. Target: `make check` that exercises
+the iptables ruleset generation end-to-end, as an unprivileged user, on any host, in CI and
+locally.
 
 ## 1. Goals
 
@@ -394,7 +396,8 @@ Run tier 0+1 under it in CI once the suite runs there at all.
 
 | Phase | Content | Size |
 |---|---|---|
-| P0 | `tests/` skeleton + TAP emitter, tier 0 for `lib/rules.c` parsers (strict build prerequisite: done) | S |
+| P0 | ✅ `tests/` skeleton + TAP emitter, tier 0 for `lib/rules.c` parsers | done |
+| P0b | CI job entry for `make check` (needs a workflow edit, unverified here) | S |
 | P1 | S1 exec-capture + S6 build split, tier 1 driver, sandbox helper, 6 golden cases | M |
 | P2 | S2 rooting, S3 owner, S5 proc/iface-address hooks, tier 2 CLI cases, 15 more goldens | M |
 | P3 | normalizer hardening, capability profiles, idempotence + reload-diff cases, corpus target (~25) | M |
@@ -496,4 +499,23 @@ where a warning set can still hide a failure.
 Other env facts that shaped this design: no `iptables` binary on the host, and
 unprivileged user/network namespaces are denied (`unshare: Operation not permitted`), so
 neither fake-kernel nor netns sandboxing is available - hence the explicit capture seam.
+`make dist` and `distcheck` cannot run here either: the unpacked gettext has no working
+`msgmerge` wrapper, so `po/*.po-update` fails. CI uses the distro package and is unaffected.
+
+## 11. Findings from tier 0
+
+* `logprefix` can never be rejected for being too long: the copy caps at 12 characters, so
+  the `strlen(op->logprefix) > 14` branch that warns and clears the flag is unreachable
+  (`lib/rules.c:2139-2155`). Long prefixes are silently truncated instead. Pinned by a
+  test, so fixing it shows up as a deliberate diff.
+* The options disagree about quoting: `in_int`, `out_int`, `via_int`, `chain`, `comment`
+  and `logprefix` start copying two characters past the key and so require `key="value"`,
+  while `limit`, `nfmark`, `redirectport`, `in_max` etc. start one past and filter quotes,
+  so both forms work. An unquoted `in_int=eth0` silently yields `th`.
+* Unknown options are accepted in silence (`parse_option`'s fallback `return(-1)` is
+  commented out), so a typo in a rules file surfaces as a missing match in the generated
+  ruleset instead of a load failure.
+* `markiptstate` and the `queue` option are obsolete but harmless; the `queue` *action* is
+  refused with a pointer to `nfqueue`, the option is not.
+
 

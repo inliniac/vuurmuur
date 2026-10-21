@@ -57,3 +57,12 @@ TAGS
 *.log
 *.plist
 
+# test-suite artifacts
+*.trs
+test-driver
+tests/unit/rules-parse
+tests/unit/rules-options
+
+
+# automake stamp files in build directories
+.dirstamp

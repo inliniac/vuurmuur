@@ -2,7 +2,7 @@
 # have all needed files, that a GNU package needs
 AUTOMAKE_OPTIONS = foreign 1.4
 
-SUBDIRS = po include lib vuurmuur vuurmuur_log vuurmuur_script vuurmuur_conf scripts services config man debian help doc
+SUBDIRS = po include lib vuurmuur vuurmuur_log vuurmuur_script vuurmuur_conf scripts services config man debian help doc tests
 
 ACLOCAL_AMFLAGS = -I m4
 
