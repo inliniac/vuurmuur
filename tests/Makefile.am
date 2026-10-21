@@ -31,4 +31,4 @@ TESTS = $(check_PROGRAMS)
 AM_TESTS_ENVIRONMENT = UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"; \
 	export UBSAN_OPTIONS;
 
-EXTRA_DIST = DESIGN.md
+EXTRA_DIST = DESIGN.md unit/README

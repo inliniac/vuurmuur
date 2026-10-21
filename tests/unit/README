@@ -1,0 +1,13 @@
+Test programs
+
+rules-parse      tier 0: rules.conf line grammar, encode/decode round trips
+rules-options    tier 0: the options= string, option by option
+lineread         tier 0: vrmr_lineread, the tail-safe reader behind the log viewer
+
+Each is a check_PROGRAM and runs under `make check` with no root, no
+iptables, no /etc/vuurmuur and no network. They link libvuurmuur directly, so
+they exercise the same objects the daemons do.
+
+Tests belong here when a wrong value in a fixture would make them pass for the
+wrong reason; if a fixture can express the case, it belongs in the corpus
+instead.
