@@ -384,6 +384,9 @@ Run tier 0+1 under it in CI once the suite runs there at all.
   `vrmr_rules_parse_line`, `parse_option`, `vrmr_rules_decode_rule`,
   `vrmr_split_portrange`, `vrmr_ask_configfile` - all parse config-sourced bytes and all
   sit next to fixed-size buffers (`VRMR_MAX_RULE_LENGTH`, `cmd[512]`, `chain[32]`).
+  Two surfaced without a fuzzer: the terminator write in
+  `vrmr_rules_parse_line` ran one past a field for an over-long token, and the
+  newline strip read `line[-1]` for an empty line.
   Seed corpus from `tests/fixtures/*/state/rules/*.conf`. libFuzzer when clang is
   available, else deterministic corpus replay so the CI job needs no fuzzing runtime.
 

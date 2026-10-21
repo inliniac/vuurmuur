@@ -697,6 +697,21 @@ int vrmr_rules_init_list(struct vrmr_ctx *vctx,
     return (retval);
 }
 
+/*
+    The token copy loops stop at sizeof(buffer) and then write their terminator
+    at var_pos, which for an over-long token is one past the end. Clamp first so
+    the token is truncated and rejected by the checks that already follow; every
+    in-bounds token is unaffected.
+*/
+static void vrmr_term_token(char *buffer, size_t size, size_t *pos)
+{
+    if (*pos >= size) {
+        *pos = size - 1;
+    }
+
+    buffer[*pos] = '\0';
+}
+
 /*  vrmr_rules_parse_line
 
     Returncodes:
@@ -724,9 +739,10 @@ int vrmr_rules_parse_line(
         vrmr_error(-1, "Internal Error", "rule is too long");
         return (-1);
     }
-    /* strip the newline */
-    if (line[strlen(line) - 1] == '\n')
+    /* strip the newline, if there is one: an empty line has no last byte */
+    if (line[0] != '\0' && line[strlen(line) - 1] == '\n') {
         line[strlen(line) - 1] = '\0';
+    }
 
     memset(options, 0, sizeof(options));
 
@@ -749,7 +765,7 @@ int vrmr_rules_parse_line(
             line_pos++, var_pos++) {
         action_str[var_pos] = line[line_pos];
     }
-    action_str[var_pos] = '\0';
+    vrmr_term_token(action_str, sizeof(action_str), &var_pos);
 
     rule_ptr->action = vrmr_rules_actiontoi(action_str);
     if (rule_ptr->action <= VRMR_AT_ERROR ||
@@ -769,7 +785,7 @@ int vrmr_rules_parse_line(
                 line_pos++, var_pos++) {
             rule_ptr->who[var_pos] = line[line_pos];
         }
-        rule_ptr->who[var_pos] = '\0';
+        vrmr_term_token(rule_ptr->who, sizeof(rule_ptr->who), &var_pos);
 
         vrmr_debug(HIGH, "protect: who: '%s'", rule_ptr->who);
 
@@ -794,7 +810,7 @@ int vrmr_rules_parse_line(
                     line_pos++, var_pos++) {
                 rule_ptr->danger[var_pos] = line[line_pos];
             }
-            rule_ptr->danger[var_pos] = '\0';
+            vrmr_term_token(rule_ptr->danger, sizeof(rule_ptr->danger), &var_pos);
 
             vrmr_debug(HIGH, "protect: danger: '%s'", rule_ptr->danger);
         } else {
@@ -822,7 +838,7 @@ int vrmr_rules_parse_line(
                     line_pos++, var_pos++) {
                 rule_ptr->danger[var_pos] = line[line_pos];
             }
-            rule_ptr->danger[var_pos] = '\0';
+            vrmr_term_token(rule_ptr->danger, sizeof(rule_ptr->danger), &var_pos);
 
             vrmr_debug(
                     HIGH, "protect: keyword against: '%s'", rule_ptr->danger);
@@ -848,7 +864,7 @@ int vrmr_rules_parse_line(
                     line_pos++, var_pos++) {
                 rule_ptr->danger[var_pos] = line[line_pos];
             }
-            rule_ptr->danger[var_pos] = '\0';
+            vrmr_term_token(rule_ptr->danger, sizeof(rule_ptr->danger), &var_pos);
 
             vrmr_debug(HIGH, "protect: danger: '%s'", rule_ptr->danger);
 
@@ -865,7 +881,7 @@ int vrmr_rules_parse_line(
                         line_pos++, var_pos++) {
                     rule_ptr->source[var_pos] = line[line_pos];
                 }
-                rule_ptr->source[var_pos] = '\0';
+                vrmr_term_token(rule_ptr->source, sizeof(rule_ptr->source), &var_pos);
 
                 vrmr_debug(
                         HIGH, "protect: keyword from: '%s'", rule_ptr->source);
@@ -890,7 +906,7 @@ int vrmr_rules_parse_line(
                         line_pos++, var_pos++) {
                     rule_ptr->source[var_pos] = line[line_pos];
                 }
-                rule_ptr->source[var_pos] = '\0';
+                vrmr_term_token(rule_ptr->source, sizeof(rule_ptr->source), &var_pos);
 
                 vrmr_debug(HIGH, "protect: source: '%s'", rule_ptr->source);
             }
@@ -914,7 +930,7 @@ int vrmr_rules_parse_line(
                     line_pos++, var_pos++) {
                 rule_ptr->service[var_pos] = line[line_pos];
             }
-            rule_ptr->service[var_pos] = '\0';
+            vrmr_term_token(rule_ptr->service, sizeof(rule_ptr->service), &var_pos);
 
             vrmr_debug(HIGH, "keyword service: '%s'.", rule_ptr->service);
 
@@ -935,7 +951,7 @@ int vrmr_rules_parse_line(
                     line_pos++, var_pos++) {
                 rule_ptr->service[var_pos] = line[line_pos];
             }
-            rule_ptr->service[var_pos] = '\0';
+            vrmr_term_token(rule_ptr->service, sizeof(rule_ptr->service), &var_pos);
 
             vrmr_debug(HIGH, "service: '%s'.", rule_ptr->service);
 
@@ -967,7 +983,7 @@ int vrmr_rules_parse_line(
                     line_pos++, var_pos++) {
                 rule_ptr->from[var_pos] = line[line_pos];
             }
-            rule_ptr->from[var_pos] = '\0';
+            vrmr_term_token(rule_ptr->from, sizeof(rule_ptr->from), &var_pos);
 
             vrmr_debug(HIGH, "keyword from: '%s'.", rule_ptr->from);
 
@@ -987,7 +1003,7 @@ int vrmr_rules_parse_line(
                     line_pos++, var_pos++) {
                 rule_ptr->from[var_pos] = line[line_pos];
             }
-            rule_ptr->from[var_pos] = '\0';
+            vrmr_term_token(rule_ptr->from, sizeof(rule_ptr->from), &var_pos);
 
             vrmr_debug(HIGH, "from: '%s'.", rule_ptr->from);
 
@@ -1024,7 +1040,7 @@ int vrmr_rules_parse_line(
                     line_pos++, var_pos++) {
                 rule_ptr->to[var_pos] = line[line_pos];
             }
-            rule_ptr->to[var_pos] = '\0';
+            vrmr_term_token(rule_ptr->to, sizeof(rule_ptr->to), &var_pos);
 
             vrmr_debug(HIGH, "keyword to: '%s'.", rule_ptr->to);
 
@@ -1044,7 +1060,7 @@ int vrmr_rules_parse_line(
                     line_pos++, var_pos++) {
                 rule_ptr->to[var_pos] = line[line_pos];
             }
-            rule_ptr->to[var_pos] = '\0';
+            vrmr_term_token(rule_ptr->to, sizeof(rule_ptr->to), &var_pos);
 
             vrmr_debug(HIGH, "to: '%s'.", rule_ptr->to);
 
@@ -1082,7 +1098,7 @@ int vrmr_rules_parse_line(
                 line_pos++, var_pos++) {
             options[var_pos] = line[line_pos];
         }
-        options[var_pos] = '\0';
+        vrmr_term_token(options, sizeof(options), &var_pos);
 
         vrmr_debug(MEDIUM, "keyword options: '%s'.", options);
 
@@ -1100,7 +1116,7 @@ int vrmr_rules_parse_line(
                     line_pos++, var_pos++) {
                 options[var_pos] = line[line_pos];
             }
-            options[var_pos] = '\0';
+            vrmr_term_token(options, sizeof(options), &var_pos);
 
             vrmr_debug(MEDIUM, "options: '%s'.", options);
 
