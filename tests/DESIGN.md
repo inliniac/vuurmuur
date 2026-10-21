@@ -1,7 +1,7 @@
 # Testing harness for rule generation (non-root)
 
 Status: in progress - tier 0 is landed and runs under `make check` (it covers the rules.conf
-line parser and the rule-options grammar). Tracker: inliniac/vuurmuur#54. Target: a `make check`
+line parser and the rule-options grammar). Tracker: https://github.com/inliniac/vuurmuur/issues/54 (this slice: inliniac/vuurmuur!4). Target: a `make check`
 that exercises the iptables ruleset generation end-to-end, as an unprivileged user, on any host,
 in CI and locally.
 
@@ -14,7 +14,8 @@ in CI and locally.
 3. Golden-file (snapshot) testing so that any change in generated output is explicit,
    reviewable and diffable. The restore file *is* the contract; command streams are
    secondary and temporary (legacy path goes in §8 P5).
-4. Cheap enough to run on every commit (`make check`, seconds), plus sanitizer/coverage
+4. Cheap enough to run on every commit (`make check` - tier 0 measures 0.5 s wall warm in an
+   out-of-tree build, about 1.4 s cold, so a CI job's first run costs more than a local loop), plus sanitizer/coverage
    variants.
 5. No behaviour change for production/root users, and **the seams stay test-only** - no
    user-facing `--dry-run` (decided). Every hook must be inert when the harness is not
@@ -32,12 +33,14 @@ do packets match), conntrack/NFLOG daemons, the ncurses GUI, IPv6-in-the-kernel,
 | D2 | Config/log/temp files must be **owned by uid/gid 0** | `lib/io.c:167` in `vrmr_stat_ok()` (used by `vuurmuur_fopen`/`opendir`) | every open fails as non-root |
 | D3 | `SYSCONFDIR` / `DATADIR` / `PLUGINDIR` baked at compile time | `lib/config.c:1343,1361,1370` | cannot point at a fixture tree |
 | D4 | Backend root from `$etcdir/vuurmuur/plugins/textdir.conf` | `lib/textdir/textdir_plugin.c:1101-1113` | needs a writable system etc |
-| D5 | Rule load = `popen()` of `iptables-restore`/`ip6tables-restore`/`/bin/bash` | `vuurmuur/ruleset.c:1124,1141,1187`, `vuurmuur/rules.c` (many), `vuurmuur/shape.c:144` | needs root + real binaries |
-| D5b | Two commands **parse iptables stdout** | `lib/rules.c:2802` (`iptables -t X -nL` chain listing), `lib/interfaces.c:1171` (`iptables -vnL <chain> --exact` counters) | need canned output, not just a no-op sink |
-| D6 | `iptables --version` sanity checks during config parse | `lib/config.c:150-175,179+` via `libvuurmuur_exec_command` | needs the binaries present |
-| D7 | iptables capability probe creates real chains | `lib/iptcap.c` (`vrmr_load_iptcaps`), called `vuurmuur/vuurmuur.c:365-375` | root + modules; already skippable (`-t`, `conf.vrmr_check_iptcaps`) |
-| D8 | `/proc/sys/...` reads+writes for protect rules | `vuurmuur/rules.c:2266-2280`, `lib/info.c:897-941`, `lib/proc.c` | read-only-ish for user, writes need root |
-| D9 | Interface addresses via `ioctl(SIOCGIFCONF/SIOCGIFADDR)` | `lib/info.c:516-573,629+` | host-dependent IPs -> nondeterministic output |
+| D5 | Rule load and every per-rule command: `popen()`/`execv()` of `iptables-restore`, `ip6tables-restore`, `/bin/bash`, `tc` | `vuurmuur/createrule.c` (61 sites, the bulk), `vuurmuur/rules.c` (26 sites, first `:110`), `vuurmuur/ruleset.c:1141,1187`, `lib/iptcap.c` (17 via `libvuurmuur_exec_command`, first `:85`), `vuurmuur/shape.c:144` | needs root + real binaries |
+| D5b | Two commands **parse iptables stdout** | `lib/rules.c:2818` (`iptables -t X -nL` chain listing, in `vrmr_rules_get_system_chains_per_table` at `:2799`), `lib/interfaces.c:1171` (`iptables -vnL <chain> --exact` counters) | need canned output, not just a no-op sink |
+| D6 | `iptables --version` **and `tc -V`** sanity checks during config parse | `lib/config.c:150-175,179+`, `tc -V` at `lib/config.c:285`, via `libvuurmuur_exec_command` | needs the binaries present |
+| D7 | iptables capability probe creates real chains and `modprobe -q`s modules | `lib/iptcap.c` (`vrmr_load_iptcaps`, `modprobe` at `:85`), called `vuurmuur/vuurmuur.c:365-375` | root + modules; skippable via `-t`/`conf.vrmr_check_iptcaps`, module loading via `conf.load_modules` |
+| D8a | `/proc/sys/...` reads+writes for protect rules | `vuurmuur/rules.c:2266-2280`, `lib/info.c:897-941`, `lib/proc.c` | read-only-ish for user, writes need root |
+| D8b | **`sysctl -w` as an external binary**, independent of D8a | `sysctl_exec()` `vuurmuur/misc.c:69-81` via `libvuurmuur_exec_command`; called at `vuurmuur/createrule.c:4443,4448` (`pre_rules`) and `:4733,4743,4759,4769` (`post_rules`); binary from `SYSCTL`, default `/sbin/sysctl` (`include/vuurmuur.h:132`) | fires on the restore-file path: guarded by `conntrack_accounting`/`forward_rules`, **not** by `ruleset == NULL`; `bash_out` only short-circuits inside `sysctl_exec` (`misc.c:71-74`), and the return value is discarded |
+| D9a | Interface addresses via `ioctl(SIOCGIFCONF/SIOCGIFADDR)` | `lib/info.c:516-573,629+` | host-dependent IPs -> nondeterministic output |
+| D9b | Interface **up/down** read from a hardcoded `/proc/net/dev` | `lib/interfaces.c:1003` (`fopen` at `:1038`) via `vrmr_read_interface_info` (`:244`, call at `:508-509`, set at `:513/:517`); `->up` gates emission at 9 sites: `vuurmuur/rules.c:1581,1651,1758,1886,1935,2022` and `vuurmuur/createrule.c:4807,4945,5004` | **reads succeed unprivileged** - no failure, just the host's own interface state leaking into the artifact. In `bash_out` mode every interface is forced up (`vuurmuur/vuurmuur.c:70-71,409-410`), which is itself a difference the goldens must not depend on |
 | D10 | Interface counters via `iptables -L` | `vuurmuur/ruleset.c:1289-1360` | skipped when `DEVICE` empty or virtual |
 | D11 | pidfiles `/var/run/vuurmuur*.pid` | `vuurmuur/main.h:59`, `vuurmuur_log/vuurmuur_log.h:39`, `vuurmuur/misc.c:30` | unwritable; only on the daemon path |
 | D12 | tempfiles hardcoded `/tmp/vuurmuur-XXXXXX` | `vuurmuur/ruleset.c:1485-1487,1648-1649` | parallel-test collisions, no per-case capture |
@@ -45,9 +48,9 @@ do packets match), conntrack/NFLOG daemons, the ncurses GUI, IPv6-in-the-kernel,
 | D14 | log dir created/validated under `LOGDIR` | `lib/config.c:63-135` | configurable -> fixtures use a temp dir |
 
 Already-good news: `vuurmuur` **without `-D`** is one-shot - it generates, loads and exits
-without daemonizing or creating shm (`cmdline.loop` only set for `-l/-D`, `vuurmuur.c:222`)
+without daemonizing or creating shm (`cmdline.loop` only set for `-l/-D`, `vuurmuur/vuurmuur.c:222`)
 - and `-k` already preserves the generated restore file for inspection
-(`ruleset.c:1602`). So a non-root oracle exists in the binary today; only D1-D4, D9 and D12
+(`vuurmuur/ruleset.c:1602`). So a non-root oracle exists in the binary today; only D1-D4, D9a, D9b and D12
 block using it. Separately, `-b` routes commands to `fprintf(stdout)` instead of `popen()`
 (`lib/io.c:465`), which is the legacy path's own oracle (§8 P5 removes it).
 
@@ -89,9 +92,11 @@ it is deleted (§8 P5).
 No fixtures, no filesystem beyond a private temp file the case creates and removes.
 Targets:
 
-* `vrmr_rules_parse_line()` (`lib/rules.c:706`), `vrmr_rules_encode_rule/decode_rule`
-  (`:2886`, `:2910`), `parse_option()` (`:1941`), `vrmr_rules_actiontoi()` (`:2621`),
-  `vrmr_rules_determine_ruletype()` (`:2937`)
+* `vrmr_rules_parse_line()` (`lib/rules.c:721`), `vrmr_rules_encode_rule/decode_rule`
+  (`:2902`, `:2926`), `parse_option()` (`:1957`), `vrmr_rules_actiontoi()` (`:2637`),
+  `vrmr_rules_determine_ruletype()` (`:2953`)
+(All `lib/rules.c` numbers here are post-`5b83c7e`; that commit grew the file by 16 lines, so citations
+written against `d08263b` sit 15-16 lower.)
 * `vrmr_split_portrange()` (services), ICMP type/code tables (`lib/icmp.c`)
 * `vrmr_list_*`, hash table + comparators (`lib/hash.c`), `vrmr_get_string()` (`lib/util.c`),
   `strlcpyu/strlcatu`
@@ -129,13 +134,25 @@ Shell/TAP driver that runs the *real* binaries against a sandbox, with a fake
 **same artifact as tier 1**, so the two tiers cross-check each other:
 
 ```
-VUURMUUR_SYSCONFDIR=$SB/etc VUURMUUR_TMPDIR=$SB/tmp PATH=$SB/bin:$PATH \
+VUURMUUR_SYSCONFDIR=$SB/etc VUURMUUR_TMPDIR=$SB/tmp \
   vuurmuur/vuurmuur -t -k -c $SB/etc/vuurmuur/config.conf
 ```
+The fake binaries are selected by **config keys, not by `PATH`** - prepending `$SB/bin` to
+`PATH` does nothing. Nothing in the generation path resolves a bare command name:
+`libvuurmuur_exec_command` reaches `execv()` (`lib/io.c:546`), which never searches `PATH`, and
+every `popen()` string interpolates a configured location (`vuurmuur/createrule.c:125-127`,
+`vuurmuur/ruleset.c:1123,1131`, `vuurmuur/shape.c:197`, `lib/iptcap.c:84`, `lib/config.c:163-284`).
+So the fixture's `vuurmuur.conf` must set `IPTABLES=`, `IPTABLESRESTORE=`, `IP6TABLES=`,
+`IP6TABLESRESTORE=`, `SYSCTL=`, `TC=` and `MODPROBE=` to `$SB/bin/*`; their compiled defaults are
+all absolute (`include/vuurmuur.h:132-141`), so a fixture that forgets one runs the real
+`/sbin/iptables-restore` on the host - exactly what §4 S4 promises cannot happen - or fails to
+parse config if the binary is absent. One literal is not configurable: `/bin/bash`
+(`vuurmuur/ruleset.c:1180`), which needs the same path hook as everything else or a fixture
+that never reaches it.
 
 `-t` skips the capability probe (D7); `-k` keeps the tempfiles (`cmdline.keep_file`,
 `vuurmuur/vuurmuur.c:258` -> `vuurmuur/ruleset.c:1602`) so the restore file survives for
-inspection. No `-D`/`-l` means one-shot: `cmdline.loop` stays 0 (`vuurmuur.c:222`), so the
+inspection. No `-D`/`-l` means one-shot: `cmdline.loop` stays 0 (`vuurmuur/vuurmuur.c:222`), so the
 process builds the ruleset, loads it and exits without daemonizing, creating shm or
 touching a pidfile (D11/D13 disappear on this path). `$SB/bin/` also holds fake `iptables`,
 `ip6tables`, `tc`, `sysctl`, `modprobe` for the config sanity checks (D6). Never pass
@@ -162,7 +179,7 @@ within the sandbox owner).
 
 Small, additive, each inert unless told otherwise. Ordered by necessity.
 
-### S1 `vrmr_exec_ops` - capture hook (enables D5, D5b, D6, D10)
+### S1 `vrmr_exec_ops` - capture hook (enables D5, D5b, D6, D8b, D10)
 
 `include/vuurmuur.h` *public* block stays untouched (test-only seams, decided); the ops
 struct and `vrmr_set_exec_ops()` go in a `noinst_HEADERS` private header:
@@ -184,7 +201,7 @@ void vrmr_set_exec_ops(const struct vrmr_exec_ops *ops); /* NULL = real ops */
 `ops->pipe(...)` / `ops->exec(...)` wrappers; the existing bodies move into
 `vrmr_real_exec_ops` unchanged (bash-mode stdout printing stays where it is). Add
 `vrmr_command_output(cnf, cmd, buf, size)` implemented as `ops->read()` and **route the
-two remaining direct `popen()` sites into it** (`lib/rules.c:2794-2802`,
+two remaining direct `popen()` sites into it** (`lib/rules.c:2810-2818`, popen at `:2818` in `vrmr_rules_get_system_chains_per_table` `:2799`,
 `lib/interfaces.c:1166-1171`) so the tree has exactly three auditable execution points.
 Default pointer = real ops, so production is one indirect call.
 
@@ -201,12 +218,14 @@ The harness installs capture ops that:
   stored per invocation kind, with a default "no custom chains yet" output for a clean-slate
   case).
 
-The assertion "`side-effects.txt` contains nothing but the restore invocations" is the
+The assertion "`side-effects.txt` contains nothing beyond a declared whitelist - the restore
+invocations plus whatever `sysctl -w`/`tc`/`modprobe` calls the fixture config enables - is the
 invariant that lets the legacy path be deleted safely in §8 P5.
 
 Audit rule for reviewers: `grep -rn 'popen\|execv' --include='*.c' lib/ vuurmuur/
-vuurmuur_script/` must stay empty outside `lib/io.c`. (The GUI's own `fork`/`execv` and its
-log-search `popen` - `vuurmuur_conf/vuurmuur_conf.c:66`, `logview_section.c:1382` - are out
+vuurmuur_script/` must stay empty outside `lib/io.c` **once S1 lands** - today it returns two sites
+outside (`lib/rules.c:2818`, `lib/interfaces.c:1171`), which is exactly what S1 moves. (The GUI's own `fork`/`execv` and its
+log-search `popen` - `vuurmuur_conf/vuurmuur_conf.c:66`, `vuurmuur_conf/logview_section.c:1382` - are out
 of scope for these tiers.)
 
 ### S2 path rooting (enables D3, D4, D11, D12)
@@ -247,28 +266,37 @@ auto-`chmod`) stays: fixtures are created by the harness, so they satisfy it.
 `vuurmuur/vuurmuur.c:284` and `vuurmuur_script/vuurmuur_script.c:97`:
 
 ```c
-if (!vrmr_am_root() && !cnf->allow_unprivileged) { ... exit ... }
+if (vctx.user_data.user > 0 || vctx.user_data.group > 0) { ... exit ... }   /* today */
+if ((vctx.user_data.user > 0 || vctx.user_data.group > 0) && !cnf->allow_unprivileged) { ... exit ... }
 ```
+There is no `vrmr_am_root()`; the existing test is on the setuid-dropped ids, which is why the hook
+has to be added at that expression rather than around a helper.
 
 `allow_unprivileged` set only by `VUURMUUR_ALLOW_NONROOT=1`. Tier 1 doesn't need this at
 all (the driver never enters `main()`); it exists so tier 2 exercises the real binaries.
 Also assert that the generation path itself (D5 capture) cannot touch the kernel, so a
 misconfigured harness fails loudly rather than modifying the host firewall.
 
-### S5 system-info hooks (enables D7, D8, D9, D10)
+### S5 system-info hooks (enables D7, D8a, D9a, D9b, D10)
 
 * **capabilities** (D7): no new code. `conf.vrmr_check_iptcaps=FALSE` (`-t`) plus the
   driver filling `vctx.iptcaps` from a profile file. Profiles in
   `tests/profiles/*.caps` (key=value, mapped onto `struct vrmr_iptcaps`,
   `include/vuurmuur.h:1120`): `modern` (raw/rpfilter/ct all true), `no-rpfilter`,
-  `no-nfqueue`, `ipv4-only`. Only 5 real consumers, all in `vuurmuur/ruleset.c:368,410,614,702`.
-* **proc** (D8): `lib/proc.c` resolves paths against `cfg->procdocdir`
+  `no-nfqueue`, `ipv4-only`. Only 5 real consumers, all in `vuurmuur/ruleset.c:369,371,411,615,703`.
+* **proc** (D8a): `lib/proc.c` resolves paths against `cfg->procdocdir`
   (new, default `/proc`); harness points it at `<sandbox>/proc` with a pre-created fake
   tree. Protect-rule generation then asserts on the values written.
-* **interface addresses** (D9): `lib/info.c:516,629` consult an optional
+* **interface addresses** (D9a): `lib/info.c:516,629` consult an optional
   `cfg->iface_addr_map` (`name=ip[,ip6]` list) before `ioctl()`; harness sets it from the
   case manifest (`eth0=10.0.0.1`, `eth1=203.0.113.2`, ...). Without the map (production)
   the ioctl path runs unchanged. This is what makes goldens portable across machines.
+* **interface up/down** (D9b): owned by the same hook family, and it needs it - the state is read
+  from a hardcoded `/proc/net/dev` (`lib/interfaces.c:1003`, `fopen` at `:1038`) that no
+  `procdocdir` prefix reaches. Two options, in order of preference: fixtures mark devices
+  `device_virtual_oldstyle`, which skips the read outright (`lib/interfaces.c:506`), or
+  `vrmr_get_iface_stats()` grows an optional map keyed by device name. Without one of the two the
+  artifact depends on whether the build host has an interface up, silently.
 * **counters** (D10): fixtures use empty/`DEVICE=""` or virtual devices
   (`vuurmuur/ruleset.c:1307`), or `ops->read()` returns canned `--exact` output.
 * **system chains** (`vrmr_rules_get_system_chains`, called from `vuurmuur/ruleset.c:359`
@@ -310,19 +338,39 @@ tests/
                        profile                           (which .caps profile, opts)
   profiles/*.caps
   golden/<case>/{iptables.restore,ip6tables.restore,shape.sh,side-effects.txt,
-                 warnings.txt,exitcode}
+                 warnings.txt,restore.stderr,exitcode}
 ```
 
 Case discovery: one directory = one test; `tests/gen/main.c` iterates `fixtures/*`.
+Regenerating goldens after an intended change is `make check-corpus` (§3), and that is the only
+supported way to refresh them - a golden diff is a finding, so nobody edits `golden/` by hand.
+`restore.stderr` is the kernel's answer to the load (`2>>` at `vuurmuur/ruleset.c:1123`, `:1131`, `:1180`; not `:1486`, which is the `cur_result_path` declaration) and the
+only signal for "would a real kernel have taken this ruleset"; in tier 1 it captures the fake
+binary's stderr, so it stays empty, and in tier 2 it is where a rejected rule shows up.
 
 **Normalizer** (`tests/lib/normalize.c`), applied to both golden and captured output before
 diff, so goldens stay stable:
 * drop the `# Generated by Vuurmuur <version>` header line (`vuurmuur/ruleset.c:362`) so
   version bumps do not touch goldens; keep every other line
 * rewrite sandbox paths to `$SB` (and `$RULESET`/`$SHAPE` for the tempfiles)
-* keep `[0:0]` counters: they are literal text in the generated file, not live values, so
-  asserting on them is free. Live counters only appear in `read()` fixtures
-  (`iptables -vnL <chain> --exact`), which are inputs, not output
+* strip the audit prefix, and know that it is **not the process user**: `vrprint.username` is
+  the owner of **fd 0** (`lib/info.c:1086-1095`, `readlink("/proc/self/fd/0")` + `lstat` +
+  `getpwuid`, assigned at `lib/config.c:1660`, printed at `lib/log.c:139,225,333`). From a
+  terminal it is your username, under automake (`stdin` from `/dev/null`) it is `root`, and when
+  fd 0 is a pipe the `lstat` fails and `lib/info.c:1109-1113` fills `"unknown"` and returns -1.
+  So `warnings.txt` carries a field that changes between a hand run and a CI run unless the
+  normaliser removes `^[^ ]+ : ` or the driver pins stdin
+* `[0:0]` is literal text **only on chain declaration lines** (13 `snprintf`s in
+  `ruleset_fill_file`: `vuurmuur/ruleset.c:377-427,619-625,707-713`). **Rule** lines get their
+  counters from the kernel: `ruleset_add_rule_to_set()` prints `"[%" PRIu64 ":%" PRIu64 "] "`
+  whenever either is non-zero (`vuurmuur/ruleset.c:274-277`), and the values come from
+  `ruleset_save_interface_counters()` (`:1289`, called `:1499,:1661`) reading
+  `iptables -vnL <chain> --exact` through `vrmr_get_iface_stats_from_ipt()`
+  (`lib/interfaces.c:1140`, popen `:1167/:1171`). That is the counter-preserving reload
+  mechanism, so it is by design, not an accident. Consequence: tier 1 goldens are stable only
+  while the `read()` fixture is honest (the canned "no custom chains yet" answer yields zeros),
+  and a tier 2 golden with a real `iptables` **moves on every run**. Tier 2 must pin that read
+  or normalise `\[[0-9]+:[0-9]+\] ` on rule lines; "asserting on them is free" is false.
 * keep emission **order** (order is semantics: chain declarations, `--new`, `COMMIT`, and
   rule order inside a chain all matter); never sort
 * collapse trailing whitespace, one rule per line, strip CR
@@ -333,7 +381,14 @@ plus opt-in structural queries for focused tests: `expect_chain("filter","INPUT"
 `count_rules("FORWARD") == N`, `expect_new_chain("PRE-VRMR-PREROUTING")`, and "no rule
 contains an unexpanded placeholder or an empty address".
 
-### Case taxonomy (first corpus, ~25 cases)
+### Case taxonomy
+
+The table names **64** inputs, and it is a starting inventory rather than a plan: the `options`
+row is a modifier set that multiplies across rule types and directions, so the honest denominator
+is the number of emission branches in `ruleset_create_ruleset()`, not the number of rows. The
+corpus budget below (6 at P1, 15 at P2, then widening at P3) is a first slice of that inventory,
+not a claim that 25 covers the tree; whoever plans a later phase sizes against the 64, and against
+the branch count, not against this heading.
 
 | Area | Cases |
 |---|---|
@@ -381,9 +436,16 @@ A single switch for both families, because there is no case for running one with
 other. Leak checking is an `ASAN_OPTIONS` choice rather than a build setting; §13 records what
 tier 0 shows with it on. An invalid free is what ASan is asked to find.
 
-The `build` job already runs the suite through `make distcheck`, so a sanitized variant is
-a configure flag on that recipe, not new machinery: the `fedora:sanitizers` jobs today
-build with `-fsanitize=undefined` and never execute a binary.
+**Where CI actually lives:** the pipeline that builds this repository is not in it. Project 9 sets
+`ci_config_path = .gitlab-ci.yml@inliniac/vuurmuur-ci`, so every job named below is a file in the
+`inliniac/vuurmuur-ci` project that no reader of this document can patch from here; the only CI file in
+this tree is `.github/workflows/builds.yml`. Today `make check` runs in exactly two jobs -
+`ubuntu:26.04:arm64` and `ubuntu:26.04:armhf`, the only ones that execute the suite on arm - and
+`build` runs `make -j<N> distcheck`, which runs the suite a second time in a VPATH tree;
+`ubuntu:26.04:amd64` compiles without running it. A sanitized variant is therefore a configure flag on
+an existing recipe, not new machinery: the `fedora:43/44:sanitizers` jobs compile with
+`-fsanitize=*` CFLAGS and never execute a binary, which is the same `CFLAGS`-override trap §10 warns
+about, in the opposite direction.
 * `--enable-coverage` -> `--coverage`, `make check-codecov` + `lcov --rc
   lcov_branch_coverage=1` report limited to `lib/` + `vuurmuur/`.
 * Fuzz targets (tier 0, `check_PROGRAMS`, run 30 s in CI nightly):
@@ -401,13 +463,21 @@ build with `-fsanitize=undefined` and never execute a binary.
 | Phase | Content | Size |
 |---|---|---|
 | P0 | ✅ `tests/` skeleton + TAP emitter, tier 0 for `lib/rules.c` parsers | done |
-| P0b | CI job entry for `make check` (needs a workflow edit, unverified) | S |
+| P0b | sanitizer/coverage execution in CI - partly done: `make check` already runs in the two `ubuntu:26.04:arm*` jobs and in `build`'s distcheck; what remains is the sanitizer job actually executing binaries | S |
 | P1 | S1 exec-capture + S6 build split, tier 1 driver, sandbox helper, 6 golden cases | M |
 | P2 | S2 rooting, S3 owner, S5 proc/iface-address hooks, tier 2 CLI cases, 15 more goldens | M |
 | P3 | normalizer hardening, capability profiles, idempotence + reload-diff cases, corpus target (~25) | M |
 | P4 | CI job (`make check` in the ubuntu matrix + ASan job), `diff-branch.sh`, coverage gate | S |
-| P5 | **delete the legacy per-command path** (decided: after the harness lands): drop `create_all_rules()`/`*-rules(..., NULL, ...)` call shapes, reroute `-b` through the ruleset path (or retire the flag), then drop the `commands.txt` goldens | M |
+| P5 | **delete the legacy per-command path** (decided: after the harness lands). Not a cut-out: `create_all_rules()` (`vuurmuur/rules.c:328-444`, 117 lines) calls the *same* builders with `ruleset = NULL`, and the split is per rule inside `process_rule()`, so the inventory is 31 `if (ruleset == NULL)` sites in `vuurmuur/createrule.c` (:257, :2785-:3209, :3374, :3834-:4291, :4500, :4582 - ~473 lines), 71 `bash_out` references under `vuurmuur/` (createrule.c 58, vuurmuur.c 7, rules.c 3, misc.c 2, main.h 1), and `oldrules_create_custom_chains()` (`vuurmuur/rules.c:84-123`), the sole caller of the `iptables -N` chain creation. Reroute `-b` through the ruleset path (or retire the flag), then drop the `commands.txt` goldens | **L** (checklist-sized; budget as if it were XL) |
 | P6 | fuzz targets + nightly, seed corpus | S |
+
+**Exit criteria, since the table gives sizes but no finish line.** A phase is done when `make check`
+passes on the tree it lands in, when the next phase can be written without editing that phase's
+fixtures, and when every artifact it produces is diffed against a golden rather than eyeballed. For
+P1-P3 the definition of done is the corpus: one case per emission branch the current implementation
+supports, which is the 64-input inventory in §5 narrowed by whatever `ruleset_create_ruleset()`
+actually branches on. The harness as a whole is done when a rules-generation change can break a test
+without root, a VM, or a network namespace - which is the reason it exists.
 
 Gate for P5: the whole restore-file corpus must be green before and after the deletion
 (`diff-branch.sh` proving byte-identical artifacts), and `side-effects.txt` must already be
@@ -420,11 +490,23 @@ part of the PR that changes it.
 
 1. **Legacy duplicate code path.** *Decided:* harness first, deletion in P5. Consequence:
    until P5 the golden corpus covers two implementations of the same intent, so the
-   `side-effects.txt` invariant ("nothing but restore invocations") is what makes the
+   `side-effects.txt` invariant (nothing beyond the restore invocations and the declared
+   `sysctl`/`tc`/`modprobe` calls) is what makes the
    eventual deletion reviewable rather than a leap.
-2. **Ordering flakiness.** Chain emission order and rule order inside chains come from
-   config traversal; any hashing (hashtables in `lib/hash.c`) must never leak into emit
-   order - a tier 1 invariant test should assert that.
+2. **Ordering.** Already true, and worth stating so nobody wastes a test on it: there is no
+   hashing and no `qsort` on the generation path. The claim is the one a reader can check in a
+   grep: **`vrmr_hash_*` measures 0 in `vuurmuur/*.c` and 0 in `lib/rules.c`** - it is used
+   elsewhere (`lib/hash.c`, `lib/conntrack.c`, `lib/config.c:1758,1765`, `vuurmuur_log/`,
+   `vuurmuur_conf/`), which is beside the point - and `qsort` appears once in the whole tree, in
+   `vuurmuur_conf/conn_sec.c:496`. The lists feeding the artifact are FIFO over rules-file order (`lib/rules.c:678`, appended by
+   `vrmr_list_append` `lib/linkedlist.c:144`, artifact append `vuurmuur/ruleset.c:303`).
+   The dependence that *does* exist is filesystem order: object lists come from `readdir()`
+   (`lib/textdir/textdir_list.c:75,137,222,288,346,404,493`) and are tamed by a **sorted insert
+   at load time** (`lib/interfaces.c:48`, `lib/services.c:53`, `vrmr_insert_zonedata_list` `lib/zones.c:157`, decision at `:220`) - there is no
+   sort in any save path. That is what an invariant test should pin: two fixtures holding the
+   same objects created in different directory order must produce byte-identical artifacts. It
+   is deterministic today by construction rather than by assertion, so a future load-time
+   optimisation could break goldens silently.
 3. **`vrmr_stat_ok()` auto-`chmod`** rewrites fixture modes on failure; harness must set
    modes correctly (0600 files / 0700 dirs) or goldens get noisy.
 4. **Buffer limits vs realism.** `VRMR_MAX_*` sizes and `cmd[512]` mean long
@@ -482,8 +564,8 @@ must not turn an analyzer finding into a build failure before the report exists.
 **The override was the trap, and it still has teeth.** CI used to carry two warning sets: the
 alpine and Ubuntu `features` jobs compiled with `CFLAGS="-Werror -Wall -Wextra"` (alpine: same
 flags, `CC=gcc`) and **without** `-Wno-unused-parameter`, while the local strict loop used a set
-that included it. A seam that added an unused parameter - `vrmr_real_pipe()` keeps `cnf` for the
-hook signature, `splice_str()` in the harness took a buffer base it never used - was green across
+that included it. A seam that added an unused parameter - in the first-cut harness, whose names (`vrmr_real_pipe`,
+harness `splice_str`) never reached this tree - green across
 five compilers locally and red in three CI jobs. A `CFLAGS` override replaces whatever configure
 chose, so it silently builds a different program from the one CI tests; the same class of mistake
 as picking a sanitizer in `CFLAGS` without `LDFLAGS`, and the reason both options exist.
@@ -500,9 +582,9 @@ make -k all && make -k check     # -k: enumerate, do not stop at the first
 `make -k check` matters: `check_PROGRAMS` are not built by `make all`, so harness-only code is
 where a warning set can still hide a failure.
 
-`make distcheck` runs and passes, and it is worth stating plainly because it is also what
-CI's `build` job runs: a failing assertion breaks those jobs, which is the strongest sense in
-which this suite is in CI today. Build the VPATH tree from `git archive`, never from a tar of the
+`make distcheck` runs and passes, and it is worth stating plainly because it is what CI's `build`
+job runs (in `inliniac/vuurmuur-ci`, see §7) alongside the two arm jobs that call `make check`
+directly: a failing assertion breaks those, which is the sense in which this suite is in CI today. Build the VPATH tree from `git archive`, never from a tar of the
 working directory - a leftover `*.log` or `*.trs` makes `make check` die with `failed to create
 ... .log`, which reads like a test failure and is not one.
 
@@ -513,7 +595,7 @@ rather than a netns wrapper or a fake kernel.
 
 * `logprefix` can never be rejected for being too long: the copy caps at 12 characters, so
   the `strlen(op->logprefix) > 14` branch that warns and clears the flag is unreachable
-  (`lib/rules.c:2139-2155`). Long prefixes are silently truncated instead. Pinned by a
+  (`lib/rules.c:2155-2171`, the test at `:2162`). Long prefixes are silently truncated instead. Pinned by a
   test, so fixing it shows up as a deliberate diff.
 * The options disagree about quoting: `in_int`, `out_int`, `via_int`, `chain`, `comment`
   and `logprefix` start copying two characters past the key and so require `key="value"`,
@@ -587,7 +669,8 @@ remembering to set it.
 The order of the commits is the other half of the same argument. With the parser fix
 placed after the tests that found it, the sanitizer build this branch advertises fails at
 the test commit - exit 2, `# PASS: 2 # FAIL: 1`, ASan `stack-buffer-underflow` at
-`lib/rules.c:728`, which is the empty-line read rather than a terminator, so the guard is
+`lib/rules.c:728` (now `:743-744` after the clamp fix), which is the empty-line read rather than a
+terminator, so the guard is
 not even what makes it fail - while every strict build stays green. A `git bisect` run with
 sanitizers would stop at a commit that was never broken in the shipped program. The fix
 therefore comes first, and the guard lands with the tests that need it.
