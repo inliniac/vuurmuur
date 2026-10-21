@@ -377,9 +377,13 @@ Still planned, each with a cost that has to be paid in the open:
 
 `--with-sanitizers` -> `-fsanitize=address,undefined -fno-omit-frame-pointer`, landed.
 A single switch for both families, because there is no case for running one without
-the other here. Leak checking stays off (`detect_leaks=0`): teardown paths leave
-allocations attached at exit, and an invalid free is what ASan is being asked to find.
-Run tier 0+1 under it in CI once the suite runs there at all.
+the other here. Leak checking is an `ASAN_OPTIONS` choice rather than a build setting;
+§13 records what tier 0 shows with it on. An invalid free is what ASan is being asked to
+find here.
+
+The `build` job already runs the suite through `make distcheck`, so a sanitized variant is
+a configure flag on that recipe, not new machinery: the `fedora:sanitizers` jobs today
+build with `-fsanitize=undefined` and never execute a binary.
 * `--enable-coverage` -> `--coverage`, `make check-codecov` + `lcov --rc
   lcov_branch_coverage=1` report limited to `lib/` + `vuurmuur/`.
 * Fuzz targets (tier 0, `check_PROGRAMS`, run 30 s in CI nightly):
@@ -431,9 +435,11 @@ part of the PR that changes it.
    the `PRE-VRMR-*` / custom-chain logic goes untested. First-class in S1.
 6. **IPv6 in CI.** `--disable-ipv6` and `check_ipv6` must both be exercised; pick one
    canonical configure flag set for goldens (`IPV6_ENABLED` changes emitted output).
-7. **Bootstrap deps.** See §10 - the build works locally and is `-Werror` clean on all four
-   available compilers; `vm-build.sh` covers the gettext workaround until the NLS handling
-   is made optional upstream.
+7. **Bootstrap deps.** See §10 - the build works locally, and `--enable-werror` is clean
+   with gcc 15, gcc 16 and clang 21; clang 22 fails only at the link step on a toolchain
+   notice, which is a host property rather than a code one. NLS handling is still a hard
+   configure requirement, so a host without gettext macros cannot build from a clean
+   checkout; that is worth an upstream look at making it optional.
 8. **Nftables abstraction is explicitly out of scope for now** (decided): the sink is the
    restore file, i.e. iptables-restore syntax is the golden format. When/if an nftables
    emitter appears, it gets its own artifact type and the restore goldens stay as the
@@ -448,41 +454,41 @@ part of the PR that changes it.
 
 ## 10. Local build recipe (verified on this box)
 
-`gettext` is not installed and there is no root/apt here, which blocks `autogen.sh`
-(`AM_GNU_GETTEXT` left unexpanded -> `configure` dies at the `AM_GNU_GETTEXT(external)`
-line). Workaround in use, no repo changes required:
+The gettext tools are installed here, so `autogen.sh` needs no staging. The reason to keep
+this section at all is that a workaround outlived its problem: without `gettext`'s m4
+macros, `AM_GNU_GETTEXT` was left unexpanded and `configure` died at the
+`AM_GNU_GETTEXT(external)` line. There is no root or apt here, so if that returns, it
+returns as a broken `autogen.sh`, not as a missing package. Today:
 
 ```sh
-apt-get download gettext && dpkg-deb -x gettext_*.deb ~/opt/gettext-local   # one-off
-PATH=~/opt/gettext-local/usr/bin:$PATH ACLOCAL_PATH=~/opt/gettext-local/usr/share/aclocal \
-  bash autogen.sh          # note: gettextize deletes po/Makefile.in.in -> git checkout -- po/Makefile.in.in
-cp ~/opt/gettext-local/usr/share/gettext/po/Makefile.in.in po/  # repo copy is from gettext 0.20
-./configure --prefix=/usr --sysconfdir=/etc && make -j8
+bash autogen.sh
+./configure --prefix=/usr --sysconfdir=/etc
+make -j8
 ```
 
-`~/opt/bin/vm-build.sh` wraps all of the above (it also restores `po/Makefile.in.in` on
-exit so `git status` stays clean; `WERROR=1` reproduces the CI flag set). A strict build is
-now also available without any flag gymnastics: `./configure --enable-werror`.
+There is no wrapper script and no unpacked prefix on this host: that was a container that
+has since been replaced, and `autogen.sh` from a clean checkout is all it takes. A strict
+build is `./configure --enable-werror`, sanitizers are `./configure --with-sanitizers`;
+neither is a `CFLAGS` exercise, which is the point of having the options.
 
-**Warning status.** The build is clean under `-Wall -Wextra -Werror
--Wno-unused-parameter -Wno-unused-function` clean with gcc 15, gcc 16 and clang 21.
-clang 22 compiles clean but fails the link step: its `gcc-install-dir-libstdcxx`
-notice is promoted to an error when libtool hands CFLAGS to the driver, and the
-`-Wno-error=` demotion that fixes the compile step does not reach there.
-(76 translation units each). Earlier `-Wdiscarded-qualifiers` failures under C23
-string-search results and the set-but-unused counters are fixed on master. CI still sets the
-same flags through a `CFLAGS` override, which also drops `-g -O2`; switching the workflows
-to `./configure --enable-werror` would make CI and local strict builds identical (open
-cleanup, no harness dependency).
+**Warning status.** With `--enable-werror` the build is clean with gcc 15, gcc 16 and clang 21.
+clang 22 compiles clean but fails the link step: its `gcc-install-dir-libstdcxx` notice is
+promoted to an error when libtool hands `CFLAGS` to the driver, and the `-Wno-error=` demotion
+that settles the compile step does not reach there. Earlier `-Wdiscarded-qualifiers` failures
+over C23 string-search results, and set-but-unused counters, are fixed on master. The GitHub
+workflow jobs configure with `--enable-werror` (`.github/workflows/builds.yml:46,79,185`) rather
+than a `CFLAGS` override, so CI and a local strict build describe the same program; the two
+scan-build jobs still pass `${DEFAULT_CFLAGS}` (`:141,:144`) on purpose, because `--status-bugs`
+must not turn an analyzer finding into a build failure before the report exists.
 
-**The override is the trap, and it has teeth.** CI does not have one warning set. The alpine
-and Ubuntu `features` jobs compile with `CFLAGS="-Werror -Wall -Wextra"` (alpine: same flags,
-`CC=gcc`) and **without** `-Wno-unused-parameter`, while my local strict loop passed a set that
-includes it. A seam that added an unused parameter — `vrmr_real_pipe()` keeps `cnf` for the hook
-signature, `splice_str()` in the harness took a buffer base it never used — was green across all
+**The override was the trap, and it still has teeth.** CI used to carry two warning sets: the
+alpine and Ubuntu `features` jobs compiled with `CFLAGS="-Werror -Wall -Wextra"` (alpine: same
+flags, `CC=gcc`) and **without** `-Wno-unused-parameter`, while the local strict loop used a set
+that included it. A seam that added an unused parameter - `vrmr_real_pipe()` keeps `cnf` for the
+hook signature, `splice_str()` in the harness took a buffer base it never used - was green across
 five compilers locally and red in three CI jobs. A `CFLAGS` override replaces whatever configure
-would have set, so it silently tests a different program than the one CI builds; same class of
-mistake as picking a sanitizer in `CFLAGS` without `LDFLAGS`.
+chose, so it silently builds a different program from the one CI tests; the same class of mistake
+as picking a sanitizer in `CFLAGS` without `LDFLAGS`, and the reason both options exist.
 
 So reproduce the jobs verbatim before pushing anything that changes a signature:
 
@@ -496,11 +502,15 @@ make -k all && make -k check     # -k: enumerate, do not stop at the first
 `make -k check` matters: `check_PROGRAMS` are not built by `make all`, so harness-only code is
 where a warning set can still hide a failure.
 
+`make distcheck` runs here and passes, and it is worth stating plainly because it is also what
+CI's `build` job runs: a failing assertion breaks those jobs, which is the strongest sense in
+which this suite is in CI today. Build the VPATH tree from `git archive`, never from a tar of the
+working directory - a leftover `*.log` or `*.trs` makes `make check` die with `failed to create
+... .log`, which reads like a test failure and is not one.
+
 Other env facts that shaped this design: no `iptables` binary on the host, and
 unprivileged user/network namespaces are denied (`unshare: Operation not permitted`), so
 neither fake-kernel nor netns sandboxing is available - hence the explicit capture seam.
-`make dist` and `distcheck` cannot run here either: the unpacked gettext has no working
-`msgmerge` wrapper, so `po/*.po-update` fails. CI uses the distro package and is unaffected.
 
 ## 11. Findings from tier 0
 
@@ -515,6 +525,17 @@ neither fake-kernel nor netns sandboxing is available - hence the explicit captu
 * Unknown options are accepted in silence (`parse_option`'s fallback `return(-1)` is
   commented out), so a typo in a rules file surfaces as a missing match in the generated
   ruleset instead of a load failure.
+* The token terminators in `vrmr_rules_parse_line` wrote one byte past a field whenever
+  a token was at least as long as its destination, and the newline strip read
+  `line[-1]` on an empty line. Both are fixed in
+  `lib: keep the rule line parser inside its buffers` and held there by
+  `test_overlong_tokens`. A per-site mutation run decides whether the tests hold: revert
+  one of the fifteen clamps, rebuild, `make check` under `--with-sanitizers`. Twelve fail,
+  each naming the line it mutated; the three that stay silent cannot overshoot - the
+  action copy stops at `sizeof(action_str) - 1` and the `'against'` and `'from'` keyword
+  copies at the length of those words, so their clamps are defensive rather than
+  load-bearing.
+
 * `markiptstate` and the `queue` option are obsolete but harmless; the `queue` *action* is
   refused with a pointer to `nfqueue`, the option is not.
 
@@ -550,13 +571,29 @@ rather than a CI `CFLAGS` override for the same reason `--enable-werror` is: the
 override replaces what configure chose, and the set that runs stops being a project
 decision.
 
-The tier 0 tests pass under it with `ASAN_OPTIONS="abort_on_error=1 detect_leaks=0"`
-and no sanitizer output. Leak checking stays off on purpose: the teardown paths leave
-allocations attached at exit, and the finding worth catching here is an invalid free,
-which ASan reports without help. UndefinedBehaviorSanitizer recovers and prints by
-default, so it cannot fail a job on its own; `UBSAN_OPTIONS=halt_on_error=1` in the CI
-job is the switch for that, deliberately not baked into the build because the tree has
-never been audited for it.
+The tier 0 tests pass under it with `ASAN_OPTIONS=abort_on_error=1` and no sanitizer
+output.
+
+Leak checking is not a build option, so the build says nothing about it. Under
+`detect_leaks=1` these three programs report zero leaks, and the zero is worth something
+because a control allocation in the same binary is reported, which shows LSan is actually
+linked and running in that mode. Nothing in tier 0 has a teardown path to leak from. The
+later tiers are where allocations get left attached at exit, and `detect_leaks=0` is their
+recipe's business, not this one's.
+
+UndefinedBehaviorSanitizer recovers and prints by default, so a finding would land on
+stderr while `make check` still reports `# PASS: 3`. `AM_TESTS_ENVIRONMENT` in
+`tests/Makefile.am` therefore exports `UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1`,
+which makes the suite fail where the tests are defined instead of depending on a CI job
+remembering to set it.
+
+The order of the commits is the other half of the same argument. With the parser fix
+placed after the tests that found it, the sanitizer build this branch advertises fails at
+the test commit - exit 2, `# PASS: 2 # FAIL: 1`, ASan `stack-buffer-underflow` at
+`lib/rules.c:728`, which is the empty-line read rather than a terminator, so the guard is
+not even what makes it fail - while every strict build stays green. A `git bisect` run with
+sanitizers would stop at a commit that was never broken in the shipped program. The fix
+therefore comes first, and the guard lands with the tests that need it.
 
 What the sanitizers cannot reach yet is `vuurmuur_conf`'s quit-mid-search path, where
 the double close that section 12 describes lived: nothing drives the UI. That needs a
