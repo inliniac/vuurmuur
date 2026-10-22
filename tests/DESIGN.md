@@ -1,9 +1,10 @@
 # Testing harness for rule generation (non-root)
 
-Status: in progress - tier 0 is landed and runs under `make check` (it covers the rules.conf
-line parser and the rule-options grammar). Tracker: https://github.com/inliniac/vuurmuur/issues/54 (this slice: inliniac/vuurmuur!4). Target: a `make check`
-that exercises the iptables ruleset generation end-to-end, as an unprivileged user, on any host,
-in CI and locally.
+Status: tier 0 and the tier 1 generation path are landed - `make check` runs assertions over the
+rules.conf line parser, the option grammar and the log reader, plus golden cases over the whole
+generation pipeline. Nothing in `make check` needs root, `iptables` or a config tree. Tracker:
+https://github.com/inliniac/vuurmuur/issues/54. Target: `make check` exercising the iptables
+ruleset generation end-to-end, as an unprivileged user, on any host, in CI and locally.
 
 ## 1. Goals
 
@@ -464,8 +465,8 @@ about, in the opposite direction.
 |---|---|---|
 | P0 | ✅ `tests/` skeleton + TAP emitter, tier 0 for `lib/rules.c` parsers | done |
 | P0b | sanitizer/coverage execution in CI - partly done: `make check` already runs in the two `ubuntu:26.04:arm*` jobs and in `build`'s distcheck; what remains is the sanitizer job actually executing binaries | S |
-| P1 | S1 exec-capture + S6 build split, tier 1 driver, sandbox helper, 6 golden cases | M |
-| P2 | S2 rooting, S3 owner, S5 proc/iface-address hooks, tier 2 CLI cases, 15 more goldens | M |
+| P1 | ✅ S1 exec-capture + S2 config/state rooting + S3 owner + S5 interface-address hook + S6 engine split, tier 1 driver, sandbox helper, golden cases | done |
+| P2 | S4 rundir/pidfile rooting, tier 2 CLI cases (`vuurmuur -k`), `#include`d host facts, more goldens | M |
 | P3 | normalizer hardening, capability profiles, idempotence + reload-diff cases, corpus target (~25) | M |
 | P4 | CI job (`make check` in the ubuntu matrix + ASan job), `diff-branch.sh`, coverage gate | S |
 | P5 | **delete the legacy per-command path** (decided: after the harness lands). Not a cut-out: `create_all_rules()` (`vuurmuur/rules.c:328-444`, 117 lines) calls the *same* builders with `ruleset = NULL`, and the split is per rule inside `process_rule()`, so the inventory is 31 `if (ruleset == NULL)` sites in `vuurmuur/createrule.c` (:257, :2785-:3209, :3374, :3834-:4291, :4500, :4582 - ~473 lines), 71 `bash_out` references under `vuurmuur/` (createrule.c 58, vuurmuur.c 7, rules.c 3, misc.c 2, main.h 1), and `oldrules_create_custom_chains()` (`vuurmuur/rules.c:84-123`), the sole caller of the `iptables -N` chain creation. Reroute `-b` through the ruleset path (or retire the flag), then drop the `commands.txt` goldens | **L** (checklist-sized; budget as if it were XL) |
@@ -678,3 +679,41 @@ therefore comes first, and the guard lands with the tests that need it.
 What the sanitizers cannot reach yet is `vuurmuur_conf`'s quit-mid-search path, where
 the double close that section 12 describes lived: nothing drives the UI. That needs a
 pty-driven test of its own.
+
+## 14. Findings from tier 1
+
+* `vrmr_backends_unload()` has to be called by anything that loads objects in a loop: the
+  textdir backend opens a `DIR *` per object type (`setup_textdir` `:1136`, `open_textdir`
+  `:240/:268/:296`) and nothing else closes them. The tier 1 driver generates twice per case,
+  so a missing unload leaks a megabyte before the first assertion even runs.
+* A leak-checking run still reports a few hundred kilobytes under `regexec()` from
+  `vrmr_validate_zonename/servicename/interfacename`: `vrmr_regex_setup(UNLOAD)` frees only
+  part of `struct vrmr_regex`, so the glibc DFA caches of the rest stay allocated to exit.
+  It is a product teardown gap rather than a harness one, bounded at one cache per regex, and
+  it is the reason tier 1 is not yet gated on `detect_leaks=1`.
+
+* `vrmr_create_tempfile()` created the ruleset tempfiles with mode **0000**: it wrapped
+  `mkstemp()` in `umask(0600)`, which subtracts the owner bits instead of setting them.
+  Root cannot tell, so a non-root reader simply got `EACCES`. Fixed to `umask(0177)`.
+* Protect rules do not belong in `rules.conf` any more - they are dropped with a warning
+  (`lib/rules.c:662-676`). The supported place is `RULE="protect against <danger>"` in
+  `interfaces/<name>.conf` (and the network equivalents), parsed by
+  `vrmr_interfaces_rule_parse_line`. A case (`protect`) pins both halves.
+* The object file names are inconsistent: interfaces and rules are `<name>.conf`, services
+  are `<name>` with no suffix, because `VRMR_SERV_REGEX` has no dot in its character class
+  and `get_filelocation` appends the raw name for services.
+* `deny` is not an action (`drop` is); a rule using it fails to parse as a whole, which is
+  how the options case ended up silently one rule short.
+* Generation asks the kernel twice per ruleset: whether each interface is up
+  (`vrmr_get_iface_stats`) and what its address is (`vrmr_get_dynamic_ip`). Both were
+  host facts, so the harness gets `vrmr_set_iface_probe_config()`: with it installed the
+  configured address is taken as the actual one. Production is unchanged.
+* Whether `PRE-VRMR-*` chains already exist changes the output (the `--new` lines are
+  skipped), and the check is a live `iptables -t <table> -nL`. Those answers come from
+  `cases/<name>/iptables/<table>.txt`; no file means an empty table, i.e. a fresh boot.
+* `--counters --noflush < tmp 2>> tmp` is the load invocation, so a case records the
+  ruleset tempfile content as it exists at that moment; it is deleted right after.
+* The engine referenced `cmdline`, `version_string`, `shm_table` and `sem_id`, which were
+  defined in `vuurmuur/vuurmuur.c`. They moved to `vuurmuur/misc.c` so a test can link the
+  engine without a `main()`.
+

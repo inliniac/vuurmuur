@@ -76,7 +76,12 @@ static int test_print_audit(char *fmt, ...)
 
 int vrmr_test_setup(void)
 {
-    if (vrmr_init(&vrmr_test_ctx, "unit") < 0) {
+    return vrmr_test_setup_ctx(&vrmr_test_ctx, "unit");
+}
+
+int vrmr_test_setup_ctx(struct vrmr_ctx *ctx, const char *toolname)
+{
+    if (vrmr_init(ctx, toolname) < 0) {
         (void)tap_note("vrmr_init failed");
         return -1;
     }
@@ -92,7 +97,12 @@ int vrmr_test_setup(void)
 
 void vrmr_test_teardown(void)
 {
-    vrmr_deinit(&vrmr_test_ctx);
+    vrmr_test_teardown_ctx(&vrmr_test_ctx);
+}
+
+void vrmr_test_teardown_ctx(struct vrmr_ctx *ctx)
+{
+    vrmr_deinit(ctx);
 }
 
 struct vrmr_rule *vrmr_test_rule_parse(const char *line)

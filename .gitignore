@@ -65,6 +65,9 @@ tests/unit/rules-parse
 tests/unit/rules-options
 tests/unit/lineread
 
-
 # automake stamp files in build directories
 .dirstamp
+
+# tier 1 build output and scratch
+tests/gen/ruleset
+tests/bin/

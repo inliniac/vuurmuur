@@ -1,0 +1,29 @@
+#ifndef __VRMR_TEST_SANDBOX_H
+#define __VRMR_TEST_SANDBOX_H
+
+#include <stddef.h>
+
+/* Build a sandbox for a case: cases/common/etc is copied first and the case
+ * tree on top of it, so a case only holds what differs. The config, tempfile
+ * and /proc locations then point inside the sandbox and the execution hooks
+ * record instead of run. Call before vrmr_init.
+ *
+ * A file the case must delete is emptied by writing "#", the rules parser
+ * ignores comment lines. */
+int vrmr_test_sandbox_setup(const char *cases_dir, const char *name);
+
+void vrmr_test_sandbox_teardown(void);
+
+/* Forget the captured commands; used to separate loading from applying. */
+void vrmr_test_effects_reset(void);
+
+/* The captured run as one normalized text: the command list, then the content
+ * of every file a command consumed. Returns the length or -1 if it does not
+ * fit in buf. */
+int vrmr_test_render(char *buf, size_t size);
+
+/* Same, with host dependent noise replaced: the sandbox prefix, the mkstemp
+ * suffixes and the version banner. */
+void vrmr_test_normalize(char *dst, size_t size, const char *src);
+
+#endif

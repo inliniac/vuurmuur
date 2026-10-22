@@ -28,7 +28,12 @@
 extern struct vrmr_ctx vrmr_test_ctx;
 
 int vrmr_test_setup(void);
+
+/* Same, for tests that own their context (the generation driver needs the
+ * whole struct, not just the regexes). */
+int vrmr_test_setup_ctx(struct vrmr_ctx *ctx, const char *toolname);
 void vrmr_test_teardown(void);
+void vrmr_test_teardown_ctx(struct vrmr_ctx *ctx);
 
 /* One rules.conf line into a fresh rule, NULL if the parser rejects it.
  * Release with vrmr_test_rule_free(). */
