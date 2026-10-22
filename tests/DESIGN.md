@@ -686,11 +686,13 @@ pty-driven test of its own.
   textdir backend opens a `DIR *` per object type (`setup_textdir` `:1136`, `open_textdir`
   `:240/:268/:296`) and nothing else closes them. The tier 1 driver generates twice per case,
   so a missing unload leaks a megabyte before the first assertion even runs.
-* A leak-checking run still reports a few hundred kilobytes under `regexec()` from
-  `vrmr_validate_zonename/servicename/interfacename`: `vrmr_regex_setup(UNLOAD)` frees only
-  part of `struct vrmr_regex`, so the glibc DFA caches of the rest stay allocated to exit.
-  It is a product teardown gap rather than a harness one, bounded at one cache per regex, and
-  it is the reason tier 1 is not yet gated on `detect_leaks=1`.
+* With that unload in place the whole suite - tier 0 and tier 1, four programs - is clean under
+  `ASAN_OPTIONS=detect_leaks=1`: 0 leaks reported, twice. An earlier revision of this note claimed
+  a residual few hundred kilobytes of glibc regex DFA cache under `regexec()`; that measurement was
+  taken with the backend unload missing, so the leaks it attributed to `vrmr_regex_setup(UNLOAD)`
+  freeing only part of `struct vrmr_regex` were textdir handles. Not re-confirmed, so withdrawn:
+  whether the partial `vrmr_regex_setup(UNLOAD)` release matters is unmeasured, and nothing here
+  should be read as saying it does.
 
 * `vrmr_create_tempfile()` created the ruleset tempfiles with mode **0000**: it wrapped
   `mkstemp()` in `umask(0600)`, which subtracts the owner bits instead of setting them.
