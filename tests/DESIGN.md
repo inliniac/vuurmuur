@@ -334,6 +334,23 @@ Convenience libraries so both the daemons and tests link the same objects:
 
 ## 5. Fixtures, goldens, normalizer
 
+As landed - this section is the original plan, and three of its names are not in the tree: one
+flat `golden/<case>.txt` per case rather than a file per artifact (the `iptables-restore`,
+`ip6tables-restore` and `shape.sh` streams, the `# effects` command log, the `# proc` writes and
+the `# fixtures` problem markers are sections of the same text), `cases/<case>/` rather than
+`fixtures/<case>/`, and the normalizer is `vrmr_test_normalize()` in `tests/lib/sandbox.c` rather
+than `normalize.c`. There is no `warnings.txt`, `restore.stderr` or `exitcode`: nothing is exec'd,
+so there is no kernel answer to capture, and the engine's own diagnostics fall on the floor (§15).
+What the plan got right is what the normalizer is for: the sandbox root, the corpus root
+(`<CASES>`), the mkstemp tempfile tokens and the version banner are squashed on both sides of every
+diff, which is why the same goldens hold on a machine with another username, another checkout path
+and another build version.
+
+Warning text cannot join a golden as it stands. `vrmr_warning` (`include/vuurmuur.h:472-480`)
+stamps `__FILE__:__LINE__:__func__` into every message, so capturing it verbatim would regenerate
+the corpus on any unrelated edit above the reporting line; the `(in: ...)` tail has to be
+normalised first. That is the cost of the design, not a reason to skip the capture.
+
 ```
 tests/
   DESIGN.md            this file
@@ -849,9 +866,22 @@ green suite is not read as "the generator is covered".
   has no golden.
 * Capability profiles: `vrmr_check_iptcaps` is pinned to `FALSE` in the driver, so the corpus
   models a kernel with everything the engine uses. The four `.caps` cases in §5 are not written.
-* Interface state: up/down and dynamic addressing are answered by a hook, and a case where an
-  interface is configured `ip=dynamic` with no address resolved is not in the corpus - the gate
-  at `lib/interfaces.c:1505` decides whether generation runs at all, and nothing pins what it
-  decides.
+* Interface state: up/down and dynamic addressing are answered by a hook, and the dynamic half is
+  in the corpus (`dynamic`, `dyndown`: a device that learned an address and one that did not, which
+  is what the gate at `lib/interfaces.c:1505` decides). Carrier, MTU, and an address that appeared
+  between the probe and the generation are not.
+* The engine's own diagnostics. `tests/lib/vrmr_test.c:89-93` routes `vrprint.error`, `.warning`,
+  `.info` and `.debug` to TAP `#` comments, so a warning printed while a case runs reaches stderr
+  and is discarded by the parser: nothing in the corpus distinguishes "the engine warned" from "the
+  engine said nothing". Three places drop or weaken a rule and report it where no test can see it -
+  an unparseable `RULE=` line gets a debug-only message (`lib/rules.c:658-662`); a 0.6-era `protect`
+  line in the main list is dropped behind a latch that is per-load, being a local of
+  `vrmr_rules_init_list` (`lib/rules.c:606`, `:664-677`), so three such lines produce one warning
+  and two silent drops, and a golden of the text alone cannot tell that from one line and one
+  warning; and an unknown `options` keyword warns while the rule installs with none of the options
+  it advertises (`lib/rules.c:2492-2495`, where the `return(-1)` is commented out). Pinning them
+  needs a per-case diagnostic buffer behind `test_print_msg`, the `__FILE__`/`__LINE__` tail
+  normalised (§5), a count rather than a message for the latched one, and a maintainer's decision
+  about whether a rule file that half-loads today should start refusing to load.
 * `vuurmuur_log`, `vuurmuur_conf` (beyond the line-reader and log-viewer unit tests), the
   translation strings, and every code path behind `getuid() == 0`.
