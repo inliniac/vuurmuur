@@ -26,6 +26,13 @@ void vrmr_test_effects_reset(void);
  */
 void vrmr_test_fixture_problem(const char *fmt, ...);
 
+/* The checked path joins the harness builds its file names with. Both return
+ * FALSE and record `# too large:` when the result would not fit, which is the
+ * property unit/markers.c can break; a truncated path names a different file.
+ */
+int vrmr_test_join_path(char *dst, size_t size, const char *dir, const char *name);
+int vrmr_test_cat_path(char *dst, size_t size, const char *dir, const char *tail);
+
 /* The captured run as one normalized text: the command list, then the content
  * of every file a command consumed. Returns the length or -1 if it does not
  * fit in buf. */

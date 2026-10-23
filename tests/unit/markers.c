@@ -104,6 +104,57 @@ static void test_marker_lifetime(void)
     free(out);
 }
 
+/* The guard is pure mechanism: no case can trip it, because no fixture path is
+ * long enough. Deleting the check leaves the corpus at 6/6 and the plans
+ * unchanged, so it is pinned here rather than by a golden.
+ */
+static void test_join_guard(void)
+{
+    char root[PATH_MAX];
+    char big[2 * PATH_MAX];
+    char small[16];
+    char *out = malloc(64 * 1024);
+    int len;
+
+    if (out == NULL) {
+        t_ok(0, "out of memory");
+        return;
+    }
+
+    if (vrmr_test_sandbox_setup(cases_root(root, sizeof(root)), "simple") != 0) {
+        t_ok(0, "sandbox setup failed (guard)");
+        free(out);
+        return;
+    }
+
+    /* positive control: the helper is not just a failure channel */
+    t_ok(vrmr_test_join_path(small, sizeof(small), "/tmp", "a")
+            && strcmp(small, "/tmp/a") == 0,
+            "a join that fits is built and reported as good (%s)", small);
+
+    (void)snprintf(big, sizeof(big), "%s/%s", root,
+            "a-name-that-cannot-possibly-fit-in-the-destination");
+
+    small[0] = '\0';
+    t_ok(!vrmr_test_join_path(small, sizeof(small), big, "x"),
+            "a destination that cannot hold its sources is refused");
+
+    /* and refusing is not enough: the caller has to be able to find out later
+     * what was lost, which is the marker channel this file exists for
+     */
+    len = rendered(out, 64 * 1024);
+    t_ok(len > 0 && strstr(out, "# too large:") != NULL,
+            "the refusal is recorded, not just returned");
+
+    small[0] = '\0';
+    t_ok(!vrmr_test_cat_path(small, sizeof(small), big, "/iptables"),
+            "cat_path refuses what join_path refuses");
+
+    vrmr_test_sandbox_teardown();
+
+    free(out);
+}
+
 int main(void)
 {
     if (vrmr_test_setup() != 0) {
@@ -112,6 +163,7 @@ int main(void)
     }
 
     test_marker_lifetime();
+    test_join_guard();
 
     return (tap_finish() != 0) ? 1 : 0;
 }

@@ -62,8 +62,8 @@ static int cap_exec(struct vrmr_config *cnf, const char *path,
 static int cap_read(
         struct vrmr_config *cnf, const char *command, char *buf, size_t size);
 void vrmr_test_fixture_problem(const char *fmt, ...);
-static int join_path(char *dst, size_t size, const char *dir, const char *name);
-static int cat_path(char *dst, size_t size, const char *dir, const char *tail);
+int vrmr_test_join_path(char *dst, size_t size, const char *dir, const char *name);
+int vrmr_test_cat_path(char *dst, size_t size, const char *dir, const char *tail);
 static void fix_clear(void);
 
 static const struct vrmr_exec_ops cap_ops = {
@@ -206,8 +206,8 @@ static int copy_tree(const char *from, const char *to)
         if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
             continue;
 
-        if (!join_path(src, sizeof(src), from, de->d_name)
-                || !join_path(dst, sizeof(dst), to, de->d_name))
+        if (!vrmr_test_join_path(src, sizeof(src), from, de->d_name)
+                || !vrmr_test_join_path(dst, sizeof(dst), to, de->d_name))
             continue;
 
         if (stat(src, &st) != 0)
@@ -629,13 +629,13 @@ static int cap_read(
      * does not fit is an error, not an empty listing: the caller cannot tell a
      * missing table from a harness that lost the thread
      */
-    if (!join_path(file, sizeof(file), canned, key)) {
+    if (!vrmr_test_join_path(file, sizeof(file), canned, key)) {
         buf[0] = '\0';
         return -1;
     }
 
     if (access(file, R_OK) != 0) {
-        if (!join_path(file, sizeof(file), canned_common, key)) {
+        if (!vrmr_test_join_path(file, sizeof(file), canned_common, key)) {
             buf[0] = '\0';
             return -1;
         }
@@ -703,7 +703,7 @@ void vrmr_test_fixture_problem(const char *fmt, ...)
  * that quietly is what this channel exists to close. Every two-component join in
  * this file goes through here so the checked idiom is written once.
  */
-static int join_path(char *dst, size_t size, const char *dir, const char *name)
+int vrmr_test_join_path(char *dst, size_t size, const char *dir, const char *name)
 {
     int n = snprintf(dst, size, "%s/%s", dir, name);
 
@@ -717,7 +717,7 @@ static int join_path(char *dst, size_t size, const char *dir, const char *name)
 }
 
 /* dst = dir + tail, for the fixed chains no single join describes */
-static int cat_path(char *dst, size_t size, const char *dir, const char *tail)
+int vrmr_test_cat_path(char *dst, size_t size, const char *dir, const char *tail)
 {
     int n = snprintf(dst, size, "%s%s", dir, tail);
 
@@ -743,8 +743,8 @@ static void dyn_fixtures(const char *cases_dir, const char *name)
     DIR *d;
     struct dirent *de;
 
-    if (!join_path(dir, sizeof(dir), cases_dir, name)
-            || !cat_path(iface, sizeof(iface), dir, "/etc/state/interfaces"))
+    if (!vrmr_test_join_path(dir, sizeof(dir), cases_dir, name)
+            || !vrmr_test_cat_path(iface, sizeof(iface), dir, "/etc/state/interfaces"))
         return;
 
     if ((d = opendir(iface)) == NULL)
@@ -763,7 +763,7 @@ static void dyn_fixtures(const char *cases_dir, const char *name)
         if (de->d_name[0] == '.')
             continue;
 
-        if (!join_path(path, sizeof(path), iface, de->d_name))
+        if (!vrmr_test_join_path(path, sizeof(path), iface, de->d_name))
             continue;
 
         if ((fp = fopen(path, "r")) == NULL)
@@ -798,15 +798,15 @@ static void dyn_fixtures(const char *cases_dir, const char *name)
             continue;
         }
 
-        if (!cat_path(netdir, sizeof(netdir), dir, "/net")
-                || !join_path(file, sizeof(file), netdir, fname))
+        if (!vrmr_test_cat_path(netdir, sizeof(netdir), dir, "/net")
+                || !vrmr_test_join_path(file, sizeof(file), netdir, fname))
             continue;
 
         if (access(file, R_OK) != 0) {
             char common[PATH_MAX + sizeof("/common/net")];
 
-            if (!cat_path(common, sizeof(common), cases_dir, "/common/net")
-                    || !join_path(file, sizeof(file), common, fname)
+            if (!vrmr_test_cat_path(common, sizeof(common), cases_dir, "/common/net")
+                    || !vrmr_test_join_path(file, sizeof(file), common, fname)
                     || access(file, R_OK) != 0) {
                 /* present and unreadable is the same answer as absent: the
                  * device did not learn an address */
@@ -846,15 +846,15 @@ static void proc_add_device(const char *device)
     char conf[sizeof(sb_proc) + sizeof("/sys/net/ipv4/conf")];
     char base[sizeof(conf) + 1 + NAME_MAX];
 
-    if (!cat_path(conf, sizeof(conf), sb_proc, "/sys/net/ipv4/conf")
-            || !join_path(base, sizeof(base), conf, device))
+    if (!vrmr_test_cat_path(conf, sizeof(conf), sb_proc, "/sys/net/ipv4/conf")
+            || !vrmr_test_join_path(base, sizeof(base), conf, device))
         return;
 
     for (i = 0; entry[i] != NULL; i++) {
         char path[sizeof(base) + 1 + NAME_MAX];
         FILE *fp;
 
-        if (!join_path(path, sizeof(path), base, entry[i]))
+        if (!vrmr_test_join_path(path, sizeof(path), base, entry[i]))
             continue;
 
         mkdir_p_for_file(path);
@@ -871,7 +871,7 @@ static void proc_from_state(void)
     DIR *d;
     struct dirent *de;
 
-    if (!cat_path(dir, sizeof(dir), sb, "/state/interfaces"))
+    if (!vrmr_test_cat_path(dir, sizeof(dir), sb, "/state/interfaces"))
         return;
 
     if ((d = opendir(dir)) == NULL)
@@ -885,7 +885,7 @@ static void proc_from_state(void)
         if (strstr(de->d_name, ".conf") == NULL)
             continue;
 
-        if (!join_path(path, sizeof(path), dir, de->d_name))
+        if (!vrmr_test_join_path(path, sizeof(path), dir, de->d_name))
             continue;
 
         if ((fp = fopen(path, "r")) == NULL)
@@ -959,21 +959,21 @@ int vrmr_test_sandbox_setup(const char *cases_dir, const char *name)
 
     dyn_fixtures(cases_dir, name);
 
-    if (!join_path(one, sizeof(one), cases_dir, name)
-            || !cat_path(canned, sizeof(canned), one, "/iptables"))
+    if (!vrmr_test_join_path(one, sizeof(one), cases_dir, name)
+            || !vrmr_test_cat_path(canned, sizeof(canned), one, "/iptables"))
         return -1;
 
-    if (!cat_path(canned_common, sizeof(canned_common), cases_dir,
+    if (!vrmr_test_cat_path(canned_common, sizeof(canned_common), cases_dir,
                     "/common/iptables"))
         return -1;
 
-    if (!cat_path(path, sizeof(path), cases_dir, "/common/etc"))
+    if (!vrmr_test_cat_path(path, sizeof(path), cases_dir, "/common/etc"))
         return -1;
     if (copy_tree(path, sb) != 0)
         return -1;
 
-    if (!join_path(one, sizeof(one), cases_dir, name)
-            || !cat_path(path, sizeof(path), one, "/etc"))
+    if (!vrmr_test_join_path(one, sizeof(one), cases_dir, name)
+            || !vrmr_test_cat_path(path, sizeof(path), one, "/etc"))
         return -1;
     if (copy_tree(path, sb) != 0)
         return -1;
@@ -1060,7 +1060,7 @@ static void proc_collect(const char *dir, char **list, int *n, int max)
         /* path re-enters as dir one level down, so the width bounds one level
          * only and the checked join is what stops the walk
          */
-        if (!join_path(path, sizeof(path), dir, de->d_name))
+        if (!vrmr_test_join_path(path, sizeof(path), dir, de->d_name))
             continue;
 
         if (lstat(path, &st) != 0)
