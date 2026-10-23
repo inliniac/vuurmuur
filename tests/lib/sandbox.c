@@ -577,7 +577,8 @@ static int listing_has_header(const char *content)
 static int cap_read(
         struct vrmr_config *cnf, const char *command, char *buf, size_t size)
 {
-    char key[128] = "", file[PATH_MAX] = "";
+    char key[128] = "";
+    char file[PATH_MAX + 160] = ""; /* root + key, so the join cannot truncate */
     const char *kind;
     char *content;
     size_t len = 0;

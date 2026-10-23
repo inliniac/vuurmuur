@@ -16,6 +16,13 @@ unit_rules_options_SOURCES = lib/tap.c lib/tap.h lib/vrmr_test.c lib/vrmr_test.h
 	unit/rules_options.c
 unit_rules_options_LDADD = $(LIBVUURMUUR_LDADD)
 
+unit_ifstats_SOURCES = unit/ifstats.c lib/tap.c lib/tap.h lib/vrmr_test.c \
+	lib/vrmr_test.h lib/sandbox.c lib/sandbox.h
+unit_ifstats_LDADD = $(top_builddir)/vuurmuur/libvuurmuur_engine.la \
+	$(LIBVUURMUUR_LDADD) $(top_builddir)/lib/libvuurmuur.la
+
+check_PROGRAMS += unit/ifstats
+
 unit_lineread_SOURCES = unit/lineread.c lib/tap.c lib/tap.h \
 	lib/vrmr_test.c lib/vrmr_test.h
 unit_lineread_LDADD = $(LIBVUURMUUR_LDADD)
@@ -33,7 +40,7 @@ gen_ruleset_LDADD = \
 AM_TESTS_ENVIRONMENT = abs_srcdir="$(abs_srcdir)"; export abs_srcdir; \
 	UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"; export UBSAN_OPTIONS;
 
-TESTS = unit/rules-parse unit/rules-options unit/lineread gen/ruleset.sh
+TESTS = unit/rules-parse unit/rules-options unit/lineread unit/ifstats gen/ruleset.sh
 
 EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh \
 	cases/common/etc/state/interfaces/dmz.conf \
@@ -46,6 +53,10 @@ EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh \
 	cases/common/etc/vuurmuur/config.conf \
 	cases/common/etc/vuurmuur/plugins/textdir.conf \
 	cases/empty/etc/state/rules/rules.conf \
+	cases/counters/etc/state/rules/rules.conf \
+	$(wildcard cases/common/iptables/*.txt) \
+	$(wildcard cases/*/iptables/*.txt) \
+	$(wildcard unit/fixtures/*/iptables/*.txt) \
 	cases/options/etc/state/rules/rules.conf \
 	cases/protect/etc/state/interfaces/lan.conf \
 	cases/protect/etc/state/rules/rules.conf \
