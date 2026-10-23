@@ -812,6 +812,30 @@ pty-driven test of its own.
   when it runs, but both passes see the same neighbour, so a cache with process lifetime - the
   `entry_last` shape in `lib/proc.c` - is invisible to them. Each artifact is kept and the corpus
   regenerated from the other end; six extra generations, and all six agree today.
+* A marker channel is only fail-loud if its lifetime is right. `vrmr_test_effects_reset()` cleared
+  the fixture problems along with the command log, and `generate_once()` calls it mid-case to drop
+  the load phase - so every complaint recorded by the setup-time walkers (`dyn_fixtures`, and the
+  proc tree priming) was erased before the artifact was rendered. The `# too large:` guard added on
+  top of that machinery was silent for exactly the half of the sites it was written for. Markers are
+  now cleared where a case begins, at the entry of `vrmr_test_sandbox_setup()`, and the split is
+  pinned by `unit/markers.c`: record, render, reset, render. Reintroducing the shared reset takes
+  the suite to 5/6, which is the mutation-as-test the finding asked for.
+* Path joins are sized from the `sizeof()` of what feeds them, through `join_path()`/`cat_path()`
+  (`tests/lib/sandbox.c`), which return FALSE and record `# too large:` rather than write a truncated
+  name. The arithmetic a comment once promised (`file[PATH_MAX + 160]` for a `PATH_MAX + 64` root
+  plus a 127-byte key) did not hold, and a compiler that stopped warning is not evidence that it
+  holds now. For the two recursive walkers, where the buffer re-enters as the parent directory, the
+  width bounds one level only and the check is what stops the descent - the honest form for an
+  arbitrary depth. `copy_tree()` had no channel at all, so a truncated destination there wrote a
+  file nobody would ever read back.
+* Markers run through the normalizer, since they name files: the corpus root becomes `<CASES>`.
+  A reported failure is the one artifact line that bypassed `vrmr_test_normalize()` and so read
+  differently on two machines.
+* Packaging now compiles the harness strictly: `AM_DISTCHECK_CONFIGURE_FLAGS = --enable-werror`.
+  The check-phase programs are built by no other job, `make` alone never sees them, and distcheck's
+  replay configure inherited no flags, so a warning in a test-only file was invisible in CI at a
+  head where `--enable-werror make check` did not compile. automake passes `AM_` before the user's
+  `DISTCHECK_CONFIGURE_FLAGS`, so `--disable-werror` remains available.
 
 ## 15. What tier 1 does not cover
 
