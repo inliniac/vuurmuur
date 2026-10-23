@@ -1103,12 +1103,24 @@ int vrmr_rules_parse_line(
 
         vrmr_debug(MEDIUM, "keyword options: '%s'.", options);
 
+        if (strcasecmp(options, "options") != 0 &&
+                strncasecmp(options, "options", 7) == 0) {
+            /* 'options=x,y' is one token, so it never reaches the branch below
+             * and the rule installs with no options at all: one character off,
+             * and a rate-limited logged drop becomes an unlimited drop */
+            vrmr_warning("Warning",
+                    "'%s' is not a keyword. Options are introduced by 'options ' "
+                    "with a space; this rule gets none.", options);
+        }
+
         /*
             if this keyword exists we have options
         */
         if (strcasecmp(options, "options") == 0) {
             /*
-                get options: NOTE: whitespaces are allowed!
+                get options: whitespace around the keyword and the values is
+                fine, but not after a ',' - each item is matched against the
+                keyword from its first character
             */
             for (line_pos++, var_pos = 0;
                     var_pos < sizeof(options) && line[line_pos] != '\0' &&
