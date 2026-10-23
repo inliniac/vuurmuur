@@ -64,6 +64,7 @@ test-driver
 tests/unit/rules-parse
 tests/unit/rules-options
 tests/unit/lineread
+tests/unit/ifstats
 
 # automake stamp files in build directories
 .dirstamp
