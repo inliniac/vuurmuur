@@ -192,13 +192,38 @@ static int generate_once(const char *name)
     return len;
 }
 
+/* Count and echo the fixture complaints the capture layer recorded. */
+static int fixture_problems(const char *artifact)
+{
+    const char *p = artifact;
+    static const char *const marks[] = {"# no fixture:", "# bad fixture:",
+        "# unreadable:", "# too large:", NULL};
+    int n = 0, i;
+
+    while ((p = strstr(p, "\n#")) != NULL) {
+        p++;
+        for (i = 0; marks[i] != NULL; i++) {
+            if (strncmp(p, marks[i], strlen(marks[i])) == 0) {
+                const char *e = strchr(p, '\n');
+
+                tap_note("%.*s", (int)(e != NULL ? (size_t)(e - p) : strlen(p)),
+                        p);
+                n++;
+                break;
+            }
+        }
+    }
+
+    return n;
+}
+
 static int run_case(const char *cases_dir, const char *golden_dir,
         const char *name, int update)
 {
     char golden_path[PATH_MAX], path[PATH_MAX];
     char *golden = NULL, *first = NULL;
     size_t golden_len = 0;
-    int len = 0, len2 = 0;
+    int len = 0, len2 = 0, n_bad = 0;
 
     snprintf(golden_path, sizeof(golden_path), "%s/%s.txt", golden_dir, name);
 
@@ -212,6 +237,16 @@ static int run_case(const char *cases_dir, const char *golden_dir,
     len = generate_once(name);
     if (len < 0)
         goto out;
+
+    /* A read with no fixture answers as an empty listing, which is what a
+     * kernel without the table answers too, so the commands alone cannot tell
+     * the two apart. The names are in the artifact's # fixtures block, and such
+     * a generation must not become truth - least of all under --update. */
+    n_bad = fixture_problems(actual);
+    if (n_bad > 0) {
+        t_ok(0, "%s: %d fixture problem(s), golden untouched", name, n_bad);
+        goto out;
+    }
 
     /* A golden is only an oracle if generation is a function of the fixture. Snapshot one
      * pass, run it again from the same sandbox, and require the two to be byte-identical: a
@@ -250,7 +285,10 @@ static int run_case(const char *cases_dir, const char *golden_dir,
     if (golden_len == (size_t)len && memcmp(golden, actual, (size_t)len) == 0) {
         t_ok(1, "%s: matches golden", name);
     } else {
-        snprintf(path, sizeof(path), "%s.txt", name);
+        /* into the build dir, not beside the goldens: a diff dump that reads
+         * like a golden invites the wrong fix */
+        (void)mkdir("failures", 0755);
+        snprintf(path, sizeof(path), "failures/%s.txt", name);
         (void)write_file(path, actual, strlen(actual));
         t_ok(0, "%s: ruleset differs (see %s)", name, path);
         report_diff(golden, actual);

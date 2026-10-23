@@ -4,6 +4,7 @@
 #include "config.h"
 
 #include <ctype.h>
+#include <stdarg.h>
 #include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
@@ -40,6 +41,13 @@ static char sb[PATH_MAX] = "";
 static char sb_tmp[PATH_MAX + 64] = "";
 static char sb_proc[PATH_MAX + 64] = "";
 static char canned[PATH_MAX + 64] = "";
+static char canned_common[PATH_MAX + 64] = "";
+
+/* Reads whose canned answer is missing or unusable, first-seen order, deduped.
+ * The engine cannot tell an absent fixture from a kernel without the table -
+ * both give it an empty listing - so the fact has to reach the artifact. */
+static char *fix_problems[64];
+static int n_fix_problems;
 
 static char *render_buf;
 
@@ -49,6 +57,7 @@ static int cap_exec(struct vrmr_config *cnf, const char *path,
         const char *argv[], char *output[]);
 static int cap_read(
         struct vrmr_config *cnf, const char *command, char *buf, size_t size);
+static void fixture_problem(const char *fmt, ...);
 
 static const struct vrmr_exec_ops cap_ops = {
         .pipe = cap_pipe,
@@ -348,6 +357,12 @@ void vrmr_test_effects_reset(void)
 {
     int i;
 
+    for (i = 0; i < n_fix_problems; i++) {
+        free(fix_problems[i]);
+        fix_problems[i] = NULL;
+    }
+    n_fix_problems = 0;
+
     for (i = 0; i < n_effects; i++) {
         effect_free(&effects[i]);
     }
@@ -387,7 +402,10 @@ static int dump_ref(struct effect *e, const char *path)
     int i, seen = 1;
 
     if ((content = slurp(path, &len)) == NULL) {
-        fprintf(stderr, "sandbox: ref '%s': %s\n", path, strerror(errno));
+        /* a section that is simply absent is the same silent failure this whole
+         * mechanism exists to close, so it is a complaint, not a warning */
+        fixture_problem("# unreadable: %s (%s)", tmpfile_token(path),
+                strerror(errno));
         return -1;
     }
 
@@ -504,52 +522,133 @@ static int cap_exec(struct vrmr_config *cnf, const char *path,
 /* iptables -t <table> -nL and friends: answer from the case fixtures so the
  * generated ruleset does not depend on the host. No fixture means an empty
  * table, which is a freshly booted system. */
+/* Which canned answer a read wants. The counter reads carry no -t, so keying
+ * only on the table left them unreachable; listings are per table and family. */
+static const char *read_fixture(const char *command, char *key, size_t size)
+{
+    const char *p;
+    char name[64] = "", ip6[4] = "";
+    size_t n = 0;
+
+    for (p = command; *p != '\0' && *p != ' '; p++) {
+        if (strncmp(p, "ip6tables", 9) == 0)
+            (void)strlcpy(ip6, "ip6", sizeof(ip6));
+    }
+
+    if ((p = strstr(command, " -vnL ")) != NULL) {
+        p += 6;
+        while (*p != '\0' && !isspace((unsigned char)*p) && n < sizeof(name) - 1)
+            name[n++] = *p++;
+        name[n] = '\0';
+
+        return snprintf(key, size, "%s%s-counters.txt", ip6, name) < (int)size
+            ? "counters" : NULL;
+    }
+
+    n = 0;
+    if ((p = strstr(command, " -t ")) != NULL) {
+        p += 4;
+        while (*p != '\0' && !isspace((unsigned char)*p) && n < sizeof(name) - 1)
+            name[n++] = *p++;
+    }
+    if (n == 0)
+        (void)strlcpy(name, "filter", sizeof(name));
+    name[n] = '\0';
+
+    return snprintf(key, size, "%s%s-nL.txt", ip6, name) < (int)size
+        ? "listing" : NULL;
+}
+
+/* iptables prints a column header before any rule line, and the parsers anchor
+ * on it: a fixture without one cannot be answered truthfully */
+static int listing_has_header(const char *content)
+{
+    const char *p = content;
+
+    while ((p = strstr(p, "target")) != NULL) {
+        if (strstr(p, "prot") != NULL)
+            return 1;
+        p += 6;
+    }
+
+    return 0;
+}
+
 static int cap_read(
         struct vrmr_config *cnf, const char *command, char *buf, size_t size)
 {
-    const char *b = NULL, *t = NULL;
-    char table[32] = "", file[PATH_MAX] = "";
-    char ip6 = 0;
+    char key[128] = "", file[PATH_MAX] = "";
+    const char *kind;
     char *content;
-    size_t len = 0, n = 0;
+    size_t len = 0;
+    int r = 0;
 
     (void)cnf;
 
-    /* the binary name is the first token, up to the first space */
-    for (b = command; *b != '\0' && *b != ' '; b++) {
-        if (strncmp(b, "ip6tables", 9) == 0)
-            ip6 = 1;
+    kind = read_fixture(command, key, sizeof(key));
+    if (kind == NULL) {
+        fixture_problem("# no fixture: (unclassified read) %s", command);
+        buf[0] = '\0';
+        return 0;
     }
 
-    if ((t = strstr(command, " -t ")) != NULL) {
-        t += 4;
-        while (n < sizeof(table) - 1 && *t != '\0' &&
-                !isspace((unsigned char)*t))
-            table[n++] = *t++;
-        table[n] = '\0';
+    /* the case overrides the canned state every case builds on */
+    (void)snprintf(file, sizeof(file), "%s/%s", canned, key);
+    if (access(file, R_OK) != 0) {
+        (void)snprintf(file, sizeof(file), "%s/%s", canned_common, key);
+        if (access(file, R_OK) != 0) {
+            fixture_problem("# no fixture: iptables/%s", key);
+            buf[0] = '\0';
+            return 0;
+        }
     }
-
-    (void)strlcpy(file, canned, sizeof(file));
-    (void)strlcat(file, "/", sizeof(file));
-    (void)strlcat(file, ip6 ? "ip6" : "", sizeof(file));
-    (void)strlcat(file, table, sizeof(file));
-    (void)strlcat(file, ".txt", sizeof(file));
 
     if ((content = slurp(file, &len)) == NULL) {
+        fixture_problem("# unreadable: iptables/%s (%s)", key, strerror(errno));
+        buf[0] = '\0';
+        return 0;
+    }
+
+    if (strcmp(kind, "counters") == 0 && !listing_has_header(content)) {
+        fixture_problem("# bad fixture: iptables/%s: no column header", key);
+        free(content);
         buf[0] = '\0';
         return 0;
     }
 
     if (len >= size) {
-        free(content);
-        return -1;
+        fixture_problem("# too large: iptables/%s", key);
+        r = -1;
+    } else {
+        memcpy(buf, content, len);
+        buf[len] = '\0';
+        r = (int)len;
     }
-
-    memcpy(buf, content, len);
-    buf[len] = '\0';
     free(content);
 
-    return (int)len;
+    return r;
+}
+
+static void fixture_problem(const char *fmt, ...)
+{
+    va_list ap;
+    char line[PATH_MAX + 128] = "";
+    int i;
+
+    if (n_fix_problems >= (int)(sizeof(fix_problems) / sizeof(fix_problems[0])))
+        return;
+
+    va_start(ap, fmt);
+    (void)vsnprintf(line, sizeof(line), fmt, ap);
+    va_end(ap);
+
+    for (i = 0; i < n_fix_problems; i++) {
+        if (strcmp(fix_problems[i], line) == 0)
+            return;
+    }
+
+    if ((fix_problems[n_fix_problems] = strdup(line)) != NULL)
+        n_fix_problems++;
 }
 
 /* The protect rules write per-device proc entries, so the sandbox needs those
@@ -653,6 +752,8 @@ int vrmr_test_sandbox_setup(const char *cases_dir, const char *name)
     proc_add_device("lo");
 
     snprintf(canned, sizeof(canned), "%s/%s/iptables", cases_dir, name);
+    snprintf(canned_common, sizeof(canned_common), "%s/common/iptables",
+            cases_dir);
 
     snprintf(path, sizeof(path), "%s/common/etc", cases_dir);
     if (copy_tree(path, sb) != 0)
@@ -721,6 +822,13 @@ int vrmr_test_render(char *buf, size_t size)
     for (i = 0; i < n_effects && n < RENDER_SIZE - 64; i++)
         n += (size_t)snprintf(
                 render_buf + n, RENDER_SIZE - n, "%s\n", effects[i].line);
+
+    if (n_fix_problems > 0) {
+        n += (size_t)snprintf(render_buf + n, RENDER_SIZE - n, "# fixtures\n");
+        for (i = 0; i < n_fix_problems && n < RENDER_SIZE - 64; i++)
+            n += (size_t)snprintf(render_buf + n, RENDER_SIZE - n, "%s\n",
+                    fix_problems[i]);
+    }
 
     /* the content of the referenced files is dropped as it is rendered: a
      * second render pass is not meaningful */
