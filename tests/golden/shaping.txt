@@ -15,7 +15,7 @@ true
 /sbin/tc class add dev eth0 parent 2: classid 2:1 htb rate 50000kbit
 /sbin/tc class add dev eth0 parent 2:1 classid 2:3 htb rate 5000kbit ceil 50000kbit prio 3
 /sbin/tc qdisc add dev eth0 parent 2:3 handle 3: sfq perturb 10
-/sbin/tc class add dev eth0 parent 2:1 classid 2:5 htb rate 5000kbit ceil 50000kbit prio 3
+/sbin/tc class add dev eth0 parent 2:1 classid 2:5 htb rate 5000kbit ceil 5000kbit prio 3
 /sbin/tc qdisc add dev eth0 parent 2:5 handle 5: sfq perturb 10
 # EOF
 # RULESET
