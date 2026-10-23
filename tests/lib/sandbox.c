@@ -673,18 +673,23 @@ static void dyn_fixtures(const char *cases_dir, const char *name)
         return;
 
     while ((de = readdir(d)) != NULL) {
-        char path[2 * PATH_MAX];
+        char path[2 * PATH_MAX + NAME_MAX + 2];
         char line[512];
         char device[64] = "";
         size_t len = 0;
         char *content;
         FILE *fp;
-        int dynamic = 0;
+        int dynamic = 0, written;
 
         if (de->d_name[0] == '.')
             continue;
 
-        (void)snprintf(path, sizeof(path), "%s/%s", dir, de->d_name);
+        written = snprintf(path, sizeof(path), "%s/%s", dir, de->d_name);
+        if (written < 0 || (size_t) written >= sizeof(path)) {
+            fixture_problem("# too large: fixture entry %s/%s", dir,
+                    de->d_name);
+            continue;
+        }
 
         if ((fp = fopen(path, "r")) == NULL)
             continue;
@@ -921,16 +926,24 @@ static void proc_collect(const char *dir, char **list, int *n, int max)
     DIR *d;
     struct dirent *de;
     struct stat st;
-    char path[2 * PATH_MAX];
+    char path[2 * PATH_MAX + NAME_MAX + 2]; /* dir + '/' + one name */
 
     if ((d = opendir(dir)) == NULL)
         return;
 
     while ((de = readdir(d)) != NULL && *n < max) {
+        int written;
+
         if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
             continue;
 
-        (void)snprintf(path, sizeof(path), "%s/%s", dir, de->d_name);
+        /* path is passed back in as dir one level down, so the destination has
+         * to be named from what the source can hold rather than guessed at */
+        written = snprintf(path, sizeof(path), "%s/%s", dir, de->d_name);
+        if (written < 0 || (size_t) written >= sizeof(path)) {
+            fixture_problem("# too large: proc entry %s/%s", dir, de->d_name);
+            continue;
+        }
 
         if (lstat(path, &st) != 0)
             continue;
