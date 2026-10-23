@@ -2776,6 +2776,23 @@ static int create_interface_tcpmss_rules(struct vrmr_config *conf,
  * capabilities */
 static char limit[] = "-m limit --limit 1/s --limit-burst 2";
 
+/* Limit-match for the protect log rules.
+ * pre_rules() can clear the file-global `limit` above, but the protect
+ * rules carry their own string, so check the capability here; empty when
+ * unsupported so the rule is still valid without the match. */
+static const char *log_limit_match(struct vrmr_config *conf,
+        struct vrmr_iptcaps *iptcap, int ipv)
+{
+    if (conf->vrmr_check_iptcaps == TRUE) {
+        if (ipv == VRMR_IPV4 && iptcap->match_limit == FALSE)
+            return ("");
+        if (ipv == VRMR_IPV6 && iptcap->match_ip6_limit == FALSE)
+            return ("");
+    }
+
+    return ("-m limit --limit 1/s --limit-burst 5");
+}
+
 /**
  *  \brief Flush chains (bash output mode)
  */
@@ -4785,7 +4802,7 @@ static int create_interface_rpfilter_rules(struct vrmr_config *conf,
         struct vrmr_interface *if_ptr)
 {
     char input_device[16 + 3] = ""; /* 16 + '-i ' */
-    const char my_limit[] = "-m limit --limit 1/s --limit-burst 5";
+    const char *my_limit = log_limit_match(conf, iptcap, VRMR_IPV4);
     char logprefix[64] = "";
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
@@ -4995,7 +5012,7 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
 {
     char input_device[16 + 3] = "";  /* 16 + '-i ' */
     char output_device[16 + 3] = ""; /* 16 + '-i ' */
-    const char my_limit[] = "-m limit --limit 1/s --limit-burst 5";
+    const char *my_limit = log_limit_match(conf, iptcap, VRMR_IPV4);
     char logprefix[64] = "";
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
