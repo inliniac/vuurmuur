@@ -39,6 +39,8 @@ COMMIT
 -A FORWARD -j SHAPEFW
 -A FORWARD -i eth1 -o eth0 -p tcp -m tcp --syn -s 10.1.0.0/255.255.255.0 --sport 0 -d 10.0.0.0/255.255.255.0 --dport 80  -m conntrack --ctstate NEW,RELATED -m connmark --mark 0 -j CONNMARK --set-mark 1
 -A FORWARD -i eth0 -o eth1 -p tcp -m tcp --syn -s 10.0.0.0/255.255.255.0 --sport 80 -d 10.1.0.0/255.255.255.0 --dport 0 -m conntrack --ctstate RELATED -m connmark --mark 0 -j CONNMARK --set-mark 1
+-A FORWARD -i eth1 -o eth0 -p tcp -m tcp -s 10.1.0.0/255.255.255.0 --sport 0 -d 10.0.0.0/255.255.255.0 --dport 80  -m conntrack --ctstate NEW,RELATED,ESTABLISHED -j MARK --set-mark 42
+-A FORWARD -i eth0 -o eth1 -p tcp -m tcp -s 10.0.0.0/255.255.255.0 --sport 80 -d 10.1.0.0/255.255.255.0 --dport 0 -m conntrack --ctstate RELATED,ESTABLISHED -j MARK --set-mark 42
 -A OUTPUT -j PRE-VRMR-OUTPUT
 -A OUTPUT -j SHAPEOUT
 -A POSTROUTING -j PRE-VRMR-POSTROUTING
@@ -143,7 +145,8 @@ COMMIT
 -A FORWARD -m conntrack --ctstate INVALID -j DROP
 -A FORWARD -j BLOCKLIST
 -A FORWARD -j ANTISPOOF
--A FORWARD -i eth0 -o eth1 -p tcp -m tcp --syn -s 10.0.0.0/255.255.255.0 --sport 0 -d 10.1.0.0/255.255.255.0 --dport 80   -m conntrack --ctstate NEW -j DROP
+-A FORWARD -i eth0 -o eth1 -p tcp -m tcp --syn -s 10.0.0.0/255.255.255.0 --sport 0 -d 10.1.0.0/255.255.255.0 --dport 80  -m limit --limit 3/sec --limit-burst 5 -m conntrack --ctstate NEW -j NFLOG --nflog-prefix "vrmr: DROP blocked " --nflog-group 8
+-A FORWARD -i eth0 -o eth1 -p tcp -m tcp --syn -s 10.0.0.0/255.255.255.0 --sport 0 -d 10.1.0.0/255.255.255.0 --dport 80  -m limit --limit 3/sec --limit-burst 5 -m conntrack --ctstate NEW -j DROP
 -A FORWARD -i eth1 -o eth0 -p tcp -m tcp --syn -s 10.1.0.0/255.255.255.0 --sport 0 -d 10.0.0.0/255.255.255.0 --dport 80   -m conntrack --ctstate NEW -j NEWACCEPT
 -A FORWARD -m limit --limit 30/s --limit-burst 60 -j NFLOG --nflog-prefix "vrmr: DROP fw policy " --nflog-group 8
 -A OUTPUT -j PRE-VRMR-OUTPUT
