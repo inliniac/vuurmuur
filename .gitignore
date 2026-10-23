@@ -72,3 +72,4 @@ tests/unit/lineread
 tests/gen/ruleset
 tests/bin/
 /po/insert-header.sed
+tests/failures/

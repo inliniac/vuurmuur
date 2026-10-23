@@ -6,6 +6,34 @@ pipe: /sbin/iptables-restore  --counters --noflush < <TMP>/<RULESET> 2>> <TMP>/<
 exec: /sbin/sysctl -w net.netfilter.nf_conntrack_acct=1
 exec: /sbin/sysctl -w net.ipv6.conf.all.forwarding=0
 pipe: /sbin/ip6tables-restore  --counters --noflush < <TMP>/<RULESET> 2>> <TMP>/<RESULT>
+# proc
+write: /proc/sys/net/ipv4/conf/all/accept_redirects = 9
+write: /proc/sys/net/ipv4/conf/all/accept_source_route = 9
+write: /proc/sys/net/ipv4/conf/all/log_martians = 9
+write: /proc/sys/net/ipv4/conf/all/rp_filter = 9
+write: /proc/sys/net/ipv4/conf/all/send_redirects = 9
+write: /proc/sys/net/ipv4/conf/default/accept_redirects = 9
+write: /proc/sys/net/ipv4/conf/default/accept_source_route = 9
+write: /proc/sys/net/ipv4/conf/default/log_martians = 9
+write: /proc/sys/net/ipv4/conf/default/rp_filter = 9
+write: /proc/sys/net/ipv4/conf/default/send_redirects = 9
+write: /proc/sys/net/ipv4/conf/eth0/accept_redirects = 0
+write: /proc/sys/net/ipv4/conf/eth0/accept_source_route = 9
+write: /proc/sys/net/ipv4/conf/eth0/log_martians = 9
+write: /proc/sys/net/ipv4/conf/eth0/rp_filter = 1
+write: /proc/sys/net/ipv4/conf/eth0/send_redirects = 9
+write: /proc/sys/net/ipv4/conf/eth1/accept_redirects = 9
+write: /proc/sys/net/ipv4/conf/eth1/accept_source_route = 9
+write: /proc/sys/net/ipv4/conf/eth1/log_martians = 9
+write: /proc/sys/net/ipv4/conf/eth1/rp_filter = 9
+write: /proc/sys/net/ipv4/conf/eth1/send_redirects = 9
+write: /proc/sys/net/ipv4/conf/lo/accept_redirects = 9
+write: /proc/sys/net/ipv4/conf/lo/accept_source_route = 9
+write: /proc/sys/net/ipv4/conf/lo/log_martians = 9
+write: /proc/sys/net/ipv4/conf/lo/rp_filter = 9
+write: /proc/sys/net/ipv4/conf/lo/send_redirects = 9
+write: /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts = 1
+write: /proc/sys/net/ipv4/tcp_syncookies = 1
 # SHAPE
 #!/bin/bash
 /sbin/tc qdisc del dev eth1 root 2> /dev/null > /dev/null

@@ -20,6 +20,9 @@
 #include "sandbox.h"
 
 #define MAX_EFFECTS 2048
+
+/* what a proc file holds before the engine has said anything to it */
+#define PROC_STUB "9\n"
 #define MAX_REF 4
 #define RENDER_SIZE (4u * 1024u * 1024u)
 
@@ -669,7 +672,7 @@ static void proc_add_device(const char *device)
                 device, entry[i]);
         mkdir_p_for_file(path);
         if ((fp = fopen(path, "w")) != NULL) {
-            (void)fputs("1\n", fp);
+            (void)fputs(PROC_STUB, fp);
             fclose(fp);
         }
     }
@@ -734,18 +737,22 @@ int vrmr_test_sandbox_setup(const char *cases_dir, const char *name)
 
     mkdir_p(sb_tmp);
 
-    /* the two system wide protect entries the engine always writes */
+    /* the two system wide protect entries the engine always writes.
+     * The stub value is 9 because protect writes a 0 or a 1: with any of those
+     * as the starting point, "the engine stopped writing" and "the engine wrote
+     * the default" are the same artifact, which is the failure this section is
+     * here to make visible. */
     snprintf(path, sizeof(path), "%s/sys/net/ipv4", sb_proc);
     mkdir_p(path);
     snprintf(path, sizeof(path), "%s/sys/net/ipv4/tcp_syncookies", sb_proc);
     if ((fp = fopen(path, "w")) != NULL) {
-        (void)fputs("1\n", fp);
+        (void)fputs(PROC_STUB, fp);
         fclose(fp);
     }
     snprintf(path, sizeof(path), "%s/sys/net/ipv4/icmp_echo_ignore_broadcasts",
             sb_proc);
     if ((fp = fopen(path, "w")) != NULL) {
-        (void)fputs("1\n", fp);
+        (void)fputs(PROC_STUB, fp);
         fclose(fp);
     }
     proc_add_device("all");
@@ -811,6 +818,56 @@ void vrmr_test_sandbox_teardown(void)
     }
 }
 
+/* Kernel state the engine writes directly, with fopen() and no exec op to
+ * intercept: vrmr_set_proc_entry() truncates the file and puts a single digit in
+ * it, which is the whole of what 'protect' means for a sysctl. The prefix set in
+ * vrmr_test_sandbox_setup() keeps those writes below the sandbox, so the host is
+ * untouched - but nothing in the artifact ever showed them, so every one of them
+ * was unpinned. Reading the tree back after the run is the only way to see them
+ * without inventing a second seam in lib/proc.c.
+ *
+ * The list is sorted: readdir() order is not stable across filesystems and a
+ * golden has to be. */
+#define MAX_PROC_FILES 512
+
+static int proc_name_cmp(const void *a, const void *b)
+{
+    return strcmp(*(const char *const *) a, *(const char *const *) b);
+}
+
+static void proc_collect(const char *dir, char **list, int *n, int max)
+{
+    DIR *d;
+    struct dirent *de;
+    struct stat st;
+    char path[2 * PATH_MAX];
+
+    if ((d = opendir(dir)) == NULL)
+        return;
+
+    while ((de = readdir(d)) != NULL && *n < max) {
+        if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
+            continue;
+
+        (void)snprintf(path, sizeof(path), "%s/%s", dir, de->d_name);
+
+        if (lstat(path, &st) != 0)
+            continue;
+
+        if (S_ISDIR(st.st_mode)) {
+            proc_collect(path, list, n, max);
+        } else if (S_ISREG(st.st_mode)) {
+            char *name = strdup(path + strlen(sb_proc));
+
+            if (name == NULL)
+                break;
+            list[(*n)++] = name;
+        }
+    }
+
+    closedir(d);
+}
+
 int vrmr_test_render(char *buf, size_t size)
 {
     size_t n = 0;
@@ -823,6 +880,47 @@ int vrmr_test_render(char *buf, size_t size)
     for (i = 0; i < n_effects && n < RENDER_SIZE - 64; i++)
         n += (size_t)snprintf(
                 render_buf + n, RENDER_SIZE - n, "%s\n", effects[i].line);
+
+    {
+        char *list[MAX_PROC_FILES];
+        int count = 0;
+
+        proc_collect(sb_proc, list, &count, MAX_PROC_FILES);
+        qsort(list, (size_t) count, sizeof(list[0]), proc_name_cmp);
+
+        if (count > 0)
+            n += (size_t) snprintf(
+                    render_buf + n, RENDER_SIZE - n, "# proc\n");
+
+        for (i = 0; i < count && n < RENDER_SIZE - 256; i++) {
+            char path[2 * PATH_MAX];
+            char *content;
+            size_t len = 0;
+            char *nl;
+
+            (void)snprintf(path, sizeof(path), "%s%s", sb_proc, list[i]);
+            content = slurp(path, &len);
+
+            if (content == NULL) {
+                /* a file that vanished between the walk and the read is a
+                 * complaint, not a blank in the golden */
+                if ((content = strdup("# unreadable")) == NULL)
+                    continue;
+            } else {
+                if (len > 0 && content[len - 1] == '\n')
+                    content[len - 1] = '\0';
+                if (content[0] == '\0')
+                    (void)strlcpy(content, "(empty)", len + 1);
+                else if ((nl = strchr(content, '\n')) != NULL)
+                    *nl = '\0';
+            }
+
+            n += (size_t) snprintf(render_buf + n, RENDER_SIZE - n,
+                    "write: /proc%s = %s\n", list[i], content);
+            free(content);
+            free(list[i]);
+        }
+    }
 
     if (n_fix_problems > 0) {
         n += (size_t)snprintf(render_buf + n, RENDER_SIZE - n, "# fixtures\n");
