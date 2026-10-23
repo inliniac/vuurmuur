@@ -5003,8 +5003,8 @@ int create_interface_rules(struct vrmr_config *conf,
     forward chain as well
 
     oldstyle virtual interfaces:
-    no -i <dev> or -o <dev>, but WITH the ipaddress. So they will match in
-    input and output chains
+    -i/-o <parent dev> (the alias label itself is not a netdev),
+    no ipaddress; the parent scopes all aliases of the interface
 
     returncodes:
          0: ok
@@ -5047,8 +5047,16 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
         snprintf(output_device, sizeof(output_device), "-o %s",
                 from_if_ptr->device);
     } else {
-        memset(input_device, 0, sizeof(input_device));
-        memset(output_device, 0, sizeof(output_device));
+        /* oldstyle virtual: the alias label (eth0:0) is not a netdev;
+         * match on the parent device, which covers all of its aliases.
+         * the parent name goes into a scratch buffer so that snprintf
+         * never mixes the destination buffer with its own argument */
+        char parentdev[16] = "";
+        (void)strlcpy(parentdev, from_if_ptr->device, sizeof(parentdev));
+        if (strchr(parentdev, ':') != NULL)
+            *strchr(parentdev, ':') = '\0';
+        snprintf(input_device, sizeof(input_device), "-i %s", parentdev);
+        snprintf(output_device, sizeof(output_device), "-o %s", parentdev);
     }
 
     /* virtual oldstyle */
@@ -5062,11 +5070,9 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
 
             /* log rule string */
             snprintf(cmd, sizeof(cmd),
-                    "-s %s/%s -d %s/255.255.255.255 %s -j NFLOG %s "
-                    "--nflog-group %u",
-                    create->danger.source_ip.ipaddress,
-                    create->danger.source_ip.netmask,
-                    from_if_ptr->ipv4.ipaddress, my_limit, logprefix,
+                    "%s -s %s/%s %s -j NFLOG %s --nflog-group %u",
+                    input_device, create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask, my_limit, logprefix,
                     conf->nfgrp);
 
             if (process_rule(conf, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF,
@@ -5075,9 +5081,9 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
         }
 
         /* and the DROP rule */
-        snprintf(cmd, sizeof(cmd), "-s %s/%s -d %s/255.255.255.255 -j DROP",
+        snprintf(cmd, sizeof(cmd), "%s -s %s/%s -j DROP", input_device,
                 create->danger.source_ip.ipaddress,
-                create->danger.source_ip.netmask, from_if_ptr->ipv4.ipaddress);
+                create->danger.source_ip.netmask);
 
         if (process_rule(conf, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd,
                     0, 0) < 0)
@@ -5092,10 +5098,8 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
 
             /* log rule string */
             snprintf(cmd, sizeof(cmd),
-                    "-s %s/255.255.255.255 -d %s/%s %s -j NFLOG %s "
-                    "--nflog-group %u",
-                    from_if_ptr->ipv4.ipaddress,
-                    create->danger.source_ip.ipaddress,
+                    "%s -d %s/%s %s -j NFLOG %s --nflog-group %u",
+                    output_device, create->danger.source_ip.ipaddress,
                     create->danger.source_ip.netmask, my_limit, logprefix,
                     conf->nfgrp);
 
@@ -5105,9 +5109,8 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
         }
 
         /* and the DROP rule */
-        snprintf(cmd, sizeof(cmd), "-s %s/255.255.255.255 -d %s/%s -j DROP",
-                from_if_ptr->ipv4.ipaddress, create->danger.source_ip.ipaddress,
-                create->danger.source_ip.netmask);
+        snprintf(cmd, sizeof(cmd), "%s -d %s/%s -j DROP", output_device,
+                create->danger.source_ip.ipaddress, create->danger.source_ip.netmask);
 
         if (process_rule(conf, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd,
                     0, 0) < 0)
