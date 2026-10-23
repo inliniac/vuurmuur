@@ -2865,6 +2865,9 @@ int vrmr_rules_get_system_chains(
     if (ipv == VRMR_IPV4) {
         vrmr_list_setup(&rules->system_chain_nat, free);
     }
+    /* raw is queried for both families, so it is set up for both: the list owns
+     * strdup'd chain names and without a destructor they leak one per name */
+    vrmr_list_setup(&rules->system_chain_raw, free);
 
     if (cnf->iptables_location[0] == '\0') {
         vrmr_error(-1, "Internal Error", "cnf->iptables_location is empty");
