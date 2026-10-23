@@ -1,0 +1,5 @@
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+  111  1110 ACC-eth1   all  --  eth1   *       0.0.0.0/0            0.0.0.0/0
+  222  2220 ACC-eth1   all  --  *      eth1    0.0.0.0/0            0.0.0.0/0
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0

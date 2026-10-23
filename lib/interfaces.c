@@ -1148,7 +1148,7 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
          command[256] = "", proto[16] = "", target[32] = "", options[16] = "",
          source[36] = "", dest[36] = "";
     struct vrmr_cmdout co;
-    int line_count = 0;
+    int header_seen = 0;
 
     uint64_t packets = 0, bytes = 0;
     char trans_done = 0, recv_done = 0;
@@ -1179,49 +1179,64 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
     /* loop through the result */
     while (vrmr_cmdout_nextline(&co, line, sizeof(line)) != NULL &&
             (!recv_done || !trans_done)) {
-        /* we start looking after the first two lines */
-        if (line_count >= 4) {
-            /*            pack byte tg pr op in ou sr ds */
-            sscanf(line, "%" PRIu64 " %" PRIu64 " %s %s %s %s %s %s %s",
-                    &packets, &bytes, target, proto, options, interface_in,
-                    interface_out, source, dest);
-
-            vrmr_debug(HIGH,
-                    "%s: tgt %s: iin: %s oin: %s packets: %" PRIu64
-                    ", bytes: %" PRIu64,
-                    iface_name, target, interface_in, interface_out, packets,
-                    bytes);
-
-            if (strcmp(source, "0.0.0.0/0") == 0 &&
-                    strcmp(dest, "0.0.0.0/0") == 0 &&
-                    (strcmp(proto, "all") == 0 || strcmp(proto, "0") == 0) &&
-                    (interface_in[0] == '*' || interface_out[0] == '*')) {
-                /* outgoing */
-                if (interface_in[0] == '*' &&
-                        strcmp(interface_out, iface_name) == 0) {
-                    *trans_packets = packets;
-                    *trans_bytes = bytes;
-                    trans_done = 1;
-
-                    vrmr_debug(HIGH,
-                            "%s: trans: %" PRIu64 " (%" PRIu64 ") (trans done)",
-                            iface_name, *trans_bytes, bytes);
-                }
-                /* incoming */
-                else if (interface_out[0] == '*' &&
-                         strcmp(interface_in, iface_name) == 0) {
-                    *recv_packets = packets;
-                    *recv_bytes = bytes;
-                    recv_done = 1;
-
-                    vrmr_debug(HIGH,
-                            "%s: recv: %" PRIu64 " (%" PRIu64 ") (recv done)",
-                            iface_name, *recv_bytes, bytes);
-                }
-            }
+        /* anchor on the column header, not on a line count: the per-chain
+         * -vnL form prints two lines before the rules, and a constant here
+         * silently drops the rules that follow it */
+        if (!header_seen) {
+            if (strstr(line, "target") != NULL &&
+                    strstr(line, "prot") != NULL)
+                header_seen = 1;
+            continue;
         }
 
-        line_count++;
+        /*            pack byte tg pr op in ou sr ds */
+        sscanf(line, "%" PRIu64 " %" PRIu64 " %s %s %s %s %s %s %s",
+                &packets, &bytes, target, proto, options, interface_in,
+                interface_out, source, dest);
+
+        vrmr_debug(HIGH,
+                "%s: tgt %s: iin: %s oin: %s packets: %" PRIu64
+                ", bytes: %" PRIu64,
+                iface_name, target, interface_in, interface_out, packets,
+                bytes);
+
+        if (strcmp(source, "0.0.0.0/0") == 0 &&
+                strcmp(dest, "0.0.0.0/0") == 0 &&
+                (strcmp(proto, "all") == 0 || strcmp(proto, "0") == 0) &&
+                (interface_in[0] == '*' || interface_out[0] == '*')) {
+            /* outgoing */
+            if (interface_in[0] == '*' &&
+                    strcmp(interface_out, iface_name) == 0) {
+                *trans_packets = packets;
+                *trans_bytes = bytes;
+                trans_done = 1;
+
+                vrmr_debug(HIGH,
+                        "%s: trans: %" PRIu64 " (%" PRIu64 ") (trans done)",
+                        iface_name, *trans_bytes, bytes);
+            }
+            /* incoming */
+            else if (interface_out[0] == '*' &&
+                     strcmp(interface_in, iface_name) == 0) {
+                *recv_packets = packets;
+                *recv_bytes = bytes;
+                recv_done = 1;
+
+                vrmr_debug(HIGH,
+                        "%s: recv: %" PRIu64 " (%" PRIu64 ") (recv done)",
+                        iface_name, *recv_bytes, bytes);
+            }
+        }
+    }
+
+    if (!header_seen) {
+        /* an empty answer is what a missing table gives; a listing we could not
+         * anchor on is a different thing and must not read as zero traffic */
+        vrmr_error(-1, "Error",
+                "no column header in '%s' output for chain %s",
+                cfg->iptables_location, chain);
+        vrmr_cmdout_close(&co);
+        return (-1);
     }
 
     /* finally close the pipe */

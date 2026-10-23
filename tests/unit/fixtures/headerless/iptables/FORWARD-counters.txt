@@ -1,0 +1,2 @@
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+  this fixture has no column header
