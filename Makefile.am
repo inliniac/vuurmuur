@@ -6,4 +6,12 @@ SUBDIRS = po include lib vuurmuur vuurmuur_log vuurmuur_script vuurmuur_conf scr
 
 ACLOCAL_AMFLAGS = -I m4
 
+# distcheck is the only job that compiles the check-phase programs, so it has to
+# compile them strictly: a warning in a test-only file is otherwise invisible
+# until someone runs --enable-werror by hand, and 'make' alone never builds them.
+# automake passes this before $(DISTCHECK_CONFIGURE_FLAGS) (see Makefile.in:693-694),
+# so a caller's own flag on the same knob still wins and --disable-werror on the
+# command line stays effective.
+AM_DISTCHECK_CONFIGURE_FLAGS = --enable-werror
+
 EXTRA_DIST = config.rpath installer
