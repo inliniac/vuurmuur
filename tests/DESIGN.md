@@ -581,6 +581,15 @@ Nothing beyond `autogen.sh` from a clean checkout is assumed: no wrapper script,
 prefix. A strict build is `./configure --enable-werror`, sanitizers are `./configure
 --with-sanitizers`; neither is a `CFLAGS` exercise, which is the point of having the options.
 
+**Two halves of "strict", and one line each.** `--enable-werror` governs the *outer* configure, and
+which jobs pass it is the CI repo's topology, not this file's business. `AM_DISTCHECK_CONFIGURE_FLAGS`
+in `Makefile.am` governs the only replay an outer flag cannot reach: distcheck's inner configure,
+which is also the only build that compiles the check-phase programs. Both lines are load-bearing and
+neither subsumes the other - a warning in a test-only file was green in CI at the head where
+`--enable-werror make check` did not compile, which is what put the second line in. `configure.ac:16`
+keeps the probe-ordering reason, `Makefile.am` keeps the automake-ordering detail, and the topology
+of which job runs strict belongs in the CI repo's README so there is one list to check.
+
 **Warning status.** With `--enable-werror` the build is clean with gcc 15, gcc 16 and clang 21.
 clang 22 compiles clean but fails the link step: its `gcc-install-dir-libstdcxx` notice is
 promoted to an error when libtool hands `CFLAGS` to the driver, and the `-Wno-error=` demotion
