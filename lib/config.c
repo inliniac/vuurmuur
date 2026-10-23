@@ -1343,6 +1343,14 @@ static int vrmr_pre_init_config(struct vrmr_config *cnf)
      * at a sandbox with this override */
     const char *etcdir_loc = getenv("VUURMUUR_SYSCONFDIR");
 
+    if (etcdir_loc != NULL) {
+        /* not a supported knob for an operator, and reading a config tree
+         * nobody pointed at silently is worse than saying it */
+        vrmr_warning("Warning",
+                "config directory taken from VUURMUUR_SYSCONFDIR ('%s'), "
+                "not from the compiled-in %s", etcdir_loc, xstr(SYSCONFDIR));
+    }
+
     if (strlcpy(cnf->etcdir, etcdir_loc != NULL ? etcdir_loc : xstr(SYSCONFDIR),
                 sizeof(cnf->etcdir)) >= sizeof(cnf->etcdir)) {
         vrmr_error(-1, "Error",
