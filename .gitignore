@@ -71,3 +71,4 @@ tests/unit/lineread
 # tier 1 build output and scratch
 tests/gen/ruleset
 tests/bin/
+/po/insert-header.sed

@@ -63,8 +63,4 @@ EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh \
 	cases/shaping/etc/state/interfaces/lan.conf \
 	cases/shaping/etc/state/rules/rules.conf \
 	cases/simple/etc/state/rules/rules.conf \
-	golden/empty.txt \
-	golden/options.txt \
-	golden/protect.txt \
-	golden/shaping.txt \
-	golden/simple.txt
+	$(wildcard golden/*.txt)
