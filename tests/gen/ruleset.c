@@ -217,6 +217,33 @@ static int fixture_problems(const char *artifact)
     return n;
 }
 
+/* One artifact per case from the forward pass, kept for the reverse pass in
+ * main(). Only the text is reused, never the sandbox. */
+struct kept {
+    char *name;
+    char *text;
+    int len;
+};
+
+#define MAX_KEPT 64
+static struct kept kept[MAX_KEPT];
+static int n_kept;
+
+static void keep_artifact(const char *name, const char *text, int len)
+{
+    if (n_kept >= MAX_KEPT)
+        return;
+
+    kept[n_kept].name = strdup(name);
+    kept[n_kept].text = (char *) memcpy(malloc((size_t) len), text, (size_t) len);
+    kept[n_kept].len = len;
+
+    if (kept[n_kept].name == NULL || kept[n_kept].text == NULL)
+        return;
+
+    n_kept++;
+}
+
 static int run_case(const char *cases_dir, const char *golden_dir,
         const char *name, int update)
 {
@@ -266,6 +293,9 @@ static int run_case(const char *cases_dir, const char *golden_dir,
     t_ok(len2 == len && memcmp(first, actual, (size_t)len) == 0,
         "%s: two generations of one fixture are byte-identical (%d vs %d bytes)",
         name, len, len2);
+
+    if (len > 0)
+        keep_artifact(name, first, len);
 
 
     if (update) {
@@ -331,6 +361,33 @@ int main(int argc, char **argv)
         r = run_case(cases_dir, golden_dir, argv[i], update);
         if (r < 0)
             failed = 1;
+    }
+
+    /* The pair inside run_case proves a case does not depend on when it runs;
+     * it cannot see state that is carried between cases, because both passes of
+     * one case have the same neighbour. Anything with a process lifetime cache
+     * (lib/proc.c primed by the previously parsed entry, a static counter, a
+     * half reset sandbox) is invisible that way and shows up the moment the
+     * corpus is walked in the other direction. */
+    if (!update) {
+        int k;
+
+        for (k = n_kept - 1; k >= 0; k--) {
+            int len;
+
+            if (vrmr_test_sandbox_setup(cases_dir, kept[k].name) != 0) {
+                t_ok(0, "%s: reverse pass setup failed", kept[k].name);
+                continue;
+            }
+
+            len = generate_once(kept[k].name);
+            (void)vrmr_test_sandbox_teardown();
+
+            t_ok(len == kept[k].len && len >= 0 &&
+                    memcmp(kept[k].text, actual, (size_t) len) == 0,
+                    "%s: a different corpus order gives the same bytes (%d vs %d)",
+                    kept[k].name, len, kept[k].len);
+        }
     }
 
     return (tap_finish() != 0 || failed) ? 1 : 0;
