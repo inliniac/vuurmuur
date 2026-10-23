@@ -24,7 +24,9 @@ ruleset generation end-to-end, as an unprivileged user, on any host, in CI and l
 
 Non-goals for this phase: kernel-level correctness (does iptables *accept* the ruleset,
 do packets match), conntrack/NFLOG daemons, the ncurses GUI, IPv6-in-the-kernel,
-`tc` shaping behaviour. Those stay manual or move to a privileged VM job later.
+what `tc` does with a shaped class tree. The script the engine hands to `/bin/bash` is
+captured and pinned (see §5, `shaping`), so the emission is covered; its kernel effect is not,
+and stays manual or moves to a privileged VM job.
 
 ## 2. Why it cannot be tested today (privilege dependencies)
 
@@ -135,8 +137,9 @@ Shell/TAP driver that runs the *real* binaries against a sandbox, with a fake
 **same artifact as tier 1**, so the two tiers cross-check each other:
 
 ```
-VUURMUUR_SYSCONFDIR=$SB/etc VUURMUUR_TMPDIR=$SB/tmp \
-  vuurmuur/vuurmuur -t -k -c $SB/etc/vuurmuur/config.conf
+VUURMUUR_SYSCONFDIR=$SB/etc vuurmuur/vuurmuur -t -k -c $SB/etc/vuurmuur/config.conf
+# no VUURMUUR_TMPDIR exists: the ruleset tempfile is still /tmp/vuurmuur-ruleset-XXXXXX,
+# which is why tier 2 needs S4/a tmpdir knob before it can run in parallel or unprivileged
 ```
 The fake binaries are selected by **config keys, not by `PATH`** - prepending `$SB/bin` to
 `PATH` does nothing. Nothing in the generation path resolves a bare command name:
@@ -231,7 +234,14 @@ of scope for these tiers.)
 
 ### S2 path rooting (enables D3, D4, D11, D12)
 
-`lib/config.c:1335 vrmr_pre_init_config()` gains env overrides, documented in `doc/`:
+`lib/config.c:1335 vrmr_pre_init_config()` gains env overrides, documented in `doc/`.
+What landed is narrower than the list below, and the difference matters for tier 2:
+`VUURMUUR_SYSCONFDIR` is read by the product (and now warns when it is set, because a config
+tree nobody pointed at silently is worse than saying it), while the tmpdir, the proc root and
+the trusted-owner uid are set through `vrmr_set_tmpdir()` / `vrmr_set_proc_prefix()` /
+`vrmr_set_trusted_owner()` from inside the process. Tier 1 can use those; a tier 2 case that
+execs the real `vuurmuur` binary cannot, so `S4` (rundir/pidfile) and a knob for the ruleset
+tempdir are prerequisites for tier 2 rather than later polish:
 
 ```c
 const char *e = getenv("VUURMUUR_SYSCONFDIR");  /* default xstr(SYSCONFDIR) */
@@ -398,9 +408,9 @@ the branch count, not against this heading.
 | zones | zone, network, host, group, multi-net zone, zone aliases, inactive zone |
 | expansion | host<->host, host<->net, net<->net, any, multi-iface src+dst |
 | services | tcp range, udp range, both, icmp named types, helper (ftp/tftp), broadcast |
-| options | mac, mark/connmark, limit/burst, length, state, helper, rpfilter, ct, tcpmss, nflog/nfqueue num |
+| options | mark/connmark, limit/burst, length, state, helper, rpfilter, ct, tcpmss, nflog/nfqueue num. Not rule options: `mac` comes from the source object, `comment` is bash-output only, `prio` belongs to shaping |
 | protection | synlimit, udplimit, antispoof, blocklist entries, protect rules (sysctl/proc) |
-| shaping | shape on iface+rule: tc script capture + SHAPE* chains (expect `tc` invocations, no exec) |
+| shaping | shape on iface+rule: the script the engine writes and runs with `/bin/bash <tmpfile>` is captured as a `# SHAPE` block, so the `tc` class/qdisc lines are pinned without any exec of `tc` |
 | v6 | ipv6-only rules, dual-stack rule set, `check_ipv6` failure path |
 | capability profiles | same rule set under 4 `.caps` profiles -> 4 goldens |
 | ordering/idempotence | load same tree twice, second pass must emit `NOCHANGES` and an identical ruleset |
@@ -444,9 +454,11 @@ this tree is `.github/workflows/builds.yml`. Today `make check` runs in exactly 
 `ubuntu:26.04:arm64` and `ubuntu:26.04:armhf`, the only ones that execute the suite on arm - and
 `build` runs `make -j<N> distcheck`, which runs the suite a second time in a VPATH tree;
 `ubuntu:26.04:amd64` compiles without running it. A sanitized variant is therefore a configure flag on
-an existing recipe, not new machinery: the `fedora:43/44:sanitizers` jobs compile with
-`-fsanitize=*` CFLAGS and never execute a binary, which is the same `CFLAGS`-override trap §10 warns
-about, in the opposite direction.
+an existing recipe, not new machinery. The `fedora:*:sanitizers` jobs do build with
+`--with-sanitizers` and run the suite; they were broken rather than idle (a `nm` glob under
+`pipefail` aborted the script with exit 7 before the first test, which is the same
+`CFLAGS`-override trap §10 warns about, in the opposite direction) and are green in CI as of this
+slice. ASan and UBSan are silent across tier 0 and tier 1.
 * `--enable-coverage` -> `--coverage`, `make check-codecov` + `lcov --rc
   lcov_branch_coverage=1` report limited to `lib/` + `vuurmuur/`.
 * Fuzz targets (tier 0, `check_PROGRAMS`, run 30 s in CI nightly):
@@ -464,7 +476,7 @@ about, in the opposite direction.
 | Phase | Content | Size |
 |---|---|---|
 | P0 | ✅ `tests/` skeleton + TAP emitter, tier 0 for `lib/rules.c` parsers | done |
-| P0b | sanitizer/coverage execution in CI - partly done: `make check` already runs in the two `ubuntu:26.04:arm*` jobs and in `build`'s distcheck; what remains is the sanitizer job actually executing binaries | S |
+| P0b | ✅ sanitizer and coverage execution in CI: `make check` runs in the two `ubuntu:26.04:arm*` jobs, in `build`'s distcheck and in the sanitized Fedora jobs; the coverage job reports a number and fails if it collects nothing | done |
 | P1 | ✅ S1 exec-capture + S2 config/state rooting + S3 owner + S5 interface-address hook + S6 engine split, tier 1 driver, sandbox helper, golden cases | done |
 | P2 | S4 rundir/pidfile rooting, tier 2 CLI cases (`vuurmuur -k`), `#include`d host facts, more goldens | M |
 | P3 | normalizer hardening, capability profiles, idempotence + reload-diff cases, corpus target (~25) | M |
@@ -695,9 +707,8 @@ pty-driven test of its own.
   the file path needed the flush lines, the legacy `-Y` path needed raw in the table array and
   the chain discovery to have anything to flush. The corpus is what made it visible - the golden
   is the first place anyone reads the whole artifact instead of the branch they were thinking
-  about. Only the flush lines are pinned by tier 1 today: the discovery query goes through the
-  read op, which `cap_read` answers from fixtures keyed on `-t <table>`, so a canned raw listing
-  needs the invocation-kind keying and the fail-closed marker in this file's other open items
+  about. Both halves are pinned now: the flush lines in the artifact, and the discovery query by
+  `cases/common/iptables/raw-nL.txt` from the keyed fixture set above.
   before it can be expressed at all.
 
 * `vrmr_backends_unload()` has to be called by anything that loads objects in a loop: the
@@ -729,11 +740,74 @@ pty-driven test of its own.
   host facts, so the harness gets `vrmr_set_iface_probe_config()`: with it installed the
   configured address is taken as the actual one. Production is unchanged.
 * Whether `PRE-VRMR-*` chains already exist changes the output (the `--new` lines are
-  skipped), and the check is a live `iptables -t <table> -nL`. Those answers come from
-  `cases/<name>/iptables/<table>.txt`; no file means an empty table, i.e. a fresh boot.
+  skipped), and the check is a live `iptables -t <table> -nL`. Answers are canned under
+  `cases/<case>/iptables/`, falling back to `cases/common/iptables/`, and keyed by
+  *invocation kind*: `<ip6><table>-nL.txt` for listings and `<chain>-counters.txt` for the
+  per-chain `--exact` counter reads, because the latter carry no `-t` and a key built from
+  that token resolved them to `''`. A read with no answer is now a complaint in the
+  artifact (`# no fixture: iptables/raw-nL.txt`) and fails the case before any golden is
+  compared or written, so a typo in a fixture name cannot be laundered into truth by
+  `--update`. An empty answer is reserved for a file that exists and is empty, which is
+  what a kernel without the table looks like.
 * `--counters --noflush < tmp 2>> tmp` is the load invocation, so a case records the
   ruleset tempfile content as it exists at that moment; it is deleted right after.
 * The engine referenced `cmdline`, `version_string`, `shm_table` and `sem_id`, which were
   defined in `vuurmuur/vuurmuur.c`. They moved to `vuurmuur/misc.c` so a test can link the
   engine without a `main()`.
 
+* The counter read dropped the first two rules of every chain. `vrmr_get_iface_stats_from_ipt`
+  runs `iptables -vnL <chain> --exact`, which prints two lines before the rules, and skipped to a
+  hardcoded `line_count >= 4` (`lib/interfaces.c:1183`). On a running box the first two are usually
+  the `ACC-in`/`ACC-out` pair of one device and the rules that carry the interesting numbers start
+  at line 4, so the output looked right; a chain with two rules or fewer answered zero packets and
+  zero bytes, and `vuurmuur/ruleset.c:1321` wrote those zeros into the ruleset file every run. It
+  is anchored on the `target`/`prot` column header now, and a listing with no header at all is an
+  error rather than a zero - the two used to be indistinguishable to the caller.
+* A rule line's option list tolerates whitespace around the keyword and the value, but not after
+  the comma between options: `options in_max=10000kbit, out_max=5000kbit` parses the second token
+  as `' out_max=5000kbit'`, warns `unknown rule option` and installs the rule with the input class
+  only. `vuurmuur_conf` never writes that form (`lib/rules.c:1470` joins with a bare comma), so
+  only a hand-edited `rules.conf` shows it. The comment at `lib/rules.c:1111` claims more than the
+  code does. Open question for the maintainer: trim the token, or fix the comment.
+* Files the engine passes as argv were invisible to the artifact. The first version of the capture
+  scanned each command line for `" < "` and dumped the redirect target, which missed
+  `/bin/bash <SHAPE-tempfile>` entirely: the shaping script never appeared in any golden and the
+  corpus was quiet about it. The capture now sweeps argv for sandbox tempfile references as well.
+* Kernel state written with `fopen` and no exec op (`vrmr_set_proc_entry`, `lib/proc.c`) is read
+  back from the sandbox proc tree and rendered as sorted `write: /proc/... = <value>` lines. The
+  stub values are `9`, which protect cannot write, so "the engine stopped writing" and "the engine
+  wrote the default" are different artifacts. This came out of flipping `PROTECT_SYNCOOKIE` and
+  watching nothing move.
+* Whether a protect case is supposed to touch every interface is unresolved: `protect/` pins
+  `conf/eth0/accept_redirects=0` and `conf/eth0/rp_filter=1` and shows `eth1` - the dmz side of the
+  same fixture - with no per-interface entries at all. Before the values were rendered, neither
+  answer was visible in either direction.
+* Two lists have to agree, and the suite now checks both directions: every case needs a golden
+  (the driver fails it if the file is absent) and every golden needs a case (the wrapper walks the
+  golden directory). A golden whose case was renamed was compared against nothing, which is how a
+  new case shipped with its golden missing from `EXTRA_DIST` and the tarball red while the tree
+  was green. Listing fixtures and goldens by hand in `EXTRA_DIST` is what let that happen, so both
+  are wildcards.
+* Determinism is checked in both orders. Two passes of one case prove a case does not depend on
+  when it runs, but both passes see the same neighbour, so a cache with process lifetime - the
+  `entry_last` shape in `lib/proc.c` - is invisible to them. Each artifact is kept and the corpus
+  regenerated from the other end; six extra generations, and all six agree today.
+
+## 15. What tier 1 does not cover
+
+Not a list of hypothetical gaps: these are the assertions the corpus cannot make, so that a
+green suite is not read as "the generator is covered".
+
+* Anything after the artifact: `iptables-restore` accepting it, matches hitting connections,
+  `tc` installing the class tree, conntrack or NFLOG delivery. The goldens say what the engine
+  asked the kernel to do.
+* The per-command (`-b`/bash) output path, which is a different branch of the same builders and
+  has no golden.
+* Capability profiles: `vrmr_check_iptcaps` is pinned to `FALSE` in the driver, so the corpus
+  models a kernel with everything the engine uses. The four `.caps` cases in §5 are not written.
+* Interface state: up/down and dynamic addressing are answered by a hook, and a case where an
+  interface is configured `ip=dynamic` with no address resolved is not in the corpus - the gate
+  at `lib/interfaces.c:1505` decides whether generation runs at all, and nothing pins what it
+  decides.
+* `vuurmuur_log`, `vuurmuur_conf` (beyond the line-reader and log-viewer unit tests), the
+  translation strings, and every code path behind `getuid() == 0`.
