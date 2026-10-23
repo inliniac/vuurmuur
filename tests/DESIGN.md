@@ -606,6 +606,21 @@ rather than a netns wrapper or a fake kernel.
 
 ## 11. Findings from tier 0
 
+* The wrong *separator* on the options keyword discards the whole option list of an otherwise
+  valid rule, silently, and the rule still installs. `options=log, limit=5/sec` tokenises as one
+  word, `strcasecmp` against `options` fails, no branch reads the rest of the line, and a
+  rate-limited logged drop becomes an unlimited drop. This is a different failure from the
+  unknown-*key* silence below, and one character of a hand-edited file is enough for it: the
+  tier 0 pin (`options: options= is accepted and drops the options`, `tests/unit/rules_parse.c`)
+  is what stops the next fixture being decorative. A `vrmr_warning` naming the token is in
+  `vrmr_rules_parse_line` now, so an operator sees it too; parsing the form as if it had been
+  spelled correctly remains deliberately not done, because `vuurmuur_conf` writes the canonical
+  form (`lib/rules.c:1470`) and accepting both would hide the difference forever.
+* A `vrmr_list` that owns its payload has to be `vrmr_list_setup()` with that destructor at the
+  site which creates it, not at the sites which consume it. Twice in this MR a new consumer of a
+  `system_chain_*` list forgot a companion - the commented-out flush paths first, then the
+  discovery query for `raw`, which populated an uninitialised list and leaked one string per
+  chain name until `lib/rules.c:2882`. The shape of the mistake is that every site looks correct.
 * `logprefix` can never be rejected for being too long: the copy caps at 12 characters, so
   the `strlen(op->logprefix) > 14` branch that warns and clears the flag is unreachable
   (`lib/rules.c:2155-2171`, the test at `:2162`). Long prefixes are silently truncated instead. Pinned by a
@@ -701,9 +716,11 @@ pty-driven test of its own.
   declaration deliberately leaves the rules in place. Every reload therefore appended the raw
   rules again, in the table that sees the first packet of every connection. Not intent: raw
   arrived in `9e4167f` (2012-09-04) into a design whose flush enumeration is a hardcoded table
-  list (`vuurmuur/rules.c:2379`, `:2462`), and `system_chain_raw` (`include/vuurmuur.h:623`) has
-  all three of its consumers commented out (`lib/rules.c:2887`, `vuurmuur/rules.c:118`,
-  `vuurmuur/ruleset.c:1094`). Four sites, one bug, and fixing either half alone looks complete:
+  list (`vuurmuur/rules.c:2379`, `:2462`), and `system_chain_raw` (`include/vuurmuur.h:623`) had
+  all three of its consumers commented out until this slice (`lib/rules.c:2888`, the comment sits
+  above the live call, `vuurmuur/rules.c:118`, `vuurmuur/ruleset.c:1094`). Five sites, one bug:
+  enabling the query also needs the list's destructor (`lib/rules.c:2882`), which was missed and
+  showed as a leak in the sanitizer build. Fixing any subset alone looks complete:
   the file path needed the flush lines, the legacy `-Y` path needed raw in the table array and
   the chain discovery to have anything to flush. The corpus is what made it visible - the golden
   is the first place anyone reads the whole artifact instead of the branch they were thinking
@@ -767,8 +784,11 @@ pty-driven test of its own.
   the comma between options: `options in_max=10000kbit, out_max=5000kbit` parses the second token
   as `' out_max=5000kbit'`, warns `unknown rule option` and installs the rule with the input class
   only. `vuurmuur_conf` never writes that form (`lib/rules.c:1470` joins with a bare comma), so
-  only a hand-edited `rules.conf` shows it. The comment at `lib/rules.c:1111` claims more than the
-  code does. Open question for the maintainer: trim the token, or fix the comment.
+  only a hand-edited `rules.conf` shows it. The comment at `lib/rules.c:1121` claimed whitespace
+  was allowed, which is true of the keyword and the values and false of the separator; it says so
+  now, and `options=`-style keywords warn instead of vanishing. Whether to trim the token and
+  accept that form as well is still the maintainer's call - the warning makes it visible either
+  way, which is the part that mattered.
 * Files the engine passes as argv were invisible to the artifact. The first version of the capture
   scanned each command line for `" < "` and dumped the redirect target, which missed
   `/bin/bash <SHAPE-tempfile>` entirely: the shaping script never appeared in any golden and the
