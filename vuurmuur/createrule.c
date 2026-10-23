@@ -4856,15 +4856,20 @@ static int create_interface_rpfilter_rules(struct vrmr_config *conf,
     }
 #ifdef IPV6_ENABLED
     if (vrmr_interface_ipv6_enabled(if_ptr)) {
-        if (conf->vrmr_check_iptcaps == FALSE ||
-                (iptcap->table_ip6_raw && iptcap->match_ip6_rpfilter)) {
-            //             ((conf->rule_nflog == 0 && iptcap->target_ip6_log ==
-            //             TRUE) ||
-            //              (conf->rule_nflog == 1 && iptcap->target_ip6_nflog
-            //              == TRUE)))) {
+        /* the v6 rule needs its own limit string; the log target is
+         * NFLOG, so require it as well. */
+        char cmd6[VRMR_MAX_PIPE_COMMAND] = "";
 
+        snprintf(cmd6, sizeof(cmd6),
+                "%s -m rpfilter --invert %s -j NFLOG %s --nflog-group %u",
+                input_device, log_limit_match(conf, iptcap, VRMR_IPV6),
+                logprefix, conf->nfgrp);
+
+        if (conf->vrmr_check_iptcaps == FALSE ||
+                (iptcap->table_ip6_raw && iptcap->match_ip6_rpfilter &&
+                        iptcap->target_ip6_nflog == TRUE)) {
             if (process_rule(conf, ruleset, VRMR_IPV6, TB_RAW, CH_PREROUTING,
-                        cmd, 0, 0) < 0)
+                        cmd6, 0, 0) < 0)
                 return (-1);
         }
     }
