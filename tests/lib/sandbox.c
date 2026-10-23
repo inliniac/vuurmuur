@@ -354,9 +354,69 @@ void vrmr_test_effects_reset(void)
     n_effects = 0;
 }
 
+/* Whitespace-delimited token at *pp; *pp lands on the byte after it. */
+static size_t take_token(const char **pp, char *out, size_t size)
+{
+    size_t n = 0;
+
+    while (**pp != '\0' && isspace((unsigned char)**pp))
+        (*pp)++;
+
+    while (**pp != '\0' && !isspace((unsigned char)**pp) && n < size - 1)
+        out[n++] = *(*pp)++;
+
+    out[n] = '\0';
+
+    return n;
+}
+
+/* RULESET and SHAPE are inputs the golden has to carry. RESULT is a sink for
+ * stderr, and anything else is not a sandbox tempfile. */
+static int is_pinned_tempfile(const char *path)
+{
+    const char *token = tmpfile_token(path);
+
+    return strcmp(token, "RULESET") == 0 || strcmp(token, "SHAPE") == 0;
+}
+
+static int dump_ref(struct effect *e, const char *path)
+{
+    char token[48] = "";
+    char *content;
+    size_t len = 0;
+    int i, seen = 1;
+
+    if ((content = slurp(path, &len)) == NULL) {
+        fprintf(stderr, "sandbox: ref '%s': %s\n", path, strerror(errno));
+        return -1;
+    }
+
+    (void)strlcpy(token, tmpfile_token(path), sizeof(token));
+    for (i = 0; i < n_effects; i++) {
+        int r;
+        for (r = 0; r < effects[i].n_ref; r++) {
+            if (strcmp(effects[i].ref[r].token, token) == 0)
+                seen++;
+        }
+    }
+    if (seen > 1) {
+        char numbered[96] = "";
+
+        snprintf(numbered, sizeof(numbered), "%s-%d", token, seen);
+        (void)strlcpy(token, numbered, sizeof(token));
+    }
+
+    vrmr_test_normalize(content, len + 256, content);
+    (void)strlcpy(e->ref[e->n_ref].token, token, sizeof(e->ref[0].token));
+    e->ref[e->n_ref].content = content;
+    e->n_ref++;
+
+    return 0;
+}
+
 /* Record one command and snapshot the files it consumes: by the time the test
- * looks, the ruleset tempfile is gone. Repeats of the same token are numbered
- * so a v4 and a v6 ruleset cannot be confused. */
+ * looks, the ruleset and shaping tempfiles are gone. Repeats of the same token
+ * are numbered so a v4 and a v6 ruleset cannot be confused. */
 static void record(const char *command)
 {
     struct effect *e;
@@ -376,41 +436,32 @@ static void record(const char *command)
     for (p = strstr(command, " < "); p != NULL && e->n_ref < MAX_REF;
             p = strstr(p + 1, " < ")) {
         char path[PATH_MAX + 64] = "";
-        char token[48] = "";
-        char *content;
-        size_t n = 0, len = 0;
-        int i, seen = 1;
 
         p += 3;
-        while (*p != '\0' && !isspace((unsigned char)*p) &&
-                n < sizeof(path) - 1)
-            path[n++] = *p++;
-        path[n] = '\0';
+        (void)take_token(&p, path, sizeof(path));
+        (void)dump_ref(e, path);
+    }
 
-        if ((content = slurp(path, &len)) == NULL) {
-            fprintf(stderr, "sandbox: ref '%s': %s\n", path, strerror(errno));
+    /* A tempfile passed as an argument carries no delimiter: the engine runs
+     * the shaping script as `bash <SHAPE>`, so the argv sweep is the only thing
+     * that pins the second file it writes. Redirect targets were collected
+     * above. */
+    for (p = command; *p != '\0' && e->n_ref < MAX_REF; ) {
+        char path[PATH_MAX + 64] = "";
+        char probe[PATH_MAX + 80] = "";
+        const char *start = p;
+
+        if (take_token(&p, path, sizeof(path)) == 0) {
+            if (p == start)
+                p++;            /* no whitespace and no token: stall guard */
             continue;
         }
-
-        (void)strlcpy(token, tmpfile_token(path), sizeof(token));
-        for (i = 0; i < n_effects; i++) {
-            int r;
-            for (r = 0; r < effects[i].n_ref; r++) {
-                if (strcmp(effects[i].ref[r].token, token) == 0)
-                    seen++;
-            }
-        }
-        if (seen > 1) {
-            char numbered[96] = "";
-
-            snprintf(numbered, sizeof(numbered), "%s-%d", token, seen);
-            (void)strlcpy(token, numbered, sizeof(token));
-        }
-
-        vrmr_test_normalize(content, len + 256, content);
-        (void)strlcpy(e->ref[e->n_ref].token, token, sizeof(e->ref[0].token));
-        e->ref[e->n_ref].content = content;
-        e->n_ref++;
+        if (path[0] != '/' || !is_pinned_tempfile(path))
+            continue;
+        if (snprintf(probe, sizeof(probe), " < %s", path) > 0 &&
+                strstr(command, probe) != NULL)
+            continue;
+        (void)dump_ref(e, path);
     }
 
     squash(e->line);
