@@ -44,8 +44,8 @@ static char sb[PATH_MAX] = "";
 static char sb_cases[PATH_MAX + NAME_MAX + 2] = ""; /* the corpus root */
 static char sb_tmp[PATH_MAX + 64] = "";
 static char sb_proc[PATH_MAX + 64] = "";
-static char canned[PATH_MAX + 64] = "";
-static char canned_common[PATH_MAX + 64] = "";
+static char canned[PATH_MAX + NAME_MAX + 12]; /* cases_dir + '/' + name + the tail */
+static char canned_common[PATH_MAX + 17];    /* cases_dir + "/common/iptables" */
 
 /* Reads whose canned answer is missing or unusable, first-seen order, deduped.
  * The engine cannot tell an absent fixture from a kernel without the table -
@@ -62,6 +62,9 @@ static int cap_exec(struct vrmr_config *cnf, const char *path,
 static int cap_read(
         struct vrmr_config *cnf, const char *command, char *buf, size_t size);
 void vrmr_test_fixture_problem(const char *fmt, ...);
+static int join_path(char *dst, size_t size, const char *dir, const char *name);
+static int cat_path(char *dst, size_t size, const char *dir, const char *tail);
+static void fix_clear(void);
 
 static const struct vrmr_exec_ops cap_ops = {
         .pipe = cap_pipe,
@@ -180,7 +183,10 @@ static int copy_tree(const char *from, const char *to)
     DIR *d;
     struct dirent *de;
     struct stat st;
-    char src[PATH_MAX], dst[PATH_MAX];
+    /* src re-enters as `from` one level down, so no fixed width is provably
+     * enough for an arbitrary depth: the checked joins do that work
+     */
+    char src[PATH_MAX + NAME_MAX + 2], dst[PATH_MAX + NAME_MAX + 2];
 
     if (stat(from, &st) != 0)
         return 0; /* nothing to copy */
@@ -200,8 +206,9 @@ static int copy_tree(const char *from, const char *to)
         if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
             continue;
 
-        snprintf(src, sizeof(src), "%s/%s", from, de->d_name);
-        snprintf(dst, sizeof(dst), "%s/%s", to, de->d_name);
+        if (!join_path(src, sizeof(src), from, de->d_name)
+                || !join_path(dst, sizeof(dst), to, de->d_name))
+            continue;
 
         if (stat(src, &st) != 0)
             continue;
@@ -370,8 +377,8 @@ static void effect_free(struct effect *e)
 
 /* Fixture problems outlive the phase they were recorded in, so they are cleared
  * on their own: generate_once() resets the command log mid-case to discard the
- * load phase, and clearing the markers there drops every complaint made before
- * it - which is how `# too large:` in the fixture walkers went silent.
+ * load phase, and clearing the markers there would drop every complaint made
+ * before it - which is how `# too large:` in the fixture walkers went silent.
  */
 void vrmr_test_effects_reset(void)
 {
@@ -603,7 +610,7 @@ static int cap_read(
         struct vrmr_config *cnf, const char *command, char *buf, size_t size)
 {
     char key[128] = "";
-    char file[PATH_MAX + 160] = ""; /* root + key, so the join cannot truncate */
+    char file[sizeof(canned) + 1 + sizeof(key)]; /* root + '/' + key */
     const char *kind;
     char *content;
     size_t len = 0;
@@ -618,10 +625,20 @@ static int cap_read(
         return 0;
     }
 
-    /* the case overrides the canned state every case builds on */
-    (void)snprintf(file, sizeof(file), "%s/%s", canned, key);
+    /* the case overrides the canned state every case builds on. A join that
+     * does not fit is an error, not an empty listing: the caller cannot tell a
+     * missing table from a harness that lost the thread
+     */
+    if (!join_path(file, sizeof(file), canned, key)) {
+        buf[0] = '\0';
+        return -1;
+    }
+
     if (access(file, R_OK) != 0) {
-        (void)snprintf(file, sizeof(file), "%s/%s", canned_common, key);
+        if (!join_path(file, sizeof(file), canned_common, key)) {
+            buf[0] = '\0';
+            return -1;
+        }
         if (access(file, R_OK) != 0) {
             vrmr_test_fixture_problem("# no fixture: iptables/%s", key);
             buf[0] = '\0';
@@ -669,8 +686,7 @@ void vrmr_test_fixture_problem(const char *fmt, ...)
     va_end(ap);
 
     /* a marker is the one artifact line that does not pass through the renderer,
-     * so normalize here or the host's paths land in test output
-     */
+     * so normalize here or the host's temp directory lands in test output */
     vrmr_test_normalize(line, sizeof(line), line);
 
     for (i = 0; i < n_fix_problems; i++) {
@@ -682,41 +698,73 @@ void vrmr_test_fixture_problem(const char *fmt, ...)
         n_fix_problems++;
 }
 
+/* dst = dir + '/' + name. Returns FALSE, having recorded why, when the result
+ * would not fit: a truncated path names some other file, and reading or writing
+ * that quietly is what this channel exists to close. Every two-component join in
+ * this file goes through here so the checked idiom is written once.
+ */
+static int join_path(char *dst, size_t size, const char *dir, const char *name)
+{
+    int n = snprintf(dst, size, "%s/%s", dir, name);
+
+    if (n < 0 || (size_t) n >= size) {
+        dst[0] = '\0';
+        vrmr_test_fixture_problem("# too large: %s/%s", dir, name);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+/* dst = dir + tail, for the fixed chains no single join describes */
+static int cat_path(char *dst, size_t size, const char *dir, const char *tail)
+{
+    int n = snprintf(dst, size, "%s%s", dir, tail);
+
+    if (n < 0 || (size_t) n >= size) {
+        dst[0] = '\0';
+        vrmr_test_fixture_problem("# too large: %s%s", dir, tail);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 /* The protect rules write per-device proc entries, so the sandbox needs those
  * files. The devices come from the interface objects. */
 static void dyn_fixtures(const char *cases_dir, const char *name);
 
 static void dyn_fixtures(const char *cases_dir, const char *name)
 {
-    char dir[2 * PATH_MAX];
-    char file[2 * PATH_MAX];
+    char dir[PATH_MAX + NAME_MAX + 2];   /* cases_dir + '/' + name */
+    char iface[sizeof(dir) + sizeof("/etc/state/interfaces")];
+    char netdir[sizeof(dir) + sizeof("/net")];
+    char file[2 * (PATH_MAX + NAME_MAX + 8)];
     DIR *d;
     struct dirent *de;
 
-    (void)snprintf(dir, sizeof(dir), "%s/%s/etc/state/interfaces",
-            cases_dir, name);
+    if (!join_path(dir, sizeof(dir), cases_dir, name)
+            || !cat_path(iface, sizeof(iface), dir, "/etc/state/interfaces"))
+        return;
 
-    if ((d = opendir(dir)) == NULL)
+    if ((d = opendir(iface)) == NULL)
         return;
 
     while ((de = readdir(d)) != NULL) {
-        char path[2 * PATH_MAX + NAME_MAX + 2];
+        char path[sizeof(iface) + 1 + NAME_MAX];
+        char fname[64 + sizeof(".txt")];
         char line[512];
         char device[64] = "";
         size_t len = 0;
         char *content;
         FILE *fp;
-        int dynamic = 0, written;
+        int dynamic = 0;
 
         if (de->d_name[0] == '.')
             continue;
 
-        written = snprintf(path, sizeof(path), "%s/%s", dir, de->d_name);
-        if (written < 0 || (size_t) written >= sizeof(path)) {
-            vrmr_test_fixture_problem("# too large: fixture entry %s/%s", dir,
-                    de->d_name);
+        if (!join_path(path, sizeof(path), iface, de->d_name))
             continue;
-        }
 
         if ((fp = fopen(path, "r")) == NULL)
             continue;
@@ -744,24 +792,42 @@ static void dyn_fixtures(const char *cases_dir, const char *name)
 
         /* the case answers for itself first, then the common set, exactly like
          * the iptables fixtures */
-        (void)snprintf(file, sizeof(file), "%s/%s/net/%s.txt",
-                cases_dir, name, device);
-        if (access(file, R_OK) != 0)
-            (void)snprintf(file, sizeof(file), "%s/common/net/%s.txt",
-                    cases_dir, device);
+        if (snprintf(fname, sizeof(fname), "%s.txt", device)
+                >= (int) sizeof(fname)) {
+            vrmr_test_fixture_problem("# too large: net/%s.txt", device);
+            continue;
+        }
 
-        if (access(file, R_OK) == 0 &&
-                (content = slurp(file, &len)) != NULL) {
+        if (!cat_path(netdir, sizeof(netdir), dir, "/net")
+                || !join_path(file, sizeof(file), netdir, fname))
+            continue;
+
+        if (access(file, R_OK) != 0) {
+            char common[PATH_MAX + sizeof("/common/net")];
+
+            if (!cat_path(common, sizeof(common), cases_dir, "/common/net")
+                    || !join_path(file, sizeof(file), common, fname)
+                    || access(file, R_OK) != 0) {
+                /* present and unreadable is the same answer as absent: the
+                 * device did not learn an address */
+                vrmr_set_dynamic_address(device, NULL);
+                continue;
+            }
+        }
+
+        if ((content = slurp(file, &len)) == NULL) {
+            vrmr_test_fixture_problem("# unreadable: net/%s", fname);
+            vrmr_set_dynamic_address(device, NULL);
+            continue;
+        }
+
+        {
             char *nl = strchr(content, '\n');
 
             if (nl != NULL)
                 *nl = '\0';
             vrmr_set_dynamic_address(device, content);
             free(content);
-        } else {
-            /* present and unreadable is the same answer as absent: the device
-             * did not learn an address */
-            vrmr_set_dynamic_address(device, NULL);
         }
     }
 
@@ -774,13 +840,23 @@ static void proc_add_device(const char *device)
             "accept_redirects", "send_redirects", "rp_filter", "log_martians",
             NULL};
     int i;
+    /* sb_proc, then the fixed chain, then two names: each destination is named
+     * from the sizeof() of its source so the arithmetic is not left to a reader
+     */
+    char conf[sizeof(sb_proc) + sizeof("/sys/net/ipv4/conf")];
+    char base[sizeof(conf) + 1 + NAME_MAX];
+
+    if (!cat_path(conf, sizeof(conf), sb_proc, "/sys/net/ipv4/conf")
+            || !join_path(base, sizeof(base), conf, device))
+        return;
 
     for (i = 0; entry[i] != NULL; i++) {
-        char path[PATH_MAX + 128];
+        char path[sizeof(base) + 1 + NAME_MAX];
         FILE *fp;
 
-        snprintf(path, sizeof(path), "%s/sys/net/ipv4/conf/%s/%s", sb_proc,
-                device, entry[i]);
+        if (!join_path(path, sizeof(path), base, entry[i]))
+            continue;
+
         mkdir_p_for_file(path);
         if ((fp = fopen(path, "w")) != NULL) {
             (void)fputs(PROC_STUB, fp);
@@ -791,23 +867,27 @@ static void proc_add_device(const char *device)
 
 static void proc_from_state(void)
 {
-    char dir[PATH_MAX + 64];
+    char dir[sizeof(sb) + sizeof("/state/interfaces")];
     DIR *d;
     struct dirent *de;
 
-    snprintf(dir, sizeof(dir), "%s/state/interfaces", sb);
+    if (!cat_path(dir, sizeof(dir), sb, "/state/interfaces"))
+        return;
+
     if ((d = opendir(dir)) == NULL)
         return;
 
     while ((de = readdir(d)) != NULL) {
-        char path[PATH_MAX + 512];
+        char path[sizeof(dir) + 1 + NAME_MAX + 512];
         char *p, *end;
         FILE *fp;
 
         if (strstr(de->d_name, ".conf") == NULL)
             continue;
 
-        snprintf(path, sizeof(path), "%s/%s", dir, de->d_name);
+        if (!join_path(path, sizeof(path), dir, de->d_name))
+            continue;
+
         if ((fp = fopen(path, "r")) == NULL)
             continue;
 
@@ -832,7 +912,8 @@ static void proc_from_state(void)
 
 int vrmr_test_sandbox_setup(const char *cases_dir, const char *name)
 {
-    char path[PATH_MAX + 128];
+    char path[PATH_MAX + NAME_MAX + 40];
+    char one[PATH_MAX + NAME_MAX + 2];
     FILE *fp;
 
     /* the markers are cleared here, at the one point per case that precedes
@@ -878,15 +959,22 @@ int vrmr_test_sandbox_setup(const char *cases_dir, const char *name)
 
     dyn_fixtures(cases_dir, name);
 
-    snprintf(canned, sizeof(canned), "%s/%s/iptables", cases_dir, name);
-    snprintf(canned_common, sizeof(canned_common), "%s/common/iptables",
-            cases_dir);
+    if (!join_path(one, sizeof(one), cases_dir, name)
+            || !cat_path(canned, sizeof(canned), one, "/iptables"))
+        return -1;
 
-    snprintf(path, sizeof(path), "%s/common/etc", cases_dir);
+    if (!cat_path(canned_common, sizeof(canned_common), cases_dir,
+                    "/common/iptables"))
+        return -1;
+
+    if (!cat_path(path, sizeof(path), cases_dir, "/common/etc"))
+        return -1;
     if (copy_tree(path, sb) != 0)
         return -1;
 
-    snprintf(path, sizeof(path), "%s/%s/etc", cases_dir, name);
+    if (!join_path(one, sizeof(one), cases_dir, name)
+            || !cat_path(path, sizeof(path), one, "/etc"))
+        return -1;
     if (copy_tree(path, sb) != 0)
         return -1;
 
@@ -960,24 +1048,20 @@ static void proc_collect(const char *dir, char **list, int *n, int max)
     DIR *d;
     struct dirent *de;
     struct stat st;
-    char path[2 * PATH_MAX + NAME_MAX + 2]; /* dir + '/' + one name */
+    char path[PATH_MAX + NAME_MAX + 2]; /* one level; the check bounds the rest */
 
     if ((d = opendir(dir)) == NULL)
         return;
 
     while ((de = readdir(d)) != NULL && *n < max) {
-        int written;
-
         if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
             continue;
 
-        /* path is passed back in as dir one level down, so the destination has
-         * to be named from what the source can hold rather than guessed at */
-        written = snprintf(path, sizeof(path), "%s/%s", dir, de->d_name);
-        if (written < 0 || (size_t) written >= sizeof(path)) {
-            vrmr_test_fixture_problem("# too large: proc entry %s/%s", dir, de->d_name);
+        /* path re-enters as dir one level down, so the width bounds one level
+         * only and the checked join is what stops the walk
+         */
+        if (!join_path(path, sizeof(path), dir, de->d_name))
             continue;
-        }
 
         if (lstat(path, &st) != 0)
             continue;
