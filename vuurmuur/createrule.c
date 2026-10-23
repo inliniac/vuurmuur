@@ -5118,6 +5118,24 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
     }
     /* normal interface */
     else {
+        /* RFC 2131: the first DHCPOFFER may be sourced from 0.0.0.0.
+         * Let it pass the brdcst-src drop so a dynamic interface can
+         * get an address; RETURN only skips the rest of this chain,
+         * the rest of INPUT (including the dhcp-client accept rules)
+         * still decides. Scoped on the keyword: iana-0/8 protects the
+         * same 0.0.0.0 address and must not gain this exception. */
+        if (from_if_ptr->dynamic == TRUE &&
+                strcmp(create->danger.source, "brdcst-src") == 0) {
+            snprintf(cmd, sizeof(cmd),
+                    "%s -s 0.0.0.0/255.255.255.255 -p udp -m udp --sport 67 "
+                    "-d 255.255.255.255 --dport 68 -j RETURN",
+                    input_device);
+
+            if (process_rule(conf, ruleset, VRMR_IPV4, TB_FILTER,
+                        CH_ANTISPOOF, cmd, 0, 0) < 0)
+                return (-1);
+        }
+
         /* create the log rule */
         if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nflog == TRUE) {
             /* create the logprefix string */
