@@ -14,8 +14,17 @@ int vrmr_test_sandbox_setup(const char *cases_dir, const char *name);
 
 void vrmr_test_sandbox_teardown(void);
 
-/* Forget the captured commands; used to separate loading from applying. */
+/* Forget the captured commands; used to separate loading from applying. Fixture
+ * problems are NOT cleared here: they outlive the phase they were recorded in,
+ * which unit/markers.c pins.
+ */
 void vrmr_test_effects_reset(void);
+
+/* Record why the harness could not answer a read, or could not even name a
+ * file. The list lands in the artifact's "# fixtures" block and makes the case
+ * fail before a golden is compared or written.
+ */
+void vrmr_test_fixture_problem(const char *fmt, ...);
 
 /* The captured run as one normalized text: the command list, then the content
  * of every file a command consumed. Returns the length or -1 if it does not

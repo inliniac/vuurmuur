@@ -41,6 +41,7 @@ static struct effect effects[MAX_EFFECTS];
 static int n_effects;
 
 static char sb[PATH_MAX] = "";
+static char sb_cases[PATH_MAX + NAME_MAX + 2] = ""; /* the corpus root */
 static char sb_tmp[PATH_MAX + 64] = "";
 static char sb_proc[PATH_MAX + 64] = "";
 static char canned[PATH_MAX + 64] = "";
@@ -60,7 +61,7 @@ static int cap_exec(struct vrmr_config *cnf, const char *path,
         const char *argv[], char *output[]);
 static int cap_read(
         struct vrmr_config *cnf, const char *command, char *buf, size_t size);
-static void fixture_problem(const char *fmt, ...);
+void vrmr_test_fixture_problem(const char *fmt, ...);
 
 static const struct vrmr_exec_ops cap_ops = {
         .pipe = cap_pipe,
@@ -263,6 +264,17 @@ static void squash(char *s)
 {
     char *p;
 
+    /* markers name files in the corpus, and that root is where the checkout
+     * lives: without this the same failure reads differently on two machines
+     */
+    if (sb_cases[0] != '\0') {
+        p = s;
+        while ((p = strstr(p, sb_cases)) != NULL) {
+            splice_str(p, strlen(sb_cases), "<CASES>");
+            p += 7;
+        }
+    }
+
     if (sb_tmp[0] != '\0') {
         p = s;
         while ((p = strstr(p, sb_tmp)) != NULL) {
@@ -356,7 +368,22 @@ static void effect_free(struct effect *e)
     e->n_ref = 0;
 }
 
+/* Fixture problems outlive the phase they were recorded in, so they are cleared
+ * on their own: generate_once() resets the command log mid-case to discard the
+ * load phase, and clearing the markers there drops every complaint made before
+ * it - which is how `# too large:` in the fixture walkers went silent.
+ */
 void vrmr_test_effects_reset(void)
+{
+    int i;
+
+    for (i = 0; i < n_effects; i++) {
+        effect_free(&effects[i]);
+    }
+    n_effects = 0;
+}
+
+static void fix_clear(void)
 {
     int i;
 
@@ -365,11 +392,6 @@ void vrmr_test_effects_reset(void)
         fix_problems[i] = NULL;
     }
     n_fix_problems = 0;
-
-    for (i = 0; i < n_effects; i++) {
-        effect_free(&effects[i]);
-    }
-    n_effects = 0;
 }
 
 /* Whitespace-delimited token at *pp; *pp lands on the byte after it. */
@@ -407,7 +429,7 @@ static int dump_ref(struct effect *e, const char *path)
     if ((content = slurp(path, &len)) == NULL) {
         /* a section that is simply absent is the same silent failure this whole
          * mechanism exists to close, so it is a complaint, not a warning */
-        fixture_problem("# unreadable: %s (%s)", tmpfile_token(path),
+        vrmr_test_fixture_problem("# unreadable: %s (%s)", tmpfile_token(path),
                 strerror(errno));
         return -1;
     }
@@ -591,7 +613,7 @@ static int cap_read(
 
     kind = read_fixture(command, key, sizeof(key));
     if (kind == NULL) {
-        fixture_problem("# no fixture: (unclassified read) %s", command);
+        vrmr_test_fixture_problem("# no fixture: (unclassified read) %s", command);
         buf[0] = '\0';
         return 0;
     }
@@ -601,27 +623,27 @@ static int cap_read(
     if (access(file, R_OK) != 0) {
         (void)snprintf(file, sizeof(file), "%s/%s", canned_common, key);
         if (access(file, R_OK) != 0) {
-            fixture_problem("# no fixture: iptables/%s", key);
+            vrmr_test_fixture_problem("# no fixture: iptables/%s", key);
             buf[0] = '\0';
             return 0;
         }
     }
 
     if ((content = slurp(file, &len)) == NULL) {
-        fixture_problem("# unreadable: iptables/%s (%s)", key, strerror(errno));
+        vrmr_test_fixture_problem("# unreadable: iptables/%s (%s)", key, strerror(errno));
         buf[0] = '\0';
         return 0;
     }
 
     if (strcmp(kind, "counters") == 0 && !listing_has_header(content)) {
-        fixture_problem("# bad fixture: iptables/%s: no column header", key);
+        vrmr_test_fixture_problem("# bad fixture: iptables/%s: no column header", key);
         free(content);
         buf[0] = '\0';
         return 0;
     }
 
     if (len >= size) {
-        fixture_problem("# too large: iptables/%s", key);
+        vrmr_test_fixture_problem("# too large: iptables/%s", key);
         r = -1;
     } else {
         memcpy(buf, content, len);
@@ -633,7 +655,7 @@ static int cap_read(
     return r;
 }
 
-static void fixture_problem(const char *fmt, ...)
+void vrmr_test_fixture_problem(const char *fmt, ...)
 {
     va_list ap;
     char line[PATH_MAX + 128] = "";
@@ -645,6 +667,11 @@ static void fixture_problem(const char *fmt, ...)
     va_start(ap, fmt);
     (void)vsnprintf(line, sizeof(line), fmt, ap);
     va_end(ap);
+
+    /* a marker is the one artifact line that does not pass through the renderer,
+     * so normalize here or the host's paths land in test output
+     */
+    vrmr_test_normalize(line, sizeof(line), line);
 
     for (i = 0; i < n_fix_problems; i++) {
         if (strcmp(fix_problems[i], line) == 0)
@@ -686,7 +713,7 @@ static void dyn_fixtures(const char *cases_dir, const char *name)
 
         written = snprintf(path, sizeof(path), "%s/%s", dir, de->d_name);
         if (written < 0 || (size_t) written >= sizeof(path)) {
-            fixture_problem("# too large: fixture entry %s/%s", dir,
+            vrmr_test_fixture_problem("# too large: fixture entry %s/%s", dir,
                     de->d_name);
             continue;
         }
@@ -808,6 +835,12 @@ int vrmr_test_sandbox_setup(const char *cases_dir, const char *name)
     char path[PATH_MAX + 128];
     FILE *fp;
 
+    /* the markers are cleared here, at the one point per case that precedes
+     * every walk, so no call order can drop a complaint
+     */
+    fix_clear();
+    (void)strlcpy(sb_cases, cases_dir, sizeof(sb_cases));
+
     snprintf(path, sizeof(path), "%s/vuurmuur-test-XXXXXX",
             getenv("TMPDIR") != NULL ? getenv("TMPDIR") : "/tmp");
 
@@ -893,6 +926,7 @@ void vrmr_test_sandbox_teardown(void)
     unsetenv("VUURMUUR_SYSCONFDIR");
 
     vrmr_test_effects_reset();
+    fix_clear();
     free(render_buf);
     render_buf = NULL;
 
@@ -941,7 +975,7 @@ static void proc_collect(const char *dir, char **list, int *n, int max)
          * to be named from what the source can hold rather than guessed at */
         written = snprintf(path, sizeof(path), "%s/%s", dir, de->d_name);
         if (written < 0 || (size_t) written >= sizeof(path)) {
-            fixture_problem("# too large: proc entry %s/%s", dir, de->d_name);
+            vrmr_test_fixture_problem("# too large: proc entry %s/%s", dir, de->d_name);
             continue;
         }
 

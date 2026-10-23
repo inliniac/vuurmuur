@@ -23,6 +23,13 @@ unit_ifstats_LDADD = $(top_builddir)/vuurmuur/libvuurmuur_engine.la \
 
 check_PROGRAMS += unit/ifstats
 
+unit_markers_SOURCES = unit/markers.c lib/tap.c lib/tap.h lib/vrmr_test.c \
+	lib/vrmr_test.h lib/sandbox.c lib/sandbox.h
+unit_markers_LDADD = $(top_builddir)/vuurmuur/libvuurmuur_engine.la \
+	$(LIBVUURMUUR_LDADD) $(top_builddir)/lib/libvuurmuur.la
+
+check_PROGRAMS += unit/markers
+
 unit_lineread_SOURCES = unit/lineread.c lib/tap.c lib/tap.h \
 	lib/vrmr_test.c lib/vrmr_test.h
 unit_lineread_LDADD = $(LIBVUURMUUR_LDADD)
@@ -40,7 +47,8 @@ gen_ruleset_LDADD = \
 AM_TESTS_ENVIRONMENT = abs_srcdir="$(abs_srcdir)"; export abs_srcdir; \
 	UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"; export UBSAN_OPTIONS;
 
-TESTS = unit/rules-parse unit/rules-options unit/lineread unit/ifstats gen/ruleset.sh
+TESTS = unit/rules-parse unit/rules-options unit/lineread unit/ifstats \
+	unit/markers gen/ruleset.sh
 
 EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh \
 	cases/common/etc/state/interfaces/dmz.conf \

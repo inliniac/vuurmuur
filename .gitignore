@@ -65,6 +65,7 @@ tests/unit/rules-parse
 tests/unit/rules-options
 tests/unit/lineread
 tests/unit/ifstats
+tests/unit/markers
 
 # automake stamp files in build directories
 .dirstamp
