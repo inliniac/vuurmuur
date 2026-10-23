@@ -74,4 +74,6 @@ tests/unit/markers
 tests/gen/ruleset
 tests/bin/
 /po/insert-header.sed
+/po/Makevars.template
+/po/stamp-h1
 tests/failures/
