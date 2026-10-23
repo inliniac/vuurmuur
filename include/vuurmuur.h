@@ -729,6 +729,9 @@ struct vrmr_danger_info {
 
     struct vrmr_ipv4_data source_ip;
 
+    /* v6 counterpart of source_ip; cidr6 < 0 means: none */
+    struct vrmr_ipv6_data source_ip6;
+
     char type[16];
     char source[16];
 };

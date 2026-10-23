@@ -843,10 +843,16 @@ int vrmr_get_danger_info(const char *danger, const char *source,
             return (-1);
         }
 
+        /* no v6 counterpart by default; zeroing of the rulecache
+         * gives cidr6 = 0, which would read as a valid /0. */
+        danger_struct->source_ip6.cidr6 = -1;
+
         if (strcasecmp(source, "loopback") == 0) {
             danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "127.0.0.0");
             strcpy(danger_struct->source_ip.netmask, "255.0.0.0");
+            strcpy(danger_struct->source_ip6.net6, "::1");
+            danger_struct->source_ip6.cidr6 = 128;
         } else if (strcasecmp(source, "class-a") == 0) {
             danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "10.0.0.0");
@@ -855,6 +861,10 @@ int vrmr_get_danger_info(const char *danger, const char *source,
             danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "172.16.0.0");
             strcpy(danger_struct->source_ip.netmask, "255.240.0.0");
+            /* the v6 ULA range; class-b carries it as the closest
+             * single v4 private range (ULA covers all three of them) */
+            strcpy(danger_struct->source_ip6.net6, "fc00::");
+            danger_struct->source_ip6.cidr6 = 7;
         } else if (strcasecmp(source, "class-c") == 0) {
             danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "192.168.0.0");
@@ -871,10 +881,14 @@ int vrmr_get_danger_info(const char *danger, const char *source,
             danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "192.0.2.0");
             strcpy(danger_struct->source_ip.netmask, "255.255.255.0");
+            strcpy(danger_struct->source_ip6.net6, "2001:db8::");
+            danger_struct->source_ip6.cidr6 = 32;
         } else if (strcasecmp(source, "lnk-loc-net") == 0) {
             danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "169.254.0.0");
             strcpy(danger_struct->source_ip.netmask, "255.255.0.0");
+            strcpy(danger_struct->source_ip6.net6, "fe80::");
+            danger_struct->source_ip6.cidr6 = 10;
         } else if (strcasecmp(source, "iana-0/8") == 0) {
             danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "0.0.0.0");

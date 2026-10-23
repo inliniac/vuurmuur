@@ -4296,6 +4296,51 @@ static int pre_rules_antispoof_ipv4(struct vrmr_config *conf,
 }
 
 #ifdef IPV6_ENABLED
+static int pre_rules_antispoof_ipv6(struct vrmr_config *conf,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap)
+{
+    int retval = 0;
+    char cmd[VRMR_MAX_PIPE_COMMAND] = "";
+
+    /*
+        anti spoof rules (IPv6)
+    */
+    /* the chain and its jumps land in the v6 filter table; without it
+     * the ip6tables commands would fail and take the whole update with
+     * them, so skip the emission like the sibling gates do */
+    if (conf->vrmr_check_iptcaps == TRUE &&
+            iptcap->table_ip6_filter == FALSE) {
+        vrmr_warning("Warning", "antispoof IPv6 rules not created: "
+                                "ip6tables filter table not available.");
+        return (0); /* this is not an error */
+    }
+
+    if (ruleset == NULL) {
+        if (conf->bash_out == TRUE)
+            fprintf(stdout, "\n# Setting up anti-spoofing rules (IPv6)...\n");
+
+        /* same as IPv4: the chain may already exist, ignore errors */
+        snprintf(cmd, sizeof(cmd), "%s -N ANTISPOOF 2>/dev/null",
+                conf->ip6tables_location);
+        (void)vrmr_pipe_command(conf, cmd, VRMR_PIPE_QUIET);
+    }
+
+    snprintf(cmd, sizeof(cmd), "-j ANTISPOOF");
+    if (process_rule(conf, ruleset, VRMR_IPV6, TB_FILTER, CH_INPUT, cmd, 0, 0) <
+            0)
+        retval = -1;
+    if (process_rule(
+                conf, ruleset, VRMR_IPV6, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(
+                conf, ruleset, VRMR_IPV6, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    return (retval);
+}
+#endif
+
+#ifdef IPV6_ENABLED
 static int pre_rules_icmp_ipv6(struct vrmr_config *conf,
         /*@null@*/ struct rule_set *ruleset)
 {
@@ -4480,6 +4525,11 @@ int pre_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
 
     if (pre_rules_antispoof_ipv4(conf, ruleset) < 0)
         retval = -1;
+
+#ifdef IPV6_ENABLED
+    if (pre_rules_antispoof_ipv6(conf, ruleset, iptcap) < 0)
+        retval = -1;
+#endif
 
 #ifdef IPV6_ENABLED
     pre_rules_icmp_ipv6(conf, ruleset);
@@ -5191,6 +5241,119 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
                     0, 0) < 0)
             return (-1);
     }
+
+    /*
+        IPv6 counterpart. The same protect rule carries the v6 special
+        ranges; only the sources with a v6 counterpart produce these.
+    */
+#ifdef IPV6_ENABLED
+    if (vrmr_interface_ipv6_enabled(from_if_ptr) &&
+            create->danger.source_ip6.cidr6 >= 0) {
+        const char *v6_limit = log_limit_match(conf, iptcap, VRMR_IPV6);
+
+        /* virtual oldstyle: the alias label is not a netdev, so scope
+         * on the parent device like the v4 rules do */
+        if (from_if_ptr->device_virtual_oldstyle == TRUE) {
+            if (conf->vrmr_check_iptcaps == FALSE ||
+                    iptcap->target_ip6_nflog == TRUE) {
+                create_logprefix_string(conf, logprefix, sizeof(logprefix),
+                        VRMR_RT_NOTSET, "DROP", "%s %s", create->danger.type,
+                        create->danger.source);
+
+                snprintf(cmd, sizeof(cmd),
+                        "%s -s %s/%d %s -j NFLOG %s --nflog-group %u",
+                        input_device, create->danger.source_ip6.net6,
+                        create->danger.source_ip6.cidr6,
+                        v6_limit, logprefix, conf->nfgrp);
+
+                if (process_rule(conf, ruleset, VRMR_IPV6, TB_FILTER,
+                            CH_ANTISPOOF, cmd, 0, 0) < 0)
+                    return (-1);
+            }
+
+            snprintf(cmd, sizeof(cmd), "%s -s %s/%d -j DROP", input_device,
+                    create->danger.source_ip6.net6, create->danger.source_ip6.cidr6);
+
+            if (process_rule(conf, ruleset, VRMR_IPV6, TB_FILTER,
+                        CH_ANTISPOOF, cmd, 0, 0) < 0)
+                return (-1);
+
+            if (conf->vrmr_check_iptcaps == FALSE ||
+                    iptcap->target_ip6_nflog == TRUE) {
+                create_logprefix_string(conf, logprefix, sizeof(logprefix),
+                        VRMR_RT_INPUT, "DROP", "%s %s", create->danger.type,
+                        create->danger.source);
+
+                snprintf(cmd, sizeof(cmd),
+                        "%s -d %s/%d %s -j NFLOG %s --nflog-group %u",
+                        output_device, create->danger.source_ip6.net6,
+                        create->danger.source_ip6.cidr6,
+                        v6_limit, logprefix, conf->nfgrp);
+
+                if (process_rule(conf, ruleset, VRMR_IPV6, TB_FILTER,
+                            CH_ANTISPOOF, cmd, 0, 0) < 0)
+                    return (-1);
+            }
+
+            snprintf(cmd, sizeof(cmd), "%s -d %s/%d -j DROP", output_device,
+                    create->danger.source_ip6.net6, create->danger.source_ip6.cidr6);
+
+            if (process_rule(conf, ruleset, VRMR_IPV6, TB_FILTER,
+                        CH_ANTISPOOF, cmd, 0, 0) < 0)
+                return (-1);
+        }
+        /* normal interface */
+        else {
+            if (conf->vrmr_check_iptcaps == FALSE ||
+                    iptcap->target_ip6_nflog == TRUE) {
+                create_logprefix_string(conf, logprefix, sizeof(logprefix),
+                        VRMR_RT_NOTSET, "DROP", "%s %s", create->danger.type,
+                        create->danger.source);
+
+                snprintf(cmd, sizeof(cmd),
+                        "%s -s %s/%d %s -j NFLOG %s --nflog-group %u",
+                        input_device, create->danger.source_ip6.net6,
+                        create->danger.source_ip6.cidr6, v6_limit, logprefix,
+                        conf->nfgrp);
+
+                if (process_rule(conf, ruleset, VRMR_IPV6, TB_FILTER,
+                            CH_ANTISPOOF, cmd, 0, 0) < 0)
+                    return (-1);
+            }
+
+            snprintf(cmd, sizeof(cmd), "%s -s %s/%d -j DROP", input_device,
+                    create->danger.source_ip6.net6, create->danger.source_ip6.cidr6);
+
+            if (process_rule(conf, ruleset, VRMR_IPV6, TB_FILTER,
+                        CH_ANTISPOOF, cmd, 0, 0) < 0)
+                return (-1);
+
+            if (conf->vrmr_check_iptcaps == FALSE ||
+                    iptcap->target_ip6_nflog == TRUE) {
+                create_logprefix_string(conf, logprefix, sizeof(logprefix),
+                        VRMR_RT_INPUT, "DROP", "%s %s", create->danger.type,
+                        create->danger.source);
+
+                snprintf(cmd, sizeof(cmd),
+                        "%s -d %s/%d %s -j NFLOG %s --nflog-group %u",
+                        output_device, create->danger.source_ip6.net6,
+                        create->danger.source_ip6.cidr6, v6_limit, logprefix,
+                        conf->nfgrp);
+
+                if (process_rule(conf, ruleset, VRMR_IPV6, TB_FILTER,
+                            CH_ANTISPOOF, cmd, 0, 0) < 0)
+                    return (-1);
+            }
+
+            snprintf(cmd, sizeof(cmd), "%s -d %s/%d -j DROP", output_device,
+                    create->danger.source_ip6.net6, create->danger.source_ip6.cidr6);
+
+            if (process_rule(conf, ruleset, VRMR_IPV6, TB_FILTER,
+                        CH_ANTISPOOF, cmd, 0, 0) < 0)
+                return (-1);
+        }
+    }
+#endif
     return (0);
 }
 
