@@ -1518,9 +1518,25 @@ int vrmr_interfaces_check(struct vrmr_interface *iface_ptr)
     }
 
     if (iface_ptr->dynamic == TRUE) {
-        /* now try to get the dynamic ipaddress */
-        ipresult = vrmr_get_dynamic_ip(iface_ptr->device,
-                iface_ptr->ipv4.ipaddress, sizeof(iface_ptr->ipv4.ipaddress));
+        if (vrmr_iface_probe_use_config()) {
+            /* asking the kernel here would make the artifact depend on the
+             * address of the host running the test, or on the device name not
+             * existing at all, which reads as an interface that is down */
+            const char *learned = vrmr_dynamic_address(iface_ptr->device);
+
+            if (learned != NULL) {
+                (void)strlcpy(iface_ptr->ipv4.ipaddress, learned,
+                        sizeof(iface_ptr->ipv4.ipaddress));
+                ipresult = 1;
+            } else {
+                iface_ptr->ipv4.ipaddress[0] = '\0';
+                ipresult = 0;
+            }
+        } else {
+            /* now try to get the dynamic ipaddress */
+            ipresult = vrmr_get_dynamic_ip(iface_ptr->device,
+                    iface_ptr->ipv4.ipaddress, sizeof(iface_ptr->ipv4.ipaddress));
+        }
         if (ipresult == 0) {
             /* set iface to down */
             iface_ptr->up = FALSE;

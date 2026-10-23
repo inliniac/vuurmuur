@@ -54,6 +54,11 @@ EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh \
 	cases/common/etc/vuurmuur/plugins/textdir.conf \
 	cases/empty/etc/state/rules/rules.conf \
 	cases/counters/etc/state/rules/rules.conf \
+	cases/dynamic/etc/state/interfaces/lan.conf \
+	cases/dynamic/etc/state/rules/rules.conf \
+	cases/dyndown/etc/state/interfaces/lan.conf \
+	cases/dyndown/etc/state/rules/rules.conf \
+	$(wildcard cases/*/net/*.txt) \
 	$(wildcard cases/common/iptables/*.txt) \
 	$(wildcard cases/*/iptables/*.txt) \
 	$(wildcard unit/fixtures/*/iptables/*.txt) \

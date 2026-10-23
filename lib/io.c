@@ -45,6 +45,12 @@ static char proc_prefix[PATH_MAX] = "";
 static uid_t trusted_uid = 0;
 static gid_t trusted_gid = 0;
 static int iface_probe_config = 0;
+struct dyn_addr {
+    char device[32];
+    char addr[16];
+};
+static struct dyn_addr dyn_addr[8];
+static int n_dyn_addr;
 
 void vrmr_set_exec_ops(const struct vrmr_exec_ops *ops)
 {
@@ -88,6 +94,50 @@ void vrmr_set_trusted_owner(uid_t uid, gid_t gid)
 void vrmr_set_iface_probe_config(int use_config)
 {
     iface_probe_config = use_config;
+}
+
+/* What a dynamic interface is said to have learned while the probe above is
+ * answered from the fixture. A device that is not listed here answered nothing,
+ * which is the case that leaves the interface down - both halves of the branch
+ * have to be reachable from a fixture, or the corpus pins one shape only. */
+void vrmr_set_dynamic_address(const char *device, const char *addr)
+{
+    int i;
+
+    if (device == NULL)
+        return;
+
+    for (i = 0; i < n_dyn_addr; i++) {
+        if (strcmp(dyn_addr[i].device, device) == 0) {
+            (void)strlcpy(dyn_addr[i].addr, addr != NULL ? addr : "",
+                    sizeof(dyn_addr[i].addr));
+            return;
+        }
+    }
+
+    if (n_dyn_addr >= (int)(sizeof(dyn_addr) / sizeof(dyn_addr[0])))
+        return;
+
+    (void)strlcpy(dyn_addr[n_dyn_addr].device, device,
+            sizeof(dyn_addr[n_dyn_addr].device));
+    (void)strlcpy(dyn_addr[n_dyn_addr].addr, addr != NULL ? addr : "",
+            sizeof(dyn_addr[n_dyn_addr].addr));
+    n_dyn_addr++;
+}
+
+const char *vrmr_dynamic_address(const char *device)
+{
+    int i;
+
+    if (device == NULL)
+        return NULL;
+
+    for (i = 0; i < n_dyn_addr; i++) {
+        if (strcmp(dyn_addr[i].device, device) == 0)
+            return dyn_addr[i].addr[0] != '\0' ? dyn_addr[i].addr : NULL;
+    }
+
+    return NULL;
 }
 
 int vrmr_iface_probe_use_config(void)

@@ -61,6 +61,11 @@ void vrmr_set_trusted_owner(uid_t uid, gid_t gid);
 /* Interface state normally comes from the kernel. Set to non-zero to take the
  * configured address as the actual one, which is what a fixture needs. */
 void vrmr_set_iface_probe_config(int use_config);
+
+/* Address a dynamic interface is said to have learned, per device. NULL from the
+ * getter means the fixture did not answer, which reads as an interface down. */
+void vrmr_set_dynamic_address(const char *device, const char *addr);
+/*@observer@*/ const char *vrmr_dynamic_address(const char *device);
 int vrmr_iface_probe_use_config(void);
 
 /* Line at a time command output: popen/fgets normally, the captured buffer of

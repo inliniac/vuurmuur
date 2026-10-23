@@ -657,6 +657,85 @@ static void fixture_problem(const char *fmt, ...)
 
 /* The protect rules write per-device proc entries, so the sandbox needs those
  * files. The devices come from the interface objects. */
+static void dyn_fixtures(const char *cases_dir, const char *name);
+
+static void dyn_fixtures(const char *cases_dir, const char *name)
+{
+    char dir[2 * PATH_MAX];
+    char file[2 * PATH_MAX];
+    DIR *d;
+    struct dirent *de;
+
+    (void)snprintf(dir, sizeof(dir), "%s/%s/etc/state/interfaces",
+            cases_dir, name);
+
+    if ((d = opendir(dir)) == NULL)
+        return;
+
+    while ((de = readdir(d)) != NULL) {
+        char path[2 * PATH_MAX];
+        char line[512];
+        char device[64] = "";
+        size_t len = 0;
+        char *content;
+        FILE *fp;
+        int dynamic = 0;
+
+        if (de->d_name[0] == '.')
+            continue;
+
+        (void)snprintf(path, sizeof(path), "%s/%s", dir, de->d_name);
+
+        if ((fp = fopen(path, "r")) == NULL)
+            continue;
+
+        while (fgets(line, sizeof(line), fp) != NULL) {
+            if (strncmp(line, "DEVICE=\"", 8) == 0) {
+                /* quoted, and a device name never contains a quote */
+                char *v = line + 8;
+                char *end = strchr(v, '"');
+                size_t n = end != NULL ? (size_t)(end - v) : 0;
+
+                if (n >= sizeof(device))
+                    n = sizeof(device) - 1;
+
+                memcpy(device, v, n);
+                device[n] = '\0';
+            } else if (strncmp(line, "IPADDRESS=\"dynamic\"",
+                        strlen("IPADDRESS=\"dynamic\"")) == 0)
+                dynamic = 1;
+        }
+        (void)fclose(fp);
+
+        if (!dynamic || device[0] == '\0')
+            continue;
+
+        /* the case answers for itself first, then the common set, exactly like
+         * the iptables fixtures */
+        (void)snprintf(file, sizeof(file), "%s/%s/net/%s.txt",
+                cases_dir, name, device);
+        if (access(file, R_OK) != 0)
+            (void)snprintf(file, sizeof(file), "%s/common/net/%s.txt",
+                    cases_dir, device);
+
+        if (access(file, R_OK) == 0 &&
+                (content = slurp(file, &len)) != NULL) {
+            char *nl = strchr(content, '\n');
+
+            if (nl != NULL)
+                *nl = '\0';
+            vrmr_set_dynamic_address(device, content);
+            free(content);
+        } else {
+            /* present and unreadable is the same answer as absent: the device
+             * did not learn an address */
+            vrmr_set_dynamic_address(device, NULL);
+        }
+    }
+
+    closedir(d);
+}
+
 static void proc_add_device(const char *device)
 {
     static const char *const entry[] = {"accept_source_route",
@@ -758,6 +837,8 @@ int vrmr_test_sandbox_setup(const char *cases_dir, const char *name)
     proc_add_device("all");
     proc_add_device("default");
     proc_add_device("lo");
+
+    dyn_fixtures(cases_dir, name);
 
     snprintf(canned, sizeof(canned), "%s/%s/iptables", cases_dir, name);
     snprintf(canned_common, sizeof(canned_common), "%s/common/iptables",
