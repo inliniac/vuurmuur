@@ -115,7 +115,7 @@ int oldrules_create_custom_chains(
     vrmr_list_cleanup(&rules->system_chain_filter);
     vrmr_list_cleanup(&rules->system_chain_mangle);
     vrmr_list_cleanup(&rules->system_chain_nat);
-    // vrmr_list_cleanup(&rules->system_chain_raw);
+    vrmr_list_cleanup(&rules->system_chain_raw);
     /* cleanup */
     vrmr_list_cleanup(&rules->custom_chain_list);
 
@@ -2375,8 +2375,8 @@ static int clear_vuurmuur_iptables_rules_ipv4(struct vrmr_config *conf)
     struct vrmr_rules rules;
     char *chainname = NULL;
     struct vrmr_list_node *d_node = NULL;
-    struct vrmr_list_node *chains[3];
-    char *tables[] = {"mangle", "filter", "nat"};
+    struct vrmr_list_node *chains[4];
+    char *tables[] = {"mangle", "filter", "nat", "raw"};
     int table;
     char PRE_VRMR_CHAINS_PREFIX[] = "PRE-VRMR-";
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -2390,8 +2390,9 @@ static int clear_vuurmuur_iptables_rules_ipv4(struct vrmr_config *conf)
     chains[0] = rules.system_chain_mangle.top;
     chains[1] = rules.system_chain_filter.top;
     chains[2] = rules.system_chain_nat.top;
+    chains[3] = rules.system_chain_raw.top;
 
-    for (table = 0; table < 3; table++) {
+    for (table = 0; table < 4; table++) {
         for (d_node = chains[table]; d_node; d_node = d_node->next) {
             if (!(chainname = d_node->data)) {
                 vrmr_error(-1, "Internal Error", "NULL pointer");
@@ -2458,8 +2459,8 @@ static int clear_vuurmuur_iptables_rules_ipv6(struct vrmr_config *conf)
     struct vrmr_rules rules;
     char *chainname = NULL;
     struct vrmr_list_node *d_node = NULL;
-    struct vrmr_list_node *chains[2];
-    char *tables[] = {"mangle", "filter"};
+    struct vrmr_list_node *chains[3];
+    char *tables[] = {"mangle", "filter", "raw"};
     int table;
     char PRE_VRMR_CHAINS_PREFIX[] = "PRE-VRMR-";
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -2472,8 +2473,9 @@ static int clear_vuurmuur_iptables_rules_ipv6(struct vrmr_config *conf)
     /* prepare chains tab with nodes for loop */
     chains[0] = rules.system_chain_mangle.top;
     chains[1] = rules.system_chain_filter.top;
+    chains[2] = rules.system_chain_raw.top;
 
-    for (table = 0; table < 2; table++) {
+    for (table = 0; table < 3; table++) {
         for (d_node = chains[table]; d_node; d_node = d_node->next) {
             if (!(chainname = d_node->data)) {
                 vrmr_error(-1, "Internal Error", "NULL pointer");

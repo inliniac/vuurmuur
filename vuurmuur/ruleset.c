@@ -382,6 +382,11 @@ static int ruleset_fill_file(struct vrmr_ctx *vctx, struct rule_set *ruleset,
                 ruleset->raw_output_policy ? "DROP" : "ACCEPT");
         ruleset_writeprint(ruleset_fd, cmd);
 
+        snprintf(cmd, sizeof(cmd), "--flush PREROUTING\n");
+        ruleset_writeprint(ruleset_fd, cmd);
+        snprintf(cmd, sizeof(cmd), "--flush OUTPUT\n");
+        ruleset_writeprint(ruleset_fd, cmd);
+
         /* PREROUTING */
         for (d_node = ruleset->raw_preroute.top; d_node;
                 d_node = d_node->next) {
@@ -1086,7 +1091,7 @@ static int ruleset_fill_file(struct vrmr_ctx *vctx, struct rule_set *ruleset,
     vrmr_list_cleanup(&vctx->rules.system_chain_filter);
     vrmr_list_cleanup(&vctx->rules.system_chain_mangle);
     vrmr_list_cleanup(&vctx->rules.system_chain_nat);
-    // vrmr_list_cleanup(&rules->system_chain_raw);
+    vrmr_list_cleanup(&vctx->rules.system_chain_raw);
 
     return (0);
 }

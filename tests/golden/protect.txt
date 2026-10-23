@@ -18,6 +18,8 @@ true
 *raw
 :PREROUTING ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
+--flush PREROUTING
+--flush OUTPUT
 -A PREROUTING -i eth0 -m rpfilter --invert -m limit --limit 1/s --limit-burst 5 -j NFLOG --nflog-prefix "vrmr: DROP rpfilter " --nflog-group 8
 -A PREROUTING -i eth0 -m rpfilter --invert -j DROP
 COMMIT
@@ -213,6 +215,8 @@ COMMIT
 *raw
 :PREROUTING ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
+--flush PREROUTING
+--flush OUTPUT
 COMMIT
 *mangle
 :PREROUTING ACCEPT [0:0]

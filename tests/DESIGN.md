@@ -682,6 +682,24 @@ pty-driven test of its own.
 
 ## 14. Findings from tier 1
 
+* `raw` was declared by the generator and never cleared. `ruleset_fill_file` opened a `*raw`
+  section with `:PREROUTING`/`:OUTPUT` and wrote rpfilter rules into it, but emitted no `--flush`
+  for either chain, while the mangle, nat and filter sections all flush theirs - and the load runs
+  `iptables-restore --counters --noflush` (`vuurmuur/ruleset.c:1129`), so a `:CHAIN ACCEPT [0:0]`
+  declaration deliberately leaves the rules in place. Every reload therefore appended the raw
+  rules again, in the table that sees the first packet of every connection. Not intent: raw
+  arrived in `9e4167f` (2012-09-04) into a design whose flush enumeration is a hardcoded table
+  list (`vuurmuur/rules.c:2379`, `:2462`), and `system_chain_raw` (`include/vuurmuur.h:623`) has
+  all three of its consumers commented out (`lib/rules.c:2887`, `vuurmuur/rules.c:118`,
+  `vuurmuur/ruleset.c:1094`). Four sites, one bug, and fixing either half alone looks complete:
+  the file path needed the flush lines, the legacy `-Y` path needed raw in the table array and
+  the chain discovery to have anything to flush. The corpus is what made it visible - the golden
+  is the first place anyone reads the whole artifact instead of the branch they were thinking
+  about. Only the flush lines are pinned by tier 1 today: the discovery query goes through the
+  read op, which `cap_read` answers from fixtures keyed on `-t <table>`, so a canned raw listing
+  needs the invocation-kind keying and the fail-closed marker in this file's other open items
+  before it can be expressed at all.
+
 * `vrmr_backends_unload()` has to be called by anything that loads objects in a loop: the
   textdir backend opens a `DIR *` per object type (`setup_textdir` `:1136`, `open_textdir`
   `:240/:268/:296`) and nothing else closes them. The tier 1 driver generates twice per case,

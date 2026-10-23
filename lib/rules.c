@@ -2883,9 +2883,11 @@ int vrmr_rules_get_system_chains(
                     "nat", &rules->system_chain_nat, cnf, ipv) < 0)
             return (-1);
     }
-    // if(vrmr_rules_get_system_chains_per_table("raw",
-    // &rules->system_chain_raw, cnf) < 0)
-    //    return(-1);
+    /* no table is fatal only if the command itself runs: a missing raw table
+     * leaves the list empty, which the clear paths tolerate */
+    if (vrmr_rules_get_system_chains_per_table(
+                "raw", &rules->system_chain_raw, cnf, ipv) < 0)
+        return (-1);
 
     return (0);
 }
