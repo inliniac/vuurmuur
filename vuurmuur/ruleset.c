@@ -1509,18 +1509,21 @@ static int load_ruleset_ipv4(struct vrmr_ctx *vctx)
     /* store counters */
     if (ruleset_save_interface_counters(&vctx->conf, &vctx->interfaces) < 0) {
         vrmr_error(-1, "Error", "saving interface counters failed");
+        ruleset_cleanup(&ruleset);
         return (-1);
     }
 
     /* create the ruleset */
     if (ruleset_create_ruleset(vctx, &ruleset) < 0) {
         vrmr_error(-1, "Error", "creating ruleset failed");
+        ruleset_cleanup(&ruleset);
         return (-1);
     }
 
     /* clear the counters again */
     if (ruleset_clear_interface_counters(&vctx->interfaces) < 0) {
         vrmr_error(-1, "Error", "clearing interface counters failed");
+        ruleset_cleanup(&ruleset);
         return (-1);
     }
 
@@ -1553,12 +1556,15 @@ static int load_ruleset_ipv4(struct vrmr_ctx *vctx)
     /* get the custom chains we have to create */
     if (vrmr_rules_get_custom_chains(&vctx->rules) < 0) {
         vrmr_error(-1, "Internal Error", "rules_get_chains() failed");
+        vrmr_list_cleanup(&vctx->rules.custom_chain_list);
+        ruleset_cleanup(&ruleset);
         load_ruleset_free_fds(ruleset_fd, result_fd, shape_fd);
         return (-1);
     }
     /* now create the currentrulesetfile */
     if (ruleset_fill_file(vctx, &ruleset, ruleset_fd, VRMR_IPV4) < 0) {
         vrmr_error(-1, "Error", "filling rulesetfile failed");
+        vrmr_list_cleanup(&vctx->rules.custom_chain_list);
         ruleset_cleanup(&ruleset);
         load_ruleset_free_fds(ruleset_fd, result_fd, shape_fd);
         (void)ruleset_store_failed_set(cur_ruleset_path);
@@ -1674,18 +1680,21 @@ static int load_ruleset_ipv6(struct vrmr_ctx *vctx)
     /* store counters */
     if (ruleset_save_interface_counters(&vctx->conf, &vctx->interfaces) < 0) {
         vrmr_error(-1, "Error", "saving interface counters failed");
+        ruleset_cleanup(&ruleset);
         return (-1);
     }
 
     /* create the ruleset */
     if (ruleset_create_ruleset(vctx, &ruleset) < 0) {
         vrmr_error(-1, "Error", "creating ruleset failed");
+        ruleset_cleanup(&ruleset);
         return (-1);
     }
 
     /* clear the counters again */
     if (ruleset_clear_interface_counters(&vctx->interfaces) < 0) {
         vrmr_error(-1, "Error", "clearing interface counters failed");
+        ruleset_cleanup(&ruleset);
         return (-1);
     }
 
@@ -1709,12 +1718,15 @@ static int load_ruleset_ipv6(struct vrmr_ctx *vctx)
     /* get the custom chains we have to create */
     if (vrmr_rules_get_custom_chains(&vctx->rules) < 0) {
         vrmr_error(-1, "Internal Error", "rules_get_chains() failed");
+        vrmr_list_cleanup(&vctx->rules.custom_chain_list);
+        ruleset_cleanup(&ruleset);
         load_ruleset_free_fds(ruleset_fd, result_fd, 0);
         return (-1);
     }
     /* now create the currentrulesetfile */
     if (ruleset_fill_file(vctx, &ruleset, ruleset_fd, VRMR_IPV6) < 0) {
         vrmr_error(-1, "Error", "filling rulesetfile failed");
+        vrmr_list_cleanup(&vctx->rules.custom_chain_list);
         ruleset_cleanup(&ruleset);
         load_ruleset_free_fds(ruleset_fd, result_fd, 0);
         (void)ruleset_store_failed_set(cur_ruleset_path);
