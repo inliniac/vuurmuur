@@ -170,7 +170,8 @@ int shaping_process_queued_rules(struct vrmr_config *cnf,
 }
 
 /*
- * Remove all qdiscs from all interfaces and thus also all classes
+ * Remove the root qdisc (and thus all classes) from the interfaces
+ * where vuurmuur installed one
  *
  * Returns 0: ok -1: error
  */
@@ -188,12 +189,23 @@ int shaping_clear_interfaces(struct vrmr_config *cnf,
     for (d_node = interfaces->list.top; d_node != NULL; d_node = d_node->next) {
         iface_ptr = d_node->data;
 
-        /* ignore 'shape' flag because the shaping on this
-         * interface may just be disabled */
+        /* remove the root qdisc only when it is an htb, the type the
+         * shape script installs: the per-interface handle is not
+         * stable (assigned in list order per shaped interface, and
+         * unique across interfaces for the cross-interface class
+         * references), so the type, not the handle, identifies
+         * vuurmuur's own root. Third-party qdiscs of other types
+         * (noqueue, fq, qfq, ...) are kept; a third-party htb root
+         * is the one documented residual. A stale root (shaping
+         * just disabled, or down-then-up) is removed so the next
+         * 'qdisc add ... root' cannot fail on it */
         if (strcmp(iface_ptr->device, "") != 0 &&
                 iface_ptr->device_virtual == FALSE) {
             snprintf(cmd, sizeof(cmd),
-                    "%s qdisc del dev %s root 2> /dev/null > /dev/null",
+                    "if %s qdisc show dev %s root 2> /dev/null | "
+                    "grep -q '^qdisc htb'; then "
+                    "%s qdisc del dev %s root 2> /dev/null > /dev/null; fi",
+                    cnf->tc_location, iface_ptr->device,
                     cnf->tc_location, iface_ptr->device);
 
             vrmr_debug(NONE, "cmd \"%s\"", cmd);
