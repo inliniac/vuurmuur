@@ -719,7 +719,7 @@ void set_field_buffer_wrap(FIELD *field, int bufnum, const char *value)
         return;
     }
     if (mbslen >= 512) {
-        vrmr_debug(NONE, "mbslen %" PRIuMAX, mbslen);
+        vrmr_debug(NONE, "mbslen %" PRIuMAX, (uintmax_t) mbslen);
         return;
     }
     mbstowcs(wbuffer, value, mbslen);

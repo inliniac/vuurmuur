@@ -739,13 +739,14 @@ void print_help(const char *part)
             return;
         }
         if (mbslen >= 32) {
-            vrmr_debug(NONE, "mbslen %" PRIuMAX, mbslen);
+            vrmr_debug(NONE, "mbslen %" PRIuMAX, (uintmax_t) mbslen);
             return;
         }
         /* convert the part name to a wchar_t string */
         mbstowcs(wpart, part, mbslen);
         vrmr_debug(
-                LOW, "part: %s, wpart %ls, %lu", part, wpart, wsizeof(wpart));
+                LOW, "part: %s, wpart %ls, %" PRIuMAX, part, wpart,
+                (uintmax_t) wsizeof(wpart));
 
         /* read the helpfile */
         if (read_wide_helpfile(&HelpList, wpart) < 0)
