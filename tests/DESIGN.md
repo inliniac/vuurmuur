@@ -894,3 +894,23 @@ green suite is not read as "the generator is covered".
   about whether a rule file that half-loads today should start refusing to load.
 * `vuurmuur_log`, `vuurmuur_conf` (beyond the line-reader and log-viewer unit tests), the
   translation strings, and every code path behind `getuid() == 0`.
+
+## 16. Two more things that were silent (tier 0)
+
+* `unit/exec-status` - what `libvuurmuur_exec_command()` returns for a child that
+  never exited. Every caller in the tree tests the result against `0`, so a
+  command killed by a signal - an OOM kill, a `timeout`, a wrapper - used to read
+  as success, and the daemon then reported a firewall it had not changed. The
+  program drives `/bin/sh -c` over exit codes and signal deaths, so it needs no
+  seam and no root. It also covers the case where the file to exec is missing,
+  because the child's `exit(127)` is the only thing that distinguishes that from
+  a command that ran and returned 127.
+* `unit/configfile` - `vrmr_ask_configfile()` reading a config file off disk. The
+  line parser bounded its copies into the fixed `variable` and `value` buffers by
+  the caller's answer size, and the answer sizes at the call sites run to
+  `PATH_MAX`, so one long line in a config file wrote over the return address.
+  A config file is root-owned and 0600, which is why the program goes through
+  `vrmr_set_trusted_owner()` (§10) rather than pretending the file is someone
+  else's: the parser must not depend on who owns the input. Over-long names and
+  values now report what they are - the name is skipped as not-an-assignment,
+  the value is an error - instead of answering with a truncated one.

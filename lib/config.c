@@ -1348,7 +1348,8 @@ static int vrmr_pre_init_config(struct vrmr_config *cnf)
          * nobody pointed at silently is worse than saying it */
         vrmr_warning("Warning",
                 "config directory taken from VUURMUUR_SYSCONFDIR ('%s'), "
-                "not from the compiled-in %s", etcdir_loc, xstr(SYSCONFDIR));
+                "not from the compiled-in %s",
+                etcdir_loc, xstr(SYSCONFDIR));
     }
 
     if (strlcpy(cnf->etcdir, etcdir_loc != NULL ? etcdir_loc : xstr(SYSCONFDIR),
@@ -1441,7 +1442,6 @@ int vrmr_ask_configfile(const struct vrmr_config *cnf, char *question,
         char *answer_ptr, char *file_location, size_t size)
 {
     int retval = 0;
-    size_t i = 0, k = 0, j = 0;
     FILE *fp = NULL;
     char line[512] = "", variable[128] = "", value[256] = "";
 
@@ -1457,41 +1457,43 @@ int vrmr_ask_configfile(const struct vrmr_config *cnf, char *question,
         if ((line[0] == '#') || (strlen(line) < 1) || (line[0] == '\n')) {
             /* do nothing, its a comment. */
         } else {
-            k = 0;
-            j = 0;
-
-            /* variable */
-            while (line[k] != '=' && k < size) {
-                variable[j] = line[k];
-                k++;
-                j++;
+            /* Every index below is bounded by the buffer it writes to, never
+             * by the caller's size, which is the answer buffer. */
+            const size_t eq = strcspn(line, "=\n");
+            if (line[eq] != '=' || eq >= sizeof(variable)) {
+                vrmr_warning("Config",
+                        "ignoring a line without a usable "
+                        "assignment in '%s'.",
+                        file_location);
+                continue;
             }
-            variable[j] = '\0';
+
+            memcpy(variable, line, eq);
+            variable[eq] = '\0';
 
             vrmr_debug(HIGH, "question '%s' variable '%s' (%d)", question,
                     variable, (int)size);
 
             /* value */
-            j = 0;
-            i = k + 1;
-            while (line[i] != '\0' && line[i] != '\n' && i < (size + k + 1)) {
-                /* if the first character is a '"' we strip it. */
-                if (j == 0 && line[i] == '\"') {
-                    i++;
-                } else {
-                    value[j] = line[i];
-                    i++;
-                    j++;
-                }
+            const char *v = line + eq + 1;
+            if (*v == '\"') {
+                v++;
             }
-            /* if the last character is a'"' we strip it. */
-            if (j > 0) {
-                if (value[j - 1] == '\"') {
-                    value[j - 1] = '\0';
-                } else
-                    value[j] = '\0';
-            } else
-                value[j] = '\0';
+
+            size_t vl = strcspn(v, "\n");
+            if (vl > 0 && v[vl - 1] == '\"') {
+                vl--;
+            }
+
+            if (vl >= sizeof(value)) {
+                vrmr_error(-1, "Error", "value for question '%s' too big",
+                        question);
+                retval = -1;
+                break;
+            }
+
+            memcpy(value, v, vl);
+            value[vl] = '\0';
 
             vrmr_debug(HIGH, "question '%s' value '%s' (%d)", question, value,
                     (int)size);
