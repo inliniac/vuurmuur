@@ -997,6 +997,19 @@ static int edit_interface_save(
                     field_buffer(ifsec_ctx.edit.fields[i], 0),
                     sizeof(tempiface_ptr->ipv6.ip6));
 
+            /* ncurses has no TYPE_IPV6, so nothing else has looked at this
+             * field: it ends up in ip6tables command lines */
+            if (tempiface_ptr->ipv6.ip6[0] != '\0' &&
+                    vrmr_check_ipv6address(
+                            NULL, NULL, tempiface_ptr->ipv6.ip6, 0) != 1) {
+                vrmr_error(-1, VR_ERR,
+                        gettext("'%s' is not a valid ipv6 "
+                                "address."),
+                        tempiface_ptr->ipv6.ip6);
+                free(tempiface_ptr);
+                return (-1);
+            }
+
             result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name,
                     "IPV6ADDRESS", tempiface_ptr->ipv6.ip6, 1,
                     VRMR_TYPE_INTERFACE);
@@ -1056,6 +1069,16 @@ static int edit_interface_save(
             copy_field2buf(tempiface_ptr->device,
                     field_buffer(ifsec_ctx.edit.fields[i], 0),
                     sizeof(tempiface_ptr->device));
+
+            /* free text in the form, and a bare word in a shell command */
+            if (vrmr_validate_devicename(tempiface_ptr->device) < 0) {
+                vrmr_error(-1, VR_ERR,
+                        gettext("'%s' is not a valid device "
+                                "name."),
+                        tempiface_ptr->device);
+                free(tempiface_ptr);
+                return (-1);
+            }
 
             result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name,
                     "DEVICE", tempiface_ptr->device, 1, VRMR_TYPE_INTERFACE);
