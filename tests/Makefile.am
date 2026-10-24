@@ -54,13 +54,20 @@ unit_configfile_LDADD = $(LIBVUURMUUR_LDADD)
 
 check_PROGRAMS += unit/configfile
 
+unit_port_range_SOURCES = unit/portrange.c lib/tap.c lib/tap.h \
+	lib/vrmr_test.c lib/vrmr_test.h
+unit_port_range_LDADD = $(LIBVUURMUUR_LDADD)
+
+check_PROGRAMS += unit/port-range
+
 # automake does not export srcdir to test programs, and the binaries live under
 # the libtool wrapper: the .sh finds the fixtures and execs the program
 AM_TESTS_ENVIRONMENT = abs_srcdir="$(abs_srcdir)"; export abs_srcdir; \
 	UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"; export UBSAN_OPTIONS;
 
 TESTS = unit/rules-parse unit/rules-options unit/lineread unit/ifstats \
-	unit/markers unit/exec-status unit/configfile gen/ruleset.sh
+	unit/markers unit/exec-status unit/configfile unit/port-range \
+	gen/ruleset.sh
 
 EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh \
 	cases/common/etc/state/interfaces/dmz.conf \

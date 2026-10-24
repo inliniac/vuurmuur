@@ -914,3 +914,10 @@ green suite is not read as "the generator is covered".
   else's: the parser must not depend on who owns the input. Over-long names and
   values now report what they are - the name is skipped as not-an-assignment,
   the value is an error - instead of answering with a truncated one.
+* `unit/port-range` - `vrmr_process_portrange()`, the parser behind every
+  `portrange=` line in a service definition. It split an entry into fixed
+  16 and 32 byte stack buffers without bounding itself to them, and it read the
+  `RANGE` protocol with `atoi()`, so a service file line that ran long wrote over
+  a return address and one with a junk protocol number quietly became protocol 0
+  (IP). A stray comma also used to add a `0/0` entry, which matches every port:
+  the program asserts all four cases are refused rather than accepted-and-narrowed.

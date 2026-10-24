@@ -450,6 +450,33 @@ int vrmr_split_portrange(char *portrange, int *lowport, int *highport)
     return (retval);
 }
 
+/*  portrange_take
+
+    Copies current_portrange[*pos..] into dst up to 'sep' (or to the end when
+    'sep' is 0), stepping over the separator. Returns -1 when what is left does
+    not fit in dst: truncating a port range would quietly widen a rule.
+*/
+static int portrange_take(
+        char *dst, size_t dstlen, const char *src, size_t *pos, char sep)
+{
+    size_t i = 0;
+
+    assert(dst && src && pos);
+
+    while (src[*pos] != '\0' && (sep == '\0' || src[*pos] != sep) &&
+            i < dstlen - 1)
+        dst[i++] = src[(*pos)++];
+    dst[i] = '\0';
+
+    if (sep != '\0' && src[*pos] == sep) {
+        (*pos)++;
+        return (0);
+    } else if (src[*pos] != '\0')
+        return (-1);
+
+    return (0);
+}
+
 /*  vrmr_process_portrange
 
     Splits up a portranges string and inserts the portranges into the portranges
@@ -467,8 +494,7 @@ int vrmr_split_portrange(char *portrange, int *lowport, int *highport)
 int vrmr_process_portrange(
         const char *proto, const char *portrange, struct vrmr_service *ser_ptr)
 {
-    unsigned int port = 0;
-    unsigned int range = 0;
+    size_t range = 0;
 
     char current_portrange[32] =
             "", /* 3+1+5+1+5+1+5+1+5+1 eg. 6,12345:56789*12345:56789 */
@@ -483,6 +509,13 @@ int vrmr_process_portrange(
 
     /* loop trough the portrange */
     while (strlen(portrange) >= port_pos) {
+        if (cur_pos >= sizeof(current_portrange) - 1) {
+            vrmr_error(-1, "Error",
+                    "a portrange entry is longer than %zu characters",
+                    sizeof(current_portrange) - 1);
+            return (-1);
+        }
+
         current_portrange[cur_pos] = portrange[port_pos];
         cur_pos++;
 
@@ -490,6 +523,14 @@ int vrmr_process_portrange(
         if ((portrange[port_pos] == ',') || (portrange[port_pos] == '\0')) {
             /* terminate current_portrange */
             current_portrange[cur_pos - 1] = '\0';
+
+            /* a stray comma used to add a 0/0 entry, which matches every port
+             */
+            if (current_portrange[0] == '\0') {
+                vrmr_error(-1, "Error", "empty entry in portrange '%s'",
+                        portrange);
+                return (-1);
+            }
 
             /* alloc memory */
             if (!(portrange_ptr = malloc(sizeof(struct vrmr_portdata)))) {
@@ -503,7 +544,7 @@ int vrmr_process_portrange(
             range = 0;
             /* parse new RANGE format first */
             if (strncasecmp(proto, "RANGE", 5) == 0) {
-                char protostr[4] = "";
+                char protostr[8] = "";
                 range = 0;
                 size_t i = 0;
                 while (range < strlen(current_portrange) &&
@@ -514,13 +555,30 @@ int vrmr_process_portrange(
                     range++;
                 }
                 protostr[i] = '\0';
-                portrange_ptr->protocol = atoi(protostr);
-                if (portrange_ptr->protocol < 0 ||
-                        portrange_ptr->protocol > 65535) {
-                    vrmr_error(-1, "Error", "invalid protocol '%s'", protostr);
+
+                if (current_portrange[range] != ';') {
+                    vrmr_error(-1, "Error",
+                            "no protocol in RANGE portrange '%s'",
+                            current_portrange);
+                    free(portrange_ptr);
+                    return (-1);
                 }
 
                 range++;
+
+                char *end = NULL;
+                long l = 0;
+
+                errno = 0;
+                l = strtol(protostr, &end, 10);
+                if (errno != 0 || end == protostr ||
+                        (end != NULL && *end != '\0') || l < 0 || l > 65535) {
+                    vrmr_error(-1, "Error", "invalid protocol '%s'", protostr);
+                    free(portrange_ptr);
+                    return (-1);
+                }
+
+                portrange_ptr->protocol = (int)l;
 
             } else if (strncasecmp(proto, "TCP", 3) == 0) {
                 portrange_ptr->protocol = 6;
@@ -551,15 +609,21 @@ int vrmr_process_portrange(
                 split current_portrange to dst_portrange and src_portrange, and
                split both of them
             */
-            port = 0;
-            while (range < strlen(current_portrange) &&
-                    port < sizeof(dst_portrange) - 1 &&
-                    current_portrange[range] != '*') {
-                dst_portrange[port] = current_portrange[range];
-                range++;
-                port++;
+            if (portrange_take(dst_portrange, sizeof(dst_portrange),
+                        current_portrange, &range, '*') < 0) {
+                vrmr_error(-1, "Error",
+                        "the destination part of portrange '%s' is too long",
+                        current_portrange);
+                free(portrange_ptr);
+                return (-1);
             }
-            dst_portrange[port] = '\0';
+
+            if (dst_portrange[0] == '\0') {
+                vrmr_error(-1, "Error", "no destination port in portrange '%s'",
+                        current_portrange);
+                free(portrange_ptr);
+                return (-1);
+            }
 
             if (vrmr_split_portrange(dst_portrange, &portrange_ptr->dst_low,
                         &portrange_ptr->dst_high) < 0) {
@@ -567,17 +631,14 @@ int vrmr_process_portrange(
                 return (-1);
             }
 
-            /*
-                reset port and add one to range because of the ':' in the range
-            */
-            port = 0, range++;
-            while ((current_portrange[range] != '\0') &&
-                    (current_portrange[range] != '\n')) {
-                src_portrange[port] = current_portrange[range];
-                range++;
-                port++;
+            if (portrange_take(src_portrange, sizeof(src_portrange),
+                        current_portrange, &range, '\0') < 0) {
+                vrmr_error(-1, "Error",
+                        "the source part of portrange '%s' is too long",
+                        current_portrange);
+                free(portrange_ptr);
+                return (-1);
             }
-            src_portrange[port] = '\0';
 
             if (vrmr_split_portrange(src_portrange, &portrange_ptr->src_low,
                         &portrange_ptr->src_high) < 0) {
