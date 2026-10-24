@@ -216,23 +216,20 @@ int backend_check_interface_ipaddress(char *value, struct vrmr_regex *reg)
 /*  DEVICE
 
 */
-int backend_check_interface_device(char *value, struct vrmr_regex *reg)
+int backend_check_interface_device(
+        char *value, struct vrmr_regex *reg ATTR_UNUSED)
 {
-    struct vrmr_interface interface;
+    assert(value);
 
-    assert(value && reg);
+    /* the device reaches tc, iptables and ip as a bare word in a shell
+     * command, so it may only hold what the kernel will name an interface */
+    if (vrmr_validate_devicename(value) < 0) {
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
+                "'%s' is not a valid value for variable 'DEVICE'", value);
+        return (VRS_ERR_COMMANDLINE);
+    }
 
-    /* check */
-    if (strlen(value) < sizeof(interface.device))
-        return (0);
-
-    /* TODO check */
-    if (1)
-        return (0);
-
-    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-            "'%s' is not a valid value for variable 'DEVICE'", value);
-    return (VRS_ERR_COMMANDLINE);
+    return (0);
 }
 
 /*  VIRTUAL

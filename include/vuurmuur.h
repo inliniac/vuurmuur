@@ -97,6 +97,7 @@
 #define VRMR_MAX_RULE_LENGTH 512
 
 #define VRMR_MAX_INTERFACE 32
+#define VRMR_MAX_INTERFACE_DEVICE 16 /* IFNAMSIZ: 15 characters and a NUL */
 
 #define VRMR_MAX_SERVICE 32
 
@@ -769,7 +770,7 @@ struct vrmr_interface {
     char up;
 
     /* the system device */
-    char device[16];
+    char device[VRMR_MAX_INTERFACE_DEVICE];
 
     /*  is the device virtual?
         0: no
@@ -1824,6 +1825,7 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
         const char *iface_name, const char *chain, uint64_t *recv_packets,
         uint64_t *recv_bytes, uint64_t *trans_packets, uint64_t *trans_bytes);
 int vrmr_validate_interfacename(const char *, regex_t *);
+int vrmr_validate_devicename(const char *);
 void vrmr_destroy_interfaceslist(struct vrmr_interfaces *interfaces);
 int vrmr_interfaces_get_rules(
         struct vrmr_ctx *, struct vrmr_interface *iface_ptr);

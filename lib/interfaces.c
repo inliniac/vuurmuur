@@ -1183,16 +1183,15 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
          * -vnL form prints two lines before the rules, and a constant here
          * silently drops the rules that follow it */
         if (!header_seen) {
-            if (strstr(line, "target") != NULL &&
-                    strstr(line, "prot") != NULL)
+            if (strstr(line, "target") != NULL && strstr(line, "prot") != NULL)
                 header_seen = 1;
             continue;
         }
 
         /*            pack byte tg pr op in ou sr ds */
-        sscanf(line, "%" PRIu64 " %" PRIu64 " %s %s %s %s %s %s %s",
-                &packets, &bytes, target, proto, options, interface_in,
-                interface_out, source, dest);
+        sscanf(line, "%" PRIu64 " %" PRIu64 " %s %s %s %s %s %s %s", &packets,
+                &bytes, target, proto, options, interface_in, interface_out,
+                source, dest);
 
         vrmr_debug(HIGH,
                 "%s: tgt %s: iin: %s oin: %s packets: %" PRIu64
@@ -1232,8 +1231,7 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
     if (!header_seen) {
         /* an empty answer is what a missing table gives; a listing we could not
          * anchor on is a different thing and must not read as zero traffic */
-        vrmr_error(-1, "Error",
-                "no column header in '%s' output for chain %s",
+        vrmr_error(-1, "Error", "no column header in '%s' output for chain %s",
                 cfg->iptables_location, chain);
         vrmr_cmdout_close(&co);
         return (-1);
@@ -1265,6 +1263,46 @@ int vrmr_validate_interfacename(const char *interfacename, regex_t *reg_ex)
     }
 
     vrmr_debug(HIGH, "'%s' is valid", interfacename);
+    return (0);
+}
+
+/*  vrmr_validate_devicename
+
+    The device of an interface is put in front of tc, iptables and ip as a bare
+    word, unquoted, so only what the kernel itself will name an interface may
+    pass. An empty device is a cleared one.
+
+    Returncodes:
+        0: ok
+        -1: error
+*/
+int vrmr_validate_devicename(const char *devicename)
+{
+    assert(devicename);
+
+    if (devicename[0] == '\0')
+        return (0);
+
+    if (strlen(devicename) >= sizeof(((struct vrmr_interface *)0)->device)) {
+        /* the precision keeps -Wformat-truncation honest on 32-bit, where the
+         * length of an unbounded %s has no upper bound the compiler can see */
+        vrmr_debug(HIGH, "device '%.*s' is too long",
+                (int)(sizeof(((struct vrmr_interface *)0)->device) - 1),
+                devicename);
+        return (-1);
+    }
+
+    /* the kernel's own set: no shell metacharacter is in it */
+    for (const char *p = devicename; *p != '\0'; p++) {
+        if (!isalnum((unsigned char)*p) && *p != '.' && *p != '_' &&
+                *p != ':' && *p != '+' && *p != '-') {
+            vrmr_debug(HIGH, "device '%.*s' is invalid",
+                    (int)(sizeof(((struct vrmr_interface *)0)->device) - 1),
+                    devicename);
+            return (-1);
+        }
+    }
+
     return (0);
 }
 
@@ -1535,7 +1573,8 @@ int vrmr_interfaces_check(struct vrmr_interface *iface_ptr)
         } else {
             /* now try to get the dynamic ipaddress */
             ipresult = vrmr_get_dynamic_ip(iface_ptr->device,
-                    iface_ptr->ipv4.ipaddress, sizeof(iface_ptr->ipv4.ipaddress));
+                    iface_ptr->ipv4.ipaddress,
+                    sizeof(iface_ptr->ipv4.ipaddress));
         }
         if (ipresult == 0) {
             /* set iface to down */

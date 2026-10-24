@@ -921,3 +921,10 @@ green suite is not read as "the generator is covered".
   a return address and one with a junk protocol number quietly became protocol 0
   (IP). A stray comma also used to add a `0/0` entry, which matches every port:
   the program asserts all four cases are refused rather than accepted-and-narrowed.
+* `unit/devicename` - `vrmr_validate_devicename()`, the gate on the device of an
+  interface. The device reaches `tc`, `iptables` and `ip` as a bare word inside a
+  command string handed to a shell, so whatever can be typed into the DEVICE
+  field is executed. The gate has to accept what the kernel will name an
+  interface (`eth0.100`, `bond0:1`, a 15 character predictable name) as well as
+  refuse what a shell would act on, so both halves are pinned here.
+
