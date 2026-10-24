@@ -319,6 +319,7 @@ COMMIT
 -A INPUT -m connmark --mark 1 -m conntrack --ctstate RELATED -j NEWACCEPT
 -A INPUT -m conntrack --ctstate INVALID -m limit --limit 1/s --limit-burst 2 -j NFLOG --nflog-prefix "vrmr: DROP in INVALID " --nflog-group 8
 -A INPUT -m conntrack --ctstate INVALID -j DROP
+-A INPUT -j ANTISPOOF
 -A INPUT -p icmpv6 -j ACCEPT
 -A INPUT -m limit --limit 30/s --limit-burst 60 -j NFLOG --nflog-prefix "vrmr: DROP in policy " --nflog-group 8
 -A FORWARD -j PRE-VRMR-FORWARD
@@ -344,6 +345,7 @@ COMMIT
 -A FORWARD -m connmark --mark 1 -m conntrack --ctstate RELATED -j NEWACCEPT
 -A FORWARD -m conntrack --ctstate INVALID -m limit --limit 1/s --limit-burst 2 -j NFLOG --nflog-prefix "vrmr: DROP fw INVALID " --nflog-group 8
 -A FORWARD -m conntrack --ctstate INVALID -j DROP
+-A FORWARD -j ANTISPOOF
 -A FORWARD -p icmpv6 -j ACCEPT
 -A FORWARD -m limit --limit 30/s --limit-burst 60 -j NFLOG --nflog-prefix "vrmr: DROP fw policy " --nflog-group 8
 -A OUTPUT -j PRE-VRMR-OUTPUT
@@ -370,6 +372,7 @@ COMMIT
 -A OUTPUT -m connmark --mark 1 -m conntrack --ctstate RELATED -j NEWACCEPT
 -A OUTPUT -m conntrack --ctstate INVALID -m limit --limit 1/s --limit-burst 2 -j NFLOG --nflog-prefix "vrmr: DROP out INVALID " --nflog-group 8
 -A OUTPUT -m conntrack --ctstate INVALID -j DROP
+-A OUTPUT -j ANTISPOOF
 -A OUTPUT -p icmpv6 -j ACCEPT
 -A OUTPUT -m limit --limit 30/s --limit-burst 60 -j NFLOG --nflog-prefix "vrmr: DROP out policy " --nflog-group 8
 -A SYNLIMIT -m limit --limit 10/s --limit-burst 20 -j RETURN
