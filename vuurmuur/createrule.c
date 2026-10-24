@@ -424,13 +424,15 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
         if (VR_CAP(rule->ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE &&
-                strcmp(rule->action, "NEWNFQUEUE") == 0) {
+                (strcmp(rule->action, "NEWNFQUEUE") == 0 ||
+                        strncmp(rule->action, "NFQUEUE", 7) == 0)) {
             vrmr_warning("Warning", "input rule not "
                                     "created: NFQUEUE not supported by "
                                     "this system.");
             return (0); /* this is not an error */
         } else if (VR_CAP(rule->ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE &&
-                   strcmp(rule->action, "NEWNFLOG") == 0) {
+                   (strcmp(rule->action, "NEWNFLOG") == 0 ||
+                        strncmp(rule->action, "NFLOG", 5) == 0)) {
             vrmr_warning("Warning", "input rule not "
                                     "created: NFLOG not supported by "
                                     "this system.");
@@ -893,13 +895,15 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
         if (VR_CAP(rule->ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE &&
-                strcmp(rule->action, "NEWNFQUEUE") == 0) {
+                (strcmp(rule->action, "NEWNFQUEUE") == 0 ||
+                        strncmp(rule->action, "NFQUEUE", 7) == 0)) {
             vrmr_warning("Warning", "output rule not "
                                     "created: NFQUEUE not supported by "
                                     "this system.");
             return (0); /* this is not an error */
         } else if (VR_CAP(rule->ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE &&
-                   strcmp(rule->action, "NEWNFLOG") == 0) {
+                   (strcmp(rule->action, "NEWNFLOG") == 0 ||
+                        strncmp(rule->action, "NFLOG", 5) == 0)) {
             vrmr_warning("Warning", "output rule not "
                                     "created: NFLOG not supported by "
                                     "this system.");
@@ -1361,13 +1365,15 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
         if (VR_CAP(rule->ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE &&
-                strcmp(rule->action, "NEWNFQUEUE") == 0) {
+                (strcmp(rule->action, "NEWNFQUEUE") == 0 ||
+                        strncmp(rule->action, "NFQUEUE", 7) == 0)) {
             vrmr_warning("Warning", "forward rule not "
                                     "created: NFQUEUE not supported by "
                                     "this system.");
             return (0); /* this is not an error */
         } else if (VR_CAP(rule->ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE &&
-                   strcmp(rule->action, "NEWNFLOG") == 0) {
+                   (strcmp(rule->action, "NEWNFLOG") == 0 ||
+                        strncmp(rule->action, "NFLOG", 5) == 0)) {
             vrmr_warning("Warning", "forward rule not "
                                     "created: NFLOG not supported by "
                                     "this system.");
@@ -2523,13 +2529,15 @@ int create_rule_input_broadcast(struct vrmr_config *conf,
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
         if (VR_CAP(rule->ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE &&
-                strcmp(rule->action, "NEWNFQUEUE") == 0) {
+                (strcmp(rule->action, "NEWNFQUEUE") == 0 ||
+                        strncmp(rule->action, "NFQUEUE", 7) == 0)) {
             vrmr_warning("Warning", "input rule not "
                                     "created: NFQUEUE not supported by "
                                     "this system.");
             return (0); /* this is not an error */
         } else if (VR_CAP(rule->ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE &&
-                   strcmp(rule->action, "NEWNFLOG") == 0) {
+                   (strcmp(rule->action, "NEWNFLOG") == 0 ||
+                        strncmp(rule->action, "NFLOG", 5) == 0)) {
             vrmr_warning("Warning", "input rule not "
                                     "created: NFLOG not supported by "
                                     "this system.");
@@ -2630,13 +2638,15 @@ int create_rule_output_broadcast(struct vrmr_config *conf,
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
         if (VR_CAP(rule->ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE &&
-                strcmp(rule->action, "NEWNFQUEUE") == 0) {
+                (strcmp(rule->action, "NEWNFQUEUE") == 0 ||
+                        strncmp(rule->action, "NFQUEUE", 7) == 0)) {
             vrmr_warning("Warning", "output rule not "
                                     "created: NFQUEUE not supported by "
                                     "this system.");
             return (0); /* this is not an error */
         } else if (VR_CAP(rule->ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE &&
-                   strcmp(rule->action, "NEWNFLOG") == 0) {
+                   (strcmp(rule->action, "NEWNFLOG") == 0 ||
+                        strncmp(rule->action, "NFLOG", 5) == 0)) {
             vrmr_warning("Warning", "output rule not "
                                     "created: NFLOG not supported by "
                                     "this system.");
