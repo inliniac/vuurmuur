@@ -641,7 +641,11 @@ int vrmr_new_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
             dotcount++;
     }
     if (dotcount > 2) {
-        vrmr_error(-1, "Error", "Invalid name '%s'", zonename);
+        /* bound from the field (VRMR_MAX_ZONE); names over 31 are
+         * shortened in the message */
+        char safe[VRMR_MAX_ZONE] = "";
+        (void)strlcpy(safe, zonename, sizeof(safe));
+        vrmr_error(-1, "Error", "Invalid name '%s'", safe);
         return (-1);
     }
 

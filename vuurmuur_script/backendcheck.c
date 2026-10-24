@@ -319,8 +319,9 @@ int backend_check_interface_bw(char *value, struct vrmr_regex *reg)
     /* check */
     for (size_t i = 0; i < strlen(value); i++) {
         if (!isdigit(value[i])) {
+            /* at most 10 digits, see the length check below */
             vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                    "'%s' is not a valid value for variable 'BW_IN' or "
+                    "'%.10s' is not a valid value for variable 'BW_IN' or "
                     "'BW_OUT' ",
                     value);
             return (VRS_ERR_COMMANDLINE);
@@ -329,8 +330,9 @@ int backend_check_interface_bw(char *value, struct vrmr_regex *reg)
 
     /* check */
     if (strlen(value) >= 11) { /* max len of 32 bit int */
+        /* the value here is necessarily longer than 10 digits */
         vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                "'%s' is not a valid value for variable 'BW_IN' or 'BW_OUT'",
+                "'%.10s' is not a valid value for variable 'BW_IN' or 'BW_OUT'",
                 value);
         return (VRS_ERR_COMMANDLINE);
     }
