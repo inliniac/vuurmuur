@@ -1057,8 +1057,15 @@ static void draw_rules(struct vrmr_rules *rules, struct rulebar_form *rbform)
                 }
                 /* separator */
                 else {
-                    memset(separator_str, '-', sizeof(separator_str));
-                    separator_str[rbform->separator_size - 1] = '\0';
+                    /* the field is as wide as the terminal, the buffer is not.
+                     * Below 8 there is no room for "[ x ]" at all. */
+                    size_t sep_size = rbform->separator_size;
+
+                    if (sep_size < 8 || sep_size >= sizeof(separator_str))
+                        sep_size = sizeof(separator_str) - 1;
+
+                    memset(separator_str, '-', sep_size);
+                    separator_str[sep_size] = '\0';
 
 #ifdef USE_WIDEC
                     if (rule_ptr->opt != NULL &&
@@ -1068,9 +1075,13 @@ static void draw_rules(struct vrmr_rules *rules, struct rulebar_form *rbform)
 
                         wcomment_len = StrLen(rule_ptr->opt->comment);
 
-                        before_len =
-                                (rbform->separator_size - (wcomment_len + 4)) /
-                                2;
+                        /* the comment sits between "[ " and " ]" */
+                        if (sep_size < 8)
+                            wcomment_len = 0;
+                        else if (wcomment_len + 4 > sep_size)
+                            wcomment_len = sep_size - 4;
+
+                        before_len = (sep_size - (wcomment_len + 4)) / 2;
 
                         wmemset(wstr, L'-', sizeof(wstr) / sizeof(wchar_t));
 
@@ -1080,21 +1091,26 @@ static void draw_rules(struct vrmr_rules *rules, struct rulebar_form *rbform)
 
                             /* convert to wide */
                             wchar_t wtmp[wcomment_len + 1];
-                            mbstowcs(wtmp, rule_ptr->opt->comment,
-                                    wcomment_len + 1);
+                            size_t conv = mbstowcs(
+                                    wtmp, rule_ptr->opt->comment, wcomment_len + 1);
+
+                            if (conv == (size_t)-1)
+                                conv = 0;
 
                             for (i = before_len + 2, x = 0;
                                     // - 2 so we can add ' ]' below
                                     i < sizeof(wstr) / sizeof(wchar_t) - 2 &&
-                                    x < wcomment_len;
+                                    x < conv;
                                     i++, x++) {
                                 wstr[i] = wtmp[x];
                             }
                             wstr[i] = L' ';
                             wstr[i + 1] = L']';
                         }
-                        /* convert back to multi byte */
-                        wcstombs(separator_str, wstr, sizeof(separator_str));
+                        /* convert back to multi byte: what does not fit stays a
+                         * dash from the memset above */
+                        (void)wcstombs(separator_str, wstr, sep_size);
+                        separator_str[sep_size] = '\0';
 
                         set_field_buffer_wrap(
                                 cur_bar->separator, 0, separator_str);
@@ -1107,15 +1123,19 @@ static void draw_rules(struct vrmr_rules *rules, struct rulebar_form *rbform)
                             rule_ptr->opt->comment[0] != '\0') {
                         size_t comment_len = StrLen(rule_ptr->opt->comment);
 
-                        before_len =
-                                (rbform->separator_size - (comment_len + 4)) /
-                                2;
+                        /* the comment sits between "[ " and " ]": too long is
+                         * truncated, never an index before the start */
+                        if (sep_size < 8)
+                            comment_len = 0;
+                        else if (comment_len + 4 > sep_size)
+                            comment_len = sep_size - 4;
+
+                        before_len = (sep_size - (comment_len + 4)) / 2;
                         separator_str[before_len] = '[';
                         separator_str[before_len + 1] = ' ';
 
                         for (i = before_len + 2, x = 0;
-                                i < rbform->separator_size &&
-                                i < sizeof(separator_str) - 2 &&
+                                i < sep_size && i < sizeof(separator_str) - 2 &&
                                 x < comment_len;
                                 i++, x++) {
                             separator_str[i] = rule_ptr->opt->comment[x];
