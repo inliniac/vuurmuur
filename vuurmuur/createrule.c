@@ -2121,6 +2121,14 @@ int create_rule_portfw(struct vrmr_config *conf, struct rule_scratch *rule,
     if (strncasecmp(rule->action, "LOG", 3) != 0 &&
             strncasecmp(rule->action, "NFLOG", 5) != 0 &&
             strncasecmp(rule->action, "NEWNFLOG", 8) != 0) {
+        if (rule->serverip[0] == '\0') {
+            /* from=any has no interface IP; without a -d match the
+             * PREROUTING DNAT would rewrite all incoming traffic of
+             * that protocol, including transit traffic */
+            vrmr_warning("Warning",
+                    "PREROUTING rule not created: from=any has no "
+                    "interface IP to match.");
+        } else {
         /* src & dst */
         create_srcdst_string(SRCDST_SOURCE, rule->from_ip, rule->from_netmask,
                 rule->temp_src, sizeof(rule->temp_src));
@@ -2137,6 +2145,7 @@ int create_rule_portfw(struct vrmr_config *conf, struct rule_scratch *rule,
             return (-1);
 
         create->iptcount.preroute++;
+        }
     }
 
     /* the forward rule */
@@ -2396,6 +2405,14 @@ int create_rule_dnat(struct vrmr_config *conf, struct rule_scratch *rule,
     if (rule->from_int[0] != '\0')
         snprintf(input_device, sizeof(input_device), "-i %s", rule->from_int);
 
+    if (rule->serverip[0] == '\0') {
+        /* from=any has no interface IP; without a -d match the
+         * PREROUTING DNAT would rewrite all incoming traffic of
+         * that protocol, including transit traffic */
+        vrmr_warning("Warning",
+                "PREROUTING rule not created: from=any has no "
+                "interface IP to match.");
+    } else {
     /* src & dst */
     create_srcdst_string(SRCDST_SOURCE, rule->from_ip, rule->from_netmask,
             rule->temp_src, sizeof(rule->temp_src));
@@ -2411,6 +2428,7 @@ int create_rule_dnat(struct vrmr_config *conf, struct rule_scratch *rule,
         return (-1);
 
     create->iptcount.preroute++;
+    }
 
     return (retval);
 }
