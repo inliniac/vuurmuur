@@ -706,7 +706,8 @@ static int ruleset_fill_file(struct vrmr_ctx *vctx, struct rule_set *ruleset,
     }
 
     if (vctx->conf.vrmr_check_iptcaps == FALSE ||
-            vctx->iptcaps.table_filter == TRUE) {
+            ((ipver == VRMR_IPV6) ? vctx->iptcaps.table_ip6_filter
+                                  : vctx->iptcaps.table_filter) == TRUE) {
         /* finally the filter table */
         snprintf(cmd, sizeof(cmd), "*filter\n");
         ruleset_writeprint(ruleset_fd, cmd);
