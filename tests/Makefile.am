@@ -72,6 +72,13 @@ unit_ipaddr_LDADD = $(LIBVUURMUUR_LDADD)
 
 check_PROGRAMS += unit/ipaddr
 
+# a backend that stops answering, so the short read cannot pass as end of file
+unit_blocklist_read_SOURCES = unit/blocklist_read.c lib/tap.c lib/tap.h \
+	lib/vrmr_test.c lib/vrmr_test.h
+unit_blocklist_read_LDADD = $(LIBVUURMUUR_LDADD)
+
+check_PROGRAMS += unit/blocklist-read
+
 # automake does not export srcdir to test programs, and the binaries live under
 # the libtool wrapper: the .sh finds the fixtures and execs the program
 AM_TESTS_ENVIRONMENT = abs_srcdir="$(abs_srcdir)"; export abs_srcdir; \
@@ -79,7 +86,7 @@ AM_TESTS_ENVIRONMENT = abs_srcdir="$(abs_srcdir)"; export abs_srcdir; \
 
 TESTS = unit/rules-parse unit/rules-options unit/lineread unit/ifstats \
 	unit/markers unit/exec-status unit/configfile unit/port-range \
-	unit/devicename unit/ipaddr gen/ruleset.sh
+	unit/devicename unit/ipaddr unit/blocklist-read gen/ruleset.sh
 
 EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh \
 	cases/common/etc/state/interfaces/dmz.conf \

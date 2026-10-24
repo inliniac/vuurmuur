@@ -74,9 +74,10 @@ int script_unblock(struct vuurmuur_script *vr_script)
     vrmr_list_setup(&blocklist.list, free);
     blocklist.old_blocklistfile_used = FALSE;
 
-    while (vr_script->vctx.rf->ask(vr_script->vctx.rule_backend, "blocklist",
-                   "RULE", vr_script->bdat, sizeof(vr_script->bdat),
-                   VRMR_TYPE_RULE, 1) == 1) {
+    int r = 0;
+    while ((r = vr_script->vctx.rf->ask(vr_script->vctx.rule_backend,
+                       "blocklist", "RULE", vr_script->bdat,
+                       sizeof(vr_script->bdat), VRMR_TYPE_RULE, 1)) == 1) {
         vrmr_rules_encode_rule(vr_script->bdat, sizeof(vr_script->bdat));
 
         char *str = remove_leading_part(vr_script->bdat);
@@ -96,6 +97,15 @@ int script_unblock(struct vuurmuur_script *vr_script)
         }
 
         free(str);
+    }
+
+    /* end of the list and a failed read are not the same thing: saving what we
+     * managed to read would unblock everything behind the failure */
+    if (r < 0) {
+        vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
+                "reading the blocklist failed - the blocklist is left alone");
+        vrmr_list_cleanup(&blocklist.list);
+        return (VRS_ERR_COMMAND_FAILED);
     }
 
     if (removed == TRUE) {

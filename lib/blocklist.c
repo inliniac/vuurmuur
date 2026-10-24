@@ -321,8 +321,9 @@ int vrmr_blocklist_init_list(struct vrmr_ctx *vctx,
         }
     }
 
-    while ((vctx->rf->ask(vctx->rule_backend, "blocklist", "RULE", line,
-                   sizeof(line), VRMR_TYPE_RULE, 1)) == 1) {
+    int r = 0;
+    while ((r = vctx->rf->ask(vctx->rule_backend, "blocklist", "RULE", line,
+                       sizeof(line), VRMR_TYPE_RULE, 1)) == 1) {
         len = strlen(line);
         if (len == 0 || line[0] == '#')
             continue;
@@ -342,6 +343,13 @@ int vrmr_blocklist_init_list(struct vrmr_ctx *vctx,
                 }
             }
         }
+    }
+
+    /* a failure part way through the file is not the end of it: the rules we
+     * never read would simply stop being blocked */
+    if (r < 0) {
+        vrmr_error(-1, "Error", "reading the blocklist failed");
+        return (-1);
     }
 
     return (0);
