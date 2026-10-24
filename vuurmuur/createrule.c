@@ -423,19 +423,19 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
 
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
-        if (iptcap->target_nfqueue == FALSE &&
+        if (VR_CAP(rule->ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE &&
                 strcmp(rule->action, "NEWNFQUEUE") == 0) {
             vrmr_warning("Warning", "input rule not "
                                     "created: NFQUEUE not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_nflog == FALSE &&
+        } else if (VR_CAP(rule->ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE &&
                    strcmp(rule->action, "NEWNFLOG") == 0) {
             vrmr_warning("Warning", "input rule not "
                                     "created: NFLOG not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_reject == FALSE &&
+        } else if (VR_CAP(rule->ipv, iptcap->target_reject, iptcap->target_ip6_reject) == FALSE &&
                    strncmp(rule->action, "REJECT", 6) == 0) {
             vrmr_warning("Warning", "input rule not "
                                     "created: REJECT not supported by "
@@ -469,7 +469,9 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
     /* if CT and raw are available, create a CT rule */
     if (strcmp(rule->helper, "") != 0 &&
             (!conf->vrmr_check_iptcaps ||
-                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)) &&
+                    (VR_CAP(rule->ipv, iptcap->table_raw, iptcap->table_ip6_raw) == TRUE &&
+                    VR_CAP(rule->ipv, iptcap->target_ct, iptcap->target_ip6_ct) == TRUE &&
+                    VR_CAP(rule->ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == TRUE)) &&
             (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0)) {
         snprintf(cmd, sizeof(cmd),
                 "%s %s %s %s %s %s %s -m connmark --mark 0 -j CT --helper %s",
@@ -501,7 +503,7 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
 
         /* check cap */
         if (conf->vrmr_check_iptcaps == TRUE) {
-            if (iptcap->target_connmark == FALSE) {
+            if (VR_CAP(rule->ipv, iptcap->target_connmark, iptcap->target_ip6_connmark) == FALSE) {
                 vrmr_warning("Warning", "connmark rules not created: CONNMARK "
                                         "not supported by this system.");
                 return (0); /* this is not an error */
@@ -554,7 +556,7 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
         if (strcmp(rule->helper, "") != 0) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
-                if (iptcap->match_helper == FALSE) {
+                if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
                     vrmr_warning("Warning",
                             "mark rules not created: helper-match "
                             "not supported by this system.");
@@ -609,7 +611,7 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
 
         /* check cap */
         if (conf->vrmr_check_iptcaps == TRUE) {
-            if (iptcap->target_mark == FALSE) {
+            if (VR_CAP(rule->ipv, iptcap->target_mark, iptcap->target_ip6_mark) == FALSE) {
                 vrmr_warning("Warning", "mark rules not created: MARK not "
                                         "supported by this system.");
                 return (0); /* this is not an error */
@@ -688,7 +690,7 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
         if (strcmp(rule->helper, "") != 0) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
-                if (iptcap->match_helper == FALSE) {
+                if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
                     vrmr_warning("Warning",
                             "mark rules not created: helper-match "
                             "not supported by this system.");
@@ -738,7 +740,7 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
     if (vrmr_is_shape_rule(&create->option) == 1) {
         /* check cap */
         if (conf->vrmr_check_iptcaps == TRUE) {
-            if (iptcap->target_classify == FALSE) {
+            if (VR_CAP(rule->ipv, iptcap->target_classify, iptcap->target_ip6_classify) == FALSE) {
                 vrmr_warning("Warning", "shaping rules not created: CLASSIFY "
                                         "not supported by this system.");
                 return (0); /* this is not an error */
@@ -818,7 +820,7 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
         if (strcmp(rule->helper, "") != 0) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
-                if (iptcap->match_helper == FALSE) {
+                if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
                     vrmr_warning("Warning",
                             "shaping rules not created: helper-match not "
                             "supported by this system.");
@@ -890,19 +892,19 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
 
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
-        if (iptcap->target_nfqueue == FALSE &&
+        if (VR_CAP(rule->ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE &&
                 strcmp(rule->action, "NEWNFQUEUE") == 0) {
             vrmr_warning("Warning", "output rule not "
                                     "created: NFQUEUE not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_nflog == FALSE &&
+        } else if (VR_CAP(rule->ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE &&
                    strcmp(rule->action, "NEWNFLOG") == 0) {
             vrmr_warning("Warning", "output rule not "
                                     "created: NFLOG not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_reject == FALSE &&
+        } else if (VR_CAP(rule->ipv, iptcap->target_reject, iptcap->target_ip6_reject) == FALSE &&
                    strncmp(rule->action, "REJECT", 6) == 0) {
             vrmr_warning("Warning", "output rule not "
                                     "created: REJECT not supported by "
@@ -934,7 +936,9 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
     /* if CT and raw are available, create a CT rule */
     if (strcmp(rule->helper, "") != 0 &&
             (!conf->vrmr_check_iptcaps ||
-                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)) &&
+                    (VR_CAP(rule->ipv, iptcap->table_raw, iptcap->table_ip6_raw) == TRUE &&
+                    VR_CAP(rule->ipv, iptcap->target_ct, iptcap->target_ip6_ct) == TRUE &&
+                    VR_CAP(rule->ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == TRUE)) &&
             (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0)) {
         snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -j CT --helper %s",
                 output_device, rule->proto, rule->temp_src, rule->temp_src_port,
@@ -962,7 +966,7 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
 
         /* check cap */
         if (conf->vrmr_check_iptcaps == TRUE) {
-            if (iptcap->target_connmark == FALSE) {
+            if (VR_CAP(rule->ipv, iptcap->target_connmark, iptcap->target_ip6_connmark) == FALSE) {
                 vrmr_warning("Warning", "connmark rules not created: CONNMARK "
                                         "not supported by this system.");
                 return (0); /* this is not an error */
@@ -1016,7 +1020,7 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
         if (strcmp(rule->helper, "") != 0) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
-                if (iptcap->match_helper == FALSE) {
+                if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
                     vrmr_warning("Warning",
                             "mark rules not created: helper-match "
                             "not supported by this system.");
@@ -1071,7 +1075,7 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
 
         /* check cap */
         if (conf->vrmr_check_iptcaps == TRUE) {
-            if (iptcap->target_mark == FALSE) {
+            if (VR_CAP(rule->ipv, iptcap->target_mark, iptcap->target_ip6_mark) == FALSE) {
                 vrmr_warning("Warning", "mark rules not created: MARK not "
                                         "supported by this system.");
                 return (0); /* this is not an error */
@@ -1150,7 +1154,7 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
         if (strcmp(rule->helper, "") != 0) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
-                if (iptcap->match_helper == FALSE) {
+                if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
                     vrmr_warning("Warning",
                             "mark rules not created: helper-match "
                             "not supported by this system.");
@@ -1202,7 +1206,7 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
     if (vrmr_is_shape_rule(&create->option) == 1) {
         /* check cap */
         if (conf->vrmr_check_iptcaps == TRUE) {
-            if (iptcap->target_classify == FALSE) {
+            if (VR_CAP(rule->ipv, iptcap->target_classify, iptcap->target_ip6_classify) == FALSE) {
                 vrmr_warning("Warning", "shaping rules not created: CLASSIFY "
                                         "not supported by this system.");
                 return (0); /* this is not an error */
@@ -1283,7 +1287,7 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
         if (strcmp(rule->helper, "") != 0) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
-                if (iptcap->match_helper == FALSE) {
+                if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
                     vrmr_warning("Warning",
                             "shaping rules not created: helper-match not "
                             "supported by this system.");
@@ -1356,19 +1360,19 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
 
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
-        if (iptcap->target_nfqueue == FALSE &&
+        if (VR_CAP(rule->ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE &&
                 strcmp(rule->action, "NEWNFQUEUE") == 0) {
             vrmr_warning("Warning", "forward rule not "
                                     "created: NFQUEUE not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_nflog == FALSE &&
+        } else if (VR_CAP(rule->ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE &&
                    strcmp(rule->action, "NEWNFLOG") == 0) {
             vrmr_warning("Warning", "forward rule not "
                                     "created: NFLOG not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_reject == FALSE &&
+        } else if (VR_CAP(rule->ipv, iptcap->target_reject, iptcap->target_ip6_reject) == FALSE &&
                    strncmp(rule->action, "REJECT", 6) == 0) {
             vrmr_warning("Warning", "forward rule not "
                                     "created: REJECT not supported by "
@@ -1403,7 +1407,9 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
     /* if CT and raw are available, create a CT rule */
     if (strcmp(rule->helper, "") != 0 &&
             (!conf->vrmr_check_iptcaps ||
-                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)) &&
+                    (VR_CAP(rule->ipv, iptcap->table_raw, iptcap->table_ip6_raw) == TRUE &&
+                    VR_CAP(rule->ipv, iptcap->target_ct, iptcap->target_ip6_ct) == TRUE &&
+                    VR_CAP(rule->ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == TRUE)) &&
             (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0)) {
         snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -j CT --helper %s",
                 input_device, rule->proto, rule->temp_src, rule->temp_src_port,
@@ -1432,7 +1438,7 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
 
         /* check cap */
         if (conf->vrmr_check_iptcaps == TRUE) {
-            if (iptcap->target_connmark == FALSE) {
+            if (VR_CAP(rule->ipv, iptcap->target_connmark, iptcap->target_ip6_connmark) == FALSE) {
                 vrmr_warning("Warning", "connmark rules not created: CONNMARK "
                                         "not supported by this system.");
                 return (0); /* this is not an error */
@@ -1520,7 +1526,7 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
         if (strcmp(rule->helper, "") != 0) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
-                if (iptcap->match_helper == FALSE) {
+                if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
                     vrmr_warning("Warning",
                             "mark rules not created: helper-match "
                             "not supported by this system.");
@@ -1575,7 +1581,7 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
 
         /* check cap */
         if (conf->vrmr_check_iptcaps == TRUE) {
-            if (iptcap->target_mark == FALSE) {
+            if (VR_CAP(rule->ipv, iptcap->target_mark, iptcap->target_ip6_mark) == FALSE) {
                 vrmr_warning("Warning", "mark rules not created: MARK not "
                                         "supported by this system.");
                 return (0); /* this is not an error */
@@ -1660,7 +1666,7 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
         if (strcmp(rule->helper, "") != 0) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
-                if (iptcap->match_helper == FALSE) {
+                if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
                     vrmr_warning("Warning",
                             "mark rules not created: helper-match "
                             "not supported by this system.");
@@ -1712,7 +1718,7 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
     if (vrmr_is_shape_rule(&create->option) == 1) {
         /* check cap */
         if (conf->vrmr_check_iptcaps == TRUE) {
-            if (iptcap->target_classify == FALSE) {
+            if (VR_CAP(rule->ipv, iptcap->target_classify, iptcap->target_ip6_classify) == FALSE) {
                 vrmr_warning("Warning", "shaping rules not created: CLASSIFY "
                                         "not supported by this system.");
                 return (0); /* this is not an error */
@@ -1801,7 +1807,7 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
         if (strcmp(rule->helper, "") != 0) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
-                if (iptcap->match_helper == FALSE) {
+                if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
                     vrmr_warning("Warning",
                             "shaping rules not created: helper-match not "
                             "supported by this system.");
@@ -2516,19 +2522,19 @@ int create_rule_input_broadcast(struct vrmr_config *conf,
 
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
-        if (iptcap->target_nfqueue == FALSE &&
+        if (VR_CAP(rule->ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE &&
                 strcmp(rule->action, "NEWNFQUEUE") == 0) {
             vrmr_warning("Warning", "input rule not "
                                     "created: NFQUEUE not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_nflog == FALSE &&
+        } else if (VR_CAP(rule->ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE &&
                    strcmp(rule->action, "NEWNFLOG") == 0) {
             vrmr_warning("Warning", "input rule not "
                                     "created: NFLOG not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_reject == FALSE &&
+        } else if (VR_CAP(rule->ipv, iptcap->target_reject, iptcap->target_ip6_reject) == FALSE &&
                    strncmp(rule->action, "REJECT", 6) == 0) {
             vrmr_warning("Warning", "input rule not "
                                     "created: REJECT not supported by "
@@ -2574,7 +2580,7 @@ int create_rule_input_broadcast(struct vrmr_config *conf,
 
         /* check cap */
         if (conf->vrmr_check_iptcaps == TRUE) {
-            if (iptcap->target_mark == FALSE) {
+            if (VR_CAP(rule->ipv, iptcap->target_mark, iptcap->target_ip6_mark) == FALSE) {
                 vrmr_warning("Warning", "mark rules not created: MARK not "
                                         "supported by this system.");
                 return (0); /* this is not an error */
@@ -2623,19 +2629,19 @@ int create_rule_output_broadcast(struct vrmr_config *conf,
 
     /* check caps */
     if (conf->vrmr_check_iptcaps == TRUE) {
-        if (iptcap->target_nfqueue == FALSE &&
+        if (VR_CAP(rule->ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE &&
                 strcmp(rule->action, "NEWNFQUEUE") == 0) {
             vrmr_warning("Warning", "output rule not "
                                     "created: NFQUEUE not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_nflog == FALSE &&
+        } else if (VR_CAP(rule->ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE &&
                    strcmp(rule->action, "NEWNFLOG") == 0) {
             vrmr_warning("Warning", "output rule not "
                                     "created: NFLOG not supported by "
                                     "this system.");
             return (0); /* this is not an error */
-        } else if (iptcap->target_reject == FALSE &&
+        } else if (VR_CAP(rule->ipv, iptcap->target_reject, iptcap->target_ip6_reject) == FALSE &&
                    strncmp(rule->action, "REJECT", 6) == 0) {
             vrmr_warning("Warning", "output rule not "
                                     "created: REJECT not supported by "
@@ -2678,7 +2684,7 @@ int create_rule_output_broadcast(struct vrmr_config *conf,
 
         /* check cap */
         if (conf->vrmr_check_iptcaps == TRUE) {
-            if (iptcap->target_mark == FALSE) {
+            if (VR_CAP(rule->ipv, iptcap->target_mark, iptcap->target_ip6_mark) == FALSE) {
                 vrmr_warning("Warning", "mark rules not created: MARK not "
                                         "supported by this system.");
                 return (0); /* this is not an error */
@@ -2964,7 +2970,7 @@ static int pre_rules_pre_vrmr(struct vrmr_config *conf,
             "Making special PRE-VRMR-{PREROUTING,"
             "INPUT,FORWARD,POSTROUTING,OUTPUT} CHAINS in mangle table...");
 
-    if (conf->vrmr_check_iptcaps == FALSE || iptcap->table_mangle == TRUE) {
+    if (conf->vrmr_check_iptcaps == FALSE || VR_CAP(ipv, iptcap->table_mangle, iptcap->table_ip6_mangle) == TRUE) {
         if (ruleset == NULL) {
             if (ipv == VRMR_IPV4) {
                 snprintf(cmd, sizeof(cmd),
@@ -3453,6 +3459,11 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
     char logprefix[64] = "";
+    /* the v6 family must not use the limit match unless it has it */
+    const char *lim = (ipv == VRMR_IPV6 &&
+                    conf->vrmr_check_iptcaps == TRUE &&
+                    iptcap->match_ip6_limit == FALSE)
+            ? "" : limit;
 
     /*
         stealthscan protection
@@ -3463,14 +3474,14 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
 
     /* ALL NONE */
     if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                            iptcap->target_nflog == TRUE)) {
+                                            VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe ALL");
 
         snprintf(cmd, sizeof(cmd),
                 "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s "
                 "--nflog-group %u",
-                limit, logprefix, conf->nfgrp);
+                lim, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3493,14 +3504,14 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
 
     /* SYN - FIN */
     if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                            iptcap->target_nflog == TRUE)) {
+                                            VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe SYN-FIN");
 
         snprintf(cmd, sizeof(cmd),
                 "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j NFLOG %s "
                 "--nflog-group %u",
-                limit, logprefix, conf->nfgrp);
+                lim, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3524,14 +3535,14 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
 
     /* SYN - RST */
     if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                            iptcap->target_nflog == TRUE)) {
+                                            VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe SYN-RST");
 
         snprintf(cmd, sizeof(cmd),
                 "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j NFLOG %s "
                 "--nflog-group %u",
-                limit, logprefix, conf->nfgrp);
+                lim, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3555,14 +3566,14 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
 
     /* FIN - RST */
     if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                            iptcap->target_nflog == TRUE)) {
+                                            VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe FIN-RST");
 
         snprintf(cmd, sizeof(cmd),
                 "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j NFLOG %s "
                 "--nflog-group %u",
-                limit, logprefix, conf->nfgrp);
+                lim, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3586,14 +3597,14 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
 
     /* ACK - FIN */
     if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                            iptcap->target_nflog == TRUE)) {
+                                            VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe FIN");
 
         snprintf(cmd, sizeof(cmd),
                 "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j NFLOG %s "
                 "--nflog-group %u",
-                limit, logprefix, conf->nfgrp);
+                lim, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3616,14 +3627,14 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
 
     /* ACK - PSH */
     if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                            iptcap->target_nflog == TRUE)) {
+                                            VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe PSH");
 
         snprintf(cmd, sizeof(cmd),
                 "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j NFLOG %s "
                 "--nflog-group %u",
-                limit, logprefix, conf->nfgrp);
+                lim, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3646,14 +3657,14 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
 
     /* ACK - URG */
     if (conf->log_probes == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                            iptcap->target_nflog == TRUE)) {
+                                            VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "probe URG");
 
         snprintf(cmd, sizeof(cmd),
                 "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j NFLOG %s "
                 "--nflog-group %u",
-                limit, logprefix, conf->nfgrp);
+                lim, logprefix, conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
                 0)
@@ -3676,14 +3687,14 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
 
     /* New tcp but no SYN */
     if (conf->log_no_syn == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                            iptcap->target_nflog == TRUE)) {
+                                            VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_NOTSET, "DROP", "no SYN");
 
         snprintf(cmd, sizeof(cmd),
                 "-p tcp -m tcp ! --syn %s NEW %s -j NFLOG %s "
                 "--nflog-group %u",
-                create_state_string(conf, ipv, iptcap), limit, logprefix,
+                create_state_string(conf, ipv, iptcap), lim, logprefix,
                 conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
@@ -3711,12 +3722,12 @@ static int pre_rules_bad_packets(struct vrmr_config *conf,
     */
     if (ipv == VRMR_IPV4) {
         if (conf->log_frag == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                              iptcap->target_nflog == TRUE)) {
+                                              VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
             create_logprefix_string(conf, logprefix, sizeof(logprefix),
                     VRMR_RT_NOTSET, "DROP", "FRAG");
 
             snprintf(cmd, sizeof(cmd), "-f %s -j NFLOG %s --nflog-group %u",
-                    limit, logprefix, conf->nfgrp);
+                    lim, logprefix, conf->nfgrp);
 
             if (process_rule(
                         conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
@@ -3751,6 +3762,11 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
     char logprefix[64] = "";
+    /* the v6 family must not use the limit match unless it has it */
+    const char *lim = (ipv == VRMR_IPV6 &&
+                    conf->vrmr_check_iptcaps == TRUE &&
+                    iptcap->match_ip6_limit == FALSE)
+            ? "" : limit;
 
     if (!conf->conntrack_invalid_drop) {
         if (conf->bash_out == TRUE)
@@ -3769,12 +3785,12 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
        invalid input
      */
     if (conf->log_invalid == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                             iptcap->target_nflog == TRUE)) {
+                                             VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_INPUT, "DROP", "in INVALID");
 
         snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s --nflog-group %u",
-                create_state_string(conf, ipv, iptcap), limit, logprefix,
+                create_state_string(conf, ipv, iptcap), lim, logprefix,
                 conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) <
@@ -3791,12 +3807,12 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
        invalid output
      */
     if (conf->log_invalid == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                             iptcap->target_nflog == TRUE)) {
+                                             VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_OUTPUT, "DROP", "out INVALID");
 
         snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s --nflog-group %u",
-                create_state_string(conf, ipv, iptcap), limit, logprefix,
+                create_state_string(conf, ipv, iptcap), lim, logprefix,
                 conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) <
@@ -3813,12 +3829,12 @@ static int pre_rules_conntrack_invalid(struct vrmr_config *conf,
        invalid forward
      */
     if (conf->log_invalid == TRUE && (conf->vrmr_check_iptcaps == FALSE ||
-                                             iptcap->target_nflog == TRUE)) {
+                                             VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE)) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_FORWARD, "DROP", "fw INVALID");
 
         snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s --nflog-group %u",
-                create_state_string(conf, ipv, iptcap), limit, logprefix,
+                create_state_string(conf, ipv, iptcap), lim, logprefix,
                 conf->nfgrp);
 
         if (process_rule(conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) <
@@ -4050,7 +4066,7 @@ static int pre_rules_nfqueue(struct vrmr_config *conf,
         fprintf(stdout, "\n# Setting up NEWNFQUEUE target...\n");
     vrmr_debug(LOW, "Setting up NEWNFQUEUE target...");
 
-    if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nfqueue == TRUE) {
+    if (conf->vrmr_check_iptcaps == FALSE || VR_CAP(ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == TRUE) {
         if (ruleset == NULL) {
             if (ipv == VRMR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null",
@@ -4081,8 +4097,8 @@ static int pre_rules_nfqueue(struct vrmr_config *conf,
     vrmr_debug(LOW, "Setting up connection-tracking for NFQUEUE targets...");
 
     if (conf->vrmr_check_iptcaps == FALSE ||
-            (iptcap->target_nfqueue == TRUE &&
-                    iptcap->match_connmark == TRUE)) {
+            (VR_CAP(ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == TRUE &&
+                    VR_CAP(ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == TRUE)) {
         if (ruleset == NULL) {
             /* create the chain and insert it into input, output and forward.
              *
@@ -4139,7 +4155,7 @@ static int pre_rules_nflog(struct vrmr_config *conf,
         fprintf(stdout, "\n# Setting up NEWNFLOG target...\n");
     vrmr_debug(LOW, "Setting up NEWNFLOG target...");
 
-    if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nflog == TRUE) {
+    if (conf->vrmr_check_iptcaps == FALSE || VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE) {
         if (ruleset == NULL) {
             if (ipv == VRMR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s -N NEWNFLOG 2>/dev/null",
@@ -4170,7 +4186,7 @@ static int pre_rules_nflog(struct vrmr_config *conf,
     vrmr_debug(LOW, "Setting up connection-tracking for NFLOG targets...");
 
     if (conf->vrmr_check_iptcaps == FALSE ||
-            (iptcap->target_nflog == TRUE && iptcap->match_connmark == TRUE)) {
+            (VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE && VR_CAP(ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == TRUE)) {
         if (ruleset == NULL) {
             /* create the chain and insert it into input, output and forward.
              *
@@ -4552,7 +4568,7 @@ int update_synlimit_rules(struct vrmr_config *conf,
     char logprefix[64] = "";
 
     /* caps */
-    if (conf->vrmr_check_iptcaps == TRUE && iptcap->match_limit == FALSE) {
+    if (conf->vrmr_check_iptcaps == TRUE && VR_CAP(ipv, iptcap->match_limit, iptcap->match_ip6_limit) == FALSE) {
         vrmr_warning("Warning", "synlimit rules not setup. "
                                 "Limit-match not supported by system.");
         return (0); /* no error */
@@ -4597,7 +4613,7 @@ int update_synlimit_rules(struct vrmr_config *conf,
         retval = -1;
 
     /* the log rule */
-    if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nflog == TRUE) {
+    if (conf->vrmr_check_iptcaps == FALSE || VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_INPUT, "DROP", "SYNLIMIT reach.");
 
@@ -4634,7 +4650,7 @@ int update_udplimit_rules(struct vrmr_config *conf,
     char logprefix[64] = "";
 
     /* caps */
-    if (conf->vrmr_check_iptcaps == TRUE && iptcap->match_limit == FALSE) {
+    if (conf->vrmr_check_iptcaps == TRUE && VR_CAP(ipv, iptcap->match_limit, iptcap->match_ip6_limit) == FALSE) {
         vrmr_warning("Warning", "udplimit rules not setup. "
                                 "Limit-match not supported by system.");
         return (0); /* no error */
@@ -4678,7 +4694,7 @@ int update_udplimit_rules(struct vrmr_config *conf,
         retval = -1;
 
     /* the log rule */
-    if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nflog == TRUE) {
+    if (conf->vrmr_check_iptcaps == FALSE || VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == TRUE) {
         create_logprefix_string(conf, logprefix, sizeof(logprefix),
                 VRMR_RT_INPUT, "DROP", "UDPLIMIT reach.");
 
@@ -4727,7 +4743,7 @@ int post_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
     /* do we want to log the default policy? */
     if (conf->log_policy == TRUE) {
         /* cap */
-        if (conf->vrmr_check_iptcaps == TRUE && iptcap->target_nflog == FALSE) {
+        if (conf->vrmr_check_iptcaps == TRUE && VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE) {
             vrmr_warning("Warning",
                     "not creating policy logging "
                     "rules. LOG-target not supported by system.");
@@ -4736,7 +4752,7 @@ int post_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
             if (conf->log_policy_limit > 0) {
                 /* cap */
                 if (conf->vrmr_check_iptcaps == FALSE ||
-                        iptcap->match_limit == TRUE) {
+                        VR_CAP(ipv, iptcap->match_limit, iptcap->match_ip6_limit) == TRUE) {
                     snprintf(my_limit, sizeof(my_limit),
                             "-m limit --limit %u/s "
                             "--limit-burst %u",

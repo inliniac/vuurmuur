@@ -780,7 +780,7 @@ static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
     /* if we want to log a rule, but havent done it yet: */
     if (create->option.rule_log == TRUE) {
         /* create the limitstring */
-        if (conf->vrmr_check_iptcaps == FALSE || iptcap->match_limit == TRUE) {
+        if (conf->vrmr_check_iptcaps == FALSE || VR_CAP(rule->ipv, iptcap->match_limit, iptcap->match_ip6_limit) == TRUE) {
             if (create->option.loglimit > 0) {
                 limit = create->option.loglimit;
                 unit = "sec";
@@ -848,7 +848,7 @@ static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
                 create->option.rule_log == TRUE) {
             vrmr_debug(HIGH, "create the log rule for broadcast.");
 
-            if (conf->vrmr_check_iptcaps == 0 || iptcap->match_limit == 1) {
+            if (conf->vrmr_check_iptcaps == 0 || VR_CAP(rule->ipv, iptcap->match_limit, iptcap->match_ip6_limit) == 1) {
                 if (create->option.loglimit > 0) {
                     limit = create->option.loglimit;
                     unit = "sec";
@@ -927,7 +927,7 @@ static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
     /* action LOG requires some extra attention */
     if (strncasecmp(create->action, "LOG", 3) == 0 ||
             strncasecmp(create->action, "NFLOG", 5) == 0) {
-        if (conf->vrmr_check_iptcaps == 0 || iptcap->match_limit == 1) {
+        if (conf->vrmr_check_iptcaps == 0 || VR_CAP(rule->ipv, iptcap->match_limit, iptcap->match_ip6_limit) == 1) {
             limit = create->option.limit;
             burst = create->option.burst;
             unit = create->option.limit_unit;
@@ -948,7 +948,7 @@ static int rulecreate_create_rule_and_options(struct vrmr_config *conf,
             return (-1);
         }
     } else {
-        if (conf->vrmr_check_iptcaps == 0 || iptcap->match_limit == 1) {
+        if (conf->vrmr_check_iptcaps == 0 || VR_CAP(rule->ipv, iptcap->match_limit, iptcap->match_ip6_limit) == 1) {
             limit = create->option.limit;
             burst = create->option.burst;
             unit = create->option.limit_unit;
@@ -1326,7 +1326,7 @@ static int rulecreate_src_loop(struct vrmr_config *conf,
         /* add mac-address if we happen to know it, only 'from' is supported by
          * iptables */
         if (from_has_mac == TRUE) {
-            if (conf->vrmr_check_iptcaps == FALSE || iptcap->match_mac == TRUE)
+            if (conf->vrmr_check_iptcaps == FALSE || VR_CAP(rule->ipv, iptcap->match_mac, iptcap->match_ip6_mac) == TRUE)
                 snprintf(rule->from_mac, sizeof(rule->from_mac),
                         "-m mac --mac-source %s", from_mac);
             else {
@@ -1368,7 +1368,8 @@ static int rulecreate_src_loop(struct vrmr_config *conf,
                 /* add mac-address if we happen to know it, only 'from' is
                  * supported by iptables */
                 if (conf->vrmr_check_iptcaps == FALSE ||
-                        iptcap->match_mac == TRUE)
+                        VR_CAP(rule->ipv, iptcap->match_mac,
+                                iptcap->match_ip6_mac) == TRUE)
                     snprintf(rule->from_mac, sizeof(rule->from_mac),
                             "-m mac --mac-source %s", from_mac);
                 else {

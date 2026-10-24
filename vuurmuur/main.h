@@ -67,6 +67,10 @@
 #define VR_INFO "Info"
 #define VR_WARN "Warning"
 
+/* the capability flag for the given address family (v4 or v6); the
+ * per-family flags can legitimately differ */
+#define VR_CAP(ipv, v4, v6) (((ipv) == VRMR_IPV6) ? (v6) : (v4))
+
 extern char version_string[128];
 
 struct rule_scratch {

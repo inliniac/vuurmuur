@@ -414,7 +414,7 @@ static int ruleset_fill_file(struct vrmr_ctx *vctx, struct rule_set *ruleset,
     }
 
     if (vctx->conf.vrmr_check_iptcaps == FALSE ||
-            vctx->iptcaps.table_mangle == TRUE) {
+            VR_CAP(ipver, vctx->iptcaps.table_mangle, vctx->iptcaps.table_ip6_mangle) == TRUE) {
         /* first process the mangle table */
         snprintf(cmd, sizeof(cmd), "*mangle\n");
         ruleset_writeprint(ruleset_fd, cmd);
@@ -706,8 +706,8 @@ static int ruleset_fill_file(struct vrmr_ctx *vctx, struct rule_set *ruleset,
     }
 
     if (vctx->conf.vrmr_check_iptcaps == FALSE ||
-            ((ipver == VRMR_IPV6) ? vctx->iptcaps.table_ip6_filter
-                                  : vctx->iptcaps.table_filter) == TRUE) {
+            VR_CAP(ipver, vctx->iptcaps.table_filter,
+                        vctx->iptcaps.table_ip6_filter) == TRUE) {
         /* finally the filter table */
         snprintf(cmd, sizeof(cmd), "*filter\n");
         ruleset_writeprint(ruleset_fd, cmd);
