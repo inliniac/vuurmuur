@@ -1646,6 +1646,9 @@ int vrmr_check_active(struct vrmr_ctx *, char *data, int type);
 int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size);
 int vrmr_check_ipv4address(const char *network, const char *netmask,
         const char *ipaddress, char quiet);
+int vrmr_check_ipv6address(const char *network, const char *cidr,
+        const char *ip6address, char quiet);
+int vrmr_check_ipv6cidr(const char *cidr);
 int vrmr_get_mac_address(struct vrmr_ctx *, const char *hostname,
         char *answer_ptr, size_t size, regex_t *mac_rgx);
 int vrmr_get_danger_info(const char *danger, const char *source,

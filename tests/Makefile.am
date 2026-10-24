@@ -66,6 +66,12 @@ unit_devicename_LDADD = $(LIBVUURMUUR_LDADD)
 
 check_PROGRAMS += unit/devicename
 
+unit_ipaddr_SOURCES = unit/ipaddr.c lib/tap.c lib/tap.h \
+	lib/vrmr_test.c lib/vrmr_test.h
+unit_ipaddr_LDADD = $(LIBVUURMUUR_LDADD)
+
+check_PROGRAMS += unit/ipaddr
+
 # automake does not export srcdir to test programs, and the binaries live under
 # the libtool wrapper: the .sh finds the fixtures and execs the program
 AM_TESTS_ENVIRONMENT = abs_srcdir="$(abs_srcdir)"; export abs_srcdir; \
@@ -73,7 +79,7 @@ AM_TESTS_ENVIRONMENT = abs_srcdir="$(abs_srcdir)"; export abs_srcdir; \
 
 TESTS = unit/rules-parse unit/rules-options unit/lineread unit/ifstats \
 	unit/markers unit/exec-status unit/configfile unit/port-range \
-	unit/devicename gen/ruleset.sh
+	unit/devicename unit/ipaddr gen/ruleset.sh
 
 EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh \
 	cases/common/etc/state/interfaces/dmz.conf \

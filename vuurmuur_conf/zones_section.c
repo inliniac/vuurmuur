@@ -411,6 +411,38 @@ static int edit_zone_host_save(struct vrmr_ctx *vctx,
                     field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                     sizeof(zone_ptr->ipv6.ip6));
 
+            /* an empty field clears the address, anything else has to be one */
+            if (zone_ptr->ipv6.ip6[0] != '\0') {
+                char cidr[16] = "";
+                int check = 0;
+
+                if (zone_ptr->network_parent != NULL &&
+                        zone_ptr->network_parent->ipv6.net6[0] != '\0' &&
+                        zone_ptr->network_parent->ipv6.cidr6 >= 0) {
+                    snprintf(cidr, sizeof(cidr), "%d",
+                            zone_ptr->network_parent->ipv6.cidr6);
+                    check = vrmr_check_ipv6address(
+                            zone_ptr->network_parent->ipv6.net6, cidr,
+                            zone_ptr->ipv6.ip6, 0);
+                } else {
+                    check = vrmr_check_ipv6address(
+                            NULL, NULL, zone_ptr->ipv6.ip6, 0);
+                }
+
+                if (check != 1) {
+                    vrmr_error(-1, VR_ERR,
+                            gettext("ipv6address '%s' is not a valid address "
+                                    "for the network it is in."),
+                            zone_ptr->ipv6.ip6);
+
+                    (void)strlcpy(zone_ptr->ipv6.ip6, ip6address,
+                            sizeof(zone_ptr->ipv6.ip6));
+
+                    /* error so the user can edit this host again */
+                    return (-1);
+                }
+            }
+
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name,
                         "IPV6ADDRESS", zone_ptr->ipv6.ip6, 1,
                         VRMR_TYPE_HOST) < 0) {
@@ -3974,6 +4006,20 @@ static int edit_zone_network_save(
                     field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                     sizeof(zone_ptr->ipv6.net6));
 
+            if (zone_ptr->ipv6.net6[0] != '\0' &&
+                    vrmr_check_ipv6address(
+                            NULL, NULL, zone_ptr->ipv6.net6, 0) != 1) {
+                vrmr_error(-1, VR_ERR,
+                        gettext("network address '%s' is not a valid ipv6 "
+                                "address."),
+                        zone_ptr->ipv6.net6);
+
+                (void)strlcpy(zone_ptr->ipv6.net6, network6,
+                        sizeof(zone_ptr->ipv6.net6));
+
+                return (-1);
+            }
+
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name,
                         "IPV6NETWORK", zone_ptr->ipv6.net6, 1,
                         VRMR_TYPE_NETWORK) < 0) {
@@ -3988,15 +4034,33 @@ static int edit_zone_network_save(
 #endif
         } else if (zonessec_ctx.edit_zone.fields[i] == NetworkSec.cidr6fld) {
 #ifdef IPV6_ENABLED
-            /* netmask */
-            zone_ptr->status = VRMR_ST_CHANGED;
-
+            char cidrstr[8] = "";
             int cidr = zone_ptr->ipv6.cidr6;
-            char cidrstr[3] = "";
 
             copy_field2buf(cidrstr,
                     field_buffer(zonessec_ctx.edit_zone.fields[i], 0),
                     sizeof(cidrstr));
+
+            /* an empty field clears it, anything else has to be a prefix */
+            if (cidrstr[0] != '\0') {
+                char *end = NULL;
+                long v = 0;
+
+                if (vrmr_check_ipv6cidr(cidrstr) < 0) {
+                    vrmr_error(-1, VR_ERR,
+                            gettext("'%s' is not a valid ipv6 cidr."), cidrstr);
+                    return (-1);
+                }
+
+                v = strtol(cidrstr, &end, 10);
+                zone_ptr->ipv6.cidr6 = (int)v;
+            } else {
+                cidrstr[0] = '\0';
+                zone_ptr->ipv6.cidr6 = -1;
+            }
+
+            /* netmask */
+            zone_ptr->status = VRMR_ST_CHANGED;
 
             if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "IPV6CIDR",
                         cidrstr, 1, VRMR_TYPE_NETWORK) < 0) {

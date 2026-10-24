@@ -775,6 +775,102 @@ int vrmr_check_ipv4address(const char *network, const char *netmask,
     return (retval);
 }
 
+/*  vrmr_check_ipv6cidr
+
+    Returncodes:
+         1: valid
+        -1: error
+*/
+int vrmr_check_ipv6cidr(const char *cidr)
+{
+    char *end = NULL;
+    long v = 0;
+
+    assert(cidr);
+
+    if (cidr[0] == '\0')
+        return (-1);
+
+    errno = 0;
+    v = strtol(cidr, &end, 10);
+    if (errno != 0 || end == cidr || *end != '\0' || v < 0 || v > 128) {
+        vrmr_error(-1, "Error", "invalid ipv6 cidr: '%s'", cidr);
+        return (-1);
+    }
+
+    return (1);
+}
+
+/*  vrmr_check_ipv6address
+
+    network and cidr may be NULL. If this is the case the address is only
+    checked for validity, not for belonging in a network.
+
+    Returncodes:
+         1: valid
+         0: not in network/cidr
+        -1: error: no valid address/net/cidr
+*/
+int vrmr_check_ipv6address(const char *network, const char *cidr,
+        const char *ip6address, char quiet)
+{
+    struct in6_addr ip;
+    struct in6_addr net;
+    long prefix = 128;
+
+    assert(ip6address);
+
+    if (inet_pton(AF_INET6, ip6address, &ip) != 1) {
+        if (!quiet)
+            vrmr_error(-1, "Error", "invalid ipv6 address: '%s'", ip6address);
+        return (-1);
+    }
+
+    /* only checking the address itself */
+    if (network == NULL && cidr == NULL)
+        return (1);
+
+    if (network != NULL) {
+        if (inet_pton(AF_INET6, network, &net) != 1) {
+            if (!quiet)
+                vrmr_error(-1, "Error", "invalid ipv6 network: '%s'", network);
+            return (-1);
+        }
+    } else
+        memset(&net, 0, sizeof(net));
+
+    if (cidr != NULL) {
+        char *end = NULL;
+
+        errno = 0;
+        prefix = strtol(cidr, &end, 10);
+        if (errno != 0 || end == cidr || *end != '\0' || prefix < 0 ||
+                prefix > 128) {
+            if (!quiet)
+                vrmr_error(-1, "Error", "invalid ipv6 cidr: '%s'", cidr);
+            return (-1);
+        }
+    }
+
+    /* the address has to agree with the network on the first 'prefix' bits */
+    for (int i = 0; i < (int)sizeof(ip.s6_addr); i++) {
+        unsigned int bits =
+                (unsigned int)prefix > (unsigned int)(i + 1) * 8
+                        ? 8u
+                        : ((unsigned int)prefix > (unsigned int)i * 8
+                                          ? (unsigned int)prefix -
+                                                    (unsigned int)i * 8
+                                          : 0u);
+        unsigned int mask =
+                bits == 0 ? 0u : (unsigned int)(0xffu << (8 - bits));
+
+        if ((ip.s6_addr[i] & mask) != (net.s6_addr[i] & mask))
+            return (0);
+    }
+
+    return (1);
+}
+
 /*  vrmr_get_mac_address
 
     Gets the mac address of a host from the backend and checks it.

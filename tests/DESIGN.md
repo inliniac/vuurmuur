@@ -927,4 +927,10 @@ green suite is not read as "the generator is covered".
   field is executed. The gate has to accept what the kernel will name an
   interface (`eth0.100`, `bond0:1`, a 15 character predictable name) as well as
   refuse what a shell would act on, so both halves are pinned here.
+* `unit/ipaddr` - the address gates. `vrmr_check_ipv4address()` has always
+  existed and has always been the only thing standing between an address field
+  and an `iptables` command line; the IPv6 side had no equivalent, so the
+  network, cidr and host address fields of a zone were stored and generated from
+  as typed. Both halves are pinned: what is an address, what is a prefix length,
+  and which of these answers must not be a silent "no".
 
