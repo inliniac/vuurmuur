@@ -300,6 +300,17 @@ int shaping_setup_roots(struct vrmr_config *cnf,
         vrmr_debug(NONE, "interface %s", iface_ptr->name);
 
         if (vrmr_is_shape_interface(iface_ptr) == 1) {
+            /* htb classes need a positive rate; without a configured
+             * bandwidth the tc script would fail with rate 0kbit and
+             * the whole ruleset apply would fail */
+            if (iface_ptr->bw_in == 0 || iface_ptr->bw_out == 0) {
+                vrmr_error(-1, "Error",
+                        "interface '%s' is shaped but has no "
+                        "in/out bandwidth configured.",
+                        iface_ptr->name);
+                return (-1);
+            }
+
             iface_ptr->shape_handle = handle;
             handle++;
         }
