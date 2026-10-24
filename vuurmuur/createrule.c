@@ -5876,6 +5876,17 @@ int create_estrelnfqueue_rules(struct vrmr_config *conf,
         vrmr_debug(HIGH, "no items in ruleslist.");
         return (0);
     }
+    /* the mangle table, conntrack, connmark and NFQUEUE target are needed for the ESTABLISHED/RELATED NFQUEUE state rules
+     */
+    if (conf->vrmr_check_iptcaps == TRUE &&
+            (VR_CAP(ipv, iptcap->table_mangle, iptcap->table_ip6_mangle) == FALSE
+            || VR_CAP(ipv, iptcap->match_conntrack, iptcap->match_ip6_conntrack) == FALSE
+            || VR_CAP(ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == FALSE
+            || VR_CAP(ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE)) {
+        vrmr_warning("Warning", "ESTABLISHED/RELATED NFQUEUE state rules not created: not all needed iptables functionality is supported for this address family.");
+        return (0); /* this is not an error */
+    }
+
 
     memset(&queues, 0, sizeof(queues));
 
@@ -5962,6 +5973,17 @@ int create_newnfqueue_rules(struct vrmr_config *conf,
         vrmr_debug(HIGH, "no items in ruleslist.");
         return (0);
     }
+    /* the mangle table, conntrack, connmark and NFQUEUE target are
+     * needed for the NEW NFQUEUE state rules */
+    if (conf->vrmr_check_iptcaps == TRUE &&
+            (VR_CAP(ipv, iptcap->table_mangle, iptcap->table_ip6_mangle) == FALSE
+            || VR_CAP(ipv, iptcap->match_conntrack, iptcap->match_ip6_conntrack) == FALSE
+            || VR_CAP(ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == FALSE
+            || VR_CAP(ipv, iptcap->target_nfqueue, iptcap->target_ip6_nfqueue) == FALSE)) {
+        vrmr_warning("Warning", "NEW NFQUEUE state rules not created: not all needed iptables functionality is supported for this address family.");
+        return (0); /* this is not an error */
+    }
+
 
     memset(&queues, 0, sizeof(queues));
 
@@ -6027,6 +6049,17 @@ int create_estrelnflog_rules(struct vrmr_config *conf,
         vrmr_debug(HIGH, "no items in ruleslist.");
         return (0);
     }
+    /* the mangle table, conntrack, connmark and NFLOG target are needed for the ESTABLISHED/RELATED NFLOG state rules
+     */
+    if (conf->vrmr_check_iptcaps == TRUE &&
+            (VR_CAP(ipv, iptcap->table_mangle, iptcap->table_ip6_mangle) == FALSE
+            || VR_CAP(ipv, iptcap->match_conntrack, iptcap->match_ip6_conntrack) == FALSE
+            || VR_CAP(ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == FALSE
+            || VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE)) {
+        vrmr_warning("Warning", "ESTABLISHED/RELATED NFLOG state rules not created: not all needed iptables functionality is supported for this address family.");
+        return (0); /* this is not an error */
+    }
+
 
     memset(&queues, 0, sizeof(queues));
 
@@ -6133,6 +6166,17 @@ int create_newnflog_rules(struct vrmr_config *conf,
         vrmr_debug(HIGH, "no items in ruleslist.");
         return (0);
     }
+    /* the mangle table, conntrack, connmark and NFLOG target are
+     * needed for the NEW NFLOG state rules */
+    if (conf->vrmr_check_iptcaps == TRUE &&
+            (VR_CAP(ipv, iptcap->table_mangle, iptcap->table_ip6_mangle) == FALSE
+            || VR_CAP(ipv, iptcap->match_conntrack, iptcap->match_ip6_conntrack) == FALSE
+            || VR_CAP(ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == FALSE
+            || VR_CAP(ipv, iptcap->target_nflog, iptcap->target_ip6_nflog) == FALSE)) {
+        vrmr_warning("Warning", "NEW NFLOG state rules not created: not all needed iptables functionality is supported for this address family.");
+        return (0); /* this is not an error */
+    }
+
 
     memset(&queues, 0, sizeof(queues));
 
