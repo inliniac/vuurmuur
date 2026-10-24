@@ -36,8 +36,8 @@ write: /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts = 1
 write: /proc/sys/net/ipv4/tcp_syncookies = 1
 # SHAPE
 #!/bin/bash
-/sbin/tc qdisc del dev eth1 root 2> /dev/null > /dev/null
-/sbin/tc qdisc del dev eth0 root 2> /dev/null > /dev/null
+if /sbin/tc qdisc show dev eth1 root 2> /dev/null | grep -q '^qdisc htb'; then /sbin/tc qdisc del dev eth1 root 2> /dev/null > /dev/null; fi
+if /sbin/tc qdisc show dev eth0 root 2> /dev/null | grep -q '^qdisc htb'; then /sbin/tc qdisc del dev eth0 root 2> /dev/null > /dev/null; fi
 true
 # EOF
 # RULESET
