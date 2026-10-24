@@ -338,15 +338,18 @@ int create_all_rules(struct vrmr_ctx *vctx, int create_prerules)
     if (shaping_clear_interfaces(
                 &vctx->conf, &vctx->interfaces, /*ruleset*/ NULL) < 0) {
         vrmr_error(-1, "Error", "shaping clear interfaces failed.");
+        return (-1);
     }
     vrmr_info("Info", "Setting up shaping roots for interfaces...");
     if (shaping_setup_roots(&vctx->conf, &vctx->interfaces, /*ruleset*/ NULL) <
             0) {
         vrmr_error(-1, "Error", "shaping setup roots failed.");
+        return (-1);
     }
     if (shaping_create_default_rules(
                 &vctx->conf, &vctx->interfaces, /*ruleset*/ NULL) < 0) {
         vrmr_error(-1, "Error", "shaping setup default rules failed.");
+        return (-1);
     }
 
     vrmr_info("Info", "Creating the rules... (rules to create: %u)",
@@ -364,21 +367,25 @@ int create_all_rules(struct vrmr_ctx *vctx, int create_prerules)
     if (create_newnfqueue_rules(&vctx->conf, NULL, &vctx->rules, &vctx->iptcaps,
                 VRMR_IPV4) < 0) {
         vrmr_error(-1, "Error", "create nfqueue state failed.");
+        return (-1);
     }
 #ifdef IPV6_ENABLED
     if (create_newnfqueue_rules(&vctx->conf, NULL, &vctx->rules, &vctx->iptcaps,
                 VRMR_IPV6) < 0) {
         vrmr_error(-1, "Error", "create nfqueue state failed.");
+        return (-1);
     }
 #endif
     if (create_estrelnfqueue_rules(&vctx->conf, NULL, &vctx->rules,
                 &vctx->iptcaps, VRMR_IPV4) < 0) {
         vrmr_error(-1, "Error", "create nfqueue state failed.");
+        return (-1);
     }
 #ifdef IPV6_ENABLED
     if (create_estrelnfqueue_rules(&vctx->conf, NULL, &vctx->rules,
                 &vctx->iptcaps, VRMR_IPV6) < 0) {
         vrmr_error(-1, "Error", "create nfqueue state failed.");
+        return (-1);
     }
 #endif
 
@@ -386,50 +393,60 @@ int create_all_rules(struct vrmr_ctx *vctx, int create_prerules)
     if (create_newnflog_rules(&vctx->conf, NULL, &vctx->rules, &vctx->iptcaps,
                 VRMR_IPV4) < 0) {
         vrmr_error(-1, "Error", "create nflog state failed.");
+        return (-1);
     }
 #ifdef IPV6_ENABLED
     if (create_newnflog_rules(&vctx->conf, NULL, &vctx->rules, &vctx->iptcaps,
                 VRMR_IPV6) < 0) {
         vrmr_error(-1, "Error", "create nflog state failed.");
+        return (-1);
     }
 #endif
     if (create_estrelnflog_rules(&vctx->conf, NULL, &vctx->rules,
                 &vctx->iptcaps, VRMR_IPV4) < 0) {
         vrmr_error(-1, "Error", "create nflog state failed.");
+        return (-1);
     }
 #ifdef IPV6_ENABLED
     if (create_estrelnflog_rules(&vctx->conf, NULL, &vctx->rules,
                 &vctx->iptcaps, VRMR_IPV6) < 0) {
         vrmr_error(-1, "Error", "create nflog state failed.");
+        return (-1);
     }
 #endif
 
     /* create the blocklist */
     if (create_block_rules(&vctx->conf, NULL, &vctx->blocklist) < 0) {
         vrmr_error(-1, "Error", "create blocklist failed.");
+        return (-1);
     }
 
     /* create the interface rules */
     if (create_interface_rules(
                 &vctx->conf, NULL, &vctx->iptcaps, &vctx->interfaces) < 0) {
         vrmr_error(-1, "Error", "create protectrules failed.");
+        return (-1);
     }
     /* create the network protect rules (anti-spoofing) */
     if (create_network_protect_rules(
                 &vctx->conf, NULL, &vctx->zones, &vctx->iptcaps) < 0) {
         vrmr_error(-1, "Error", "create protectrules failed.");
+        return (-1);
     }
     /* system protect rules (proc) */
     if (create_system_protectrules(&vctx->conf) < 0) {
         vrmr_error(-1, "Error", "create protectrules failed.");
+        return (-1);
     }
     /* create custom chains if needed */
     if (oldrules_create_custom_chains(&vctx->rules, &vctx->conf) < 0) {
         vrmr_error(-1, "Error", "create custom chains failed.");
+        return (-1);
     }
     /* normal rules, ruleset == NULL */
     if (create_normal_rules(vctx, NULL, &forward_rules) < 0) {
         vrmr_error(-1, "Error", "create normal rules failed.");
+        return (-1);
     }
 
     /* post rules: enable logging */

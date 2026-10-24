@@ -1245,46 +1245,55 @@ static int ruleset_create_ruleset(
     if (create_newnfqueue_rules(&vctx->conf, ruleset, &vctx->rules,
                 &vctx->iptcaps, ruleset->ipv) < 0) {
         vrmr_error(-1, "Error", "create newnfqueue failed.");
+        return (-1);
     }
     /* NFQUEUE related established */
     if (create_estrelnfqueue_rules(&vctx->conf, ruleset, &vctx->rules,
                 &vctx->iptcaps, ruleset->ipv) < 0) {
         vrmr_error(-1, "Error", "create estrelnfqueue failed.");
+        return (-1);
     }
 
     /* create NEWNFLOG target */
     if (create_newnflog_rules(&vctx->conf, ruleset, &vctx->rules,
                 &vctx->iptcaps, ruleset->ipv) < 0) {
         vrmr_error(-1, "Error", "create newnflog failed.");
+        return (-1);
     }
     /* NFLOG related established */
     if (create_estrelnflog_rules(&vctx->conf, ruleset, &vctx->rules,
                 &vctx->iptcaps, ruleset->ipv) < 0) {
         vrmr_error(-1, "Error", "create estrelnflog failed.");
+        return (-1);
     }
 
     /* create the blocklist */
     if (create_block_rules(&vctx->conf, ruleset, &vctx->blocklist) < 0) {
         vrmr_error(-1, "Error", "create blocklist failed.");
+        return (-1);
     }
 
     /* create the interface rules */
     if (create_interface_rules(
                 &vctx->conf, ruleset, &vctx->iptcaps, &vctx->interfaces) < 0) {
         vrmr_error(-1, "Error", "create protectrules failed.");
+        return (-1);
     }
     /* create the network protect rules (anti-spoofing) */
     if (create_network_protect_rules(
                 &vctx->conf, ruleset, &vctx->zones, &vctx->iptcaps) < 0) {
         vrmr_error(-1, "Error", "create protectrules failed.");
+        return (-1);
     }
     /* system protect rules (proc) */
     if (create_system_protectrules(&vctx->conf) < 0) {
         vrmr_error(-1, "Error", "create protectrules failed.");
+        return (-1);
     }
     /* normal rules, ruleset == NULL */
     if (create_normal_rules(vctx, ruleset, &forward_rules) < 0) {
         vrmr_error(-1, "Error", "create normal rules failed.");
+        return (-1);
     }
 
     /* post rules: enable logging */
