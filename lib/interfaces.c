@@ -333,6 +333,19 @@ int vrmr_read_interface_info(
         return (-1);
     }
 
+    /* the device goes into the tc and iptables command lines as a bare word, so
+     * it has to be one whatever wrote it. As the note above this function
+     * promises: a bad value is dropped and the interface deactivated, not a
+     * failure of the load - one typo in one file must not cost an operator the
+     * other 29 interfaces. */
+    if (vrmr_validate_devicename(iface_ptr->device) < 0) {
+        vrmr_error(-1, "Error",
+                "interface '%s' has an invalid device name '%s', deactivating it",
+                iface_ptr->name, iface_ptr->device);
+        iface_ptr->device[0] = '\0';
+        iface_ptr->active = FALSE;
+    }
+
     /* ask the ipaddress of this interface */
     result = vctx->af->ask(vctx->ifac_backend, iface_ptr->name, "IPADDRESS",
             iface_ptr->ipv4.ipaddress, sizeof(iface_ptr->ipv4.ipaddress),
@@ -343,6 +356,17 @@ int vrmr_read_interface_info(
         /* check if ip is dynamic */
         if (strcmp(iface_ptr->ipv4.ipaddress, "dynamic") == 0) {
             iface_ptr->dynamic = TRUE;
+        } else if (vrmr_check_ipv4address(
+                           NULL, NULL, iface_ptr->ipv4.ipaddress, 0) != 1) {
+            /* v4 already warns and deactivates in vrmr_interfaces_check(): the
+             * redundancy is deliberate, and what this adds is that the string
+             * is dropped and not left in the struct for a reader to find */
+            vrmr_error(-1, "Error",
+                    "interface '%s' has an invalid ip address '%s', "
+                    "deactivating it",
+                    iface_ptr->name, iface_ptr->ipv4.ipaddress);
+            iface_ptr->ipv4.ipaddress[0] = '\0';
+            iface_ptr->active = FALSE;
         }
     } else if (result == 0) {
         vrmr_debug(LOW,
@@ -364,9 +388,20 @@ int vrmr_read_interface_info(
         /* check if ip is dynamic */
         if (strcmp(iface_ptr->ipv6.ip6, "dynamic") == 0) {
             iface_ptr->dynamic = TRUE;
+        } else if (vrmr_check_ipv6address(NULL, NULL, iface_ptr->ipv6.ip6, 0) !=
+                   1) {
+            /* no v6 equivalent of that check exists anywhere else, so this is
+             * the only gate on an ipv6 address field */
+            vrmr_error(-1, "Error",
+                    "interface '%s' has an invalid ipv6 address '%s', "
+                    "deactivating it",
+                    iface_ptr->name, iface_ptr->ipv6.ip6);
+            iface_ptr->ipv6.ip6[0] = '\0';
+            iface_ptr->active = FALSE;
         }
 
-        iface_ptr->ipv6.cidr6 = 128;
+        if (iface_ptr->ipv6.ip6[0] != '\0')
+            iface_ptr->ipv6.cidr6 = 128;
     } else if (result == 0) {
         vrmr_debug(LOW,
                 "no IPV6ADDRESS defined for interface '%s', assuming not "
@@ -1233,12 +1268,13 @@ int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
          * anchor on is a different thing and must not read as zero traffic */
         vrmr_error(-1, "Error", "no column header in '%s' output for chain %s",
                 cfg->iptables_location, chain);
-        vrmr_cmdout_close(&co);
+        (void)vrmr_cmdout_close(&co);
         return (-1);
     }
 
-    /* finally close the pipe */
-    vrmr_cmdout_close(&co);
+    /* finally close the pipe: the counters are cosmetics, a failed read here
+     * leaves them at what the chain gave before */
+    (void)vrmr_cmdout_close(&co);
     return (0);
 }
 

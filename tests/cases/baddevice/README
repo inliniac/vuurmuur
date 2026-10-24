@@ -1,0 +1,12 @@
+An interface whose DEVICE is not a device name.
+
+vrmr_read_interface_info() drops the value and deactivates the interface: one
+typo in one file must not cost the operator the other interfaces, and the rest
+of the tree must not see the word. So the load has to succeed and the artifact
+must carry no -i, chain name or tc line built from it.
+
+The five "write: /proc/sys/net/ipv4/conf/eth;0/... = 9" lines are not that: they
+come from the fake /proc the harness builds from the state files and from the
+restore-the-defaults sweep over every conf directory present. At the base of
+this branch the same case also put the word in rule lines - those are what the
+golden is about.

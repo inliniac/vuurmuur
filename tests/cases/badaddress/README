@@ -1,0 +1,8 @@
+Both address gates, on the read side.
+
+`lan` carries an IPv4 that is not one and `dmz` an IPv6 with a zone id in it,
+which is what `inet_pton` says no to and what no form can write either. Like
+`cases/baddevice` the point is that the load succeeds, the interface holding the
+bad value is the one that goes inactive, and the value never reaches a command
+line: a `%` or a `;` in an address field is a fragment of a shell command line
+in the generator.

@@ -54,8 +54,11 @@ int vrmr_is_shape_outgoing_rule(/*@null@*/ struct vrmr_rule_options *opt)
 
 int vrmr_is_shape_interface(/*@null@*/ struct vrmr_interface *iface_ptr)
 {
+    /* the device is a bare word on the tc command lines, and 'tc qdisc add dev
+     *  root' is not a no-op but a line with the wrong word in it */
     if (iface_ptr != NULL && iface_ptr->shape == TRUE &&
-            iface_ptr->device_virtual == FALSE && iface_ptr->up == TRUE) {
+            iface_ptr->device_virtual == FALSE && iface_ptr->up == TRUE &&
+            iface_ptr->device[0] != '\0') {
         return (1);
     }
 

@@ -904,7 +904,10 @@ green suite is not read as "the generator is covered".
   program drives `/bin/sh -c` over exit codes and signal deaths, so it needs no
   seam and no root. It also covers the case where the file to exec is missing,
   because the child's `exit(127)` is the only thing that distinguishes that from
-  a command that ran and returned 127.
+  a command that ran and returned 127. The same program covers the `popen`
+  readers: there the status only exists at `pclose`, and one of them (the system
+  chain listing, which decides which chains get flushed) used to read a killed
+  `iptables -nL` as "no chains exist".
 * `unit/configfile` - `vrmr_ask_configfile()` reading a config file off disk. The
   line parser bounded its copies into the fixed `variable` and `value` buffers by
   the caller's answer size, and the answer sizes at the call sites run to
@@ -934,3 +937,28 @@ green suite is not read as "the generator is covered".
   as typed. Both halves are pinned: what is an address, what is a prefix length,
   and which of these answers must not be a silent "no".
 
+## 17. An interface with no device, and fields that are not one (tier 1)
+
+Two `gen` cases, both because the load path and the generator disagree about
+what a bad field means, and a golden is the only place that can see both.
+
+* `cases/shaping-nodev` - `SHAPE="Yes"` with `DEVICE=""`. The device is a bare
+  word on the `tc` lines, so `tc qdisc add dev  root` is not a no-op: after word
+  splitting the kernel is told to shape something else. Nothing may be shaped
+  for such an interface, which is `vrmr_is_shape_interface()` saying no.
+* `cases/baddevice` - `DEVICE="eth;0"`. The load must **succeed** and the word
+  must appear nowhere the product builds: at the base of the branch it reached
+  rule lines, chain names, `tc` lines and proc paths. A malformed field
+  deactivates the interface instead of aborting the load, so an operator with 30
+  interfaces does not lose 30 to one typo - the contract `vrmr_read_interface_info()`
+  already documents. The `write: /proc/.../conf/eth;0/... = 9` lines in that
+  golden are the harness's fake `/proc` and the restore-the-defaults sweep, not a
+  product sink; see the case README.
+
+Reverting either gate goes red: the first loses an absence assertion the golden
+compares, the second fails the load.
+* `cases/badaddress` covers the other two read-side gates on one load: an
+  `IPADDRESS` that is not one and an `IPV6ADDRESS` carrying a zone id, which
+  `inet_pton` refuses and no form can write. Neither string appears in the
+  artifact, and reverting either of the two blocks to a hard failure gives
+  `not ok 1 - badaddress: vrmr_interfaces_load failed`.

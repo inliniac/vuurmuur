@@ -1,0 +1,7 @@
+An interface with SHAPE="Yes" and no device.
+
+The device goes into the tc command lines as a bare word, so "tc qdisc add dev
+ root" is not a no-op: the next word lands where the device belongs. The golden
+pins that nothing is shaped for such an interface - vrmr_is_shape_interface()
+has to say no, and the class lines for the other interfaces' root are not
+emitted either.

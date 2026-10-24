@@ -5017,8 +5017,9 @@ static int create_interface_rpfilter_rules(struct vrmr_config *conf,
         return (0);
     }
 
-    /*  see if the interface is active */
-    if (if_ptr->active == FALSE ||
+    /*  see if the interface is active - with no device the rule would carry
+     * '-i ' and be a malformed line rather than a filter */
+    if (if_ptr->active == FALSE || if_ptr->device[0] == '\0' ||
             (if_ptr->dynamic == TRUE && if_ptr->up == FALSE)) {
         /* here we print the description if we are in bashmode */
         if (conf->bash_out == TRUE) {

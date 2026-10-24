@@ -113,10 +113,17 @@ EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh \
 	cases/protect/etc/state/rules/rules.conf \
 	cases/shaping/etc/state/interfaces/lan.conf \
 	cases/shaping/etc/state/rules/rules.conf \
+	cases/shaping-nodev/etc/state/interfaces/lan.conf \
+	cases/shaping-nodev/etc/state/rules/rules.conf \
+	cases/baddevice/etc/state/interfaces/lan.conf \
+	cases/baddevice/etc/state/rules/rules.conf \
+	cases/badaddress/etc/state/interfaces/lan.conf \
+	cases/badaddress/etc/state/interfaces/dmz.conf \
 	cases/simple/etc/state/rules/rules.conf \
 	cases/virtspoof/etc/state/interfaces/lan0.conf \
 	cases/virtspoof/etc/state/interfaces/lan1.conf \
 	cases/virtspoof/etc/state/rules/rules.conf \
 	cases/virtspoof/etc/state/zones/lan/networks/dyn/network.config \
 	cases/virtspoof/etc/state/zones/lan/networks/virt/network.config \
+	$(wildcard cases/*/README) \
 	$(wildcard golden/*.txt)
