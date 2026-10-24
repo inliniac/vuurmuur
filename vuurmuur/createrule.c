@@ -649,7 +649,11 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
                         sizeof(temp_dst_port));
                 temp_dst_port[12] = '0';
             } else {
-                /* Ignore the rest of icmp */
+                /* no request/reply pair for the other types; keep the
+                 * original icmp-type match, the state match does the
+                 * scoping */
+                (void)strlcpy(temp_dst_port, rule->temp_dst_port,
+                        sizeof(temp_dst_port));
             }
         } else {
             (void)strlcpy(
@@ -778,7 +782,11 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
                         sizeof(temp_dst_port));
                 temp_dst_port[12] = '0';
             } else {
-                /* Ignore the rest of icmp */
+                /* no request/reply pair for the other types; keep the
+                 * original icmp-type match, the state match does the
+                 * scoping */
+                (void)strlcpy(temp_dst_port, rule->temp_dst_port,
+                        sizeof(temp_dst_port));
             }
         } else {
             (void)strlcpy(
@@ -1126,7 +1134,11 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
                         sizeof(temp_dst_port));
                 temp_dst_port[12] = '0';
             } else {
-                /* Ignore the rest of icmp */
+                /* no request/reply pair for the other types; keep the
+                 * original icmp-type match, the state match does the
+                 * scoping */
+                (void)strlcpy(temp_dst_port, rule->temp_dst_port,
+                        sizeof(temp_dst_port));
             }
         } else {
             (void)strlcpy(
@@ -1257,7 +1269,11 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
                         sizeof(temp_dst_port));
                 temp_dst_port[12] = '0';
             } else {
-                /* Ignore the rest of icmp */
+                /* no request/reply pair for the other types; keep the
+                 * original icmp-type match, the state match does the
+                 * scoping */
+                (void)strlcpy(temp_dst_port, rule->temp_dst_port,
+                        sizeof(temp_dst_port));
             }
         } else {
             (void)strlcpy(
@@ -1493,7 +1509,11 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
                         sizeof(temp_dst_port));
                 temp_dst_port[12] = '0';
             } else {
-                /* Ignore the rest of icmp */
+                /* no request/reply pair for the other types; keep the
+                 * original icmp-type match, the state match does the
+                 * scoping */
+                (void)strlcpy(temp_dst_port, rule->temp_dst_port,
+                        sizeof(temp_dst_port));
             }
         } else {
             (void)strlcpy(
@@ -1637,7 +1657,11 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
                         sizeof(temp_dst_port));
                 temp_dst_port[12] = '0';
             } else {
-                /* Ignore the rest of icmp */
+                /* no request/reply pair for the other types; keep the
+                 * original icmp-type match, the state match does the
+                 * scoping */
+                (void)strlcpy(temp_dst_port, rule->temp_dst_port,
+                        sizeof(temp_dst_port));
             }
         } else {
             (void)strlcpy(
@@ -1775,7 +1799,11 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
                         sizeof(temp_dst_port));
                 temp_dst_port[12] = '0';
             } else {
-                /* Ignore the rest of icmp */
+                /* no request/reply pair for the other types; keep the
+                 * original icmp-type match, the state match does the
+                 * scoping */
+                (void)strlcpy(temp_dst_port, rule->temp_dst_port,
+                        sizeof(temp_dst_port));
             }
         } else {
             (void)strlcpy(
