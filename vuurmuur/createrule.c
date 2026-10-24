@@ -407,6 +407,17 @@ int process_queued_rules(struct vrmr_config *conf,
         -1: error
          0: ok
 */
+
+/* conntrack helpers without an IPv6 counterpart (kernel helpers
+ * registered for AF_INET only) */
+static bool vr_helper_ipv4_only(int ipv, const char *helper)
+{
+    if (ipv != VRMR_IPV6)
+        return (false);
+
+    return (strcmp(helper, "irc") == 0 || strcmp(helper, "pptp") == 0);
+}
+
 int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
@@ -474,7 +485,7 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
                     (VR_CAP(rule->ipv, iptcap->table_raw, iptcap->table_ip6_raw) == TRUE &&
                     VR_CAP(rule->ipv, iptcap->target_ct, iptcap->target_ip6_ct) == TRUE &&
                     VR_CAP(rule->ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == TRUE)) &&
-            (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0)) {
+            !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
         snprintf(cmd, sizeof(cmd),
                 "%s %s %s %s %s %s %s -m connmark --mark 0 -j CT --helper %s",
                 input_device, rule->proto, rule->temp_src, rule->temp_src_port,
@@ -555,7 +566,8 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
                 return (-1);
         }
 
-        if (strcmp(rule->helper, "") != 0) {
+        if (strcmp(rule->helper, "") != 0 &&
+                !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
@@ -689,7 +701,8 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
         if (queue_rule(rule, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             return (-1);
 
-        if (strcmp(rule->helper, "") != 0) {
+        if (strcmp(rule->helper, "") != 0 &&
+                !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
@@ -819,7 +832,8 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
                 return (-1);
         }
 
-        if (strcmp(rule->helper, "") != 0) {
+        if (strcmp(rule->helper, "") != 0 &&
+                !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
@@ -943,7 +957,7 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
                     (VR_CAP(rule->ipv, iptcap->table_raw, iptcap->table_ip6_raw) == TRUE &&
                     VR_CAP(rule->ipv, iptcap->target_ct, iptcap->target_ip6_ct) == TRUE &&
                     VR_CAP(rule->ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == TRUE)) &&
-            (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0)) {
+            !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
         snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -j CT --helper %s",
                 output_device, rule->proto, rule->temp_src, rule->temp_src_port,
                 rule->temp_dst, rule->temp_dst_port, rule->helper);
@@ -1021,7 +1035,8 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
         }
 
         /* helperrrr */
-        if (strcmp(rule->helper, "") != 0) {
+        if (strcmp(rule->helper, "") != 0 &&
+                !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
@@ -1155,7 +1170,8 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
             return (-1);
 
         /* helperrrr */
-        if (strcmp(rule->helper, "") != 0) {
+        if (strcmp(rule->helper, "") != 0 &&
+                !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
@@ -1288,7 +1304,8 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
 #endif
 
         /* helperrrr */
-        if (strcmp(rule->helper, "") != 0) {
+        if (strcmp(rule->helper, "") != 0 &&
+                !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
@@ -1416,7 +1433,7 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
                     (VR_CAP(rule->ipv, iptcap->table_raw, iptcap->table_ip6_raw) == TRUE &&
                     VR_CAP(rule->ipv, iptcap->target_ct, iptcap->target_ip6_ct) == TRUE &&
                     VR_CAP(rule->ipv, iptcap->match_connmark, iptcap->match_ip6_connmark) == TRUE)) &&
-            (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0)) {
+            !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
         snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -j CT --helper %s",
                 input_device, rule->proto, rule->temp_src, rule->temp_src_port,
                 rule->temp_dst, rule->temp_dst_port, rule->from_mac,
@@ -1529,7 +1546,8 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
                 return (-1);
         }
 
-        if (strcmp(rule->helper, "") != 0) {
+        if (strcmp(rule->helper, "") != 0 &&
+                !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
@@ -1669,7 +1687,8 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
         if (queue_rule(rule, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             return (-1);
 
-        if (strcmp(rule->helper, "") != 0) {
+        if (strcmp(rule->helper, "") != 0 &&
+                !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
@@ -1810,7 +1829,8 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
                 return (-1);
         }
 
-        if (strcmp(rule->helper, "") != 0) {
+        if (strcmp(rule->helper, "") != 0 &&
+                !vr_helper_ipv4_only(rule->ipv, rule->helper)) {
             /* check cap */
             if (conf->vrmr_check_iptcaps == TRUE) {
                 if (VR_CAP(rule->ipv, iptcap->match_helper, iptcap->match_ip6_helper) == FALSE) {
