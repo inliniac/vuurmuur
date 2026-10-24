@@ -1990,8 +1990,22 @@ int create_rule_snat(struct vrmr_config *conf, struct rule_scratch *rule,
     /* assemble SNAT string - we do this here because LOG can't handle
      * --to-source */
     if (strcmp(rule->action, "SNAT") == 0) {
-        snprintf(rule->action, sizeof(rule->action), "SNAT --to-source %s %s",
-                rule->serverip, rule->random);
+        if (rule->serverip[0] == '\0') {
+            /* to=any has no interface IP to SNAT to; MASQUERADE is
+             * the correct target for an any interface */
+            if (conf->vrmr_check_iptcaps == TRUE &&
+                    iptcap->target_masquerade == FALSE) {
+                vrmr_warning("Warning",
+                        "snat rule not created: MASQUERADE-target not "
+                        "supported by this system.");
+                return (0); /* this is not an error */
+            }
+            snprintf(rule->action, sizeof(rule->action), "MASQUERADE %s",
+                    rule->random);
+        } else {
+            snprintf(rule->action, sizeof(rule->action),
+                    "SNAT --to-source %s %s", rule->serverip, rule->random);
+        }
     }
 
     create_srcdst_string(SRCDST_SOURCE, rule->from_ip, rule->from_netmask,
