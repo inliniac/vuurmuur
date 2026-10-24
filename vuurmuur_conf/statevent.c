@@ -673,9 +673,8 @@ static void statevent_interactivemenu_log(struct vrmr_ctx *vctx,
     struct vrmr_conntrack_request connreq;
     const char *title = gettext("Manage Log");
 
-    /* number labels */
-    char *nums[9] = {"1", "2", "3", "4", "5", "6", "7", "8", NULL};
-    int n = 0;
+    /* number labels: the number is what the switch below acts on, so it has to
+     * belong to the action and not to the position in the menu */
     int action = 0;
 
     VrBusyWinShow();
@@ -714,31 +713,30 @@ static void statevent_interactivemenu_log(struct vrmr_ctx *vctx,
     if (action != VRMR_AT_DROP && action != VRMR_AT_REJECT) {
         /* setup menu items */
         str = vrmr_get_string(gettext("Kill this connection"));
-        VrMenuAddItem(menu, nums[n], str);
-        n++;
+        VrMenuAddItem(menu, "1", str);
     }
     str = vrmr_get_string("--- %s ---", gettext("Kill options"));
     VrMenuAddSepItem(menu, str);
     str = vrmr_get_string(
             gettext("Kill all connections with source %s"), log->src_ip);
-    VrMenuAddItem(menu, nums[n++], str);
+    VrMenuAddItem(menu, "2", str);
     str = vrmr_get_string(
             gettext("Kill all connections with destination %s"), log->dst_ip);
-    VrMenuAddItem(menu, nums[n++], str);
+    VrMenuAddItem(menu, "3", str);
     str = vrmr_get_string(gettext("Kill all connections of %s"), log->src_ip);
-    VrMenuAddItem(menu, nums[n++], str);
+    VrMenuAddItem(menu, "4", str);
     str = vrmr_get_string(gettext("Kill all connections of %s"), log->dst_ip);
-    VrMenuAddItem(menu, nums[n++], str);
+    VrMenuAddItem(menu, "5", str);
     str = vrmr_get_string("--- %s ---", gettext("BlockList options"));
     VrMenuAddSepItem(menu, str);
     str = vrmr_get_string(gettext("Add source %s to BlockList"), log->src_ip);
-    VrMenuAddItem(menu, nums[n++], str);
+    VrMenuAddItem(menu, "6", str);
     str = vrmr_get_string(
             gettext("Add destination %s to BlockList"), log->dst_ip);
-    VrMenuAddItem(menu, nums[n++], str);
+    VrMenuAddItem(menu, "7", str);
     str = vrmr_get_string(
             gettext("Add both source and destination to BlockList"));
-    VrMenuAddItem(menu, nums[n], str); /* n != n++ */
+    VrMenuAddItem(menu, "8", str);
     VrMenuConnectToWin(menu, win);
     VrMenuPost(menu);
 
