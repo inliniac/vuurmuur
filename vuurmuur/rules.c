@@ -91,7 +91,10 @@ int oldrules_create_custom_chains(
     assert(rules && cnf);
 
     /* get the current chains */
-    (void)vrmr_rules_get_system_chains(rules, cnf, VRMR_IPV4);
+    if (vrmr_rules_get_system_chains(rules, cnf, VRMR_IPV4) < 0) {
+        vrmr_error(-1, "Error", "getting the current chains failed");
+        return (-1);
+    }
     /* get the custom chains we have to create */
     if (vrmr_rules_get_custom_chains(rules) < 0) {
         vrmr_error(-1, "Internal Error", "rules_get_chains() failed");
@@ -2388,7 +2391,10 @@ static int clear_vuurmuur_iptables_rules_ipv4(struct vrmr_config *conf)
     assert(conf);
 
     /* get the current chains */
-    (void)vrmr_rules_get_system_chains(&rules, conf, VRMR_IPV4);
+    if (vrmr_rules_get_system_chains(&rules, conf, VRMR_IPV4) < 0) {
+        vrmr_error(-1, "Error", "getting the current chains failed");
+        return (-1);
+    }
 
     /* prepare chains tab with nodes for loop */
     chains[0] = rules.system_chain_mangle.top;
@@ -2472,7 +2478,10 @@ static int clear_vuurmuur_iptables_rules_ipv6(struct vrmr_config *conf)
     assert(conf);
 
     /* get the current chains */
-    (void)vrmr_rules_get_system_chains(&rules, conf, VRMR_IPV6);
+    if (vrmr_rules_get_system_chains(&rules, conf, VRMR_IPV6) < 0) {
+        vrmr_error(-1, "Error", "getting the current chains failed");
+        return (-1);
+    }
 
     /* prepare chains tab with nodes for loop */
     chains[0] = rules.system_chain_mangle.top;

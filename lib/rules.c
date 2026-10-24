@@ -2828,8 +2828,11 @@ static int vrmr_rules_get_system_chains_per_table(char *tablename,
     }
 
     if (vrmr_cmdout_open(&co, cnf, cmd) != 0) {
-        vrmr_debug(MEDIUM, "running '%s' failed", cmd);
-        return (0);
+        /* "could not read" is not "no chains": the caller would skip the flush
+         * of chains that are very much there */
+        vrmr_error(-1, "Error", "reading the chains of table '%s' failed",
+                tablename);
+        return (-1);
     }
 
     /* loop through the result */
@@ -2842,19 +2845,23 @@ static int vrmr_rules_get_system_chains_per_table(char *tablename,
         char *name = strdup(chainname);
         if (name == NULL) {
             vrmr_error(-1, "Error", "strdup failed: %s", strerror(errno));
-            vrmr_cmdout_close(&co);
+            (void)vrmr_cmdout_close(&co);
             return (-1);
         }
 
         if (vrmr_list_append(list, name) == NULL) {
             vrmr_error(-1, "Internal Error", "vrmr_list_append() failed");
             free(name);
-            vrmr_cmdout_close(&co);
+            (void)vrmr_cmdout_close(&co);
             return (-1);
         }
     }
 
-    vrmr_cmdout_close(&co);
+    if (vrmr_cmdout_close(&co) != 0) {
+        vrmr_error(-1, "Error", "'%s' did not run to the end", cmd);
+        return (-1);
+    }
+
     return (0);
 }
 

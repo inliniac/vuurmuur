@@ -66,6 +66,11 @@ tests/unit/rules-options
 tests/unit/lineread
 tests/unit/ifstats
 tests/unit/markers
+tests/unit/exec-status
+tests/unit/configfile
+tests/unit/port-range
+tests/unit/devicename
+tests/unit/ipaddr
 
 # automake stamp files in build directories
 .dirstamp

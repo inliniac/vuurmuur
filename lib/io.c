@@ -634,6 +634,7 @@ static int vrmr_real_pipe(
  *  \param output array of strings with a NULL as final member
  *
  *  \retval: -1 if the command failed to start (ie not found)
+ *              128+signal if it was killed by a signal (shell convention),
  *              otherwise the return code of the command.
  */
 int libvuurmuur_exec_command(struct vrmr_config *cnf, const char *path,
@@ -642,6 +643,21 @@ int libvuurmuur_exec_command(struct vrmr_config *cnf, const char *path,
     return exec_ops->exec(cnf, path, argv, output);
 }
 
+/* a wait status from waitpid/pclose decoded for callers that only test != 0: a
+ * signal death is not success, and 'nothing to wait for' is not either */
+static int vrmr_status_decode(int raw)
+{
+    if (raw == -1)
+        return (-1);
+
+    if (WIFSIGNALED(raw))
+        return 128 + WTERMSIG(raw);
+
+    if (WIFEXITED(raw))
+        return WEXITSTATUS(raw);
+
+    return (-1);
+}
 static int vrmr_real_exec(struct vrmr_config *cnf ATTR_UNUSED, const char *path,
         const char *argv[], char *output[])
 {
@@ -701,17 +717,22 @@ static int vrmr_real_exec(struct vrmr_config *cnf ATTR_UNUSED, const char *path,
     }
     vrmr_debug(MEDIUM, "child pid is %u", pid);
 
-    int status;
+    if (pid == -1) {
+        vrmr_error(-1, "Error", "fork failed: %s", strerror(errno));
+        return -1;
+    }
+
+    int status = 0;
     pid_t rpid;
     do {
         rpid = waitpid(pid, &status, 0);
     } while (rpid == -1 && errno == EINTR);
 
-    if (pid != -1 && WIFEXITED(status) && WEXITSTATUS(status)) {
-        vrmr_debug(MEDIUM, "WEXITSTATUS(status) %d", WEXITSTATUS(status));
-        retval = WEXITSTATUS(status);
-    } else if (rpid == -1)
+    if (rpid == -1) {
         retval = -1;
+    } else {
+        retval = vrmr_status_decode(status);
+    }
 
     vrmr_debug(MEDIUM, "(%s) retval %d", path, retval);
     return retval;
@@ -733,7 +754,7 @@ static int vrmr_real_read(
     len = fread(buf, 1, size - 1, p);
     buf[len] = '\0';
 
-    if (pclose(p) == -1) {
+    if (vrmr_status_decode(pclose(p)) != 0) {
         vrmr_error(-1, "Error", "running '%s' failed.", command);
         return (-1);
     }
@@ -741,6 +762,12 @@ static int vrmr_real_read(
     return (int)len;
 }
 
+/*  vrmr_cmdout_open
+
+    Returncodes:
+        -1: the command could not be started
+         0: ok - vrmr_cmdout_close() then says whether it ran
+*/
 int vrmr_cmdout_open(
         struct vrmr_cmdout *co, struct vrmr_config *cnf, const char *command)
 {
@@ -799,17 +826,34 @@ char *vrmr_cmdout_nextline(struct vrmr_cmdout *co, char *line, size_t size)
     return line;
 }
 
-void vrmr_cmdout_close(struct vrmr_cmdout *co)
+/*  vrmr_cmdout_close
+
+    The answer of a command that was killed or failed is not an answer, so the
+    wait status is reported here rather than thrown away.
+
+    In capture mode the fixtures answer and no child runs: 0 there means the
+    canned text was served, which vrmr_cmdout_open() already decided.
+
+    Returncodes:
+        -1: error
+     128+n: killed by signal n
+        else: the exit code, 0 for success
+*/
+int vrmr_cmdout_close(struct vrmr_cmdout *co)
 {
+    int status = 0;
+
     if (co == NULL)
-        return;
+        return (-1);
 
     if (co->fp != NULL)
-        (void)pclose(co->fp);
+        status = vrmr_status_decode(pclose(co->fp));
     co->fp = NULL;
 
     free(co->buf);
     co->buf = NULL;
+
+    return status;
 }
 
 void vrmr_shm_update_progress(int semid, int *shm_progress, int set_percent)

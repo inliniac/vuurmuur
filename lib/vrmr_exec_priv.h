@@ -86,6 +86,7 @@ struct vrmr_cmdout {
 int vrmr_cmdout_open(
         struct vrmr_cmdout *co, struct vrmr_config *cnf, const char *command);
 char *vrmr_cmdout_nextline(struct vrmr_cmdout *co, char *line, size_t size);
-void vrmr_cmdout_close(struct vrmr_cmdout *co);
+/* returns the status of the command: 0 only if it ran and exited successfully */
+int vrmr_cmdout_close(struct vrmr_cmdout *co);
 
 #endif
