@@ -1915,6 +1915,8 @@ int create_rule_masq(struct vrmr_config *conf, struct rule_scratch *rule,
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
+        /* there is no nat table for IPv6 */
+        vrmr_warning("Warning", "masquerade rules are not supported for IPv6, no rules created.");
         return (0);
     }
 #endif
@@ -1965,6 +1967,8 @@ int create_rule_snat(struct vrmr_config *conf, struct rule_scratch *rule,
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
+        /* there is no nat table for IPv6 */
+        vrmr_warning("Warning", "snat rules are not supported for IPv6, no rules created.");
         return (0);
     }
 #endif
@@ -2028,6 +2032,8 @@ int create_rule_portfw(struct vrmr_config *conf, struct rule_scratch *rule,
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
+        /* there is no nat table for IPv6 */
+        vrmr_warning("Warning", "portforward rules are not supported for IPv6, no rules created.");
         return (0);
     }
 #endif
@@ -2182,6 +2188,8 @@ int create_rule_redirect(struct vrmr_config *conf, struct rule_scratch *rule,
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
+        /* there is no nat table for IPv6 */
+        vrmr_warning("Warning", "redirect rules are not supported for IPv6, no rules created.");
         return (0);
     }
 #endif
@@ -2294,6 +2302,8 @@ int create_rule_dnat(struct vrmr_config *conf, struct rule_scratch *rule,
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
+        /* there is no nat table for IPv6 */
+        vrmr_warning("Warning", "dnat rules are not supported for IPv6, no rules created.");
         return (0);
     }
 #endif
@@ -2396,6 +2406,8 @@ int create_rule_bounce(struct vrmr_config *conf, struct rule_scratch *rule,
 
 #ifdef IPV6_ENABLED
     if (rule->ipv == VRMR_IPV6) {
+        /* there is no nat table for IPv6 */
+        vrmr_warning("Warning", "bounce rules are not supported for IPv6, no rules created.");
         return (0);
     }
 #endif
