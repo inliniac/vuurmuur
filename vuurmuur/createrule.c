@@ -2104,7 +2104,9 @@ int create_rule_portfw(struct vrmr_config *conf, struct rule_scratch *rule,
 
     /* here we pipe the rule, but only if its not a log rule, because we only
      * log the forward rule for portfw */
-    if (strncasecmp(rule->action, "LOG", 3) != 0) {
+    if (strncasecmp(rule->action, "LOG", 3) != 0 &&
+            strncasecmp(rule->action, "NFLOG", 5) != 0 &&
+            strncasecmp(rule->action, "NEWNFLOG", 8) != 0) {
         /* src & dst */
         create_srcdst_string(SRCDST_SOURCE, rule->from_ip, rule->from_netmask,
                 rule->temp_src, sizeof(rule->temp_src));
@@ -2210,7 +2212,9 @@ int create_rule_redirect(struct vrmr_config *conf, struct rule_scratch *rule,
 
     /* here we pipe the rule, but only if its not a log rule, because we only
      * log the forward rule for portfw */
-    if (strncasecmp(rule->action, "LOG", 3) != 0) {
+    if (strncasecmp(rule->action, "LOG", 3) != 0 &&
+            strncasecmp(rule->action, "NFLOG", 5) != 0 &&
+            strncasecmp(rule->action, "NEWNFLOG", 8) != 0) {
         /* src & dst */
         create_srcdst_string(SRCDST_SOURCE, rule->from_ip, rule->from_netmask,
                 rule->temp_src, sizeof(rule->temp_src));
@@ -2245,14 +2249,18 @@ int create_rule_redirect(struct vrmr_config *conf, struct rule_scratch *rule,
     /* temp store the realports */
     (void)strlcpy(tmp_port, rule->temp_dst_port, sizeof(tmp_port));
     /* temp store the action */
-    if (strncasecmp(rule->action, "LOG", 3) != 0)
+    if (strncasecmp(rule->action, "LOG", 3) != 0 &&
+            strncasecmp(rule->action, "NFLOG", 5) != 0 &&
+            strncasecmp(rule->action, "NEWNFLOG", 8) != 0)
         (void)strlcpy(tmp_action, rule->action, sizeof(tmp_action));
 
     /* set the redirectport to rule->temp_dst_port */
     snprintf(rule->temp_dst_port, sizeof(rule->temp_dst_port), "--dport %d",
             create->option.redirectport);
     /* set the action */
-    if (strncasecmp(rule->action, "LOG", 3) != 0) {
+    if (strncasecmp(rule->action, "LOG", 3) != 0 &&
+            strncasecmp(rule->action, "NFLOG", 5) != 0 &&
+            strncasecmp(rule->action, "NEWNFLOG", 8) != 0) {
         snprintf(rule->action, sizeof(rule->action), "NEWACCEPT");
     }
     if (create->to_firewall == FALSE && create->from_any == FALSE) {
@@ -2276,7 +2284,9 @@ int create_rule_redirect(struct vrmr_config *conf, struct rule_scratch *rule,
     /* restore the chain */
     //    (void)strlcpy(create->chain, tmp_chain, sizeof(create->chain));
     /* restore the action */
-    if (strncasecmp(rule->action, "LOG", 3) != 0)
+    if (strncasecmp(rule->action, "LOG", 3) != 0 &&
+            strncasecmp(rule->action, "NFLOG", 5) != 0 &&
+            strncasecmp(rule->action, "NEWNFLOG", 8) != 0)
         (void)strlcpy(rule->action, tmp_action, sizeof(rule->action));
     if (create->to_firewall == FALSE) {
         (void)strlcpy(rule->to_ip, tmp_ipaddress, sizeof(rule->to_ip));
@@ -2447,7 +2457,9 @@ int create_rule_bounce(struct vrmr_config *conf, struct rule_scratch *rule,
 
     /* here we pipe the rule, but only if its not a log rule, because we only
      * log the forward rule for portfw */
-    if (strncasecmp(rule->action, "LOG", 3) != 0) {
+    if (strncasecmp(rule->action, "LOG", 3) != 0 &&
+            strncasecmp(rule->action, "NFLOG", 5) != 0 &&
+            strncasecmp(rule->action, "NEWNFLOG", 8) != 0) {
         /* see pp 278 linux firewall 2nd edition for portforwarding */
         snprintf(rule->remoteip, sizeof(rule->remoteip), "%s",
                 create->to->ipv4.ipaddress);
@@ -2628,7 +2640,8 @@ int create_rule_input_broadcast(struct vrmr_config *conf,
     */
     if ((create->option.nfmark > 0 &&
                 strncasecmp(rule->action, "LOG", 3) != 0 &&
-                strncasecmp(rule->action, "NFLOG", 5) != 0) &&
+                strncasecmp(rule->action, "NFLOG", 5) != 0 &&
+                strncasecmp(rule->action, "NEWNFLOG", 8) != 0) &&
             (rule->portrange_ptr == NULL ||
                     rule->portrange_ptr->protocol != 1)) {
         nfmark = create->option.nfmark;
@@ -2734,7 +2747,8 @@ int create_rule_output_broadcast(struct vrmr_config *conf,
     */
     if ((create->option.nfmark > 0 &&
                 strncasecmp(rule->action, "LOG", 3) != 0 &&
-                strncasecmp(rule->action, "NFLOG", 5) != 0) &&
+                strncasecmp(rule->action, "NFLOG", 5) != 0 &&
+                strncasecmp(rule->action, "NEWNFLOG", 8) != 0) &&
             (rule->portrange_ptr == NULL ||
                     rule->portrange_ptr->protocol != 1)) {
         nfmark = create->option.nfmark;
