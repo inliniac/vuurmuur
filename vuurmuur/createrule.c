@@ -550,6 +550,14 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
 
         if (strcmp(rule->proto, "-p icmp -m icmp") != 0) {
             /* related, established */
+            /* swap the ports for the opposite direction */
+            (void)strlcpy(temp_src_port, rule->temp_src_port,
+                    sizeof(temp_src_port));
+            temp_src_port[2] = 'd';
+            (void)strlcpy(temp_dst_port, rule->temp_dst_port,
+                    sizeof(temp_dst_port));
+            temp_dst_port[2] = 's';
+
             create_srcdst_string(SRCDST_SOURCE, rule->to_ip, rule->to_netmask,
                     rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(SRCDST_DESTINATION, rule->from_ip,
@@ -1018,6 +1026,14 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
 
         /* REVERSE! related */
         if (strcmp(rule->proto, "-p icmp -m icmp") != 0) {
+            /* swap the ports for the opposite direction */
+            (void)strlcpy(temp_src_port, rule->temp_src_port,
+                    sizeof(temp_src_port));
+            temp_src_port[2] = 'd';
+            (void)strlcpy(temp_dst_port, rule->temp_dst_port,
+                    sizeof(temp_dst_port));
+            temp_dst_port[2] = 's';
+
             create_srcdst_string(SRCDST_SOURCE, rule->to_ip, rule->to_netmask,
                     rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(SRCDST_DESTINATION, rule->from_ip,
