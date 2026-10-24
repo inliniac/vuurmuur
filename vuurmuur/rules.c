@@ -455,8 +455,10 @@ static int create_rule_set_ports(
             snprintf(rule->temp_src_port, sizeof(rule->temp_src_port),
                     "--sport %d:%d", portrange_ptr->src_low,
                     portrange_ptr->src_high);
-    } else if (portrange_ptr->protocol == 1 || portrange_ptr->protocol == 47 ||
-               portrange_ptr->protocol == 50 || portrange_ptr->protocol == 51)
+    }
+    /* no other protocol carries ports; clear the strings so a
+     * previous portrange of the same service cannot leak in */
+    else
         snprintf(rule->temp_src_port, sizeof(rule->temp_src_port), " ");
 
     /* to */
@@ -476,8 +478,9 @@ static int create_rule_set_ports(
             snprintf(rule->temp_dst_port, sizeof(rule->temp_dst_port),
                     "--icmp-type %d/%d", portrange_ptr->dst_low,
                     portrange_ptr->dst_high);
-    } else if (portrange_ptr->protocol == 47 || portrange_ptr->protocol == 50 ||
-               portrange_ptr->protocol == 51)
+    }
+    /* same for the destination side */
+    else
         snprintf(rule->temp_dst_port, sizeof(rule->temp_dst_port), " ");
 
     return (0);
