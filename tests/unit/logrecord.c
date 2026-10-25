@@ -510,6 +510,25 @@ static void edge_cases(void)
     t_ok(strcmp(lr.action, "DROP") == 0 && strcmp(lr.logprefix, "none") == 0,
             "a prefix with no kind keeps none: \"%s\"/\"%s\"", lr.action,
             lr.logprefix);
+
+    /*
+     * The emitter puts exactly one space between the action and the kind
+     * (vuurmuur/rules.c:67 then :69), but a rules.conf line can carry two: the
+     * option parser copies a logprefix value verbatim, so logprefix=" policy"
+     * arrives with a leading space and the prefix reaches the decoder as
+     * "vrmr: DROP  policy ". Only that input runs the decoder's skip loop, and
+     * until now nothing in the tree reached it - the corpus and every case above
+     * put the doubled space after the marker, which lands the scan on the kind
+     * instead. Found from the coverage artifact, not from the TAP stream: the
+     * suite was green with those lines never executed once.
+     */
+    memset(&lr, 0, sizeof(lr));
+    vrmr_log_record_parse_prefix(&lr, "vrmr: DROP  policy ");
+    t_ok(strcmp(lr.action, "DROP") == 0 &&
+                    strcmp(lr.logprefix, "policy ") == 0,
+            "a doubled space after the action is skipped, not kept: "
+            "\"%s\"/\"%s\"",
+            lr.action, lr.logprefix);
 }
 
 int main(void)
