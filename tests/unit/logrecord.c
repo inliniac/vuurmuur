@@ -92,13 +92,15 @@ static void note_unmapped_action(const char *action)
 }
 
 /* what a decoded action must never be: empty, a marker remnant ("vrmr:"), an
- * angle-bracketed fallback or anything holding a separator
+ * angle-bracketed fallback, a number, or anything holding a separator. Target
+ * words start with a letter; anything create_logprefix_string() passes through
+ * verbatim still has to look like one.
  */
 static int is_target_word(const char *action)
 {
     size_t i;
 
-    if (action[0] == '\0' || action[0] == '<')
+    if (!isalpha((unsigned char)action[0]))
         return 0;
 
     for (i = 0; action[i] != '\0'; i++)
@@ -156,7 +158,12 @@ static void check_prefix(const char *prefix, int *seen)
             prefix, lr.action, want_action);
     t_ok(is_target_word(lr.action), "prefix \"%s\" decodes to a target word, "
                                     "not a remnant: %s", prefix, lr.action);
-    note_unmapped_action(lr.action);
+    /* only a prefix whose decode agreed with the reference can say anything
+     * about the emitter's word set: collecting under a decode failure would
+     * report a fragment ("ROP") as an unrecognised iptables target
+     */
+    if (strcmp(lr.action, want_action) == 0)
+        note_unmapped_action(lr.action);
     t_ok(strchr(lr.action, ' ') == NULL, "action \"%s\" carries no space",
             lr.action);
     t_ok(strchr(lr.action, '"') == NULL, "action \"%s\" carries no quote",
@@ -286,6 +293,9 @@ static void scan_goldens(void)
     t_ok(seen_prefixes_num < PREFIX_MAX,
             "the dedupe table still has room (%zu of %d used)",
             (size_t)seen_prefixes_num, PREFIX_MAX);
+    t_ok(passthrough_num < PASSTHROUGH_MAX,
+            "the pass-through report still has room (%zu of %d used)",
+            (size_t)passthrough_num, PASSTHROUGH_MAX);
 
     if (passthrough_num > 0) {
         char list[512] = "";

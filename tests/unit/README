@@ -3,10 +3,28 @@ Test programs
 rules-parse      tier 0: rules.conf line grammar, encode/decode round trips
 rules-options    tier 0: the options= string, option by option
 lineread         tier 0: vrmr_lineread, the tail-safe reader behind the log viewer
+ifstats          counter parsing of an iptables -S listing, from a fixture
+markers          the sandbox's own guards: fixture problems, refused path joins
+logrecord        the nflog prefix decoder and the traffic-log line builder
+exec-status      vrmr_cmdout_open/nextline/close: a command's output and its exit
+configfile       vrmr_ask_configfile: one value out of one config file
+port-range       vrmr_process_portrange: ports and ranges as rules write them
+                 (the source is portrange.c, the binary is port-range)
+devicename       vrmr_validate_devicename: what an interface may call its device
+ipaddr           vrmr_check_ipv4address, ipv6address and ipv6cidr: address shapes
+blocklist-read   the blocklist file reader, including a read that fails halfway
+
+The list is the TESTS entries minus gen/ruleset.sh, which is a shell driver over
+the gen/ruleset check_PROGRAM: 12 programs and a driver, so `# TOTAL: 13` is not
+program-count evidence in either direction.
 
 Each is a check_PROGRAM and runs under `make check` with no root, no
 iptables, no /etc/vuurmuur and no network. They link libvuurmuur directly, so
 they exercise the same objects the daemons do.
+
+tap_note() writes to stderr, not to the TAP stream, so running a program by hand
+with stderr sent away (`./unit/logrecord 2> /dev/null`) hides every note. Under
+`make check` the two streams are merged into unit/<name>.log.
 
 Tests belong here when a wrong value in a fixture would make them pass for the
 wrong reason; if a fixture can express the case, it belongs in the corpus
