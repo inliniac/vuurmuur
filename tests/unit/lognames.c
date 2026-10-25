@@ -169,6 +169,34 @@ static void add_zone(const char *ip, const char *name, int type)
     tap_ok(vrmr_hash_insert(&zone_hash, z) == 0, msg);
 }
 
+/*
+ * Structural precondition, asserted rather than commented: two addresses either do or do
+ * not land in one row, and which one decides whether the comparator is even offered the
+ * pair. Rows come from hash_func(key) % rows (lib/hash.c:110) and vrmr_hash_ipaddress()
+ * truncates to (s_addr - ntohl(s_addr)) / 100000, so a pair collides exactly when
+ * rows | (h1 - h2) - which is why 198.51.100.1/.3 (d = 336) share a row at 16 and
+ * 198.51.100.2/.77 (d = 22583) do not. A daemon sizes rows at table_size * 3
+ * (lib/config.c:1770), so this fixture's 16 is the dense case, not the typical one: if
+ * HASH_ROWS ever changes, say here, loudly, instead of letting the name assertions below
+ * stop discriminating in silence.
+ */
+static void expect_same_row(const char *ip1, const char *ip2, int same)
+{
+    struct vrmr_zone a, b;
+    char msg[160];
+    unsigned int r1, r2;
+
+    memset(&a, 0, sizeof(a));
+    memset(&b, 0, sizeof(b));
+    snprintf(a.ipv4.ipaddress, sizeof(a.ipv4.ipaddress), "%s", ip1);
+    snprintf(b.ipv4.ipaddress, sizeof(b.ipv4.ipaddress), "%s", ip2);
+    r1 = vrmr_hash_ipaddress(&a) % HASH_ROWS;
+    r2 = vrmr_hash_ipaddress(&b) % HASH_ROWS;
+    snprintf(msg, sizeof(msg), "%s row %u, %s row %u: expected %s", ip1, r1, ip2, r2,
+            same ? "one row" : "two");
+    t_ok((r1 == r2) == (same == 1), msg);
+}
+
 /* -------------------------------------------------------------- the record */
 
 static void t_ok(int cond, const char *fmt, ...)
@@ -501,6 +529,7 @@ static void zone_names(void)
      * numeric even though 198.51.100.0/24 is configured. Replace strcmp with a
      * prefix compare and this is the case that fails.
      */
+    expect_same_row("198.51.100.2", "198.51.100.77", 0);
     mk(&lr, 6, 1234, 22, -1, -1);
     snprintf(lr.src_ip, sizeof(lr.src_ip), "%s", "198.51.100.77");
     snprintf(lr.dst_ip, sizeof(lr.dst_ip), "%s", "192.0.2.1");
@@ -509,21 +538,15 @@ static void zone_names(void)
     expect_names(&lr, "198.51.100.77", "guest");
 
     /*
-     * Two addresses that land in the SAME bucket, because vrmr_hash_ipaddress()
-     * throws the low bits away - (s_addr - ntohl(s_addr)) / 100000 (lib/hash.c:337-339).
-     * Linked against the built library and reduced mod this file's 16 rows:
-     * 198.51.100.1 -> 9930 -> 10 and .3 -> 10266 -> 10 share a row, while .2 -> 10098 -> 2
-     * and .77 -> 22681 -> 9 do not. Model that expression rather than run it and the digits
-     * change: the subtraction is unsigned and the int conversion of a value past INT_MAX is
-     * implementation-defined, so what gcc produces is the only set worth writing down.
-     * Only strcmp keeps the lookup honest across that collision,
-     * so this is the assertion that fails if someone "optimises" the comparator into a
-     * prefix test - the case above only shows the fallback, and neither one alone tells
-     * the difference.
+     * Two addresses that share a row - asserted just below - so the comparator really is
+     * offered a wrong candidate before the right one, and strcmp is what decides. This is
+     * the assertion that fails if anyone "optimises" that compare into a prefix test; the
+     * fallback case above only shows the other half, and neither alone tells the truth.
      *
      * Order is load-bearing: vrmr_hash_insert() appends (lib/hash.c:113), so the near
      * miss has to be filed FIRST for the compare to be offered it before the answer.
      */
+    expect_same_row("198.51.100.1", "198.51.100.3", 1);
     add_zone("198.51.100.3", "wrong-host", VRMR_TYPE_HOST);
     add_zone("198.51.100.1", "right-host", VRMR_TYPE_HOST);
     mk(&lr, 6, 1234, 22, -1, -1);
