@@ -29,7 +29,7 @@ AC_ARG_WITH([sanitizers],
         [vrmr_sanitizers=no])
 
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION
+AM_GNU_GETTEXT_VERSION([0.23])
 
 ac_build_ipv6=yes
 AC_ARG_ENABLE([ipv6],
