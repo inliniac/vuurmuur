@@ -870,6 +870,7 @@ void logchange(struct vuurmuur_script *vr_script, char *fmt, ...)
     va_list ap;
     char prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(prnt_str, sizeof(prnt_str), fmt, ap);
     va_end(ap);
