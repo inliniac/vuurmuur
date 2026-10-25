@@ -280,7 +280,7 @@ static void queue_status_msg(
     if (status_list == NULL)
         return;
 
-    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
+    // coverity[uninit:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(line, sizeof(line), fmt, ap);
     va_end(ap);

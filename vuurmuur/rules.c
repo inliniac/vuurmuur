@@ -69,7 +69,7 @@ void create_logprefix_string(struct vrmr_config *conf ATTR_UNUSED,
     (void)strlcat(str, " ", LOGPREFIX_LOG_MAXLEN);
 
     /* copy the userprefix */
-    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
+    // coverity[uninit:FALSE] false positive: va_start initializes ap
     va_start(ap, userprefix);
     vsnprintf(tmp_str, sizeof(tmp_str), userprefix, ap);
     (void)strlcat(str, tmp_str, LOGPREFIX_LOG_MAXLEN);

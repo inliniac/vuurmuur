@@ -98,7 +98,7 @@ int logprint_error_bash(int errorlevel, const char *head, char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
-    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
+    // coverity[uninit:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -123,7 +123,7 @@ int logprint_warning_bash(const char *head, char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
-    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
+    // coverity[uninit:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -146,7 +146,7 @@ int logprint_info_bash(const char *head, char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
-    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
+    // coverity[uninit:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
