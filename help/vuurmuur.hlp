@@ -571,6 +571,39 @@ F12: help.
 
 :[END]:
 
+:[VUURMUUR:INTERFACES:TCPMSS]:
+TCP MSS clamping
+
+
+Some connections cannot survive a full sized TCP packet on the way out. On a
+link that adds its own headers, for example PPPoE, the result is a packet that
+is too big for the path, and the connection stalls in a way that looks like a
+firewall problem.
+
+Here you can tell Vuurmuur to clamp the MSS of new outgoing TCP connections on
+this interface to the path MTU. It adds a rule to the forward chain for the
+SYN packet of every connection leaving this interface, for IPv4 and, when IPv6
+is enabled on the interface, for IPv6 as well. The rule changes the MSS, it
+does not block anything, so it needs no room in your rule set.
+
+This screen is only reachable for a real interface: a virtual interface has no
+MSS clamping of its own, so the key that opens it does nothing there.
+
+Clamping is done by the TCPMSS target of your kernel, in the xt_TCPMSS or
+ipt_TCPMSS module, and by ip6t_TCPMSS for IPv6. Vuurmuur looks for these while
+building the ruleset and skips the clamping when the target is missing. Nothing
+reaches the log in that case, but the script that 'vuurmuur -b' writes carries a
+'# No support for IPv4 TCPMSS target.' line, so the two ways clamping can do
+nothing are still tellable apart. If you know the target is there and the check
+fails to see it, start Vuurmuur with -t to skip all capability checks.
+
+Keys:
+
+F10: quit.
+F12: help.
+
+:[END]:
+
 :[VUURMUUR:RULES]:
 Rules
 
