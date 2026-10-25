@@ -975,3 +975,64 @@ compares, the second fails the load.
   `inet_pton` refuses and no form can write. Neither string appears in the
   artifact, and reverting either of the two blocks to a hard failure gives
   `not ok 1 - badaddress: vrmr_interfaces_load failed`.
+
+## 18. What a service is called when nothing knows it (tier 0)
+
+`vrmr_log_record_get_names()` decides the service field of every `traffic.log`
+line. Until `unit/lognames` nothing in the tree ran it: `unit/logrecord` builds
+lines from a `ser_name` it fills by hand, so the function stood at 0 of its 109
+instrumented lines while `man/en/vuurmuur_log.8` began stating the notation as a
+public contract. A documented path with no assertion on it is the same exposure
+the help keys were.
+
+Five renderings, all pinned as byte compares: `<src>-><dst>(tcp)` and `(udp)`
+after the forward and the reverse lookup both miss, `<src>*<dst>(<n>)` and
+`proto-<n>` for a protocol that is none of tcp, udp or icmp, and the service's own
+name when a lookup answers. The page gave one of them - the `*` form, which is the
+rarest thing an operator will ever read.
+
+Both tables are built with the callbacks the daemon installs
+(`lib/config.c:1771`, `:1778`): `vrmr_hash_port`/`vrmr_compare_ports` and
+`vrmr_hash_ipaddress`/`vrmr_compare_ipaddress`. Nothing in the fixture is a
+simplified stand-in for a matching rule. That is not taste. A first draft keyed the
+service compare on `vrmr_hash_port` alone, which accepts anything in the bucket, so
+no entry could tell the two directions of a lookup apart; and an entry needs a real
+port range either way, because `vrmr_compare_ports` bails on a service with none
+(`lib/hash.c:233`). Making the swap in the reverse lookup observable needed both
+halves: the product's compare, and an entry naming a source port as well as a
+destination.
+
+Two findings, both from running it rather than reading it:
+
+* `#ifndef HAVE_IPV6` at `lib/icmp.c:37` and its twins in `lib/icmp.h` are dead
+  guards. configure defines `IPV6_ENABLED` (`configure.ac:45`); nothing defines
+  `HAVE_IPV6`, so the branch is always taken. Every icmp type above 40 - which is
+  every icmpv6 type - renders `reserved icmp (<type>.<code>)`, and the icmpv6 rows
+  of the table are compiled out of every build. Filed as product issue #27. The
+  test pins today's output with the issue named at the assertion, so when the
+  guards follow the rename those assertions go red on purpose and the values
+  become `echo-request` and friends.
+* For a protocol that is not 1, 6 or 17, `vrmr_compare_ports` ends with "a proto
+  match is a full match" (`lib/hash.c:284-287`) and never looks at ports. So one
+  service entry for protocol 58 answers every icmpv6 record whatever it defines.
+  Not #27, and not a bug the page describes - it is just what the field means.
+
+The `%d.%d(icmp)` form the source writes first is never seen: the short-name
+helper overwrites the buffer on every one of its return paths, including for a
+type the tables do not have.
+
+Reverting a rendering in the product goes red, one assertion each: the `->` to `*`
+swap, the `proto-%d` separator, the `*` form's arrow, and the icmp branch's
+protocol 58 test. Reverting the **argument order of the reverse lookup** was
+invisible until an entry named a source port as well as a destination
+(`add_service(7, "echo-src", 6, 8080, 0, 7, 0)`): with a wildcard source range an
+argument swap resolves either way, so only a two-port service makes the order
+observable. That case is the reason this section exists - the gap was found by
+mutation, not by reading.
+
+The prefix decoder's skip-leading-spaces loop needed a doubled space **after the
+action**, not after the marker: `logprefix` is copied verbatim from `rules.conf`,
+so `logprefix=" policy"` produces it. The case lives in `unit/logrecord`, and it
+came from the coverage artifact rather than the TAP stream - the suite had been
+green for two rounds with those two lines never executed once, which is the kind
+of thing a line-transition table shows and an assertion count cannot.

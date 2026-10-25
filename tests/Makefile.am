@@ -41,6 +41,11 @@ unit_logrecord_SOURCES = unit/logrecord.c lib/tap.c lib/tap.h \
 unit_logrecord_LDADD = $(LIBVUURMUUR_LDADD)
 
 check_PROGRAMS += unit/logrecord
+unit_lognames_SOURCES = unit/lognames.c lib/tap.c lib/tap.h \
+	lib/vrmr_test.c lib/vrmr_test.h
+unit_lognames_LDADD = $(LIBVUURMUUR_LDADD)
+
+check_PROGRAMS += unit/lognames
 
 # tier 1: drives the split-out engine over a fixture tree
 gen_ruleset_SOURCES = lib/tap.c lib/tap.h lib/vrmr_test.c lib/vrmr_test.h \
@@ -95,6 +100,7 @@ AM_TESTS_ENVIRONMENT = abs_srcdir="$(abs_srcdir)"; export abs_srcdir; \
 TESTS = unit/rules-parse unit/rules-options unit/lineread unit/ifstats \
 	unit/markers unit/exec-status unit/configfile unit/port-range \
 	unit/devicename unit/ipaddr unit/blocklist-read unit/logrecord \
+	unit/lognames \
 	gen/ruleset.sh gen/help-coverage.sh
 
 EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh gen/help-coverage.sh \

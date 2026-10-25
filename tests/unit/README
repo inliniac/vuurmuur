@@ -6,6 +6,8 @@ lineread         tier 0: vrmr_lineread, the tail-safe reader behind the log view
 ifstats          counter parsing of an iptables -S listing, from a fixture
 markers          the sandbox's own guards: fixture problems, refused path joins
 logrecord        the nflog prefix decoder and the traffic-log line builder
+lognames         what get_names() writes as the service name, and what the
+                 two ends of the line are called
 exec-status      vrmr_cmdout_open/nextline/close: a command's output and its exit
 configfile       vrmr_ask_configfile: one value out of one config file
 port-range       vrmr_process_portrange: ports and ranges as rules write them
@@ -15,7 +17,7 @@ ipaddr           vrmr_check_ipv4address, ipv6address and ipv6cidr: address shape
 blocklist-read   the blocklist file reader, including a read that fails halfway
 
 The list is the TESTS entries minus gen/ruleset.sh, which is a shell driver over
-the gen/ruleset check_PROGRAM: 12 programs and a driver, so `# TOTAL: 13` is not
+the gen/ruleset check_PROGRAM: 13 programs and a driver, so `# TOTAL: 14` is not
 program-count evidence in either direction.
 
 Each is a check_PROGRAM and runs under `make check` with no root, no

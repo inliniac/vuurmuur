@@ -72,6 +72,7 @@ tests/unit/port-range
 tests/unit/devicename
 tests/unit/ipaddr
 tests/unit/logrecord
+tests/unit/lognames
 
 # automake stamp files in build directories
 .dirstamp
