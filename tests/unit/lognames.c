@@ -509,6 +509,27 @@ static void zone_names(void)
     expect_names(&lr, "198.51.100.77", "guest");
 
     /*
+     * Two addresses that land in the SAME bucket, because vrmr_hash_ipaddress()
+     * throws the low bits away - (s_addr - ntohl(s_addr)) / 100000 (lib/hash.c:337-339),
+     * which puts 198.51.100.1 and 198.51.100.3 in one row at 16 rows while 198.51.100.2
+     * and .77 sit elsewhere. Only strcmp keeps the lookup honest across that collision,
+     * so this is the assertion that fails if someone "optimises" the comparator into a
+     * prefix test - the case above only shows the fallback, and neither one alone tells
+     * the difference.
+     *
+     * Order is load-bearing: vrmr_hash_insert() appends (lib/hash.c:113), so the near
+     * miss has to be filed FIRST for the compare to be offered it before the answer.
+     */
+    add_zone("198.51.100.3", "wrong-host", VRMR_TYPE_HOST);
+    add_zone("198.51.100.1", "right-host", VRMR_TYPE_HOST);
+    mk(&lr, 6, 1234, 22, -1, -1);
+    snprintf(lr.src_ip, sizeof(lr.src_ip), "%s", "198.51.100.1");
+    snprintf(lr.dst_ip, sizeof(lr.dst_ip), "%s", "192.0.2.1");
+    t_ok(vrmr_log_record_get_names(&lr, &zone_hash, &service_hash) == 1,
+            "a colliding address with an object of its own returns 1");
+    expect_names(&lr, "right-host", "guest");
+
+    /*
      * An ipv6 record skips every lookup: lib/log.c:411 copies src_ip and dst_ip
      * and says so in a comment. This pins a stub, not a naming policy, and should
      * be rewritten rather than defended when address objects arrive for v6.
