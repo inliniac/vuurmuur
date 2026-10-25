@@ -162,54 +162,61 @@ jobs:
                 libtool \
                 gettext \
                 pkg-config \
-                clang-21 \
-                llvm-21-dev \
+                clang-22 \
+                llvm-22 \
                 libnetfilter-conntrack-dev \
                 libnetfilter-log-dev \
                 libmnl-dev \
                 libncurses5-dev \
                 libncursesw5-dev
       - run: ./autogen.sh
-      # coverage build: instrument with clang, static link so the vuurmuur
-      # binary carries the coverage mapping of every object it runs
+      # identical to the GitLab coverage job (vuurmuur-ci): same compiler,
+      # same scope, so both platforms report one number
       - run: |
-          CC=clang-21 CFLAGS="-fprofile-instr-generate -fcoverage-mapping -O0" \
-            ./configure --disable-shared --prefix=/usr --sysconfdir=/etc
+          CC=clang-22 CFLAGS="-fprofile-instr-generate -fcoverage-mapping -O0" \
+            ./configure --disable-shared
       - run: |
-          CC=clang-21 CFLAGS="-fprofile-instr-generate -fcoverage-mapping -O0" \
+          CC=clang-22 CFLAGS="-fprofile-instr-generate -fcoverage-mapping -O0" \
             make -j2
-      # the test suite covers the engine and the library
-      - run: make check
-      # each of these prints and exits: argument parsing and version only,
-      # but it puts the four frontends' startup paths into the count
-      - run: ./vuurmuur/vuurmuur -h
-      - run: ./vuurmuur/vuurmuur -V
-      - run: ./vuurmuur_conf/vuurmuur_conf -V
-      - run: ./vuurmuur_log/vuurmuur_log -V
-      - run: ./vuurmuur_script/vuurmuur_script -h
-      # every process merged its counters into a profraw in its working
-      # directory; combine them, then export lcov. One -object per program:
-      # the export shows every frontend's files, lib/* is attributed once
-      # through the mapping they all share
+      # %p: every test process (and every vuurmuur process the tests
+      # spawn) writes its own profile file, so no merge races
+      - run: LLVM_PROFILE_FILE=/tmp/vm-%p.profraw make -k check
+      # the suite's binaries: the GitLab coverage job's scope. The program
+      # binaries would drag in the untestable vuurmuur_conf TUI - 45% of
+      # the product denominator at 0%
       - run: |
-          llvm-profdata-21 merge -output=coverage.profdata \
-            $(find . \( -name '*.profraw' -o -name '*.profdata' \))
-          llvm-cov-21 export \
-            -instr-profile=coverage.profdata \
-            -format=lcov \
-            --ignore-filename-regex='^/(root|usr)/.*' \
-            --skip-branches \
-            -object ./vuurmuur/vuurmuur \
-            -object ./vuurmuur_conf/vuurmuur_conf \
-            -object ./vuurmuur_log/vuurmuur_log \
-            -object ./vuurmuur_script/vuurmuur_script \
-            > coverage.lcov
-      # assert the export produced data before uploading: without the
-      # artifact a green job with no number in the log is undiagnosable
+          IGN='^/usr/.*|/po/'
+          llvm-profdata-22 merge -o /tmp/vm.profdata /tmp/vm-*.profraw
+          for b in tests/unit/.libs/* tests/unit/* tests/gen/.libs/* tests/gen/*; do
+            [ -x "$b" ] || continue
+            llvm-cov-22 export "$b" -instr-profile=/tmp/vm.profdata \
+              -format=lcov --ignore-filename-regex="$IGN" --skip-branches \
+              2>/dev/null || true
+          done > coverage.lcov
+      # an empty export must not read as green; the total is max-merged
+      # over the duplicate SF sections (covered if any export hit the line)
       - run: |
-          test -s coverage.lcov
-          awk -F: '/^SF:/{f++} /^LF:/{l+=$2} /^LH:/{h+=$2} \
-               END{printf "coverage: %d files, %d/%d lines (%.1f%%)\n", f, h, l, h*100/l}' coverage.lcov
+          grep -q "^SF:" coverage.lcov || { echo "FATAL: no coverage data - export found nothing"; exit 1; }
+          python3 - <<'EOF'
+          import re
+          files = {}
+          cur = None
+          for line in open('coverage.lcov'):
+              m = re.match(r'^SF:(.+)$', line)
+              if m:
+                  cur = m.group(1)
+                  files.setdefault(cur, {})
+                  continue
+              m = re.match(r'^DA:(\d+),(\d+)', line)
+              if m and cur is not None:
+                  ln, hits = int(m.group(1)), int(m.group(2))
+                  files[cur][ln] = max(files[cur].get(ln, 0), hits)
+              if line.startswith('end_of_record:'):
+                  cur = None
+          tot = sum(len(d) for d in files.values())
+          cov = sum(1 for d in files.values() for v in d.values() if v > 0)
+          print('coverage: %d files, %d/%d lines (%.1f%%)' % (len(files), cov, tot, cov * 100 / tot))
+          EOF
       - name: Upload coverage.lcov artifact
         uses: actions/upload-artifact@v4
         with:
