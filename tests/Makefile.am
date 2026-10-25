@@ -34,6 +34,14 @@ unit_lineread_SOURCES = unit/lineread.c lib/tap.c lib/tap.h \
 	lib/vrmr_test.c lib/vrmr_test.h
 unit_lineread_LDADD = $(LIBVUURMUUR_LDADD)
 
+# the log record decoder and formatter: no sandbox, but it reads the goldens
+# for the prefixes the emitter actually writes
+unit_logrecord_SOURCES = unit/logrecord.c lib/tap.c lib/tap.h \
+	lib/vrmr_test.c lib/vrmr_test.h
+unit_logrecord_LDADD = $(LIBVUURMUUR_LDADD)
+
+check_PROGRAMS += unit/logrecord
+
 # tier 1: drives the split-out engine over a fixture tree
 gen_ruleset_SOURCES = lib/tap.c lib/tap.h lib/vrmr_test.c lib/vrmr_test.h \
 	lib/sandbox.c lib/sandbox.h gen/ruleset.c
@@ -86,7 +94,8 @@ AM_TESTS_ENVIRONMENT = abs_srcdir="$(abs_srcdir)"; export abs_srcdir; \
 
 TESTS = unit/rules-parse unit/rules-options unit/lineread unit/ifstats \
 	unit/markers unit/exec-status unit/configfile unit/port-range \
-	unit/devicename unit/ipaddr unit/blocklist-read gen/ruleset.sh
+	unit/devicename unit/ipaddr unit/blocklist-read unit/logrecord \
+	gen/ruleset.sh
 
 EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh \
 	cases/common/etc/state/interfaces/dmz.conf \
