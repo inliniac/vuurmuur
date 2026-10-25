@@ -157,6 +157,7 @@ jobs:
             apt-get -y install make \
                 autoconf \
                 automake \
+                git \
                 build-essential \
                 libtool \
                 gettext \
