@@ -294,6 +294,7 @@ int vuumuurconf_print_warning(const char *title, char *fmt, ...)
     PANEL *my_panels[1];
     int height = 8, width, startx, starty, max_height, max_width;
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -336,6 +337,7 @@ int vuumuurconf_print_error(int error_no, const char *title, char *fmt, ...)
     PANEL *my_panels[1];
     int height = 8, width, startx, starty, max_height, max_width;
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -375,6 +377,7 @@ int vuumuurconf_print_info(const char *title ATTR_UNUSED, char *fmt, ...)
     va_list ap;
     char long_str[512] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -658,6 +661,7 @@ int status_print(WINDOW *local_win, const char *fmt, ...)
 
     werase(local_win);
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
