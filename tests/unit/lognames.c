@@ -510,9 +510,13 @@ static void zone_names(void)
 
     /*
      * Two addresses that land in the SAME bucket, because vrmr_hash_ipaddress()
-     * throws the low bits away - (s_addr - ntohl(s_addr)) / 100000 (lib/hash.c:337-339),
-     * which puts 198.51.100.1 and 198.51.100.3 in one row at 16 rows while 198.51.100.2
-     * and .77 sit elsewhere. Only strcmp keeps the lookup honest across that collision,
+     * throws the low bits away - (s_addr - ntohl(s_addr)) / 100000 (lib/hash.c:337-339).
+     * Linked against the built library and reduced mod this file's 16 rows:
+     * 198.51.100.1 -> 9930 -> 10 and .3 -> 10266 -> 10 share a row, while .2 -> 10098 -> 2
+     * and .77 -> 22681 -> 9 do not. Model that expression rather than run it and the digits
+     * change: the subtraction is unsigned and the int conversion of a value past INT_MAX is
+     * implementation-defined, so what gcc produces is the only set worth writing down.
+     * Only strcmp keeps the lookup honest across that collision,
      * so this is the assertion that fails if someone "optimises" the comparator into a
      * prefix test - the case above only shows the fallback, and neither one alone tells
      * the difference.
