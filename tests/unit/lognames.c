@@ -174,8 +174,10 @@ static void add_zone(const char *ip, const char *name, int type)
  * not land in one row, and which one decides whether the comparator is even offered the
  * pair. Rows come from hash_func(key) % rows (lib/hash.c:110) and vrmr_hash_ipaddress()
  * truncates to (s_addr - ntohl(s_addr)) / 100000, so a pair collides exactly when
- * rows | (h1 - h2) - which is why 198.51.100.1/.3 (d = 336) share a row at 16 and
- * 198.51.100.2/.77 (d = 22583) do not. A daemon sizes rows at table_size * 3
+ * rows | (h1 - h2): 198.51.100.1/.3 (d = 336) and 192.0.2.1/.1 (d = 976) share rows at 16
+ * and split at 32; 198.51.100.2/.77 (d = 12583) are apart at both. So every colliding pair
+ * in this file is 16-specific, which is the whole reason the check is asserted. A daemon
+ * sizes rows at table_size * 3
  * (lib/config.c:1770), so this fixture's 16 is the dense case, not the typical one: if
  * HASH_ROWS ever changes, say here, loudly, instead of letting the name assertions below
  * stop discriminating in silence.
