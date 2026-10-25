@@ -1,6 +1,8 @@
 Vuurmuur
 ========
 
+[![codecov](https://codecov.io/gh/inliniac/vuurmuur/branch/master/graph/badge.svg)](https://codecov.io/gh/inliniac/vuurmuur)
+
 Introduction
 ------------
 

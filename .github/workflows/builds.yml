@@ -144,6 +144,66 @@ jobs:
       - run: CC=clang-18 CFLAGS="${DEFAULT_CFLAGS}" scan-build-18 ./configure --with-widec=yes
       - run: CC=clang-18 scan-build-18 --status-bugs make -j2
 
+  ubuntu-2604-cov:
+    name: Ubuntu 26.04 (coverage)
+    runs-on: ubuntu-latest
+    container: ubuntu:26.04
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Install system dependencies
+        run: |
+            apt update
+            apt-get upgrade -y
+            apt-get -y install make \
+                autoconf \
+                automake \
+                build-essential \
+                libtool \
+                gettext \
+                pkg-config \
+                clang-21 \
+                llvm-21-dev \
+                libnetfilter-conntrack-dev \
+                libnetfilter-log-dev \
+                libmnl-dev \
+                libncurses5-dev \
+                libncursesw5-dev
+      - run: ./autogen.sh
+      # coverage build: instrument with clang, static link so the vuurmuur
+      # binary carries the coverage mapping of every object it runs
+      - run: |
+          CC=clang-21 CFLAGS="-fprofile-instr-generate -fcoverage-mapping -O0" \
+            ./configure --disable-shared --prefix=/usr --sysconfdir=/etc
+      - run: |
+          CC=clang-21 CFLAGS="-fprofile-instr-generate -fcoverage-mapping -O0" \
+            make -j2
+      # the test suite covers the engine and the library
+      - run: make check
+      # exercise the CLI frontend itself
+      - run: ./vuurmuur/vuurmuur -h
+      - run: ./vuurmuur/vuurmuur -V
+      # every process merged its counters into a profraw in its working
+      # directory; combine them, then export lcov from the binary
+      - run: |
+          llvm-profdata-21 merge -output=coverage.profdata \
+            $(find . \( -name '*.profraw' -o -name '*.profdata' \))
+          llvm-cov-21 export ./vuurmuur/vuurmuur \
+            -instr-profile=coverage.profdata \
+            -format=lcov \
+            --ignore-filename-regex='^/(root|usr)/.*' \
+            --skip-branches > coverage.lcov
+      - name: Upload coverage.lcov artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov-${{ github.job }}
+          path: coverage.lcov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5
+        with:
+          fail_ci_if_error: false
+          files: coverage.lcov
+          flags: unittests
+
   centos-9-stream:
     name: CentOS 9 Stream
     runs-on: ubuntu-latest
