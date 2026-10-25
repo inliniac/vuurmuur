@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <dirent.h>
+#include <ctype.h>
 #include <inttypes.h>
 #include <limits.h>
 
@@ -55,20 +56,57 @@ static char *golden_path(char *buf, size_t size, const char *name)
     return buf;
 }
 
-/* the targets the emitter can name in a prefix; anything else means the
- * decoder and the encoder have drifted apart
+/* create_logprefix_string() in vuurmuur/rules.c rewrites a handful of targets
+ * before it writes the prefix (TCPRESET->REJECT, MASQUERADE->MASQ, the NEW*
+ * aliases, DNAT*->PORTFW/DNAT/BOUNCE); every other action passes through
+ * verbatim, so this names what the mapping can produce - a floor, not a
+ * ceiling. Membership is reported, not asserted: the assertion a new rule type
+ * must not trip is the shape check below.
  */
-static int is_known_action(const char *action)
+static const char *const mapped_action[] = {"ACCEPT", "DROP", "REJECT",
+        "SREJECT", "TARPIT", "NFQUEUE", "NFLOG", "RETURN", "MASQ", "QUEUE",
+        "PORTFW", "DNAT", "BOUNCE", NULL};
+
+/* the corpus words that are not in the mapped set, i.e. pass-through targets */
+#define PASSTHROUGH_MAX 16
+static char passthrough[PASSTHROUGH_MAX][32];
+static size_t passthrough_num;
+
+static void note_unmapped_action(const char *action)
 {
-    static const char *known[] = {"ACCEPT", "DROP", "REJECT", "SREJECT",
-            "TARPIT", "NFQUEUE", "NFLOG", "RETURN", NULL};
-    int i;
+    size_t i;
 
-    for (i = 0; known[i] != NULL; i++)
-        if (strcmp(action, known[i]) == 0)
-            return 1;
+    for (i = 0; mapped_action[i] != NULL; i++)
+        if (strcmp(action, mapped_action[i]) == 0)
+            return;
 
-    return 0;
+    for (i = 0; i < passthrough_num; i++)
+        if (strcmp(passthrough[i], action) == 0)
+            return;
+
+    if (passthrough_num < PASSTHROUGH_MAX) {
+        (void)strlcpy(passthrough[passthrough_num], action,
+                sizeof(passthrough[0]));
+        passthrough_num++;
+    }
+}
+
+/* what a decoded action must never be: empty, a marker remnant ("vrmr:"), an
+ * angle-bracketed fallback or anything holding a separator
+ */
+static int is_target_word(const char *action)
+{
+    size_t i;
+
+    if (action[0] == '\0' || action[0] == '<')
+        return 0;
+
+    for (i = 0; action[i] != '\0'; i++)
+        if (!isalnum((unsigned char)action[i]) && action[i] != '_' &&
+                action[i] != '-')
+            return 0;
+
+    return 1;
 }
 
 /* "vrmr: <action> <kind>" -> what the decoder must give back */
@@ -116,8 +154,9 @@ static void check_prefix(const char *prefix, int *seen)
     t_ok(strcmp(lr.action, want_action) == 0, "prefix \"%s\" -> action \"%s\" "
                                               "(decoder expects \"%s\")",
             prefix, lr.action, want_action);
-    t_ok(is_known_action(lr.action), "prefix \"%s\" names a known target: %s",
-            prefix, lr.action);
+    t_ok(is_target_word(lr.action), "prefix \"%s\" decodes to a target word, "
+                                    "not a remnant: %s", prefix, lr.action);
+    note_unmapped_action(lr.action);
     t_ok(strchr(lr.action, ' ') == NULL, "action \"%s\" carries no space",
             lr.action);
     t_ok(strchr(lr.action, '"') == NULL, "action \"%s\" carries no quote",
@@ -133,7 +172,9 @@ static void check_prefix(const char *prefix, int *seen)
 }
 
 /* the corpus repeats the same prefix on many rules; checking each one twice
- * would only inflate the plan
+ * would only inflate the plan. The table caps at PREFIX_MAX distinct entries;
+ * the corpus holds 24 today, so it would have to grow 5x before the cap bites
+ * (asserted, because past the cap every prefix counts as new again).
  */
 static char seen_prefixes[PREFIX_MAX][PREFIX_MAX];
 static size_t seen_prefixes_num;
@@ -242,10 +283,29 @@ static void scan_goldens(void)
         free(names[i]);
     }
 
+    t_ok(seen_prefixes_num < PREFIX_MAX,
+            "the dedupe table still has room (%zu of %d used)",
+            (size_t)seen_prefixes_num, PREFIX_MAX);
+
+    if (passthrough_num > 0) {
+        char list[512] = "";
+        size_t i;
+
+        for (i = 0; i < passthrough_num; i++) {
+            if (strlen(list) + strlen(passthrough[i]) + 3 > sizeof(list))
+                break;
+            (void)strlcat(list, passthrough[i], sizeof(list));
+            (void)strlcat(list, " ", sizeof(list));
+        }
+        (void)tap_note("actions reaching the log verbatim, not written by the "
+                "mapping in create_logprefix_string(): %s", list);
+    }
+
     /* vacuum guard: an emitter that stopped writing prefixes would otherwise
-     * leave this file asserting nothing at all
+     * leave this file asserting nothing at all. The floor sits below today's
+     * corpus (24) but high enough that losing most of it is a failure.
      */
-    t_ok(seen >= 8, "the goldens yielded %d distinct nflog prefixes to decode",
+    t_ok(seen >= 20, "the goldens yielded %d distinct nflog prefixes to decode",
             seen);
 }
 
@@ -317,6 +377,39 @@ static void build_lines(void)
             "prefix: \"policy\" (in: eth0 out: eth1 192.0.2.1 -> "
             "192.0.2.2 ICMP type 8 code 0 len:52 ttl:64)\n");
 
+    /* the four branches nobody reads on a v4-only box: no ports slot at all */
+    fill(&lr);
+    lr.protocol = 47;
+    (void)vrmr_log_record_build_line(&lr, out, sizeof(out));
+    tap_str_eq("GRE logs without ports", out,
+            "Oct  3 12:34:56: DROP service tcp/80 from lan to wan, "
+            "prefix: \"policy\" (in: eth0 out: eth1 192.0.2.1 -> "
+            "192.0.2.2 GRE len:52 ttl:64)\n");
+
+    fill(&lr);
+    lr.protocol = 50;
+    (void)vrmr_log_record_build_line(&lr, out, sizeof(out));
+    tap_str_eq("ESP logs without ports", out,
+            "Oct  3 12:34:56: DROP service tcp/80 from lan to wan, "
+            "prefix: \"policy\" (in: eth0 out: eth1 192.0.2.1 -> "
+            "192.0.2.2 ESP len:52 ttl:64)\n");
+
+    fill(&lr);
+    lr.protocol = 51;
+    (void)vrmr_log_record_build_line(&lr, out, sizeof(out));
+    tap_str_eq("AH logs without ports", out,
+            "Oct  3 12:34:56: DROP service tcp/80 from lan to wan, "
+            "prefix: \"policy\" (in: eth0 out: eth1 192.0.2.1 -> "
+            "192.0.2.2 AH len:52 ttl:64)\n");
+
+    fill(&lr);
+    lr.protocol = 58;
+    (void)vrmr_log_record_build_line(&lr, out, sizeof(out));
+    tap_str_eq("ICMPv6 logs type and code, not ports", out,
+            "Oct  3 12:34:56: DROP service tcp/80 from lan to wan, "
+            "prefix: \"policy\" (in: eth0 out: eth1 192.0.2.1 -> "
+            "192.0.2.2 ICMPv6 type 8 code 0 len:52 ttl:64)\n");
+
     fill(&lr);
     lr.protocol = 255;
     (void)vrmr_log_record_build_line(&lr, out, sizeof(out));
@@ -338,8 +431,9 @@ static void build_lines(void)
             out);
 
     /* a destination too small truncates the line silently: build_line() only
-     * ever returns 0, while vuurmuur_log/vuurmuur_log.c:126 tests it for an
-     * error - so a truncated line is written as if it were whole
+     * ever returns 0, while the caller in vuurmuur_log/vuurmuur_log.c's main
+     * loop tests it for an error - so a truncated line is written as if it
+     * were whole
      */
     fill(&lr);
     lr.protocol = 6;
@@ -353,9 +447,9 @@ static void edge_cases(void)
 {
     struct vrmr_log_record lr;
 
-    /* the fall-through cases are pinned as they behave today, including the
-     * "<exteral>" spelling, which an operator sees for any line vuurmuur did
-     * not log itself
+    /* the fall-through cases are pinned as they behave today. "<exteral>" is
+     * a product typo in operator-visible text, not a design decision: it is
+     * pinned so a change is a deliberate edit here, never an accident
      */
     memset(&lr, 0, sizeof(lr));
     vrmr_log_record_parse_prefix(&lr, NULL);
