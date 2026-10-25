@@ -95,9 +95,9 @@ AM_TESTS_ENVIRONMENT = abs_srcdir="$(abs_srcdir)"; export abs_srcdir; \
 TESTS = unit/rules-parse unit/rules-options unit/lineread unit/ifstats \
 	unit/markers unit/exec-status unit/configfile unit/port-range \
 	unit/devicename unit/ipaddr unit/blocklist-read unit/logrecord \
-	gen/ruleset.sh
+	gen/ruleset.sh gen/help-coverage.sh
 
-EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh \
+EXTRA_DIST = DESIGN.md unit/README gen/ruleset.sh gen/help-coverage.sh \
 	cases/common/etc/state/interfaces/dmz.conf \
 	cases/common/etc/state/interfaces/lan.conf \
 	cases/common/etc/state/services/http \

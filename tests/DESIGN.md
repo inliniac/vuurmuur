@@ -179,6 +179,19 @@ within the sandbox owner).
   compare. This is the safety net for the eventual nftables or libiptc work.
 * sanitiser + coverage variants (§7).
 
+### Outside the tiers - static consistency checks
+
+`gen/help-coverage.sh` is not a tier: it runs no code from this tree. It scans the `:[KEY]:`
+patterns in `vuurmuur_conf/*.c` - text, not parsed literals, so a key named in a comment also
+demands text, which is the safe direction - and requires a section with a non-empty body for
+each in `help/vuurmuur.hlp`. The
+GUI and its help file are joined only by a string, so a screen can gain a help key and serve
+a blank screen - `VUURMUUR:INTERFACES:TCPMSS` did exactly that, reachable from the interface
+editor with no text behind it. Same shape of bug as a broken symbol reference, but the linker
+is not involved, so nothing else in the build can notice it. An empty section is treated the
+same as a missing one, because `read_helpfile()` breaks at the terminator without reading a
+line, so both draw the same blank window.
+
 ## 4. Production seams to add (the whole diff surface)
 
 Small, additive, each inert unless told otherwise. Ordered by necessity.
