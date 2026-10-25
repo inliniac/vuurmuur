@@ -158,11 +158,13 @@ static void check_prefix(const char *prefix, int *seen)
             prefix, lr.action, want_action);
     t_ok(is_target_word(lr.action), "prefix \"%s\" decodes to a target word, "
                                     "not a remnant: %s", prefix, lr.action);
-    /* only a prefix whose decode agreed with the reference can say anything
-     * about the emitter's word set: collecting under a decode failure would
-     * report a fragment ("ROP") as an unrecognised iptables target
+    /* the report may only name words this run also believes in: a faithful
+     * decode of a non-word ("99") would otherwise print a pass-through target
+     * in the same run whose assertion says it is not one, and a decode that
+     * disagrees with the reference would print a fragment ("ROP") as if the
+     * config held an unknown target
      */
-    if (strcmp(lr.action, want_action) == 0)
+    if (strcmp(lr.action, want_action) == 0 && is_target_word(lr.action))
         note_unmapped_action(lr.action);
     t_ok(strchr(lr.action, ' ') == NULL, "action \"%s\" carries no space",
             lr.action);
