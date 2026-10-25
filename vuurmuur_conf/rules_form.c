@@ -1091,6 +1091,7 @@ static void draw_rules(struct vrmr_rules *rules, struct rulebar_form *rbform)
 
                             /* convert to wide */
                             wchar_t wtmp[wcomment_len + 1];
+                            // coverity[OVERRUN overrun-buffer-arg:FALSE] false positive: infeasible path, read bounded by comment size
                             size_t conv = mbstowcs(
                                     wtmp, rule_ptr->opt->comment, wcomment_len + 1);
 
