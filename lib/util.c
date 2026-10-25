@@ -26,6 +26,7 @@ char *vrmr_get_string(const char *fmt, ...)
     va_list ap;
     char str[2048] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(str, sizeof(str), fmt, ap);
     va_end(ap);
@@ -40,6 +41,7 @@ char *vrmr_get_len_string(size_t max, const char *fmt, ...)
     char *ptr = NULL;
     size_t len = 0;
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(str, sizeof(str), fmt, ap);
     va_end(ap);

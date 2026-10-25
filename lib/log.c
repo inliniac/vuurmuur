@@ -69,6 +69,7 @@ int vrmr_logprint_error(int errorlevel, const char *head, char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -92,6 +93,7 @@ int vrmr_logprint_warning(const char *head, char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -113,6 +115,7 @@ int vrmr_logprint_info(const char *head, char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -132,6 +135,7 @@ int vrmr_logprint_audit(char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -151,6 +155,7 @@ int vrmr_logprint_debug(const char *head, char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -173,6 +178,7 @@ int vrmr_stdoutprint_error(int errorlevel, const char *head, char *fmt, ...)
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -188,6 +194,7 @@ int vrmr_stdoutprint_warning(const char *head, char *fmt, ...)
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -203,6 +210,7 @@ int vrmr_stdoutprint_info(const char *head, char *fmt, ...)
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -218,6 +226,7 @@ int vrmr_stdoutprint_audit(char *fmt, ...)
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -233,6 +242,7 @@ int vrmr_stdoutprint_debug(const char *head, char *fmt, ...)
     va_list ap;
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -253,6 +263,7 @@ int vrmr_logstdoutprint_error(int errorlevel, const char *head, char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -279,6 +290,7 @@ int vrmr_logstdoutprint_warning(const char *head, char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -303,6 +315,7 @@ int vrmr_logstdoutprint_info(const char *head, char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -326,6 +339,7 @@ int vrmr_logstdoutprint_audit(char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
@@ -349,6 +363,7 @@ int vrmr_logstdoutprint_debug(const char *head, char *fmt, ...)
     char long_str[VRMR_MAX_LOGRULE_SIZE] = "",
          prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
+    // coverity[uninit_call:FALSE] false positive: va_start initializes ap
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
