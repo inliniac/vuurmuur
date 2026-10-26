@@ -425,7 +425,10 @@ static void SetupRuleBarForm(struct rulebar_form *rbform,
           rbform->options_size;
     vrmr_fatal_if((int)sum > screen_width);
 
-    while ((int)sum <= screen_width) {
+    /* the options field is the only one without a hard cap of its own,
+     * so it also bounds the loop: once every field is at its cap nothing
+     * grows any more and the loop would spin on wide terminals */
+    while ((int)sum <= screen_width && rbform->options_size < MAX_OPTIONS) {
         for (i = 0; (int)sum <= screen_width && i < 6; i++) {
             if (i == 0 && rbform->action_size < MAX_ACTION)
                 rbform->action_size++;
@@ -435,7 +438,7 @@ static void SetupRuleBarForm(struct rulebar_form *rbform,
                 rbform->from_size++;
             else if (i == 3 && rbform->to_size < MAX_TO)
                 rbform->to_size++;
-            else if (i == 5 && rbform->options_size)
+            else if (i == 5 && rbform->options_size < MAX_OPTIONS)
                 rbform->options_size++;
 
             sum = rbform->active_size + rbform->num_field_size +
