@@ -20,6 +20,8 @@
 
 #include "main.h"
 
+#include <assert.h>
+
 char *VrShapeUnitMenu(char *unit, int y, int x, char bps)
 {
     struct vrmr_gui_win *win = NULL;
@@ -1077,6 +1079,10 @@ static void draw_rules(struct vrmr_rules *rules, struct rulebar_form *rbform)
                         wchar_t wstr[256] = L"";
 
                         wcomment_len = StrLen(rule_ptr->opt->comment);
+                        /* wide-char count of the 128-byte comment: it cannot
+                         * exceed the byte count; bounds the mbstowcs below */
+                        assert(wcomment_len <=
+                               sizeof(rule_ptr->opt->comment) - 1);
 
                         /* the comment sits between "[ " and " ]" */
                         if (sep_size < 8)
